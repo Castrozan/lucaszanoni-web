@@ -38,7 +38,7 @@ jobs:
         run: pnpm test
 
       - name: Edge router worker test
-        run: node --test deploy/tests/edge-router-worker.test.mjs
+        run: node --test deploy/tests/edge-router/*.test.mjs
 
       - name: Build
         run: pnpm build

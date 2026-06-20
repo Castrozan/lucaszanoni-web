@@ -45,5 +45,15 @@ module "edge" {
     "/engineering/dotfiles/claude/usage/" = module.usage_dashboard.origin_host
     "/reports/"                           = module.reports.origin_host
   }
+  static_bucket_prefix_origins = var.enable_reports_static_gcs_routes ? {
+    "/reports/baseline/" = {
+      bucket            = var.reports_static_bucket_name
+      object_key_prefix = "reports/baseline/"
+    }
+    "/reports/coverage/" = {
+      bucket            = var.reports_static_bucket_name
+      object_key_prefix = "reports/coverage/"
+    }
+  } : {}
   edge_shared_secret_value = var.edge_shared_secret_value
 }

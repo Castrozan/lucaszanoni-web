@@ -37,6 +37,18 @@ variable "enable_cloudflare_edge" {
   description = "Whether to provision the Cloudflare zone and edge rulesets. Defaults off so the GCP services apply keyless without the Cloudflare token; flipped on once the token is minted, with no domain cutover until Phase 6."
 }
 
+variable "enable_reports_static_gcs_routes" {
+  type        = bool
+  default     = false
+  description = "Whether the edge serves /reports/baseline/ and /reports/coverage/ from the public GCS bucket. Defaults off so the routes stay dark until the dotfiles pipeline has published the generated baseline and coverage trees to the bucket; while off the Worker falls those paths through to the reports SPA, so flipping it is the only behavior change."
+}
+
+variable "reports_static_bucket_name" {
+  type        = string
+  default     = "zg-url-shortener-2026-dotfiles-usage-snapshots"
+  description = "Public GCS bucket holding the re-homed reports baseline and coverage trees under the reports/ prefix. Already public for the usage dashboard's client-side snapshot fetch, so naming it here exposes no new identifier."
+}
+
 variable "edge_shared_secret_value" {
   type        = string
   sensitive   = true
