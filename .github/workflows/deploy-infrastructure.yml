@@ -17,8 +17,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  workload_identity_provider: projects/933601426694/locations/global/workloadIdentityPools/github-actions/providers/github
-  deploy_service_account: dotfiles-github-deployer@zg-url-shortener-2026.iam.gserviceaccount.com
+  workload_identity_provider: projects/933601426694/locations/global/workloadIdentityPools/github-actions/providers/lucaszanoni-web
+  deploy_service_account: lucaszanoni-web-deployer@zg-url-shortener-2026.iam.gserviceaccount.com
   terraform_working_directory: infra/environments/production
 
 jobs:

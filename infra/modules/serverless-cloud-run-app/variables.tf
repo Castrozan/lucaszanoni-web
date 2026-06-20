@@ -14,6 +14,11 @@ variable "container_image" {
   type = string
 }
 
+variable "runtime_service_account_email" {
+  type        = string
+  description = "Cloud Run runtime identity the service executes as, created in the GCP federation state and referenced here by email."
+}
+
 variable "mount_path" {
   type        = string
   description = "Edge path prefix this service answers, recorded as a label for traceability."

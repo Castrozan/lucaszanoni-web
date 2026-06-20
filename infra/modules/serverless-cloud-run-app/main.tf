@@ -7,6 +7,8 @@ resource "google_cloud_run_v2_service" "this" {
   deletion_protection = false
 
   template {
+    service_account = var.runtime_service_account_email
+
     scaling {
       min_instance_count = 0
       max_instance_count = var.max_instance_count
@@ -17,6 +19,14 @@ resource "google_cloud_run_v2_service" "this" {
 
       ports {
         container_port = var.container_port
+      }
+
+      resources {
+        cpu_idle = true
+        limits = {
+          cpu    = "1"
+          memory = "512Mi"
+        }
       }
 
       env {

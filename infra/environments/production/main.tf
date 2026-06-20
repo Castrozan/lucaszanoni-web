@@ -1,34 +1,37 @@
 module "shell" {
   source = "../../modules/serverless-cloud-run-app"
 
-  project_id               = var.project_id
-  region                   = var.region
-  service_name             = "lucaszanoni-shell"
-  container_image          = var.shell_container_image
-  mount_path               = "/"
-  edge_shared_secret_value = var.edge_shared_secret_value
+  project_id                    = var.project_id
+  region                        = var.region
+  service_name                  = "lucaszanoni-shell"
+  container_image               = var.shell_container_image
+  runtime_service_account_email = var.runtime_service_account_email
+  mount_path                    = "/"
+  edge_shared_secret_value      = var.edge_shared_secret_value
 }
 
 module "usage_dashboard" {
   source = "../../modules/serverless-cloud-run-app"
 
-  project_id               = var.project_id
-  region                   = var.region
-  service_name             = "lucaszanoni-usage-dashboard"
-  container_image          = var.usage_dashboard_container_image
-  mount_path               = "/engineering/dotfiles/claude/usage/"
-  edge_shared_secret_value = var.edge_shared_secret_value
+  project_id                    = var.project_id
+  region                        = var.region
+  service_name                  = "lucaszanoni-usage-dashboard"
+  container_image               = var.usage_dashboard_container_image
+  runtime_service_account_email = var.runtime_service_account_email
+  mount_path                    = "/engineering/dotfiles/claude/usage/"
+  edge_shared_secret_value      = var.edge_shared_secret_value
 }
 
 module "reports" {
   source = "../../modules/serverless-cloud-run-app"
 
-  project_id               = var.project_id
-  region                   = var.region
-  service_name             = "lucaszanoni-reports"
-  container_image          = var.reports_container_image
-  mount_path               = "/reports/"
-  edge_shared_secret_value = var.edge_shared_secret_value
+  project_id                    = var.project_id
+  region                        = var.region
+  service_name                  = "lucaszanoni-reports"
+  container_image               = var.reports_container_image
+  runtime_service_account_email = var.runtime_service_account_email
+  mount_path                    = "/reports/"
+  edge_shared_secret_value      = var.edge_shared_secret_value
 }
 
 module "edge" {

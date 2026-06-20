@@ -19,3 +19,5 @@ override.tf.json
 .DS_Store
 *.local
 coverage/
+
+.terraform.lock.hcl

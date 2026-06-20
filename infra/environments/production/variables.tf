@@ -36,3 +36,9 @@ variable "edge_shared_secret_value" {
   sensitive   = true
   description = "Shared secret the Cloudflare edge injects and each Cloud Run service requires before serving."
 }
+
+variable "runtime_service_account_email" {
+  type        = string
+  default     = "lucaszanoni-web-runtime@zg-url-shortener-2026.iam.gserviceaccount.com"
+  description = "Shared Cloud Run runtime identity for the platform services, owned by the GCP federation state."
+}
