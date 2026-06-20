@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ShellApp } from "./ShellApp";
+import "./styles/globals.css";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
