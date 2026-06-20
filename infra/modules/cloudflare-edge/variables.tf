@@ -10,7 +10,7 @@ variable "cloudflare_account_id" {
 variable "proxied_placeholder_origin_ip" {
   type        = string
   default     = "192.0.2.1"
-  description = "Documentation-range placeholder address for the proxied apex record. Every request is re-homed by the origin router rules, so this address is never dialed; it exists only to anchor the orange-cloud proxy on the apex hostname."
+  description = "Documentation-range placeholder address for the proxied apex record. The edge Worker intercepts every request on the zone route and fetches the matching Cloud Run origin, so this address is never dialed; it exists only to anchor the orange-cloud proxy on the apex hostname."
 }
 
 variable "shell_origin_host" {
@@ -20,7 +20,7 @@ variable "shell_origin_host" {
 
 variable "prefix_origin_hosts" {
   type        = map(string)
-  description = "Map of edge path prefix to the Cloud Run host that serves it, most specific routed last."
+  description = "Map of edge path prefix to the Cloud Run host that serves it. Prefixes are non-overlapping, so the Worker matches the first prefix the request path starts with and falls back to the shell origin when none match."
 }
 
 variable "edge_shared_secret_header_name" {

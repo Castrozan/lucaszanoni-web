@@ -1,39 +1,13 @@
 locals {
-  origin_route_rules = [
-    for prefix, origin_host in var.prefix_origin_hosts : {
-      prefix      = prefix
-      origin_host = origin_host
-      expression  = format("starts_with(http.request.uri.path, \"%s\")", prefix)
-    }
-  ]
-
-  shell_catch_all_origin_rule = {
-    ref        = "origin_shell_catch_all"
-    expression = "true"
-    action     = "route"
-    enabled    = true
-    action_parameters = {
-      host_header = var.shell_origin_host
-      origin = {
-        host = var.shell_origin_host
+  edge_routing_table = {
+    shell = var.shell_origin_host
+    prefixes = [
+      for prefix, origin_host in var.prefix_origin_hosts : {
+        prefix = prefix
+        host   = origin_host
       }
-    }
+    ]
   }
-
-  prefix_origin_rules = [
-    for route in local.origin_route_rules : {
-      ref        = format("origin_%s", replace(trim(route.prefix, "/"), "/", "_"))
-      expression = route.expression
-      action     = "route"
-      enabled    = true
-      action_parameters = {
-        host_header = route.origin_host
-        origin = {
-          host = route.origin_host
-        }
-      }
-    }
-  ]
 }
 
 data "cloudflare_zone" "this" {
@@ -66,54 +40,34 @@ resource "cloudflare_zone_setting" "always_use_https" {
   value      = "on"
 }
 
-resource "cloudflare_ruleset" "origin_router" {
-  zone_id = data.cloudflare_zone.this.id
-  name    = "edge path origin router"
-  kind    = "zone"
-  phase   = "http_request_origin"
+resource "cloudflare_workers_script" "edge_router" {
+  account_id         = var.cloudflare_account_id
+  script_name        = "lucaszanoni-edge-router"
+  content            = file("${path.module}/edge-router-worker.mjs")
+  main_module        = "worker.js"
+  compatibility_date = "2024-11-01"
 
-  rules = concat([local.shell_catch_all_origin_rule], local.prefix_origin_rules)
-}
-
-resource "cloudflare_ruleset" "edge_shared_secret_injector" {
-  zone_id = data.cloudflare_zone.this.id
-  name    = "edge shared secret header injector"
-  kind    = "zone"
-  phase   = "http_request_late_transform"
-
-  rules = [
+  bindings = [
     {
-      ref        = "inject_edge_shared_secret"
-      expression = "true"
-      action     = "rewrite"
-      enabled    = true
-      action_parameters = {
-        headers = {
-          (var.edge_shared_secret_header_name) = {
-            operation = "set"
-            value     = var.edge_shared_secret_value
-          }
-        }
-      }
+      name = "EDGE_ROUTES"
+      type = "plain_text"
+      text = jsonencode(local.edge_routing_table)
+    },
+    {
+      name = "EDGE_SHARED_SECRET_HEADER_NAME"
+      type = "plain_text"
+      text = var.edge_shared_secret_header_name
+    },
+    {
+      name = "EDGE_SHARED_SECRET"
+      type = "secret_text"
+      text = var.edge_shared_secret_value
     },
   ]
 }
 
-resource "cloudflare_ruleset" "cache_bypass_for_html_and_root" {
+resource "cloudflare_workers_route" "edge_router_catch_all" {
   zone_id = data.cloudflare_zone.this.id
-  name    = "bypass cache for the shell root and html documents"
-  kind    = "zone"
-  phase   = "http_request_cache_settings"
-
-  rules = [
-    {
-      ref        = "bypass_cache_for_html_and_root"
-      expression = "(http.request.uri.path eq \"/\") or (ends_with(http.request.uri.path, \".html\"))"
-      action     = "set_cache_settings"
-      enabled    = true
-      action_parameters = {
-        cache = false
-      }
-    },
-  ]
+  pattern = "${var.zone_name}/*"
+  script  = cloudflare_workers_script.edge_router.script_name
 }
