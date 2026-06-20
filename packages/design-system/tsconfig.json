@@ -1,0 +1,7 @@
+{
+  "extends": "@lucaszanoni-web/tsconfig/react-library.json",
+  "compilerOptions": {
+    "types": []
+  },
+  "include": ["src"]
+}

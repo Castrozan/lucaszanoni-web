@@ -1,5 +1,5 @@
 {
-  "name": "@lucaszanoni-web/snapshot-data",
+  "name": "@lucaszanoni-web/design-system",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -10,8 +10,19 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "@lucaszanoni-web/config": "workspace:*"
+  },
   "devDependencies": {
     "@lucaszanoni-web/tsconfig": "workspace:*",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "typescript": "^5.7.3",
     "vitest": "^4.1.9"
   }
