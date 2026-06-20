@@ -4,7 +4,7 @@ variable "zone_name" {
 
 variable "cloudflare_account_id" {
   type        = string
-  description = "Cloudflare account that owns the created zone. Required because the module creates the zone rather than referencing a pre-existing one, so the API token must permit zone creation in this account."
+  description = "Cloudflare account that owns the pre-existing zone. Scopes the zone data-source lookup so the name match is unambiguous within this account."
 }
 
 variable "proxied_placeholder_origin_ip" {

@@ -36,16 +36,17 @@ locals {
   ]
 }
 
-resource "cloudflare_zone" "this" {
-  account = {
-    id = var.cloudflare_account_id
+data "cloudflare_zone" "this" {
+  filter = {
+    name = var.zone_name
+    account = {
+      id = var.cloudflare_account_id
+    }
   }
-  name = var.zone_name
-  type = "full"
 }
 
 resource "cloudflare_dns_record" "apex_proxied" {
-  zone_id = cloudflare_zone.this.id
+  zone_id = data.cloudflare_zone.this.id
   name    = var.zone_name
   type    = "A"
   content = var.proxied_placeholder_origin_ip
@@ -54,19 +55,19 @@ resource "cloudflare_dns_record" "apex_proxied" {
 }
 
 resource "cloudflare_zone_setting" "ssl_full_strict" {
-  zone_id    = cloudflare_zone.this.id
+  zone_id    = data.cloudflare_zone.this.id
   setting_id = "ssl"
   value      = "strict"
 }
 
 resource "cloudflare_zone_setting" "always_use_https" {
-  zone_id    = cloudflare_zone.this.id
+  zone_id    = data.cloudflare_zone.this.id
   setting_id = "always_use_https"
   value      = "on"
 }
 
 resource "cloudflare_ruleset" "origin_router" {
-  zone_id = cloudflare_zone.this.id
+  zone_id = data.cloudflare_zone.this.id
   name    = "edge path origin router"
   kind    = "zone"
   phase   = "http_request_origin"
@@ -75,7 +76,7 @@ resource "cloudflare_ruleset" "origin_router" {
 }
 
 resource "cloudflare_ruleset" "edge_shared_secret_injector" {
-  zone_id = cloudflare_zone.this.id
+  zone_id = data.cloudflare_zone.this.id
   name    = "edge shared secret header injector"
   kind    = "zone"
   phase   = "http_request_late_transform"
@@ -99,7 +100,7 @@ resource "cloudflare_ruleset" "edge_shared_secret_injector" {
 }
 
 resource "cloudflare_ruleset" "cache_bypass_for_html_and_root" {
-  zone_id = cloudflare_zone.this.id
+  zone_id = data.cloudflare_zone.this.id
   name    = "bypass cache for the shell root and html documents"
   kind    = "zone"
   phase   = "http_request_cache_settings"
