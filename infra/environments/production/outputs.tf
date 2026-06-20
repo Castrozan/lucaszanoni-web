@@ -11,8 +11,8 @@ output "reports_service_uri" {
 }
 
 output "application_image_registry" {
-  value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.application_images.repository_id}"
-  description = "Base Artifact Registry path the app-deploy workflow pushes each micro-frontend image to."
+  value       = "${var.region}-docker.pkg.dev/${var.project_id}/lucaszanoni-web"
+  description = "Base Artifact Registry path the app-deploy workflow pushes each micro-frontend image to. The repository itself is provisioned in the owner-run GCP foundation state, not here."
 }
 
 output "edge_zone_id" {
