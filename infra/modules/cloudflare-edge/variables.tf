@@ -41,3 +41,13 @@ variable "edge_shared_secret_value" {
   type      = string
   sensitive = true
 }
+
+variable "alias_redirect" {
+  type = object({
+    zone_name      = string
+    canonical_host = string
+    status_code    = number
+  })
+  default     = null
+  description = "Optional alias zone whose every request the edge Worker permanently redirects to the canonical host, path and query preserved. When set, the module attaches the same Worker to the alias zone via its own proxied apex record and route, and injects the redirect into the routing table; null leaves the alias unmanaged. Re-homing the redirect onto the Worker keeps it within the Workers Routes and Scripts token scope, avoiding the Dynamic Redirect ruleset permission group."
+}

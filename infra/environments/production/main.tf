@@ -60,13 +60,9 @@ module "edge" {
     }
   } : {}
   edge_shared_secret_value = var.edge_shared_secret_value
-}
-
-module "alias_redirect" {
-  source = "../../modules/cloudflare-redirect-alias"
-  count  = var.enable_cloudflare_edge && var.enable_dotcom_canonical ? 1 : 0
-
-  zone_name             = var.domain_name
-  cloudflare_account_id = var.cloudflare_account_id
-  canonical_domain_name = var.canonical_domain_name
+  alias_redirect = var.enable_dotcom_canonical ? {
+    zone_name      = var.domain_name
+    canonical_host = var.canonical_domain_name
+    status_code    = 301
+  } : null
 }

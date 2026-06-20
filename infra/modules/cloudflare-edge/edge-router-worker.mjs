@@ -30,6 +30,16 @@ export default {
     const routingTable = JSON.parse(env.EDGE_ROUTES);
     const incomingUrl = new URL(request.url);
 
+    const aliasRedirect = routingTable.aliasRedirect;
+    if (aliasRedirect && incomingUrl.hostname !== aliasRedirect.canonicalHost) {
+      const canonicalUrl = new URL(incomingUrl);
+      canonicalUrl.hostname = aliasRedirect.canonicalHost;
+      return new Response(null, {
+        status: aliasRedirect.statusCode,
+        headers: { Location: canonicalUrl.toString() },
+      });
+    }
+
     const staticBucketRoute = selectStaticBucketRoute(
       incomingUrl.pathname,
       routingTable,

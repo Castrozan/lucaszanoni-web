@@ -7,6 +7,8 @@ export const edgeSharedSecretHeaderName = "X-Edge-Auth";
 export const edgeSharedSecretValue = "edge-router-test-secret-2f6a9c";
 export const reportsStaticBucketName =
   "zg-url-shortener-2026-dotfiles-usage-snapshots";
+export const aliasRedirectCanonicalHost = "lucaszanoni.com";
+export const aliasRedirectStatusCode = 301;
 
 export const edgeEnvironment = {
   EDGE_ROUTES: JSON.stringify({
@@ -56,7 +58,30 @@ export const edgeEnvironmentWithStaticBucketPrefixes = {
   EDGE_SHARED_SECRET: edgeSharedSecretValue,
 };
 
-export const dispatchThroughEdge = async (
+export const edgeEnvironmentWithAliasRedirect = {
+  EDGE_ROUTES: JSON.stringify({
+    shell: shellOriginHost,
+    prefixes: [
+      {
+        prefix: "/engineering/dotfiles/claude/usage/",
+        host: usageOriginHost,
+      },
+      {
+        prefix: "/reports/",
+        host: reportsOriginHost,
+      },
+    ],
+    aliasRedirect: {
+      canonicalHost: aliasRedirectCanonicalHost,
+      statusCode: aliasRedirectStatusCode,
+    },
+  }),
+  EDGE_SHARED_SECRET_HEADER_NAME: edgeSharedSecretHeaderName,
+  EDGE_SHARED_SECRET: edgeSharedSecretValue,
+};
+
+export const dispatchThroughEdgeFromHost = async (
+  requestHost,
   requestPathAndQuery,
   incomingHeaders = {},
   environment = edgeEnvironment,
@@ -69,7 +94,7 @@ export const dispatchThroughEdge = async (
   };
   try {
     const edgeResponse = await edgeRouterWorker.fetch(
-      new Request(`https://lucaszanoni.com.br${requestPathAndQuery}`, {
+      new Request(`https://${requestHost}${requestPathAndQuery}`, {
         headers: incomingHeaders,
       }),
       environment,
@@ -79,6 +104,18 @@ export const dispatchThroughEdge = async (
     globalThis.fetch = originalGlobalFetch;
   }
 };
+
+export const dispatchThroughEdge = (
+  requestPathAndQuery,
+  incomingHeaders = {},
+  environment = edgeEnvironment,
+) =>
+  dispatchThroughEdgeFromHost(
+    "lucaszanoni.com.br",
+    requestPathAndQuery,
+    incomingHeaders,
+    environment,
+  );
 
 export const dispatchThroughEdgeWithStaticBuckets = (
   requestPathAndQuery,

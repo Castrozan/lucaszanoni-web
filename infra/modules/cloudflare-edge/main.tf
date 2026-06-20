@@ -14,6 +14,10 @@ locals {
         objectKeyPrefix = origin.object_key_prefix
       }
     ]
+    aliasRedirect = var.alias_redirect == null ? null : {
+      canonicalHost = var.alias_redirect.canonical_host
+      statusCode    = var.alias_redirect.status_code
+    }
   }
 }
 
@@ -76,5 +80,35 @@ resource "cloudflare_workers_script" "edge_router" {
 resource "cloudflare_workers_route" "edge_router_catch_all" {
   zone_id = data.cloudflare_zone.this.id
   pattern = "${var.zone_name}/*"
+  script  = cloudflare_workers_script.edge_router.script_name
+}
+
+data "cloudflare_zone" "alias" {
+  count = var.alias_redirect == null ? 0 : 1
+
+  filter = {
+    name = var.alias_redirect.zone_name
+    account = {
+      id = var.cloudflare_account_id
+    }
+  }
+}
+
+resource "cloudflare_dns_record" "alias_apex_proxied" {
+  count = var.alias_redirect == null ? 0 : 1
+
+  zone_id = data.cloudflare_zone.alias[0].id
+  name    = var.alias_redirect.zone_name
+  type    = "A"
+  content = var.proxied_placeholder_origin_ip
+  proxied = true
+  ttl     = 1
+}
+
+resource "cloudflare_workers_route" "edge_router_alias_catch_all" {
+  count = var.alias_redirect == null ? 0 : 1
+
+  zone_id = data.cloudflare_zone.alias[0].id
+  pattern = "${var.alias_redirect.zone_name}/*"
   script  = cloudflare_workers_script.edge_router.script_name
 }
