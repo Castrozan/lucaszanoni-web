@@ -34,11 +34,15 @@ module "reports" {
   edge_shared_secret_value      = var.edge_shared_secret_value
 }
 
+locals {
+  edge_serving_domain = var.enable_dotcom_canonical ? var.canonical_domain_name : var.domain_name
+}
+
 module "edge" {
   source = "../../modules/cloudflare-edge"
   count  = var.enable_cloudflare_edge ? 1 : 0
 
-  zone_name             = var.domain_name
+  zone_name             = local.edge_serving_domain
   cloudflare_account_id = var.cloudflare_account_id
   shell_origin_host     = module.shell.origin_host
   prefix_origin_hosts = {
@@ -56,4 +60,13 @@ module "edge" {
     }
   } : {}
   edge_shared_secret_value = var.edge_shared_secret_value
+}
+
+module "alias_redirect" {
+  source = "../../modules/cloudflare-redirect-alias"
+  count  = var.enable_cloudflare_edge && var.enable_dotcom_canonical ? 1 : 0
+
+  zone_name             = var.domain_name
+  cloudflare_account_id = var.cloudflare_account_id
+  canonical_domain_name = var.canonical_domain_name
 }

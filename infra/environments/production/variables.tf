@@ -13,6 +13,12 @@ variable "domain_name" {
   default = "lucaszanoni.com.br"
 }
 
+variable "canonical_domain_name" {
+  type        = string
+  default     = "lucaszanoni.com"
+  description = "Primary public domain for the platform. When enable_dotcom_canonical is on, the edge serves this zone and the domain_name zone is reduced to a permanent redirect alias pointing here."
+}
+
 variable "shell_container_image" {
   type        = string
   description = "Fully qualified Artifact Registry image for the shell service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."
@@ -35,6 +41,12 @@ variable "enable_cloudflare_edge" {
   type        = bool
   default     = false
   description = "Whether to provision the Cloudflare zone and edge rulesets. Defaults off so the GCP services apply keyless without the Cloudflare token; flipped on once the token is minted, with no domain cutover until Phase 6."
+}
+
+variable "enable_dotcom_canonical" {
+  type        = bool
+  default     = false
+  description = "Whether lucaszanoni.com is the canonical edge domain with lucaszanoni.com.br reduced to a permanent redirect alias. Defaults off so the live edge keeps serving the .com.br zone unchanged; flipped on only after the Cloudflare API token is widened to include the lucaszanoni.com zone, since the serving-zone resources cannot be written there until then."
 }
 
 variable "enable_reports_static_gcs_routes" {

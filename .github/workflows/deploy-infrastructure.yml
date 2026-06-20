@@ -49,6 +49,7 @@ jobs:
           TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           TF_VAR_enable_cloudflare_edge: ${{ vars.ENABLE_CLOUDFLARE_EDGE || 'false' }}
           TF_VAR_enable_reports_static_gcs_routes: ${{ vars.ENABLE_REPORTS_STATIC_GCS_ROUTES || 'false' }}
+          TF_VAR_enable_dotcom_canonical: ${{ vars.ENABLE_DOTCOM_CANONICAL || 'false' }}
         run: terraform plan -out tfplan -input=false
 
       - name: Terraform apply
@@ -60,4 +61,5 @@ jobs:
           TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           TF_VAR_enable_cloudflare_edge: ${{ vars.ENABLE_CLOUDFLARE_EDGE || 'false' }}
           TF_VAR_enable_reports_static_gcs_routes: ${{ vars.ENABLE_REPORTS_STATIC_GCS_ROUTES || 'false' }}
+          TF_VAR_enable_dotcom_canonical: ${{ vars.ENABLE_DOTCOM_CANONICAL || 'false' }}
         run: terraform apply -input=false tfplan
