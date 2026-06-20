@@ -1,0 +1,57 @@
+name: deploy-infrastructure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - infra/**
+      - .github/workflows/deploy-infrastructure.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-infrastructure-production
+  cancel-in-progress: false
+
+env:
+  workload_identity_provider: projects/933601426694/locations/global/workloadIdentityPools/github-actions/providers/github
+  deploy_service_account: dotfiles-github-deployer@zg-url-shortener-2026.iam.gserviceaccount.com
+  terraform_working_directory: infra/environments/production
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.workload_identity_provider }}
+          service_account: ${{ env.deploy_service_account }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
+      - name: Terraform init
+        working-directory: ${{ env.terraform_working_directory }}
+        run: terraform init
+
+      - name: Terraform plan
+        working-directory: ${{ env.terraform_working_directory }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_edge_shared_secret_value: ${{ secrets.EDGE_SHARED_SECRET_VALUE }}
+        run: terraform plan -out tfplan -input=false
+
+      - name: Terraform apply
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        working-directory: ${{ env.terraform_working_directory }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_edge_shared_secret_value: ${{ secrets.EDGE_SHARED_SECRET_VALUE }}
+        run: terraform apply -input=false tfplan
