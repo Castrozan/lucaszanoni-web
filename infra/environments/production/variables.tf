@@ -37,6 +37,11 @@ variable "edge_shared_secret_value" {
   description = "Shared secret the Cloudflare edge injects and each Cloud Run service requires before serving."
 }
 
+variable "cloudflare_account_id" {
+  type        = string
+  description = "Cloudflare account that owns the lucaszanoni.com.br zone. Supplied at apply time via TF_VAR_cloudflare_account_id; never committed, to keep account identifiers out of the public repo."
+}
+
 variable "runtime_service_account_email" {
   type        = string
   default     = "lucaszanoni-web-runtime@zg-url-shortener-2026.iam.gserviceaccount.com"

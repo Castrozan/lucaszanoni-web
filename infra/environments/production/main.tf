@@ -37,8 +37,9 @@ module "reports" {
 module "edge" {
   source = "../../modules/cloudflare-edge"
 
-  zone_name         = var.domain_name
-  shell_origin_host = module.shell.origin_host
+  zone_name             = var.domain_name
+  cloudflare_account_id = var.cloudflare_account_id
+  shell_origin_host     = module.shell.origin_host
   prefix_origin_hosts = {
     "/engineering/dotfiles/claude/usage/" = module.usage_dashboard.origin_host
     "/reports/"                           = module.reports.origin_host
