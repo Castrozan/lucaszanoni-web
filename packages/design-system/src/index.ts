@@ -9,3 +9,6 @@ export type { BreadcrumbStep } from "./navigation/breadcrumb-trail";
 export { buildBreadcrumbTrail } from "./navigation/breadcrumb-trail";
 export type { AppShellProps } from "./components/AppShell";
 export { AppShell } from "./components/AppShell";
+export { cn } from "./lib/utils";
+export type { ButtonProps } from "./components/ui/button";
+export { Button, buttonVariants } from "./components/ui/button";
