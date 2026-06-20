@@ -1,3 +1,11 @@
+resource "google_artifact_registry_repository" "application_images" {
+  project       = var.project_id
+  location      = var.region
+  repository_id = "lucaszanoni-web"
+  format        = "DOCKER"
+  description   = "Container images for the lucaszanoni-web micro-frontends, pushed by keyless GitHub Actions continuous delivery."
+}
+
 module "shell" {
   source = "../../modules/serverless-cloud-run-app"
 
@@ -36,6 +44,7 @@ module "reports" {
 
 module "edge" {
   source = "../../modules/cloudflare-edge"
+  count  = var.enable_cloudflare_edge ? 1 : 0
 
   zone_name             = var.domain_name
   cloudflare_account_id = var.cloudflare_account_id

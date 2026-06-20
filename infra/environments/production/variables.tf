@@ -31,6 +31,12 @@ variable "reports_container_image" {
   default     = "us-docker.pkg.dev/cloudrun/container/hello"
 }
 
+variable "enable_cloudflare_edge" {
+  type        = bool
+  default     = false
+  description = "Whether to provision the Cloudflare zone and edge rulesets. Defaults off so the GCP services apply keyless without the Cloudflare token; flipped on once the token is minted, with no domain cutover until Phase 6."
+}
+
 variable "edge_shared_secret_value" {
   type        = string
   sensitive   = true

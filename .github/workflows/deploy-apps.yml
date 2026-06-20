@@ -1,0 +1,86 @@
+name: deploy-apps
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/**
+      - packages/**
+      - deploy/**
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - turbo.json
+      - .github/workflows/deploy-apps.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  workload_identity_provider: projects/933601426694/locations/global/workloadIdentityPools/github-actions/providers/lucaszanoni-web
+  deploy_service_account: lucaszanoni-web-deployer@zg-url-shortener-2026.iam.gserviceaccount.com
+  gcp_project_id: zg-url-shortener-2026
+  gcp_region: southamerica-east1
+  artifact_registry_repository: lucaszanoni-web
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service_name: lucaszanoni-shell
+            app_package_name: "@lucaszanoni-web/shell"
+            app_directory_name: shell
+            app_mount_path: /
+          - service_name: lucaszanoni-usage-dashboard
+            app_package_name: "@lucaszanoni-web/usage-dashboard"
+            app_directory_name: usage-dashboard
+            app_mount_path: /engineering/dotfiles/claude/usage/
+          - service_name: lucaszanoni-reports
+            app_package_name: "@lucaszanoni-web/reports"
+            app_directory_name: reports
+            app_mount_path: /reports/
+    concurrency:
+      group: deploy-apps-${{ matrix.service_name }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.workload_identity_provider }}
+          service_account: ${{ env.deploy_service_account }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.gcp_region }}-docker.pkg.dev --quiet
+
+      - name: Build and push the micro-frontend image
+        env:
+          image_repository: ${{ env.gcp_region }}-docker.pkg.dev/${{ env.gcp_project_id }}/${{ env.artifact_registry_repository }}/${{ matrix.app_directory_name }}
+        run: |
+          docker build \
+            --file deploy/docker/Dockerfile \
+            --build-arg APP_PACKAGE_NAME="${{ matrix.app_package_name }}" \
+            --build-arg APP_DIRECTORY_NAME="${{ matrix.app_directory_name }}" \
+            --build-arg APP_MOUNT_PATH="${{ matrix.app_mount_path }}" \
+            --tag "${image_repository}:${{ github.sha }}" \
+            --tag "${image_repository}:latest" \
+            .
+          docker push "${image_repository}:${{ github.sha }}"
+          docker push "${image_repository}:latest"
+
+      - name: Roll the Cloud Run service onto the new image
+        env:
+          image_repository: ${{ env.gcp_region }}-docker.pkg.dev/${{ env.gcp_project_id }}/${{ env.artifact_registry_repository }}/${{ matrix.app_directory_name }}
+        run: |
+          gcloud run services update "${{ matrix.service_name }}" \
+            --project "${{ env.gcp_project_id }}" \
+            --region "${{ env.gcp_region }}" \
+            --image "${image_repository}:${{ github.sha }}" \
+            --quiet
