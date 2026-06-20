@@ -1,50 +1,6 @@
-@import "tailwindcss";
-
-@source "../../../../packages/design-system/src";
-
-:root {
-  --ls-radius: 0.625rem;
-}
-
-@theme inline {
-  --radius-sm: calc(var(--ls-radius) - 4px);
-  --radius-md: calc(var(--ls-radius) - 2px);
-  --radius-lg: var(--ls-radius);
-  --radius-xl: calc(var(--ls-radius) + 4px);
-  --color-background: var(--ls-color-background);
-  --color-foreground: var(--ls-color-text-primary);
-  --color-surface: var(--ls-color-surface);
-  --color-surface-translucent: var(--ls-color-surface-translucent);
-  --color-card: var(--ls-color-surface);
-  --color-card-foreground: var(--ls-color-text-primary);
-  --color-popover: var(--ls-color-surface);
-  --color-popover-foreground: var(--ls-color-text-primary);
-  --color-primary: var(--ls-color-accent);
-  --color-primary-foreground: var(--ls-color-background);
-  --color-secondary: var(--ls-color-surface);
-  --color-secondary-foreground: var(--ls-color-text-primary);
-  --color-muted: var(--ls-color-surface);
-  --color-muted-foreground: var(--ls-color-text-muted);
-  --color-accent: var(--ls-color-surface);
-  --color-accent-foreground: var(--ls-color-text-primary);
-  --color-destructive: #f85149;
-  --color-border: var(--ls-color-border);
-  --color-input: var(--ls-color-border);
-  --color-ring: var(--ls-color-accent);
-}
+@import "../../../../packages/design-system/src/styles/tailwind-token-bridge.css";
 
 @layer base {
-  * {
-    border-color: var(--ls-color-border);
-  }
-  code {
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
-    background: var(--ls-color-surface);
-    border: 1px solid var(--ls-color-border);
-    border-radius: 4px;
-    padding: 0.1em 0.35em;
-    font-size: 0.9em;
-  }
   b {
     color: #3fb950;
   }
