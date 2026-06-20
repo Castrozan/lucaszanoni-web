@@ -4,7 +4,7 @@ ARG NGINX_RUNTIME_IMAGE=nginx:1.27-alpine
 FROM ${NODE_BUILDER_IMAGE} AS build
 ARG APP_PACKAGE_NAME
 WORKDIR /workspace
-RUN corepack enable
+RUN npm install --global corepack@latest && corepack enable
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
 COPY packages ./packages
 COPY apps ./apps
