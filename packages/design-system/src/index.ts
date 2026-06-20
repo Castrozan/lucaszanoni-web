@@ -12,3 +12,21 @@ export { AppShell } from "./components/AppShell";
 export { cn } from "./lib/utils";
 export type { ButtonProps } from "./components/ui/button";
 export { Button, buttonVariants } from "./components/ui/button";
+export type { BadgeProps } from "./components/ui/badge";
+export { Badge, badgeVariants } from "./components/ui/badge";
+export {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "./components/ui/card";
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "./components/ui/table";
