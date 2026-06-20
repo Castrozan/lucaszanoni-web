@@ -17,10 +17,9 @@ export interface AggregatedOtelMetrics {
   has_data: boolean;
 }
 
-export interface AggregatedMemoryRecallSavings
-  extends Required<
-    Omit<MemoryRecallSavings, "suppressed_recall_event_count_by_reason">
-  > {
+export interface AggregatedMemoryRecallSavings extends Required<
+  Omit<MemoryRecallSavings, "suppressed_recall_event_count_by_reason">
+> {
   suppressed_recall_event_count_by_reason: Record<string, number>;
 }
 
