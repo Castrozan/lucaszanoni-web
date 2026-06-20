@@ -1,3 +1,5 @@
+map_hash_bucket_size 128;
+
 map ${EDGE_AUTHENTICATION_REQUEST_HEADER_NGINX_VARIABLE} $request_carries_valid_edge_authentication {
     default 0;
     "${EDGE_SHARED_SECRET_VALUE}" 1;
