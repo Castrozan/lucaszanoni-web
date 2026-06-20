@@ -38,6 +38,9 @@ importers:
       "@lucaszanoni-web/tsconfig":
         specifier: workspace:*
         version: link:../../packages/tsconfig
+      "@tailwindcss/vite":
+        specifier: ^4.3.1
+        version: 4.3.1(vite@8.0.16(jiti@2.7.0))
       "@testing-library/dom":
         specifier: ^10.4.0
         version: 10.4.1
@@ -56,6 +59,9 @@ importers:
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
+      tailwindcss:
+        specifier: ^4.3.1
+        version: 4.3.1
       typescript:
         specifier: ^5.7.3
         version: 5.9.3
@@ -151,6 +157,9 @@ importers:
       "@lucaszanoni-web/tsconfig":
         specifier: workspace:*
         version: link:../../packages/tsconfig
+      "@tailwindcss/vite":
+        specifier: ^4.3.1
+        version: 4.3.1(vite@8.0.16(jiti@2.7.0))
       "@testing-library/dom":
         specifier: ^10.4.0
         version: 10.4.1
@@ -169,6 +178,9 @@ importers:
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
+      tailwindcss:
+        specifier: ^4.3.1
+        version: 4.3.1
       typescript:
         specifier: ^5.7.3
         version: 5.9.3

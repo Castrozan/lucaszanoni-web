@@ -1,4 +1,5 @@
 import { REPORTS_MOUNT_PATH } from "@lucaszanoni-web/config";
+import { Card } from "@lucaszanoni-web/design-system";
 import type { UsageViewModel } from "@lucaszanoni-web/snapshot-data";
 import { StatCards } from "./StatCards";
 import { DailyTokensChart } from "./DailyTokensChart";
@@ -14,6 +15,10 @@ export interface UsageDashboardPageProps {
 
 const baselineReportUrl = `${REPORTS_MOUNT_PATH}baseline/`;
 
+const sectionHeadingClassName =
+  "mt-10 mb-3 border-b border-border pb-1.5 text-xl font-semibold";
+const ledeClassName = "text-muted-foreground";
+
 function LiveStatus({
   errorMessage,
   isLoading,
@@ -22,25 +27,30 @@ function LiveStatus({
   UsageDashboardPageProps,
   "errorMessage" | "isLoading" | "lastUpdatedLabel"
 >) {
+  const liveStatusClassName =
+    "inline-flex items-center gap-2 text-sm text-muted-foreground";
+  const statusDotClassName = "inline-block size-2.5 rounded-full";
   if (errorMessage) {
     return (
-      <div className="live-status">
-        <span className="status-dot status-error"></span>
+      <div className={liveStatusClassName}>
+        <span className={`${statusDotClassName} bg-[#f85149]`}></span>
         <span>live feed unavailable</span>
       </div>
     );
   }
   if (isLoading) {
     return (
-      <div className="live-status">
-        <span className="status-dot status-loading"></span>
+      <div className={liveStatusClassName}>
+        <span className={`${statusDotClassName} bg-[#d29922]`}></span>
         <span>loading live snapshots</span>
       </div>
     );
   }
   return (
-    <div className="live-status">
-      <span className="status-dot status-live"></span>
+    <div className={liveStatusClassName}>
+      <span
+        className={`${statusDotClassName} animate-live-pulse bg-[#3fb950]`}
+      ></span>
       <span>live · updated {lastUpdatedLabel}</span>
     </div>
   );
@@ -53,9 +63,11 @@ export function UsageDashboardPage({
   lastUpdatedLabel,
 }: UsageDashboardPageProps) {
   return (
-    <div className="usage-dashboard">
-      <header className="page-head">
-        <h1>token usage across accounts</h1>
+    <div>
+      <header className="flex flex-wrap items-baseline justify-between gap-2">
+        <h1 className="mt-2 text-3xl font-semibold">
+          token usage across accounts
+        </h1>
         <LiveStatus
           errorMessage={errorMessage}
           isLoading={isLoading}
@@ -63,7 +75,7 @@ export function UsageDashboardPage({
         />
       </header>
 
-      <p className="lede">
+      <p className={ledeClassName}>
         Claude Code token consumption per account, pulled live from each
         machine's <code>stats-cache.json</code> snapshot in Cloud Storage. Every
         account is an opaque salted hash of its id, so the numbers are public
@@ -73,9 +85,11 @@ export function UsageDashboardPage({
       </p>
 
       {errorMessage ? (
-        <div className="panel error-panel">
-          <p>Could not reach the snapshot feed: {errorMessage}</p>
-        </div>
+        <Card className="gap-0 rounded-lg border-[#f85149] px-5 py-4">
+          <p className="m-0">
+            Could not reach the snapshot feed: {errorMessage}
+          </p>
+        </Card>
       ) : null}
 
       {viewModel ? (
@@ -86,19 +100,21 @@ export function UsageDashboardPage({
 
           <DailyTokensChart chart={viewModel.chart} />
 
-          <h2>Where the tokens go</h2>
-          <div className="panel">
-            <p>
+          <h2 className={sectionHeadingClassName}>Where the tokens go</h2>
+          <Card className="gap-0 rounded-lg px-5 py-4">
+            <p className="m-0">
               Claude Code reuses a cached prefix across turns, so almost every
               token a long session reads is a <b>cache-read</b>, not fresh
               input. That is why the lever that matters is cutting repeated
               context, not trimming prompts: the cache-read column below is the
               cost.
             </p>
-          </div>
+          </Card>
 
-          <h2>OpenTelemetry token stream</h2>
-          <p className="lede">
+          <h2 className={sectionHeadingClassName}>
+            OpenTelemetry token stream
+          </h2>
+          <p className={ledeClassName}>
             A local OpenTelemetry collector on every machine receives Claude
             Code's <code>claude_code.token.usage</code> metric and writes it to
             a rotating local file. Each machine folds the aggregated counts
@@ -107,11 +123,11 @@ export function UsageDashboardPage({
           </p>
           <OtelPanel otelMetrics={viewModel.summary.otel_metrics} />
 
-          <h2>Per-account totals</h2>
+          <h2 className={sectionHeadingClassName}>Per-account totals</h2>
           <AccountTable accounts={viewModel.accounts} />
 
-          <h2>The memory-recall lever</h2>
-          <p className="lede">
+          <h2 className={sectionHeadingClassName}>The memory-recall lever</h2>
+          <p className={ledeClassName}>
             The memory-recall hook injects relevant memory files into a turn,
             then suppresses the injection when the same set was already shown
             (dedup), when a per-session budget is spent, or when nothing changed
@@ -119,9 +135,11 @@ export function UsageDashboardPage({
             folded into each snapshot.
           </p>
 
-          <h2>Honest caveat on attribution</h2>
-          <div className="panel">
-            <p>
+          <h2 className={sectionHeadingClassName}>
+            Honest caveat on attribution
+          </h2>
+          <Card className="gap-0 rounded-lg px-5 py-4">
+            <p className="m-0">
               A machine carries one current account, and{" "}
               <code>stats-cache.json</code> is not split by account. A machine
               that switched accounts attributes its whole local history to the
@@ -129,15 +147,17 @@ export function UsageDashboardPage({
               pre-switch usage. Read the recent slope as the current account's,
               not the absolute history.
             </p>
-          </div>
+          </Card>
         </>
       ) : null}
 
-      <footer>
+      <footer className="mt-12 border-t border-border pt-5 text-sm text-muted-foreground">
         Served live from Cloud Run, reading anonymized per-machine snapshots
         from Cloud Storage that each machine exports with{" "}
         <code>agents/usage/export_usage_snapshot.py</code> &middot;{" "}
-        <a href={baselineReportUrl}>agent-eval baseline</a>
+        <a className="text-primary" href={baselineReportUrl}>
+          agent-eval baseline
+        </a>
       </footer>
     </div>
   );

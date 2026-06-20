@@ -1,4 +1,12 @@
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@lucaszanoni-web/design-system";
+import {
   formatTokenCount,
   type AccountView,
 } from "@lucaszanoni-web/snapshot-data";
@@ -37,33 +45,33 @@ function buildAccountRows(accounts: AccountView[]): AccountRow[] {
 
 export function AccountTable({ accounts }: AccountTableProps) {
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>account</th>
-          <th>machines</th>
-          <th>window</th>
-          <th>cache-read</th>
-          <th>output</th>
-          <th>cost (notional)</th>
-          <th>recalls suppressed</th>
-        </tr>
-      </thead>
-      <tbody>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>account</TableHead>
+          <TableHead>machines</TableHead>
+          <TableHead>window</TableHead>
+          <TableHead>cache-read</TableHead>
+          <TableHead>output</TableHead>
+          <TableHead>cost (notional)</TableHead>
+          <TableHead>recalls suppressed</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {buildAccountRows(accounts).map((row) => (
-          <tr key={row.account_label}>
-            <td>
+          <TableRow key={row.account_label}>
+            <TableCell>
               <code>{row.account_label}</code>
-            </td>
-            <td>{row.machine_count}</td>
-            <td>{row.window}</td>
-            <td>{row.cache_read}</td>
-            <td>{row.output}</td>
-            <td>{row.cost}</td>
-            <td>{row.recalls_suppressed}</td>
-          </tr>
+            </TableCell>
+            <TableCell>{row.machine_count}</TableCell>
+            <TableCell>{row.window}</TableCell>
+            <TableCell>{row.cache_read}</TableCell>
+            <TableCell>{row.output}</TableCell>
+            <TableCell>{row.cost}</TableCell>
+            <TableCell>{row.recalls_suppressed}</TableCell>
+          </TableRow>
         ))}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   );
 }

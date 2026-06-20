@@ -1,3 +1,4 @@
+import { Card } from "@lucaszanoni-web/design-system";
 import {
   cacheReadSharePercent,
   formatTokenCount,
@@ -48,13 +49,15 @@ function buildStatCards(summary: UsageSummary): StatCard[] {
 
 export function StatCards({ summary }: StatCardsProps) {
   return (
-    <div className="cards">
+    <div className="my-6 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))]">
       {buildStatCards(summary).map((card) => (
-        <div className="card" key={card.label}>
-          <div className="card-value">{card.value}</div>
-          <div className="card-label">{card.label}</div>
-          <div className="card-subtitle">{card.subtitle}</div>
-        </div>
+        <Card key={card.label} className="gap-1 rounded-lg p-4">
+          <div className="text-2xl font-bold text-primary">{card.value}</div>
+          <div className="text-xs tracking-wide text-muted-foreground uppercase">
+            {card.label}
+          </div>
+          <div className="text-xs text-muted-foreground">{card.subtitle}</div>
+        </Card>
       ))}
     </div>
   );

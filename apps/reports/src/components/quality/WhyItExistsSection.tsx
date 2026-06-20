@@ -1,13 +1,20 @@
+import { Card } from "@lucaszanoni-web/design-system";
+import {
+  qualityListClassName,
+  qualityPanelClassName,
+  qualitySectionHeadingClassName,
+} from "./quality-report-content";
+
 export function WhyItExistsSection() {
   return (
     <>
-      <h2>Why it exists</h2>
-      <div className="panel">
+      <h2 className={qualitySectionHeadingClassName}>Why it exists</h2>
+      <Card className={qualityPanelClassName}>
         <p>
           The agent&apos;s behaviour degraded over a two-week window.
           Investigation found two compounding root causes:
         </p>
-        <ul>
+        <ul className={qualityListClassName}>
           <li>
             <b>Adaptive-thinking regression</b> (upstream, issue #42796),
             thinking depth dropped 73% and the read-to-edit ratio collapsed from
@@ -23,7 +30,7 @@ export function WhyItExistsSection() {
           <b>measure</b> compliance continuously, so regressions surface in
           minutes instead of weeks.
         </p>
-      </div>
+      </Card>
     </>
   );
 }

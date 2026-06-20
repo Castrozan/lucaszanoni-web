@@ -1,5 +1,8 @@
-import "./quality/quality-report.css";
-import { qualityIssueHref } from "./quality/quality-report-content";
+import {
+  qualityContentLinkClassName,
+  qualityIssueHref,
+  qualityLedeClassName,
+} from "./quality/quality-report-content";
 import { WhyItExistsSection } from "./quality/WhyItExistsSection";
 import { InstructionLoadingSection } from "./quality/InstructionLoadingSection";
 import { TestingPyramidSection } from "./quality/TestingPyramidSection";
@@ -10,14 +13,19 @@ import { QualityReportFooter } from "./quality/QualityReportFooter";
 
 export function QualityPage() {
   return (
-    <div className="reports-page quality-report">
-      <h1>how agent quality is measured</h1>
-      <p className="lede">
+    <div>
+      <h1 className="mt-2 mb-1 text-2xl font-semibold">
+        how agent quality is measured
+      </h1>
+      <p className={qualityLedeClassName}>
         This repo treats its own AI agent like production software: a test
         pyramid, a regression gate, scored end-to-end runs, and experiments on
         how instructions are loaded. This page is the canonical record of that
         system, originally written up in{" "}
-        <a href={qualityIssueHref}>issue #70</a>.
+        <a className={qualityContentLinkClassName} href={qualityIssueHref}>
+          issue #70
+        </a>
+        .
       </p>
       <WhyItExistsSection />
       <InstructionLoadingSection />

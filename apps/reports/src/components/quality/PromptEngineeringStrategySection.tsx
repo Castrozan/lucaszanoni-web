@@ -1,9 +1,18 @@
+import { Card } from "@lucaszanoni-web/design-system";
+import {
+  qualityListClassName,
+  qualityPanelClassName,
+  qualitySectionHeadingClassName,
+} from "./quality-report-content";
+
 export function PromptEngineeringStrategySection() {
   return (
     <>
-      <h2>Prompt-engineering strategy</h2>
-      <div className="panel">
-        <ul>
+      <h2 className={qualitySectionHeadingClassName}>
+        Prompt-engineering strategy
+      </h2>
+      <Card className={qualityPanelClassName}>
+        <ul className={qualityListClassName}>
           <li>
             <b>Structure</b>, XML tags isolate sections; the model treats each
             as a discrete rule boundary.
@@ -29,7 +38,7 @@ export function PromptEngineeringStrategySection() {
             (67).
           </li>
         </ul>
-      </div>
+      </Card>
     </>
   );
 }

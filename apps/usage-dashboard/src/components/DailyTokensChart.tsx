@@ -12,7 +12,7 @@ export interface DailyTokensChartProps {
 export function DailyTokensChart({ chart }: DailyTokensChartProps) {
   const chartConfiguration = buildDailyTokensChartConfiguration(chart);
   return (
-    <div className="chart-wrap">
+    <div className="my-6 rounded-lg border border-border bg-surface p-4">
       <Line
         data={chartConfiguration.data}
         options={chartConfiguration.options}

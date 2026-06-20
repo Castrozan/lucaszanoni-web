@@ -26,7 +26,7 @@ describe("UsageDashboardPage", () => {
       }),
     ).toBeTruthy();
     expect(screen.getByText("loading live snapshots")).toBeTruthy();
-    expect(document.querySelector(".card")).toBeNull();
+    expect(document.querySelector("[data-slot='card']")).toBeNull();
   });
 
   it("surfaces the feed error and omits the dashboard body", () => {

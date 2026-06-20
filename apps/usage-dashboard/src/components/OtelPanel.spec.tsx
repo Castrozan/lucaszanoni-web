@@ -13,9 +13,9 @@ describe("OtelPanel with flushed metrics", () => {
     render(
       <OtelPanel otelMetrics={sampleUsageViewModel.summary.otel_metrics} />,
     );
-    const chips = Array.from(document.querySelectorAll(".chip")).map(
-      (chip) => chip.textContent,
-    );
+    const chips = Array.from(
+      document.querySelectorAll("[data-slot='badge']"),
+    ).map((chip) => chip.textContent);
     expect(chips).toEqual([
       "cache read: 9.80M",
       "cache creation: 64.00K",
@@ -38,6 +38,6 @@ describe("OtelPanel without flushed metrics", () => {
     expect(
       screen.getByText(/no\s+metrics interval has been flushed yet/),
     ).toBeTruthy();
-    expect(document.querySelectorAll(".chip")).toHaveLength(0);
+    expect(document.querySelectorAll("[data-slot='badge']")).toHaveLength(0);
   });
 });

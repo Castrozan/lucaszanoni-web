@@ -1,3 +1,4 @@
+import { Badge, Card } from "@lucaszanoni-web/design-system";
 import {
   OTEL_TOKEN_TYPE_LABELS,
   formatTokenCount,
@@ -32,33 +33,37 @@ function formatOtelTotalCost(otelMetrics: AggregatedOtelMetrics): string {
 export function OtelPanel({ otelMetrics }: OtelPanelProps) {
   if (!otelMetrics.has_data) {
     return (
-      <div className="panel">
-        <p>
+      <Card className="gap-0 rounded-lg px-5 py-4">
+        <p className="m-0">
           The local OpenTelemetry collector runs on every machine, but no
           metrics interval has been flushed yet. Real-time token counts by type
           appear here once Claude Code exports its first batch.
         </p>
-      </div>
+      </Card>
     );
   }
 
   return (
     <>
-      <div className="chips">
+      <div className="mb-4 flex flex-wrap gap-2">
         {buildOtelChips(otelMetrics).map((chip) => (
-          <span className="chip" key={chip.label}>
+          <Badge
+            key={chip.label}
+            variant="secondary"
+            className="rounded-full border-border px-3 py-1 text-[0.85rem] font-normal"
+          >
             {chip.label}: {chip.value}
-          </span>
+          </Badge>
         ))}
       </div>
-      <div className="panel">
-        <p>
+      <Card className="gap-0 rounded-lg px-5 py-4">
+        <p className="m-0">
           Live token counts straight from Claude Code's OpenTelemetry stream,
           aggregated across machines and independent of the stats-cache series
           above. Notional cost on the stream:{" "}
           <b>${formatOtelTotalCost(otelMetrics)}</b>.
         </p>
-      </div>
+      </Card>
     </>
   );
 }

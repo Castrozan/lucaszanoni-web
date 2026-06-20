@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ReportsRoot } from "./ReportsRoot";
-import "./reports.css";
+import "./styles/globals.css";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

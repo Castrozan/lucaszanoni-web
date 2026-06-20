@@ -7,9 +7,9 @@ afterEach(cleanup);
 
 function cardFor(label: string): HTMLElement {
   const labelNode = screen.getByText(label);
-  const card = labelNode.closest(".card");
+  const card = labelNode.closest("[data-slot='card']");
   if (!card) {
-    throw new Error(`no .card ancestor for the "${label}" stat`);
+    throw new Error(`no card ancestor for the "${label}" stat`);
   }
   return card as HTMLElement;
 }
@@ -17,7 +17,7 @@ function cardFor(label: string): HTMLElement {
 describe("StatCards", () => {
   it("renders one card per headline summary metric", () => {
     render(<StatCards summary={sampleUsageViewModel.summary} />);
-    expect(document.querySelectorAll(".card")).toHaveLength(5);
+    expect(document.querySelectorAll("[data-slot='card']")).toHaveLength(5);
   });
 
   it("shows the account and machine counts", () => {
