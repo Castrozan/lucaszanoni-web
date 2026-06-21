@@ -18,8 +18,11 @@ listen_port=8094
 application_mount_path="/reports/"
 document_root="$work_directory/document-root"
 index_marker="edge-authenticated-spa-index-marker"
-mkdir -p "$document_root$application_mount_path"
+hashed_asset_marker="edge-authenticated-spa-hashed-asset-marker"
+existing_hashed_asset_name="application-bundle-0a1b2c3d.js"
+mkdir -p "$document_root${application_mount_path}assets"
 printf '%s' "$index_marker" >"$document_root${application_mount_path}index.html"
+printf '%s' "$hashed_asset_marker" >"$document_root${application_mount_path}assets/$existing_hashed_asset_name"
 
 correct_edge_secret="edge-authentication-test-secret-0a1b2c3d"
 
@@ -28,6 +31,7 @@ EDGE_SHARED_SECRET_VALUE="$correct_edge_secret" \
 	PORT="$listen_port" \
 	NGINX_DOCUMENT_ROOT="$document_root" \
 	APP_INDEX_FALLBACK_PATH="${application_mount_path}index.html" \
+	APP_MOUNT_PATH="$application_mount_path" \
 	EDGE_NGINX_TEMPLATE_PATH="$repository_root/deploy/nginx/edge-authenticated-spa.conf.template" \
 	sh "$repository_root/deploy/nginx/render-edge-authenticated-spa-config.sh" >"$work_directory/edge-server.conf"
 
@@ -78,6 +82,10 @@ assert_http_status 403 "request with a wrong edge header value" -H "X-Edge-Auth:
 assert_http_status 200 "request with the correct edge header" -H "X-Edge-Auth: $correct_edge_secret" "$base_url/reports/"
 assert_http_status 200 "deep single-page route falls back to index with the correct edge header" -H "X-Edge-Auth: $correct_edge_secret" "$base_url/reports/some/client/route"
 assert_http_status 403 "deep single-page route without the edge header" "$base_url/reports/some/client/route"
+assert_http_status 200 "health endpoint is reachable without the edge header" "$base_url/healthz"
+assert_http_status 200 "existing hashed asset is served with the correct edge header" -H "X-Edge-Auth: $correct_edge_secret" "$base_url/reports/assets/$existing_hashed_asset_name"
+assert_http_status 404 "missing hashed asset returns a real not-found instead of the cacheable index fallback" -H "X-Edge-Auth: $correct_edge_secret" "$base_url/reports/assets/missing-bundle-deadbeef.js"
+assert_http_status 403 "missing hashed asset still requires the edge header" "$base_url/reports/assets/missing-bundle-deadbeef.js"
 
 served_index_body=$(curl -s -H "X-Edge-Auth: $correct_edge_secret" "$base_url/reports/some/client/route")
 if [ "$served_index_body" != "$index_marker" ]; then
@@ -86,4 +94,11 @@ if [ "$served_index_body" != "$index_marker" ]; then
 fi
 echo "PASS: authenticated single-page fallback served the index document"
 
-echo "ALL EDGE AUTHENTICATION GATE ASSERTIONS PASSED"
+served_asset_body=$(curl -s -H "X-Edge-Auth: $correct_edge_secret" "$base_url/reports/assets/$existing_hashed_asset_name")
+if [ "$served_asset_body" != "$hashed_asset_marker" ]; then
+	echo "FAIL: authenticated existing hashed asset did not serve the asset document" >&2
+	exit 1
+fi
+echo "PASS: authenticated existing hashed asset served the asset document"
+
+echo "ALL EDGE NGINX SERVING CONTRACT ASSERTIONS PASSED"
