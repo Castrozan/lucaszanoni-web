@@ -14,11 +14,16 @@ export type {
   AppLifecycleStatus,
   AppBuildProfile,
   AppExternalOriginPathRewrite,
+  AppServingLocation,
   AppAccessModel,
   AppOrigin,
   AppRegistryEntry,
 } from "./app-registry-types";
 export { parseAppRegistry } from "./app-registry-parser";
+export {
+  defaultServingLocation,
+  resolveServingLocation,
+} from "./app-registry-serving-location";
 export { appRegistry } from "./app-registry";
 export type {
   AppOriginSpec,
