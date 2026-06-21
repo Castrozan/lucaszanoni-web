@@ -28,8 +28,7 @@ export function ThemeProvider({
     background: "var(--ls-color-background)",
     color: "var(--ls-color-text-primary)",
     minHeight: "100vh",
-    fontFamily:
-      "'JetBrains Mono', 'SFMono-Regular', ui-monospace, SFMono-Regular, Menlo, monospace",
+    fontFamily: "var(--font-mono)",
   } as CSSProperties;
   return (
     <ThemeContext.Provider value={contextValue}>

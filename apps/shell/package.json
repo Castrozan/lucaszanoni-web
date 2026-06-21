@@ -11,6 +11,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@fontsource-variable/space-grotesk": "^5.2.10",
+    "@fontsource/ibm-plex-mono": "^5.2.7",
     "@platform/config": "workspace:*",
     "@platform/design-system": "workspace:*",
     "react": "^19.0.0",

@@ -5,11 +5,14 @@ import { ShellApp } from "../src/ShellApp";
 afterEach(cleanup);
 
 describe("ShellApp", () => {
-  it("mounts the design-system chrome with a primary heading", () => {
+  it("renders the brand wordmark in the landing chrome", () => {
     render(<ShellApp />);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
-      "Lucas Zanoni",
-    );
+    expect(screen.getAllByText("LUCASZANONI").length).toBeGreaterThan(0);
+  });
+
+  it("renders the static first line of the hero headline", () => {
+    render(<ShellApp />);
+    expect(screen.getByText("ONE EDGE.")).toBeTruthy();
   });
 
   it("links to every cross-section mount path", () => {
@@ -21,8 +24,9 @@ describe("ShellApp", () => {
     expect(linkHrefs).toContain("/engineering/dotfiles/reports/");
   });
 
-  it("exposes the theme toggle from the shell chrome", () => {
+  it("hints the roadmap features as inert preview controls", () => {
     render(<ShellApp />);
-    expect(screen.getByRole("button", { name: /mode/i })).toBeTruthy();
+    expect(screen.getByText("Command palette")).toBeTruthy();
+    expect(screen.getAllByText("SOON").length).toBeGreaterThan(0);
   });
 });
