@@ -40,5 +40,8 @@ jobs:
       - name: Edge router worker test
         run: node --test deploy/tests/edge-router/*.test.mjs
 
+      - name: Deploy matrix derivation test
+        run: node --test deploy/tests/deploy-matrix/*.test.mjs
+
       - name: Build
         run: pnpm build
