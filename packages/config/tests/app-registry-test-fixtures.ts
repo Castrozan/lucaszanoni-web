@@ -75,9 +75,29 @@ export const dbApp: AppRegistryEntry = {
   },
 };
 
+export const cockpitApp: AppRegistryEntry = {
+  id: "cockpit",
+  mountPath: "/cockpit/",
+  navigationLabel: "Cockpit",
+  description: "Owner cockpit landing with quick access, live usage, and data.",
+  showInCrossSectionNavigation: false,
+  status: "active",
+  accessModel: { kind: "owner-only" },
+  origin: {
+    kind: "in-repo-cloud-run",
+    cloudRunServiceName: "lucaszanoni-cockpit",
+    appPackageName: "@platform/cockpit",
+    appDirectoryName: "cockpit",
+    buildProfile: "static-spa",
+    nonSecretEnvironment: {},
+    secretEnvironmentReferences: {},
+  },
+};
+
 export const todaysApps: readonly AppRegistryEntry[] = [
   shellApp,
   usageDashboardApp,
   reportsApp,
   dbApp,
+  cockpitApp,
 ];

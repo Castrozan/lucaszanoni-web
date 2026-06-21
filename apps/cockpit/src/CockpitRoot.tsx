@@ -1,9 +1,8 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "@platform/design-system";
+import { COCKPIT_MOUNT_PATH } from "@platform/config";
 import { CockpitShell } from "./layout/CockpitShell";
 import { CockpitDashboardPage } from "./pages/CockpitDashboardPage";
-
-export const COCKPIT_MOUNT_PATH = "/cockpit/";
 
 export function CockpitRoot() {
   return (
