@@ -1,4 +1,5 @@
 import { Button } from "@platform/design-system";
+import { OWNER_SIGN_IN_ENTRY_ROUTE } from "@platform/config";
 import { useScrolledPastThreshold } from "./useScrolledPastThreshold";
 
 const headerNavigationLinks = [
@@ -41,7 +42,7 @@ export function LandingHeader() {
           </ul>
         </nav>
         <Button asChild variant="brand" size="sm">
-          <a href="#sections">ENTER</a>
+          <a href={OWNER_SIGN_IN_ENTRY_ROUTE.mountPath}>ENTER</a>
         </Button>
       </div>
     </header>
