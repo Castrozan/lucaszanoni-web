@@ -13,3 +13,8 @@ export const multiSegmentBaseExternalOriginHost = "deep.internal.example";
 export const multiSegmentForwardedBasePath = "/api/";
 export const cloudflareAccessJwtAssertionHeaderName = "Cf-Access-Jwt-Assertion";
 export const retiredApplicationMountPrefix = "/engineering/legacy/";
+export const subdomainInRepoServingHost = "internal.lucaszanoni.com.br";
+export const subdomainInRepoOriginHost = "lucaszanoni-internal.example.run.app";
+export const subdomainUntrustedExternalServingHost =
+  "vendor.lucaszanoni.com.br";
+export const subdomainTrustedExternalServingHost = "partner.lucaszanoni.com.br";

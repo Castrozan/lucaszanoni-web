@@ -28,6 +28,14 @@ locals {
         prefix = prefix
       }
     ]
+    subdomains = [
+      for label, app in var.subdomain_apps : {
+        host       = "${label}.${var.zone_name}"
+        originHost = app.origin_host
+        originKind = app.origin_kind
+        trusted    = app.trusted
+      }
+    ]
     aliasRedirect = var.alias_redirect == null ? null : {
       canonicalHost = var.alias_redirect.canonical_host
       statusCode    = var.alias_redirect.status_code
@@ -98,10 +106,10 @@ resource "cloudflare_workers_route" "edge_router_catch_all" {
 }
 
 resource "cloudflare_dns_record" "subdomain_proxied" {
-  for_each = var.subdomain_serving_labels
+  for_each = var.subdomain_apps
 
   zone_id = data.cloudflare_zone.this.id
-  name    = "${each.value}.${var.zone_name}"
+  name    = "${each.key}.${var.zone_name}"
   type    = "A"
   content = var.proxied_placeholder_origin_ip
   proxied = true
@@ -109,10 +117,10 @@ resource "cloudflare_dns_record" "subdomain_proxied" {
 }
 
 resource "cloudflare_workers_route" "edge_router_subdomain" {
-  for_each = var.subdomain_serving_labels
+  for_each = var.subdomain_apps
 
   zone_id = data.cloudflare_zone.this.id
-  pattern = "${each.value}.${var.zone_name}/*"
+  pattern = "${each.key}.${var.zone_name}/*"
   script  = cloudflare_workers_script.edge_router.script_name
 }
 

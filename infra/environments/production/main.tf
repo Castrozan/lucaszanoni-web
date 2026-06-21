@@ -21,7 +21,7 @@ locals {
   prefix_origin_hosts = {
     for app_id, app in local.in_repo_cloud_run_apps :
     app.mountPath => module.in_repo_cloud_run_app[app_id].origin_host
-    if app.mountPath != "/"
+    if app.mountPath != "/" && try(app.servingLocation.kind, "path-prefix") != "subdomain"
   }
 
   external_https_apps = {
@@ -38,6 +38,7 @@ locals {
       forwarded_base_path = app.origin.forwardedBasePath
       trusted             = app.origin.trusted
     }
+    if try(app.servingLocation.kind, "path-prefix") != "subdomain"
   }
 
   non_public_apps = {
@@ -55,10 +56,19 @@ locals {
     if try(app.status, "active") == "retired"
   ]
 
-  subdomain_serving_labels = toset([
-    for app in local.app_registry : app.servingLocation.subdomainLabel
+  subdomain_apps = {
+    for app in local.app_registry :
+    app.servingLocation.subdomainLabel => {
+      origin_host = (
+        app.origin.kind == "in-repo-cloud-run"
+        ? module.in_repo_cloud_run_app[app.id].origin_host
+        : app.origin.originHost
+      )
+      origin_kind = app.origin.kind
+      trusted     = try(app.origin.trusted, false)
+    }
     if try(app.servingLocation.kind, "path-prefix") == "subdomain"
-  ])
+  }
 
   edge_serving_domain = var.enable_dotcom_canonical ? var.canonical_domain_name : var.domain_name
 }
@@ -113,7 +123,7 @@ module "edge" {
   } : {}
   external_https_prefix_origins = local.external_https_prefix_origins
   retired_prefixes              = local.retired_app_mount_prefixes
-  subdomain_serving_labels      = local.subdomain_serving_labels
+  subdomain_apps                = local.subdomain_apps
   edge_shared_secret_value      = var.edge_shared_secret_value
   alias_redirect = var.enable_dotcom_canonical ? {
     zone_name      = var.domain_name
