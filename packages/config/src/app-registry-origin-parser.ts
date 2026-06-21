@@ -8,6 +8,7 @@ import {
   requireOneOf,
   requireString,
   requireStringAllowEmpty,
+  requireStringMap,
 } from "./app-registry-field-parsers";
 
 export function parseOrigin(value: unknown, context: string): AppOrigin {
@@ -28,6 +29,7 @@ export function parseOrigin(value: unknown, context: string): AppOrigin {
           "appPackageName",
           "appDirectoryName",
           "buildProfile",
+          "nonSecretEnvironment",
         ],
         `${context} origin`,
       );
@@ -52,6 +54,11 @@ export function parseOrigin(value: unknown, context: string): AppOrigin {
           record,
           "buildProfile",
           ["static-spa", "dynamic-service"] as const,
+          `${context} origin`,
+        ),
+        nonSecretEnvironment: requireStringMap(
+          record,
+          "nonSecretEnvironment",
           `${context} origin`,
         ),
       };

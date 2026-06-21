@@ -90,14 +90,19 @@
             "cloudRunServiceName",
             "appPackageName",
             "appDirectoryName",
-            "buildProfile"
+            "buildProfile",
+            "nonSecretEnvironment"
           ],
           "properties": {
             "kind": { "const": "in-repo-cloud-run" },
             "cloudRunServiceName": { "type": "string", "minLength": 1 },
             "appPackageName": { "type": "string", "minLength": 1 },
             "appDirectoryName": { "type": "string", "minLength": 1 },
-            "buildProfile": { "enum": ["static-spa", "dynamic-service"] }
+            "buildProfile": { "enum": ["static-spa", "dynamic-service"] },
+            "nonSecretEnvironment": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            }
           }
         },
         {

@@ -43,3 +43,9 @@ variable "edge_shared_secret_value" {
   type      = string
   sensitive = true
 }
+
+variable "non_secret_environment_variables" {
+  type        = map(string)
+  default     = {}
+  description = "Non-secret plain environment variables rendered into the Cloud Run container, sourced from the registry origin's nonSecretEnvironment map. Secret material never travels through here; secret references are injected separately so the public registry stays free of secrets."
+}

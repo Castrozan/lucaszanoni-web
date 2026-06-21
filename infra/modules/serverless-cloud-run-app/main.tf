@@ -38,6 +38,14 @@ resource "google_cloud_run_v2_service" "this" {
         name  = "EDGE_SHARED_SECRET_VALUE"
         value = var.edge_shared_secret_value
       }
+
+      dynamic "env" {
+        for_each = var.non_secret_environment_variables
+        content {
+          name  = env.key
+          value = env.value
+        }
+      }
     }
   }
 
