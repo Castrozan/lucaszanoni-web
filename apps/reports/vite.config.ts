@@ -3,7 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  base: "/reports/",
+  base: "/engineering/dotfiles/reports/",
   plugins: [react(), tailwindcss()],
   test: {
     environment: "jsdom",

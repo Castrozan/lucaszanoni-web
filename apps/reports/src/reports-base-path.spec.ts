@@ -8,6 +8,6 @@ describe("reports vite base", () => {
   });
 
   it("keeps the config mount path at the deployed reports prefix", () => {
-    expect(REPORTS_MOUNT_PATH).toBe("/reports/");
+    expect(REPORTS_MOUNT_PATH).toBe("/engineering/dotfiles/reports/");
   });
 });

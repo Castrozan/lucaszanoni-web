@@ -10,9 +10,9 @@ describe("ReportsHubPage", () => {
     const linkHrefs = screen
       .getAllByRole("link")
       .map((element) => element.getAttribute("href"));
-    expect(linkHrefs).toContain("/reports/baseline/");
-    expect(linkHrefs).toContain("/reports/quality/");
-    expect(linkHrefs).toContain("/reports/coverage/");
+    expect(linkHrefs).toContain("/engineering/dotfiles/reports/baseline/");
+    expect(linkHrefs).toContain("/engineering/dotfiles/reports/quality/");
+    expect(linkHrefs).toContain("/engineering/dotfiles/reports/coverage/");
     expect(linkHrefs).toContain("/engineering/dotfiles/claude/usage/");
   });
 

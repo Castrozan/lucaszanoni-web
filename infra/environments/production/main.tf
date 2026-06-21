@@ -30,7 +30,7 @@ module "reports" {
   service_name                  = "lucaszanoni-reports"
   container_image               = var.reports_container_image
   runtime_service_account_email = var.runtime_service_account_email
-  mount_path                    = "/reports/"
+  mount_path                    = "/engineering/dotfiles/reports/"
   edge_shared_secret_value      = var.edge_shared_secret_value
 }
 
@@ -47,14 +47,14 @@ module "edge" {
   shell_origin_host     = module.shell.origin_host
   prefix_origin_hosts = {
     "/engineering/dotfiles/claude/usage/" = module.usage_dashboard.origin_host
-    "/reports/"                           = module.reports.origin_host
+    "/engineering/dotfiles/reports/"      = module.reports.origin_host
   }
   static_bucket_prefix_origins = var.enable_reports_static_gcs_routes ? {
-    "/reports/baseline/" = {
+    "/engineering/dotfiles/reports/baseline/" = {
       bucket            = var.reports_static_bucket_name
       object_key_prefix = "reports/baseline/"
     }
-    "/reports/coverage/" = {
+    "/engineering/dotfiles/reports/coverage/" = {
       bucket            = var.reports_static_bucket_name
       object_key_prefix = "reports/coverage/"
     }

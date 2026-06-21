@@ -60,6 +60,8 @@ describe("UsageDashboardPage", () => {
     const baselineLink = screen.getByRole("link", {
       name: "agent-eval baseline",
     });
-    expect(baselineLink.getAttribute("href")).toBe("/reports/baseline/");
+    expect(baselineLink.getAttribute("href")).toBe(
+      "/engineering/dotfiles/reports/baseline/",
+    );
   });
 });

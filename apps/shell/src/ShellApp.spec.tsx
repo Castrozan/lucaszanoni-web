@@ -18,7 +18,7 @@ describe("ShellApp", () => {
       .getAllByRole("link")
       .map((element) => element.getAttribute("href"));
     expect(linkHrefs).toContain("/engineering/dotfiles/claude/usage/");
-    expect(linkHrefs).toContain("/reports/");
+    expect(linkHrefs).toContain("/engineering/dotfiles/reports/");
   });
 
   it("exposes the theme toggle from the shell chrome", () => {

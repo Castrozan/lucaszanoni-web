@@ -17,9 +17,9 @@ describe("buildReportHubCards", () => {
     const hrefById = Object.fromEntries(
       cards.map((card) => [card.id, card.href]),
     );
-    expect(hrefById.baseline).toBe("/reports/baseline/");
-    expect(hrefById.quality).toBe("/reports/quality/");
-    expect(hrefById.coverage).toBe("/reports/coverage/");
+    expect(hrefById.baseline).toBe("/engineering/dotfiles/reports/baseline/");
+    expect(hrefById.quality).toBe("/engineering/dotfiles/reports/quality/");
+    expect(hrefById.coverage).toBe("/engineering/dotfiles/reports/coverage/");
   });
 
   it("points the usage card at the usage dashboard mount path, not the legacy run.app url", () => {

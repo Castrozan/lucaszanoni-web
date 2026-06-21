@@ -52,7 +52,7 @@ variable "enable_dotcom_canonical" {
 variable "enable_reports_static_gcs_routes" {
   type        = bool
   default     = false
-  description = "Whether the edge serves /reports/baseline/ and /reports/coverage/ from the public GCS bucket. Defaults off so the routes stay dark until the dotfiles pipeline has published the generated baseline and coverage trees to the bucket; while off the Worker falls those paths through to the reports SPA, so flipping it is the only behavior change."
+  description = "Whether the edge serves /engineering/dotfiles/reports/baseline/ and /engineering/dotfiles/reports/coverage/ from the public GCS bucket. Defaults off so the routes stay dark until the dotfiles pipeline has published the generated baseline and coverage trees to the bucket; while off the Worker falls those paths through to the reports SPA, so flipping it is the only behavior change."
 }
 
 variable "reports_static_bucket_name" {

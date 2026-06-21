@@ -25,8 +25,8 @@ describe("QualityPage", () => {
     const linkHrefs = screen
       .getAllByRole("link")
       .map((element) => element.getAttribute("href"));
-    expect(linkHrefs).toContain("/reports/");
-    expect(linkHrefs).toContain("/reports/baseline/");
+    expect(linkHrefs).toContain("/engineering/dotfiles/reports/");
+    expect(linkHrefs).toContain("/engineering/dotfiles/reports/baseline/");
   });
 
   it("keeps no employer name in the rendered public copy", () => {
