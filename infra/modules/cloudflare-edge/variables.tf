@@ -49,6 +49,12 @@ variable "retired_prefixes" {
   description = "Edge path prefixes whose application has been retired in the app registry. The Worker matches these prefixes immediately after the alias redirect and before every origin lookup, answering each with a 410 Gone instead of silently falling through to the shell SPA. Empty by default; populated from the registry whenever an app's status is set to retired, so a removed app stops masquerading as a live route."
 }
 
+variable "subdomain_serving_labels" {
+  type        = set(string)
+  default     = []
+  description = "DNS labels of apps the registry serves on their own subdomain instead of a shared path prefix. For each label the module stands up a proxied A record at <label>.<zone_name> and attaches the same edge Worker via a per-subdomain route, so the Worker fronts the subdomain exactly as it fronts the apex and a genuinely untrusted app gets its own origin and cookie jar instead of sharing the apex same-origin scope. Empty by default, so no subdomain hostnames exist until an app sets its registry servingLocation to subdomain; the Worker's host-aware origin selection is layered separately and this variable only provisions the proxied hostname and its route."
+}
+
 variable "edge_shared_secret_header_name" {
   type    = string
   default = "X-Edge-Auth"

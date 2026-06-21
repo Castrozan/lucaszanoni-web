@@ -97,6 +97,25 @@ resource "cloudflare_workers_route" "edge_router_catch_all" {
   script  = cloudflare_workers_script.edge_router.script_name
 }
 
+resource "cloudflare_dns_record" "subdomain_proxied" {
+  for_each = var.subdomain_serving_labels
+
+  zone_id = data.cloudflare_zone.this.id
+  name    = "${each.value}.${var.zone_name}"
+  type    = "A"
+  content = var.proxied_placeholder_origin_ip
+  proxied = true
+  ttl     = 1
+}
+
+resource "cloudflare_workers_route" "edge_router_subdomain" {
+  for_each = var.subdomain_serving_labels
+
+  zone_id = data.cloudflare_zone.this.id
+  pattern = "${each.value}.${var.zone_name}/*"
+  script  = cloudflare_workers_script.edge_router.script_name
+}
+
 data "cloudflare_zone" "alias" {
   count = var.alias_redirect == null ? 0 : 1
 

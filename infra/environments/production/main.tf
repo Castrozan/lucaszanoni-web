@@ -55,6 +55,11 @@ locals {
     if try(app.status, "active") == "retired"
   ]
 
+  subdomain_serving_labels = toset([
+    for app in local.app_registry : app.servingLocation.subdomainLabel
+    if try(app.servingLocation.kind, "path-prefix") == "subdomain"
+  ])
+
   edge_serving_domain = var.enable_dotcom_canonical ? var.canonical_domain_name : var.domain_name
 }
 
@@ -108,6 +113,7 @@ module "edge" {
   } : {}
   external_https_prefix_origins = local.external_https_prefix_origins
   retired_prefixes              = local.retired_app_mount_prefixes
+  subdomain_serving_labels      = local.subdomain_serving_labels
   edge_shared_secret_value      = var.edge_shared_secret_value
   alias_redirect = var.enable_dotcom_canonical ? {
     zone_name      = var.domain_name
