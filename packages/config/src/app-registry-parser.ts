@@ -1,4 +1,8 @@
-import type { AppAccessModel, AppRegistryEntry } from "./app-registry-types";
+import type {
+  AppAccessModel,
+  AppOrigin,
+  AppRegistryEntry,
+} from "./app-registry-types";
 import { AppRegistryValidationError } from "./app-registry-types";
 import {
   asObjectRecord,
@@ -97,6 +101,18 @@ function assertUnique(values: readonly string[], label: string): void {
   }
 }
 
+function collectInRepoCloudRunOrigins(
+  entries: readonly AppRegistryEntry[],
+): readonly Extract<AppOrigin, { kind: "in-repo-cloud-run" }>[] {
+  const origins: Extract<AppOrigin, { kind: "in-repo-cloud-run" }>[] = [];
+  for (const entry of entries) {
+    if (entry.origin.kind === "in-repo-cloud-run") {
+      origins.push(entry.origin);
+    }
+  }
+  return origins;
+}
+
 export function parseAppRegistry(value: unknown): readonly AppRegistryEntry[] {
   if (!Array.isArray(value)) {
     throw new AppRegistryValidationError("app registry must be a json array");
@@ -109,6 +125,15 @@ export function parseAppRegistry(value: unknown): readonly AppRegistryEntry[] {
   assertUnique(
     entries.map((entry) => entry.mountPath),
     "mountPath",
+  );
+  const inRepoCloudRunOrigins = collectInRepoCloudRunOrigins(entries);
+  assertUnique(
+    inRepoCloudRunOrigins.map((origin) => origin.cloudRunServiceName),
+    "cloudRunServiceName",
+  );
+  assertUnique(
+    inRepoCloudRunOrigins.map((origin) => origin.appDirectoryName),
+    "appDirectoryName",
   );
   return entries;
 }
