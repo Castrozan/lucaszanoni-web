@@ -29,6 +29,12 @@ importers:
       '@platform/design-system':
         specifier: workspace:*
         version: link:../../packages/design-system
+      '@platform/usage-insights':
+        specifier: workspace:*
+        version: link:../../packages/usage-insights
+      '@tanstack/react-query':
+        specifier: ^5.62.0
+        version: 5.101.0(react@19.2.7)
       react:
         specifier: ^19.0.0
         version: 19.2.7
@@ -200,18 +206,15 @@ importers:
       '@platform/snapshot-data':
         specifier: workspace:*
         version: link:../../packages/snapshot-data
+      '@platform/usage-insights':
+        specifier: workspace:*
+        version: link:../../packages/usage-insights
       '@tanstack/react-query':
         specifier: ^5.62.0
         version: 5.101.0(react@19.2.7)
-      chart.js:
-        specifier: ^4.5.0
-        version: 4.5.1
       react:
         specifier: ^19.0.0
         version: 19.2.7
-      react-chartjs-2:
-        specifier: ^5.3.0
-        version: 5.3.1(chart.js@4.5.1)(react@19.2.7)
       react-dom:
         specifier: ^19.0.0
         version: 19.2.7(react@19.2.7)
@@ -330,6 +333,40 @@ importers:
         version: 4.1.9(jsdom@25.0.1)(vite@8.0.16(jiti@2.7.0))
 
   packages/tsconfig: {}
+
+  packages/usage-insights:
+    dependencies:
+      '@platform/design-system':
+        specifier: workspace:*
+        version: link:../design-system
+      '@platform/snapshot-data':
+        specifier: workspace:*
+        version: link:../snapshot-data
+      '@tanstack/react-query':
+        specifier: ^5.62.0
+        version: 5.101.0(react@19.2.7)
+      chart.js:
+        specifier: ^4.5.0
+        version: 4.5.1
+      react-chartjs-2:
+        specifier: ^5.3.0
+        version: 5.3.1(chart.js@4.5.1)(react@19.2.7)
+    devDependencies:
+      '@platform/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/react':
+        specifier: ^19.0.7
+        version: 19.2.17
+      react:
+        specifier: ^19.0.0
+        version: 19.2.7
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(jsdom@25.0.1)(vite@8.0.16(jiti@2.7.0))
 
 packages:
 

@@ -1,4 +1,4 @@
-import { useUsageViewModel } from "../data/use-usage-view-model";
+import { useUsageViewModel } from "@platform/usage-insights";
 import { UsageDashboardPage } from "./UsageDashboardPage";
 
 export function UsageDashboardContainer() {

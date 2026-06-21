@@ -2,7 +2,7 @@ import { Chart, registerables } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { THEME_PALETTES, useTheme } from "@platform/design-system";
 import type { ChartSeries } from "@platform/snapshot-data";
-import { buildDailyTokensChartConfiguration } from "../data/chart-configuration";
+import { buildDailyTokensChartConfiguration } from "./chart-configuration";
 
 Chart.register(...registerables);
 

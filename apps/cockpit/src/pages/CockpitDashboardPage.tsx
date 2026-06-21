@@ -5,11 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@platform/design-system";
+import { DailyTokensChart, useUsageViewModel } from "@platform/usage-insights";
 import { useOwnerAccessIdentity } from "../identity/use-owner-access-identity";
 import { cockpitQuickAccessBookmarks } from "../layout/cockpit-quick-access-bookmarks";
 
 export function CockpitDashboardPage() {
   const ownerAccessIdentity = useOwnerAccessIdentity();
+  const usageViewModelState = useUsageViewModel();
   const welcomeHeadline = ownerAccessIdentity
     ? `Welcome back, ${ownerAccessIdentity.name}.`
     : "Welcome back.";
@@ -56,13 +58,23 @@ export function CockpitDashboardPage() {
           <CardHeader>
             <CardTitle>Usage &amp; data</CardTitle>
             <CardDescription>
-              Live charts wire up in a later slice.
+              {usageViewModelState.lastUpdatedLabel
+                ? `Live · updated ${usageViewModelState.lastUpdatedLabel}`
+                : "Live token usage across your accounts."}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex h-48 items-center justify-center rounded-md border border-dashed border-border font-mono text-xs uppercase tracking-[2px] text-text-faint">
-              charts placeholder
-            </div>
+            {usageViewModelState.errorMessage ? (
+              <div className="flex h-48 items-center justify-center rounded-md border border-status-negative font-mono text-xs uppercase tracking-[2px] text-status-negative">
+                live feed unavailable
+              </div>
+            ) : usageViewModelState.viewModel ? (
+              <DailyTokensChart chart={usageViewModelState.viewModel.chart} />
+            ) : (
+              <div className="flex h-48 items-center justify-center rounded-md border border-dashed border-border font-mono text-xs uppercase tracking-[2px] text-text-faint">
+                loading live snapshots
+              </div>
+            )}
           </CardContent>
         </Card>
       </section>

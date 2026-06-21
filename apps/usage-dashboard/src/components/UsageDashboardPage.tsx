@@ -1,8 +1,8 @@
 import { REPORTS_MOUNT_PATH } from "@platform/config";
 import { Card } from "@platform/design-system";
 import type { UsageViewModel } from "@platform/snapshot-data";
+import { DailyTokensChart } from "@platform/usage-insights";
 import { StatCards } from "./StatCards";
-import { DailyTokensChart } from "./DailyTokensChart";
 import { OtelPanel } from "./OtelPanel";
 import { AccountTable } from "./AccountTable";
 
