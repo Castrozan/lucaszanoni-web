@@ -110,6 +110,23 @@ export function requireMountPath(
   return mountPath;
 }
 
+export function optionalAbsolutePath(
+  record: Record<string, unknown>,
+  key: string,
+  context: string,
+): string | undefined {
+  const candidate = record[key];
+  if (candidate === undefined) {
+    return undefined;
+  }
+  if (typeof candidate !== "string" || !candidate.startsWith("/")) {
+    throw new AppRegistryValidationError(
+      `${context} field ${key} must be an absolute path starting with a slash when present`,
+    );
+  }
+  return candidate;
+}
+
 export function requireBareHostname(
   record: Record<string, unknown>,
   key: string,
