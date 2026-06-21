@@ -74,3 +74,11 @@ jobs:
           TF_VAR_owner_account_email: ${{ secrets.OWNER_ACCOUNT_EMAIL }}
           TF_VAR_shared_access_audience_email_allowlists: ${{ secrets.SHARED_ACCESS_AUDIENCE_EMAIL_ALLOWLISTS || '{}' }}
         run: terraform apply -input=false tfplan
+
+      - name: Smoke-check the live edge after the worker apply
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && vars.ENABLE_WORKER_ROLLOUT_SMOKE_GATE == 'true' }}
+        env:
+          BASE_URL: ${{ vars.ENABLE_DOTCOM_CANONICAL == 'true' && 'https://lucaszanoni.com' || 'https://lucaszanoni.com.br' }}
+          ALIAS_REDIRECT_HOST: ${{ vars.ENABLE_DOTCOM_CANONICAL == 'true' && 'lucaszanoni.com.br' || '' }}
+          REGISTRY_PATH: packages/config/src/app-registry.json
+        run: sh deploy/cloudflare/smoke-check-edge-routes.sh
