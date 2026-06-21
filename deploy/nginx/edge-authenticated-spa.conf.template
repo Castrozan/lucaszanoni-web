@@ -13,7 +13,7 @@ server {
 
     absolute_redirect off;
 
-    location = /healthz {
+    location = /livez {
         return 200 "ok";
     }
 

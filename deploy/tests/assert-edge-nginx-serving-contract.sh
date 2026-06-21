@@ -108,7 +108,7 @@ NGINX_CONFIGURATION
 	assert_http_status 200 "[$application_mount_path] request with the correct edge header" -H "X-Edge-Auth: $correct_edge_secret" "$root_request"
 	assert_http_status 200 "[$application_mount_path] deep single-page route falls back to index" -H "X-Edge-Auth: $correct_edge_secret" "$deep_route"
 	assert_http_status 403 "[$application_mount_path] deep single-page route without the edge header" "$deep_route"
-	assert_http_status 200 "[$application_mount_path] health endpoint is reachable without the edge header" "$base_url/healthz"
+	assert_http_status 200 "[$application_mount_path] health endpoint is reachable without the edge header" "$base_url/livez"
 	assert_http_status 200 "[$application_mount_path] existing hashed asset is served with the correct edge header" -H "X-Edge-Auth: $correct_edge_secret" "$existing_asset"
 	assert_http_status 404 "[$application_mount_path] missing hashed asset returns a real not-found instead of the cacheable index fallback" -H "X-Edge-Auth: $correct_edge_secret" "$missing_asset"
 	assert_http_status 403 "[$application_mount_path] missing hashed asset still requires the edge header" "$missing_asset"
