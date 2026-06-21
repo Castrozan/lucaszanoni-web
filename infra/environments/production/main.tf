@@ -141,4 +141,6 @@ module "access" {
   non_public_apps                         = local.non_public_apps
   owner_account_email                     = var.owner_account_email
   shared_access_audience_email_allowlists = var.shared_access_audience_email_allowlists
+  google_sso_client_id                    = var.google_sso_client_id
+  google_sso_client_secret                = var.google_sso_client_secret
 }

@@ -37,3 +37,17 @@ variable "session_duration" {
   default     = "24h"
   description = "Access session lifetime applied to every managed application before the visitor must re-authenticate."
 }
+
+variable "google_sso_client_id" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "OAuth 2.0 client id of the Google identity provider Cloudflare Access offers as the login method for every managed application. Injected at apply time via TF_VAR_google_sso_client_id from a CI secret and never committed. While empty, no Google identity provider is provisioned and each application keeps Cloudflare's default email one-time-pin login, so Google sign-in is opt-in and reversible."
+}
+
+variable "google_sso_client_secret" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "OAuth 2.0 client secret paired with google_sso_client_id. Injected at apply time via TF_VAR_google_sso_client_secret from a CI secret and never committed. An empty client id or secret disables the Google identity provider."
+}
