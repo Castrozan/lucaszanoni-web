@@ -14,6 +14,15 @@ locals {
         objectKeyPrefix = origin.object_key_prefix
       }
     ]
+    externalHttpsPrefixes = [
+      for prefix, origin in var.external_https_prefix_origins : {
+        prefix            = prefix
+        originHost        = origin.origin_host
+        pathRewrite       = origin.path_rewrite
+        forwardedBasePath = origin.forwarded_base_path
+        trusted           = origin.trusted
+      }
+    ]
     aliasRedirect = var.alias_redirect == null ? null : {
       canonicalHost = var.alias_redirect.canonical_host
       statusCode    = var.alias_redirect.status_code

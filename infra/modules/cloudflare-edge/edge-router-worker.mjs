@@ -25,6 +25,38 @@ const buildStaticBucketObjectUrl = (requestUrl, staticBucketRoute) => {
   return objectUrl;
 };
 
+const selectExternalHttpsRoute = (requestPath, routingTable) =>
+  (routingTable.externalHttpsPrefixes ?? []).find((route) =>
+    requestPath.startsWith(route.prefix),
+  );
+
+const buildExternalHttpsOriginUrl = (requestUrl, externalRoute) => {
+  const originUrl = new URL(requestUrl);
+  originUrl.hostname = externalRoute.originHost;
+  if (externalRoute.pathRewrite === "strip-mount-path") {
+    const requestPathWithinMount = requestUrl.pathname.slice(
+      externalRoute.prefix.length,
+    );
+    originUrl.pathname = `${externalRoute.forwardedBasePath}${requestPathWithinMount}`;
+  }
+  return originUrl;
+};
+
+const removeCookiesByName = (cookieHeaderValue, cookieNamesToRemove) => {
+  const cookieNamesToRemoveSet = new Set(cookieNamesToRemove);
+  return cookieHeaderValue
+    .split(";")
+    .map((cookiePair) => cookiePair.trim())
+    .filter((cookiePair) => cookiePair.length > 0)
+    .filter((cookiePair) => {
+      const cookieName = cookiePair.includes("=")
+        ? cookiePair.slice(0, cookiePair.indexOf("="))
+        : cookiePair;
+      return !cookieNamesToRemoveSet.has(cookieName);
+    })
+    .join("; ");
+};
+
 export default {
   async fetch(request, env) {
     const routingTable = JSON.parse(env.EDGE_ROUTES);
@@ -50,6 +82,35 @@ export default {
         staticBucketRoute,
       );
       return fetch(new Request(objectUrl, request));
+    }
+
+    const externalHttpsRoute = selectExternalHttpsRoute(
+      incomingUrl.pathname,
+      routingTable,
+    );
+    if (externalHttpsRoute) {
+      const externalOriginUrl = buildExternalHttpsOriginUrl(
+        incomingUrl,
+        externalHttpsRoute,
+      );
+      const externalOriginRequest = new Request(externalOriginUrl, request);
+      externalOriginRequest.headers.delete(env.EDGE_SHARED_SECRET_HEADER_NAME);
+      const incomingCookieHeader = externalOriginRequest.headers.get("Cookie");
+      if (incomingCookieHeader !== null) {
+        const sanitizedCookieHeader = removeCookiesByName(incomingCookieHeader, [
+          "CF_Authorization",
+          "CF_AppSession",
+        ]);
+        if (sanitizedCookieHeader.length > 0) {
+          externalOriginRequest.headers.set("Cookie", sanitizedCookieHeader);
+        } else {
+          externalOriginRequest.headers.delete("Cookie");
+        }
+      }
+      if (!externalHttpsRoute.trusted) {
+        externalOriginRequest.headers.delete("Cf-Access-Jwt-Assertion");
+      }
+      return fetch(externalOriginRequest);
     }
 
     const originUrl = new URL(request.url);

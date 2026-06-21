@@ -24,6 +24,22 @@ locals {
     if app.mountPath != "/"
   }
 
+  external_https_apps = {
+    for app in local.app_registry :
+    app.id => app
+    if app.origin.kind == "external-https"
+  }
+
+  external_https_prefix_origins = {
+    for app_id, app in local.external_https_apps :
+    app.mountPath => {
+      origin_host         = app.origin.originHost
+      path_rewrite        = app.origin.pathRewrite
+      forwarded_base_path = app.origin.forwardedBasePath
+      trusted             = app.origin.trusted
+    }
+  }
+
   edge_serving_domain = var.enable_dotcom_canonical ? var.canonical_domain_name : var.domain_name
 }
 
@@ -73,7 +89,8 @@ module "edge" {
       object_key_prefix = "reports/coverage/"
     }
   } : {}
-  edge_shared_secret_value = var.edge_shared_secret_value
+  external_https_prefix_origins = local.external_https_prefix_origins
+  edge_shared_secret_value      = var.edge_shared_secret_value
   alias_redirect = var.enable_dotcom_canonical ? {
     zone_name      = var.domain_name
     canonical_host = var.canonical_domain_name

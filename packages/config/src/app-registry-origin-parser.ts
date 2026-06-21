@@ -2,7 +2,9 @@ import type { AppOrigin } from "./app-registry-types";
 import {
   asObjectRecord,
   rejectUnknownKeys,
+  requireBareHostname,
   requireBoolean,
+  requireForwardedBasePath,
   requireOneOf,
   requireString,
   requireStringAllowEmpty,
@@ -61,14 +63,18 @@ export function parseOrigin(value: unknown, context: string): AppOrigin {
       );
       return {
         kind,
-        originHost: requireString(record, "originHost", `${context} origin`),
+        originHost: requireBareHostname(
+          record,
+          "originHost",
+          `${context} origin`,
+        ),
         pathRewrite: requireOneOf(
           record,
           "pathRewrite",
           ["preserve", "strip-mount-path"] as const,
           `${context} origin`,
         ),
-        forwardedBasePath: requireStringAllowEmpty(
+        forwardedBasePath: requireForwardedBasePath(
           record,
           "forwardedBasePath",
           `${context} origin`,

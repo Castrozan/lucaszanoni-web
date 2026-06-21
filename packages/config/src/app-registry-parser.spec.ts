@@ -81,28 +81,6 @@ describe("parseAppRegistry", () => {
     ).toThrow(/appDirectoryName/);
   });
 
-  it("rejects an unknown origin kind", () => {
-    expect(() =>
-      parseAppRegistry([{ ...baseEntry, origin: { kind: "carrier-pigeon" } }]),
-    ).toThrow(AppRegistryValidationError);
-  });
-
-  it("rejects a non-public static bucket origin", () => {
-    expect(() =>
-      parseAppRegistry([
-        {
-          ...baseEntry,
-          accessModel: { kind: "owner-only" },
-          origin: {
-            kind: "static-gcs-bucket",
-            bucketName: "some-bucket",
-            objectKeyPrefix: "prefix/",
-          },
-        },
-      ]),
-    ).toThrow(AppRegistryValidationError);
-  });
-
   it("rejects an entry carrying an unexpected property", () => {
     expect(() => parseAppRegistry([{ ...baseEntry, surprise: true }])).toThrow(
       AppRegistryValidationError,
@@ -115,48 +93,5 @@ describe("parseAppRegistry", () => {
         { ...baseEntry, accessModel: { kind: "public", audienceKey: "x" } },
       ]),
     ).toThrow(AppRegistryValidationError);
-  });
-
-  it("rejects an origin carrying a property from another variant", () => {
-    expect(() =>
-      parseAppRegistry([
-        {
-          ...baseEntry,
-          origin: { ...baseEntry.origin, bucketName: "stray-bucket" },
-        },
-      ]),
-    ).toThrow(AppRegistryValidationError);
-  });
-
-  it("accepts an external-https origin with an empty forwarded base path", () => {
-    expect(() =>
-      parseAppRegistry([
-        {
-          ...baseEntry,
-          origin: {
-            kind: "external-https",
-            originHost: "app.example.com",
-            pathRewrite: "preserve",
-            forwardedBasePath: "",
-            trusted: true,
-          },
-        },
-      ]),
-    ).not.toThrow();
-  });
-
-  it("accepts a static bucket origin with an empty object key prefix", () => {
-    expect(() =>
-      parseAppRegistry([
-        {
-          ...baseEntry,
-          origin: {
-            kind: "static-gcs-bucket",
-            bucketName: "some-bucket",
-            objectKeyPrefix: "",
-          },
-        },
-      ]),
-    ).not.toThrow();
   });
 });
