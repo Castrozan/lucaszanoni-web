@@ -8,6 +8,9 @@ cloud_run_service_name="lucaszanoni-reports"
 candidate_revision_tag="candidate-0a1b2c3d0a1b2c3d0a1b2c3d0a1b2c3d0a1b2c3d"
 cloud_run_image_reference="southamerica-east1-docker.pkg.dev/zg-url-shortener-2026/lucaszanoni-web/reports:0a1b2c3d0a1b2c3d0a1b2c3d0a1b2c3d0a1b2c3d"
 
+maximum_combined_traffic_tag_and_service_name_length=46
+expected_candidate_revision_tag=$(printf '%s' "$candidate_revision_tag" | cut -c"1-$((maximum_combined_traffic_tag_and_service_name_length - ${#cloud_run_service_name}))" | sed 's/-*$//')
+
 base_temporary_directory=$(mktemp -d)
 trap 'rm -rf "$base_temporary_directory"' EXIT
 
@@ -52,7 +55,7 @@ chmod +x "$fake_command_directory/gcloud" "$fake_command_directory/curl"
 
 describe_json_fixture_path="$base_temporary_directory/service-description.json"
 cat >"$describe_json_fixture_path" <<JSON
-{"status":{"traffic":[{"revisionName":"${cloud_run_service_name}-00002-abc","percent":0,"tag":"${candidate_revision_tag}","url":"http://candidate---${cloud_run_service_name}.example.invalid"},{"revisionName":"${cloud_run_service_name}-00001-xyz","percent":100}]}}
+{"status":{"traffic":[{"revisionName":"${cloud_run_service_name}-00002-abc","percent":0,"tag":"${expected_candidate_revision_tag}","url":"http://candidate---${cloud_run_service_name}.example.invalid"},{"revisionName":"${cloud_run_service_name}-00001-xyz","percent":100}]}}
 JSON
 
 scenario_exit_code=0
@@ -127,14 +130,26 @@ assert_log_order() {
 	fi
 }
 
+assert_candidate_tag_within_cloud_run_combined_limit() {
+	observed_candidate_revision_tag=$(grep -F " run services update " "$1" | sed -n 's/.*--tag \([^ ]*\).*/\1/p' | head -1)
+	observed_combined_length=$((${#observed_candidate_revision_tag} + ${#cloud_run_service_name}))
+	if [ "$observed_combined_length" -le 46 ]; then
+		echo "PASS: $2 (candidate tag plus service name is ${observed_combined_length} characters)"
+	else
+		echo "FAIL: $2 (candidate tag '${observed_candidate_revision_tag}' plus service '${cloud_run_service_name}' is ${observed_combined_length} characters, over the Cloud Run 46-character combined limit)" >&2
+		exit 1
+	fi
+}
+
 echo "--- scenario: healthy candidate is health-gated then promoted ---"
 run_rollout_scenario "healthy" "1" "200"
 assert_exit_code 0 "$scenario_exit_code" "[healthy] script exits zero after a successful health-gated migration"
 assert_log_contains "--no-traffic" "$scenario_call_log" "[healthy] the candidate revision is deployed with no production traffic"
-assert_log_contains "--tag $candidate_revision_tag" "$scenario_call_log" "[healthy] the candidate revision is deployed under its tag"
+assert_log_contains "--tag $expected_candidate_revision_tag --quiet" "$scenario_call_log" "[healthy] the candidate revision is deployed under its length-bounded tag"
+assert_candidate_tag_within_cloud_run_combined_limit "$scenario_call_log" "[healthy] the candidate tag stays within the Cloud Run combined tag-plus-service limit"
 assert_log_contains "curl" "$scenario_call_log" "[healthy] the candidate revision is health-checked"
 assert_log_contains "update-traffic" "$scenario_call_log" "[healthy] production traffic is migrated after the health check passes"
-assert_log_contains "--remove-tags $candidate_revision_tag" "$scenario_call_log" "[healthy] the candidate tag is removed after migration"
+assert_log_contains "--remove-tags $expected_candidate_revision_tag --quiet" "$scenario_call_log" "[healthy] the same length-bounded candidate tag is removed after migration"
 assert_log_contains "http://candidate---${cloud_run_service_name}.example.invalid/healthz" "$scenario_call_log" "[healthy] the health probe targets the jq-resolved candidate URL with the health path"
 assert_log_contains "--to-revisions ${cloud_run_service_name}-00002-abc=100" "$scenario_call_log" "[healthy] production traffic migrates to the exact health-checked candidate revision rather than merely the latest"
 assert_log_order "--no-traffic" "curl" "$scenario_call_log" "[healthy] the no-traffic deploy precedes the health check"

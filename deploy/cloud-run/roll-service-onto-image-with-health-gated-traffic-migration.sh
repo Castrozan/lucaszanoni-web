@@ -12,6 +12,12 @@ health_check_retry_delay_seconds="${HEALTH_CHECK_RETRY_DELAY_SECONDS:-2}"
 gcloud_command="${GCLOUD_COMMAND:-gcloud}"
 curl_command="${CURL_COMMAND:-curl}"
 
+maximum_combined_traffic_tag_and_service_name_length=46
+maximum_candidate_revision_tag_length=$((maximum_combined_traffic_tag_and_service_name_length - ${#cloud_run_service_name}))
+if [ "${#candidate_revision_tag}" -gt "$maximum_candidate_revision_tag_length" ]; then
+	candidate_revision_tag=$(printf '%s' "$candidate_revision_tag" | cut -c"1-${maximum_candidate_revision_tag_length}" | sed 's/-*$//')
+fi
+
 describe_cloud_run_service() {
 	"$gcloud_command" run services describe "$cloud_run_service_name" \
 		--project "$google_cloud_project_id" \
