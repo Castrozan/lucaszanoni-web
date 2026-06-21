@@ -63,12 +63,15 @@ resource "google_cloud_run_v2_service" "this" {
   }
 
   labels = {
-    mount_path = replace(trim(var.mount_path, "/"), "/", "-")
+    mount_path = coalesce(replace(trim(var.mount_path, "/"), "/", "-"), "root")
   }
 
   lifecycle {
     ignore_changes = [
       template[0].containers[0].image,
+      client,
+      client_version,
+      scaling,
     ]
   }
 }
