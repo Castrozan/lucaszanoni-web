@@ -1,4 +1,4 @@
 {
   "extends": "@lucaszanoni-web/tsconfig/vite-app.json",
-  "include": ["src"]
+  "include": ["src", "tests"]
 }
