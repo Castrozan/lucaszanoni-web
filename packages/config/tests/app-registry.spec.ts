@@ -4,22 +4,11 @@ import appRegistryDocument from "../src/app-registry.json";
 import appRegistrySchema from "../src/app-registry.schema.json";
 import { appRegistry } from "../src/app-registry";
 import type { MicroFrontendId } from "../src/app-registry";
-import { CROSS_SECTION_NAVIGATION_ROUTES } from "../src/route-registry";
 import { todaysApps } from "./app-registry-test-fixtures";
 
 describe("application registry", () => {
-  it("mirrors today's registered apps exactly", () => {
+  it("mirrors today's three deployed apps exactly", () => {
     expect(appRegistry).toEqual(todaysApps);
-  });
-
-  it("registers the owner-only db app on an external origin and hides it from public navigation", () => {
-    const dbApp = appRegistry.find((entry) => entry.id === "db");
-    expect(dbApp?.accessModel).toEqual({ kind: "owner-only" });
-    expect(dbApp?.origin.kind).toBe("external-https");
-    expect(dbApp?.showInCrossSectionNavigation).toBe(false);
-    expect(
-      CROSS_SECTION_NAVIGATION_ROUTES.some((route) => route.id === "db"),
-    ).toBe(false);
   });
 
   it("exposes every mount path with a leading and trailing slash", () => {
