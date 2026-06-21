@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Button, useTheme } from "@platform/design-system";
+import { cockpitViews } from "../navigation/cockpit-views";
 import { cockpitQuickAccessBookmarks } from "./cockpit-quick-access-bookmarks";
 
 export interface CockpitShellProps {
@@ -8,14 +10,28 @@ export interface CockpitShellProps {
 
 export function CockpitShell({ children }: CockpitShellProps) {
   const { themeName, toggleTheme } = useTheme();
+  const { pathname } = useLocation();
   return (
     <div className="flex min-h-screen">
       <nav
-        aria-label="Quick access"
+        aria-label="Cockpit navigation"
         className="flex w-60 shrink-0 flex-col gap-1 border-r border-border bg-surface px-4 py-6"
       >
         <span className="mb-5 px-3 font-mono text-[11px] font-bold uppercase tracking-[2px] text-primary">
           [COCKPIT]
+        </span>
+        {cockpitViews.map((view) => (
+          <Link
+            key={view.id}
+            to={view.path}
+            aria-current={pathname === view.path ? "page" : undefined}
+            className="rounded-md px-3 py-2 text-sm text-muted-foreground no-underline transition-colors hover:bg-surface-raised hover:text-primary aria-[current=page]:bg-surface-raised aria-[current=page]:text-primary"
+          >
+            {view.label}
+          </Link>
+        ))}
+        <span className="mb-1 mt-6 px-3 font-mono text-[10px] uppercase tracking-[2px] text-text-faint">
+          Quick access
         </span>
         {cockpitQuickAccessBookmarks.map((bookmark) => (
           <a

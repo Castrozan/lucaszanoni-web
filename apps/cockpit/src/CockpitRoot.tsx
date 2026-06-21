@@ -3,6 +3,7 @@ import { ThemeProvider } from "@platform/design-system";
 import { COCKPIT_MOUNT_PATH } from "@platform/config";
 import { CockpitShell } from "./layout/CockpitShell";
 import { CockpitDashboardPage } from "./pages/CockpitDashboardPage";
+import { CockpitUserPage } from "./pages/CockpitUserPage";
 
 export function CockpitRoot() {
   return (
@@ -11,6 +12,7 @@ export function CockpitRoot() {
         <CockpitShell>
           <Routes>
             <Route path="/" element={<CockpitDashboardPage />} />
+            <Route path="/user" element={<CockpitUserPage />} />
             <Route path="*" element={<CockpitDashboardPage />} />
           </Routes>
         </CockpitShell>
