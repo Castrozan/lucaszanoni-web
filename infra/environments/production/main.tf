@@ -50,6 +50,11 @@ locals {
     if app.accessModel.kind != "public"
   }
 
+  retired_app_mount_prefixes = [
+    for app in local.app_registry : app.mountPath
+    if try(app.status, "active") == "retired"
+  ]
+
   edge_serving_domain = var.enable_dotcom_canonical ? var.canonical_domain_name : var.domain_name
 }
 
@@ -102,6 +107,7 @@ module "edge" {
     }
   } : {}
   external_https_prefix_origins = local.external_https_prefix_origins
+  retired_prefixes              = local.retired_app_mount_prefixes
   edge_shared_secret_value      = var.edge_shared_secret_value
   alias_redirect = var.enable_dotcom_canonical ? {
     zone_name      = var.domain_name

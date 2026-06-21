@@ -23,6 +23,11 @@ locals {
         trusted           = origin.trusted
       }
     ]
+    retiredPrefixes = [
+      for prefix in var.retired_prefixes : {
+        prefix = prefix
+      }
+    ]
     aliasRedirect = var.alias_redirect == null ? null : {
       canonicalHost = var.alias_redirect.canonical_host
       statusCode    = var.alias_redirect.status_code

@@ -6,8 +6,8 @@ import {
   reportsStaticBucketName,
   edgeSharedSecretHeaderName,
   edgeSharedSecretValue,
-  dispatchThroughEdgeWithStaticBuckets,
-} from "./edge-router-test-harness.mjs";
+} from "./edge-router-test-constants.mjs";
+import { dispatchThroughEdgeWithStaticBuckets } from "./edge-router-test-dispatch.mjs";
 
 test("the reports baseline prefix routes to the public GCS bucket origin", async () => {
   const { capturedOriginRequest } =

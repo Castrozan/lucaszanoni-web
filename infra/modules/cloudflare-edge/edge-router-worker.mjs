@@ -1,3 +1,8 @@
+const selectRetiredRoute = (requestPath, routingTable) =>
+  (routingTable.retiredPrefixes ?? []).find((route) =>
+    requestPath.startsWith(route.prefix),
+  );
+
 const selectStaticBucketRoute = (requestPath, routingTable) =>
   (routingTable.staticBucketPrefixes ?? []).find((route) =>
     requestPath.startsWith(route.prefix),
@@ -72,6 +77,14 @@ export default {
       });
     }
 
+    const retiredRoute = selectRetiredRoute(incomingUrl.pathname, routingTable);
+    if (retiredRoute) {
+      return new Response("This application has been retired.\n", {
+        status: 410,
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+      });
+    }
+
     const staticBucketRoute = selectStaticBucketRoute(
       incomingUrl.pathname,
       routingTable,
@@ -97,10 +110,10 @@ export default {
       externalOriginRequest.headers.delete(env.EDGE_SHARED_SECRET_HEADER_NAME);
       const incomingCookieHeader = externalOriginRequest.headers.get("Cookie");
       if (incomingCookieHeader !== null) {
-        const sanitizedCookieHeader = removeCookiesByName(incomingCookieHeader, [
-          "CF_Authorization",
-          "CF_AppSession",
-        ]);
+        const sanitizedCookieHeader = removeCookiesByName(
+          incomingCookieHeader,
+          ["CF_Authorization", "CF_AppSession"],
+        );
         if (sanitizedCookieHeader.length > 0) {
           externalOriginRequest.headers.set("Cookie", sanitizedCookieHeader);
         } else {
