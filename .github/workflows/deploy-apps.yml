@@ -90,23 +90,11 @@ jobs:
           docker push "${image_repository}:${{ github.sha }}"
           docker push "${image_repository}:latest"
 
-      - name: Roll the Cloud Run service onto the new image
+      - name: Roll the Cloud Run service onto the new image with a health-gated traffic migration
         env:
-          image_repository: ${{ env.gcp_region }}-docker.pkg.dev/${{ env.gcp_project_id }}/${{ env.artifact_registry_repository }}/${{ matrix.app_directory_name }}
-        run: |
-          describe_error="$(gcloud run services describe "${{ matrix.service_name }}" \
-            --project "${{ env.gcp_project_id }}" \
-            --region "${{ env.gcp_region }}" 2>&1 >/dev/null)" && describe_status=0 || describe_status=$?
-          if [ "${describe_status}" -ne 0 ]; then
-            if printf '%s' "${describe_error}" | grep -qiE 'NOT_FOUND|could not be found|does not exist'; then
-              echo "::warning::Cloud Run service ${{ matrix.service_name }} is not provisioned yet; deploy-infrastructure (Terraform) must apply before its image can roll. Skipping the image roll for this run."
-              exit 0
-            fi
-            echo "::error::Failed to describe Cloud Run service ${{ matrix.service_name }}: ${describe_error}"
-            exit 1
-          fi
-          gcloud run services update "${{ matrix.service_name }}" \
-            --project "${{ env.gcp_project_id }}" \
-            --region "${{ env.gcp_region }}" \
-            --image "${image_repository}:${{ github.sha }}" \
-            --quiet
+          CLOUD_RUN_SERVICE_NAME: ${{ matrix.service_name }}
+          CLOUD_RUN_IMAGE_REFERENCE: ${{ env.gcp_region }}-docker.pkg.dev/${{ env.gcp_project_id }}/${{ env.artifact_registry_repository }}/${{ matrix.app_directory_name }}:${{ github.sha }}
+          GOOGLE_CLOUD_PROJECT_ID: ${{ env.gcp_project_id }}
+          GOOGLE_CLOUD_REGION: ${{ env.gcp_region }}
+          CANDIDATE_REVISION_TAG: candidate-${{ github.sha }}
+        run: sh deploy/cloud-run/roll-service-onto-image-with-health-gated-traffic-migration.sh
