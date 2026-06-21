@@ -57,6 +57,8 @@ jobs:
           TF_VAR_enable_cloudflare_edge: ${{ vars.ENABLE_CLOUDFLARE_EDGE || 'false' }}
           TF_VAR_enable_reports_static_gcs_routes: ${{ vars.ENABLE_REPORTS_STATIC_GCS_ROUTES || 'false' }}
           TF_VAR_enable_dotcom_canonical: ${{ vars.ENABLE_DOTCOM_CANONICAL || 'false' }}
+          TF_VAR_owner_account_email: ${{ secrets.OWNER_ACCOUNT_EMAIL }}
+          TF_VAR_shared_access_audience_email_allowlists: ${{ secrets.SHARED_ACCESS_AUDIENCE_EMAIL_ALLOWLISTS || '{}' }}
         run: terraform plan -out tfplan -input=false
 
       - name: Terraform apply
@@ -69,4 +71,6 @@ jobs:
           TF_VAR_enable_cloudflare_edge: ${{ vars.ENABLE_CLOUDFLARE_EDGE || 'false' }}
           TF_VAR_enable_reports_static_gcs_routes: ${{ vars.ENABLE_REPORTS_STATIC_GCS_ROUTES || 'false' }}
           TF_VAR_enable_dotcom_canonical: ${{ vars.ENABLE_DOTCOM_CANONICAL || 'false' }}
+          TF_VAR_owner_account_email: ${{ secrets.OWNER_ACCOUNT_EMAIL }}
+          TF_VAR_shared_access_audience_email_allowlists: ${{ secrets.SHARED_ACCESS_AUDIENCE_EMAIL_ALLOWLISTS || '{}' }}
         run: terraform apply -input=false tfplan

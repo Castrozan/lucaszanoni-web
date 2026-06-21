@@ -40,6 +40,16 @@ locals {
     }
   }
 
+  non_public_apps = {
+    for app in local.app_registry :
+    app.id => {
+      mount_path        = app.mountPath
+      access_model_kind = app.accessModel.kind
+      audience_key      = try(app.accessModel.audienceKey, "")
+    }
+    if app.accessModel.kind != "public"
+  }
+
   edge_serving_domain = var.enable_dotcom_canonical ? var.canonical_domain_name : var.domain_name
 }
 
@@ -96,4 +106,15 @@ module "edge" {
     canonical_host = var.canonical_domain_name
     status_code    = 301
   } : null
+}
+
+module "access" {
+  source = "../../modules/cloudflare-access"
+  count  = var.enable_cloudflare_edge ? 1 : 0
+
+  cloudflare_account_id                   = var.cloudflare_account_id
+  zone_name                               = local.edge_serving_domain
+  non_public_apps                         = local.non_public_apps
+  owner_account_email                     = var.owner_account_email
+  shared_access_audience_email_allowlists = var.shared_access_audience_email_allowlists
 }
