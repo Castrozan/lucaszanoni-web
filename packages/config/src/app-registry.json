@@ -52,21 +52,5 @@
       "nonSecretEnvironment": {},
       "secretEnvironmentReferences": {}
     }
-  },
-  {
-    "id": "db",
-    "mountPath": "/db/",
-    "navigationLabel": "Database",
-    "description": "Owner-only application attached at the edge and gated by Cloudflare Access.",
-    "showInCrossSectionNavigation": false,
-    "status": "active",
-    "accessModel": { "kind": "owner-only" },
-    "origin": {
-      "kind": "external-https",
-      "originHost": "example.com",
-      "pathRewrite": "preserve",
-      "forwardedBasePath": "",
-      "trusted": false
-    }
   }
 ]
