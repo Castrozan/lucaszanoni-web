@@ -62,6 +62,30 @@ const removeCookiesByName = (cookieHeaderValue, cookieNamesToRemove) => {
     .join("; ");
 };
 
+const cloudflareAccessSessionCookieNames = [
+  "CF_Authorization",
+  "CF_AppSession",
+];
+
+const stripCloudflareAccessSessionCookies = (originRequest) => {
+  const incomingCookieHeader = originRequest.headers.get("Cookie");
+  if (incomingCookieHeader === null) {
+    return;
+  }
+  const sanitizedCookieHeader = removeCookiesByName(
+    incomingCookieHeader,
+    cloudflareAccessSessionCookieNames,
+  );
+  if (sanitizedCookieHeader.length > 0) {
+    originRequest.headers.set("Cookie", sanitizedCookieHeader);
+  } else {
+    originRequest.headers.delete("Cookie");
+  }
+};
+
+const selectSubdomainRoute = (requestHost, routingTable) =>
+  (routingTable.subdomains ?? []).find((route) => route.host === requestHost);
+
 export default {
   async fetch(request, env) {
     const routingTable = JSON.parse(env.EDGE_ROUTES);
@@ -75,6 +99,31 @@ export default {
         status: aliasRedirect.statusCode,
         headers: { Location: canonicalUrl.toString() },
       });
+    }
+
+    const subdomainRoute = selectSubdomainRoute(
+      incomingUrl.hostname,
+      routingTable,
+    );
+    if (subdomainRoute) {
+      const subdomainOriginUrl = new URL(request.url);
+      subdomainOriginUrl.hostname = subdomainRoute.originHost;
+      const subdomainOriginRequest = new Request(subdomainOriginUrl, request);
+      stripCloudflareAccessSessionCookies(subdomainOriginRequest);
+      if (subdomainRoute.originKind === "in-repo-cloud-run") {
+        subdomainOriginRequest.headers.set(
+          env.EDGE_SHARED_SECRET_HEADER_NAME,
+          env.EDGE_SHARED_SECRET,
+        );
+      } else {
+        subdomainOriginRequest.headers.delete(
+          env.EDGE_SHARED_SECRET_HEADER_NAME,
+        );
+        if (!subdomainRoute.trusted) {
+          subdomainOriginRequest.headers.delete("Cf-Access-Jwt-Assertion");
+        }
+      }
+      return fetch(subdomainOriginRequest);
     }
 
     const retiredRoute = selectRetiredRoute(incomingUrl.pathname, routingTable);
@@ -108,18 +157,7 @@ export default {
       );
       const externalOriginRequest = new Request(externalOriginUrl, request);
       externalOriginRequest.headers.delete(env.EDGE_SHARED_SECRET_HEADER_NAME);
-      const incomingCookieHeader = externalOriginRequest.headers.get("Cookie");
-      if (incomingCookieHeader !== null) {
-        const sanitizedCookieHeader = removeCookiesByName(
-          incomingCookieHeader,
-          ["CF_Authorization", "CF_AppSession"],
-        );
-        if (sanitizedCookieHeader.length > 0) {
-          externalOriginRequest.headers.set("Cookie", sanitizedCookieHeader);
-        } else {
-          externalOriginRequest.headers.delete("Cookie");
-        }
-      }
+      stripCloudflareAccessSessionCookies(externalOriginRequest);
       if (!externalHttpsRoute.trusted) {
         externalOriginRequest.headers.delete("Cf-Access-Jwt-Assertion");
       }

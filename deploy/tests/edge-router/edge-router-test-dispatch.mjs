@@ -5,6 +5,7 @@ import {
   edgeEnvironmentWithStaticBucketPrefixes,
   edgeEnvironmentWithExternalHttpsPrefixes,
   edgeEnvironmentWithRetiredPrefixes,
+  edgeEnvironmentWithSubdomains,
 } from "./edge-router-test-environments.mjs";
 
 export const dispatchThroughEdgeFromHost = async (
@@ -72,4 +73,26 @@ export const dispatchThroughEdgeWithRetired = (
     requestPathAndQuery,
     incomingHeaders,
     edgeEnvironmentWithRetiredPrefixes,
+  );
+
+export const dispatchThroughEdgeFromSubdomainHost = (
+  requestHost,
+  requestPathAndQuery,
+  incomingHeaders = {},
+) =>
+  dispatchThroughEdgeFromHost(
+    requestHost,
+    requestPathAndQuery,
+    incomingHeaders,
+    edgeEnvironmentWithSubdomains,
+  );
+
+export const dispatchThroughEdgeApexWithSubdomains = (
+  requestPathAndQuery,
+  incomingHeaders = {},
+) =>
+  dispatchThroughEdge(
+    requestPathAndQuery,
+    incomingHeaders,
+    edgeEnvironmentWithSubdomains,
   );
