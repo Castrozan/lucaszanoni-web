@@ -37,6 +37,21 @@ describe("buildDailyTokensChartConfiguration", () => {
     );
   });
 
+  it("applies injected theme axis colors across legend, title, ticks and grid", () => {
+    const themed = buildDailyTokensChartConfiguration(
+      sampleUsageViewModel.chart,
+      {
+        legendLabelColor: "#1f2328",
+        axisLabelColor: "#656d76",
+        gridLineColor: "#d0d7de",
+      },
+    );
+    expect(themed.options.plugins?.legend?.labels?.color).toBe("#1f2328");
+    expect(themed.options.plugins?.title?.color).toBe("#656d76");
+    expect(themed.options.scales?.y?.ticks?.color).toBe("#656d76");
+    expect(themed.options.scales?.x?.grid?.color).toBe("#d0d7de");
+  });
+
   it("wraps palette colors back to the first when accounts outnumber the palette", () => {
     const sixSeriesChart: ChartSeries = {
       dates: ["2026-05-01"],

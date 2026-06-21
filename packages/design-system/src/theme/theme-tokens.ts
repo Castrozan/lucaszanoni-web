@@ -12,6 +12,9 @@ export interface ThemePalette {
   readonly accent: string;
   readonly accentMuted: string;
   readonly accentSecondary: string;
+  readonly statusPositive: string;
+  readonly statusCaution: string;
+  readonly statusNegative: string;
 }
 
 export const THEME_PALETTES: Record<ThemeName, ThemePalette> = {
@@ -27,6 +30,9 @@ export const THEME_PALETTES: Record<ThemeName, ThemePalette> = {
     accent: "#FFD600",
     accentMuted: "#E6C200",
     accentSecondary: "#FF6B35",
+    statusPositive: "#3FB950",
+    statusCaution: "#D29922",
+    statusNegative: "#F85149",
   },
   light: {
     background: "#ffffff",
@@ -40,5 +46,8 @@ export const THEME_PALETTES: Record<ThemeName, ThemePalette> = {
     accent: "#0969da",
     accentMuted: "#0550ae",
     accentSecondary: "#d4571f",
+    statusPositive: "#1A7F37",
+    statusCaution: "#9A6700",
+    statusNegative: "#CF222E",
   },
 };
