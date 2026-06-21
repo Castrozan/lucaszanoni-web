@@ -83,6 +83,37 @@ export function requireMountPath(
   return mountPath;
 }
 
+export function requireBareHostname(
+  record: Record<string, unknown>,
+  key: string,
+  context: string,
+): string {
+  const hostname = requireString(record, key, context);
+  if (hostname.includes(":") || hostname.includes("/")) {
+    throw new AppRegistryValidationError(
+      `${context} field ${key} must be a bare hostname without a scheme, port, or path`,
+    );
+  }
+  return hostname;
+}
+
+export function requireForwardedBasePath(
+  record: Record<string, unknown>,
+  key: string,
+  context: string,
+): string {
+  const forwardedBasePath = requireStringAllowEmpty(record, key, context);
+  if (
+    forwardedBasePath.length > 0 &&
+    (!forwardedBasePath.startsWith("/") || !forwardedBasePath.endsWith("/"))
+  ) {
+    throw new AppRegistryValidationError(
+      `${context} field ${key} must be empty or start and end with a slash`,
+    );
+  }
+  return forwardedBasePath;
+}
+
 export function rejectUnknownKeys(
   record: Record<string, unknown>,
   allowedKeys: readonly string[],
