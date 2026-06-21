@@ -27,7 +27,8 @@
         "showInCrossSectionNavigation": { "type": "boolean" },
         "status": { "enum": ["active", "retired"] },
         "accessModel": { "$ref": "#/definitions/accessModel" },
-        "origin": { "$ref": "#/definitions/origin" }
+        "origin": { "$ref": "#/definitions/origin" },
+        "healthProbePath": { "type": "string", "pattern": "^/" }
       },
       "allOf": [
         {

@@ -94,4 +94,36 @@ describe("parseAppRegistry", () => {
       ]),
     ).toThrow(AppRegistryValidationError);
   });
+
+  describe("optional healthProbePath", () => {
+    it("leaves healthProbePath undefined when the entry omits it", () => {
+      const parsed = parseAppRegistry([baseEntry]);
+      expect(parsed[0]?.healthProbePath).toBeUndefined();
+    });
+
+    it("accepts and exposes an absolute healthProbePath", () => {
+      const parsed = parseAppRegistry([
+        { ...baseEntry, healthProbePath: "/health" },
+      ]);
+      expect(parsed[0]?.healthProbePath).toBe("/health");
+    });
+
+    it("rejects a healthProbePath that is not an absolute path", () => {
+      expect(() =>
+        parseAppRegistry([{ ...baseEntry, healthProbePath: "health" }]),
+      ).toThrow(/healthProbePath/);
+    });
+
+    it("rejects an empty healthProbePath", () => {
+      expect(() =>
+        parseAppRegistry([{ ...baseEntry, healthProbePath: "" }]),
+      ).toThrow(/healthProbePath/);
+    });
+
+    it("rejects a non-string healthProbePath", () => {
+      expect(() =>
+        parseAppRegistry([{ ...baseEntry, healthProbePath: 42 }]),
+      ).toThrow(/healthProbePath/);
+    });
+  });
 });

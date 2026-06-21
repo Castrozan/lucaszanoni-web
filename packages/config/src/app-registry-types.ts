@@ -41,6 +41,7 @@ export interface AppRegistryEntry {
   readonly status: AppLifecycleStatus;
   readonly accessModel: AppAccessModel;
   readonly origin: AppOrigin;
+  readonly healthProbePath?: string;
 }
 
 export class AppRegistryValidationError extends Error {}

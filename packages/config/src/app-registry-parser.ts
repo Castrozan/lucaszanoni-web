@@ -6,6 +6,7 @@ import type {
 import { AppRegistryValidationError } from "./app-registry-types";
 import {
   asObjectRecord,
+  optionalAbsolutePath,
   rejectUnknownKeys,
   requireBoolean,
   requireMountPath,
@@ -58,6 +59,7 @@ function parseAppRegistryEntry(
       "status",
       "accessModel",
       "origin",
+      "healthProbePath",
     ],
     context,
   );
@@ -86,6 +88,7 @@ function parseAppRegistryEntry(
     ),
     accessModel,
     origin,
+    healthProbePath: optionalAbsolutePath(record, "healthProbePath", context),
   };
 }
 
