@@ -46,5 +46,11 @@ jobs:
       - name: Registry app-directory consistency test
         run: node --test deploy/tests/registry-consistency/*.test.mjs
 
+      - name: Edge nginx serving contract test
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nginx-light gettext-base
+          sh deploy/tests/assert-edge-nginx-serving-contract.sh
+
       - name: Build
         run: pnpm build

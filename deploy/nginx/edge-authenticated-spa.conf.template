@@ -11,11 +11,25 @@ server {
 
     root ${NGINX_DOCUMENT_ROOT};
 
-    if ($request_carries_valid_edge_authentication = 0) {
-        return 403;
+    absolute_redirect off;
+
+    location = /healthz {
+        return 200 "ok";
+    }
+
+    location ${APP_MOUNT_PATH}assets/ {
+        if ($request_carries_valid_edge_authentication = 0) {
+            return 403;
+        }
+
+        try_files $uri =404;
     }
 
     location / {
+        if ($request_carries_valid_edge_authentication = 0) {
+            return 403;
+        }
+
         try_files $uri $uri/ ${APP_INDEX_FALLBACK_PATH};
     }
 }

@@ -3,6 +3,7 @@ set -eu
 
 : "${EDGE_SHARED_SECRET_VALUE:?EDGE_SHARED_SECRET_VALUE must be set to a non-empty edge shared secret}"
 : "${APP_INDEX_FALLBACK_PATH:?APP_INDEX_FALLBACK_PATH must be set to the single-page-application index fallback path}"
+: "${APP_MOUNT_PATH:?APP_MOUNT_PATH must be set to the application mount path that prefixes the hashed asset directory}"
 
 edge_authentication_request_header_name="${EDGE_SHARED_SECRET_HEADER_NAME:-X-Edge-Auth}"
 edge_authentication_request_header_normalized=$(printf '%s' "$edge_authentication_request_header_name" | tr '[:upper:]-' '[:lower:]_')
@@ -17,5 +18,6 @@ export NGINX_LISTEN_PORT
 export NGINX_DOCUMENT_ROOT
 export EDGE_SHARED_SECRET_VALUE
 export APP_INDEX_FALLBACK_PATH
+export APP_MOUNT_PATH
 
-envsubst '${EDGE_AUTHENTICATION_REQUEST_HEADER_NGINX_VARIABLE} ${EDGE_SHARED_SECRET_VALUE} ${NGINX_LISTEN_PORT} ${NGINX_DOCUMENT_ROOT} ${APP_INDEX_FALLBACK_PATH}' <"$EDGE_NGINX_TEMPLATE_PATH"
+envsubst '${EDGE_AUTHENTICATION_REQUEST_HEADER_NGINX_VARIABLE} ${EDGE_SHARED_SECRET_VALUE} ${NGINX_LISTEN_PORT} ${NGINX_DOCUMENT_ROOT} ${APP_INDEX_FALLBACK_PATH} ${APP_MOUNT_PATH}' <"$EDGE_NGINX_TEMPLATE_PATH"
