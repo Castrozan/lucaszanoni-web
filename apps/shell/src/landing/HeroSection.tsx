@@ -23,9 +23,17 @@ export function HeroSection() {
         </span>
         <h1 className="m-0 font-grotesk text-[clamp(32px,10vw,96px)] font-bold leading-none tracking-[-1px]">
           <span className="block text-foreground">ONE EDGE.</span>
-          <span className="block text-primary" aria-live="polite">
-            {decodedHeadline}
-            <BlockCursor />
+          <span className="relative block text-primary">
+            <span aria-hidden="true" className="invisible whitespace-nowrap">
+              {dynamicHeadlineLine}
+            </span>
+            <span
+              className="absolute inset-0 whitespace-nowrap"
+              aria-live="polite"
+            >
+              {decodedHeadline}
+              <BlockCursor />
+            </span>
           </span>
         </h1>
         <p className="m-0 max-w-[44rem] font-mono text-[14px] leading-[1.6] tracking-[1px] text-muted-foreground">
