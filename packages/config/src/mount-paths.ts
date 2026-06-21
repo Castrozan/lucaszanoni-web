@@ -1,5 +1,8 @@
+import { findMicroFrontendRoute } from "./route-registry";
+
 export const SITE_DOMAIN = "lucaszanoni.com.br";
 
-export const SHELL_MOUNT_PATH = "/";
-export const USAGE_DASHBOARD_MOUNT_PATH = "/engineering/dotfiles/claude/usage/";
-export const REPORTS_MOUNT_PATH = "/engineering/dotfiles/reports/";
+export const SHELL_MOUNT_PATH = findMicroFrontendRoute("shell").mountPath;
+export const USAGE_DASHBOARD_MOUNT_PATH =
+  findMicroFrontendRoute("usage-dashboard").mountPath;
+export const REPORTS_MOUNT_PATH = findMicroFrontendRoute("reports").mountPath;
