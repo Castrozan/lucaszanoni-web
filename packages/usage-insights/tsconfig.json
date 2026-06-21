@@ -1,0 +1,7 @@
+{
+  "extends": "@platform/tsconfig/react-library.json",
+  "compilerOptions": {
+    "types": []
+  },
+  "include": ["src", "tests"]
+}

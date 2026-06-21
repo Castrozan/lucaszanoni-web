@@ -30,7 +30,10 @@
   --color-accent: var(--ls-color-surface);
   --color-accent-foreground: var(--ls-color-text-primary);
   --color-accent-secondary: var(--ls-color-accent-secondary);
-  --color-destructive: #f85149;
+  --color-status-positive: var(--ls-color-status-positive);
+  --color-status-caution: var(--ls-color-status-caution);
+  --color-status-negative: var(--ls-color-status-negative);
+  --color-destructive: var(--ls-color-status-negative);
   --color-border: var(--ls-color-border);
   --color-input: var(--ls-color-border);
   --color-ring: var(--ls-color-accent);

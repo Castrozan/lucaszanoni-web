@@ -3,7 +3,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { UsageDashboardPage } from "../../src/components/UsageDashboardPage";
 import { sampleUsageViewModel } from "../test-fixtures/usage-view-model-fixture";
 
-vi.mock("../../src/components/DailyTokensChart", () => ({
+vi.mock("@platform/usage-insights", () => ({
   DailyTokensChart: () => <div data-testid="daily-tokens-chart" />,
 }));
 

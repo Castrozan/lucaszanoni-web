@@ -1,8 +1,8 @@
 import { REPORTS_MOUNT_PATH } from "@platform/config";
 import { Card } from "@platform/design-system";
 import type { UsageViewModel } from "@platform/snapshot-data";
+import { DailyTokensChart } from "@platform/usage-insights";
 import { StatCards } from "./StatCards";
-import { DailyTokensChart } from "./DailyTokensChart";
 import { OtelPanel } from "./OtelPanel";
 import { AccountTable } from "./AccountTable";
 
@@ -33,7 +33,7 @@ function LiveStatus({
   if (errorMessage) {
     return (
       <div className={liveStatusClassName}>
-        <span className={`${statusDotClassName} bg-[#f85149]`}></span>
+        <span className={`${statusDotClassName} bg-status-negative`}></span>
         <span>live feed unavailable</span>
       </div>
     );
@@ -41,7 +41,7 @@ function LiveStatus({
   if (isLoading) {
     return (
       <div className={liveStatusClassName}>
-        <span className={`${statusDotClassName} bg-[#d29922]`}></span>
+        <span className={`${statusDotClassName} bg-status-caution`}></span>
         <span>loading live snapshots</span>
       </div>
     );
@@ -49,7 +49,7 @@ function LiveStatus({
   return (
     <div className={liveStatusClassName}>
       <span
-        className={`${statusDotClassName} animate-live-pulse bg-[#3fb950]`}
+        className={`${statusDotClassName} animate-live-pulse bg-status-positive`}
       ></span>
       <span>live · updated {lastUpdatedLabel}</span>
     </div>
@@ -85,7 +85,7 @@ export function UsageDashboardPage({
       </p>
 
       {errorMessage ? (
-        <Card className="gap-0 rounded-lg border-[#f85149] px-5 py-4">
+        <Card className="gap-0 rounded-lg border-status-negative px-5 py-4">
           <p className="m-0">
             Could not reach the snapshot feed: {errorMessage}
           </p>

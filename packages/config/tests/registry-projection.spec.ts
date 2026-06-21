@@ -5,6 +5,7 @@ import {
   MICRO_FRONTEND_ROUTES,
 } from "../src/route-registry";
 import {
+  COCKPIT_MOUNT_PATH,
   REPORTS_MOUNT_PATH,
   SHELL_MOUNT_PATH,
   USAGE_DASHBOARD_MOUNT_PATH,
@@ -53,5 +54,6 @@ describe("registry projection", () => {
       registryEntryForId("usage-dashboard")?.mountPath,
     );
     expect(REPORTS_MOUNT_PATH).toBe(registryEntryForId("reports")?.mountPath);
+    expect(COCKPIT_MOUNT_PATH).toBe(registryEntryForId("cockpit")?.mountPath);
   });
 });

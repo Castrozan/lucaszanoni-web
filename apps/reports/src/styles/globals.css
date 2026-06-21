@@ -2,6 +2,6 @@
 
 @layer base {
   b {
-    color: #3fb950;
+    color: var(--ls-color-status-positive);
   }
 }

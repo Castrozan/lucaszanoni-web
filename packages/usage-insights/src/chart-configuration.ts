@@ -9,8 +9,22 @@ export interface DailyTokensChartConfiguration {
   options: ChartOptions<"line">;
 }
 
+export interface DailyTokensChartAxisColors {
+  readonly legendLabelColor: string;
+  readonly axisLabelColor: string;
+  readonly gridLineColor: string;
+}
+
+export const DEFAULT_DAILY_TOKENS_CHART_AXIS_COLORS: DailyTokensChartAxisColors =
+  {
+    legendLabelColor: "#e6edf3",
+    axisLabelColor: "#8b949e",
+    gridLineColor: "#21262d",
+  };
+
 export function buildDailyTokensChartConfiguration(
   chartSeries: ChartSeries,
+  axisColors: DailyTokensChartAxisColors = DEFAULT_DAILY_TOKENS_CHART_AXIS_COLORS,
 ): DailyTokensChartConfiguration {
   return {
     data: {
@@ -31,16 +45,22 @@ export function buildDailyTokensChartConfiguration(
     },
     options: {
       plugins: {
-        legend: { labels: { color: "#e6edf3" } },
+        legend: { labels: { color: axisColors.legendLabelColor } },
         title: {
           display: true,
           text: "daily tokens per account",
-          color: "#8b949e",
+          color: axisColors.axisLabelColor,
         },
       },
       scales: {
-        y: { ticks: { color: "#8b949e" }, grid: { color: "#21262d" } },
-        x: { ticks: { color: "#8b949e" }, grid: { color: "#21262d" } },
+        y: {
+          ticks: { color: axisColors.axisLabelColor },
+          grid: { color: axisColors.gridLineColor },
+        },
+        x: {
+          ticks: { color: axisColors.axisLabelColor },
+          grid: { color: axisColors.gridLineColor },
+        },
       },
     },
   };

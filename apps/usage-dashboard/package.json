@@ -14,10 +14,9 @@
     "@platform/config": "workspace:*",
     "@platform/design-system": "workspace:*",
     "@platform/snapshot-data": "workspace:*",
+    "@platform/usage-insights": "workspace:*",
     "@tanstack/react-query": "^5.62.0",
-    "chart.js": "^4.5.0",
     "react": "^19.0.0",
-    "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.0"
   },

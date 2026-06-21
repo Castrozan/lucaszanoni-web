@@ -15,5 +15,8 @@ export function paletteToCssVariables(
     "--ls-color-accent": palette.accent,
     "--ls-color-accent-muted": palette.accentMuted,
     "--ls-color-accent-secondary": palette.accentSecondary,
+    "--ls-color-status-positive": palette.statusPositive,
+    "--ls-color-status-caution": palette.statusCaution,
+    "--ls-color-status-negative": palette.statusNegative,
   };
 }

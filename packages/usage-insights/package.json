@@ -1,0 +1,30 @@
+{
+  "name": "@platform/usage-insights",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "dependencies": {
+    "@platform/design-system": "workspace:*",
+    "@platform/snapshot-data": "workspace:*",
+    "@tanstack/react-query": "^5.62.0",
+    "chart.js": "^4.5.0",
+    "react-chartjs-2": "^5.3.0"
+  },
+  "devDependencies": {
+    "@platform/tsconfig": "workspace:*",
+    "@types/react": "^19.0.7",
+    "react": "^19.0.0",
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.9"
+  }
+}

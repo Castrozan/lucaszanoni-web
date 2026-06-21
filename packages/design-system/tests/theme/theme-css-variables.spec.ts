@@ -13,7 +13,10 @@ describe("paletteToCssVariables", () => {
     expect(variables["--ls-color-surface-translucent"]).toBe(
       "rgba(10, 10, 10, 0.85)",
     );
-    expect(Object.keys(variables)).toHaveLength(11);
+    expect(variables["--ls-color-status-positive"]).toBe("#3FB950");
+    expect(variables["--ls-color-status-caution"]).toBe("#D29922");
+    expect(variables["--ls-color-status-negative"]).toBe("#F85149");
+    expect(Object.keys(variables)).toHaveLength(14);
   });
 
   it("produces only custom-property keys", () => {
