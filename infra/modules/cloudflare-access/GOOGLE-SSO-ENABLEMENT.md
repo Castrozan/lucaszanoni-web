@@ -1,44 +1,34 @@
-# Google SSO enablement runbook
+# Cloudflare Access Google SSO wiring
 
-This module wires Google as the Cloudflare Access login method for every managed Access application, but ships it dormant. The `cloudflare_zero_trust_access_identity_provider.google` resource is count-gated on both `google_sso_client_id` and `google_sso_client_secret` being non-empty (`main.tf`), and the applications bind it through `allowed_idps` + `auto_redirect_to_identity` only when that flag is on. With both credentials empty, the identity provider count is zero, so a merge of the wiring changes nothing live and Access keeps its default email one-time-pin login.
+The `cloudflare-access` module offers Google as the Cloudflare Access login method for every managed Access application. Whether it is active is derived, not declared: the `google_sso_enabled` local (`main.tf`) is true exactly when both `google_sso_client_id` and `google_sso_client_secret` are non-empty, and the `google_sso_login_enabled` module output (`outputs.tf`) surfaces that signal. While it is true, the Google identity provider is provisioned and every application binds it through `allowed_idps` + `auto_redirect_to_identity`, so a gated route redirects straight to Google instead of Cloudflare's default email one-time-pin. Clearing either credential flips the signal back to false and reverts to one-time-pin, so treat "Google sign-in is on" as the current credentials-set state, not a fixed fact. The `main.tf`, `variables.tf`, and `outputs.tf` definitions are authoritative; this document is the wiring contract around them.
 
-Turning Google SSO on is a sequence of owner-only actions. The agent's keyless CI cannot perform them: the steps use the owner's Cloudflare and Google consoles, commit a permanent public team subdomain, and require widening the CD token. They are surfaced here as a checklist rather than applied.
+Enabling, re-enabling, or rotating Google SSO is a set of owner-only actions: they touch the owner's Cloudflare and Google consoles, the public team subdomain, and the CD token scope, none of which the agent's keyless CI can perform. They are recorded here so an owner can repeat them.
 
-## The account-level blocker
+## The team subdomain naming contract
 
-Zero Trust Access has never been onboarded on the Cloudflare account. Until it is, every Access API call (creating an application, a policy, or an identity provider) returns `403 code 9999 access.api.error.not_enabled`. This is an account-state error, not a token-scope or code error, and it blocks both the Google identity provider and any private app that needs an Access gate. Enabling Access is the one prerequisite for everything below.
-
-## Owner steps
-
-### 1. Enable Zero Trust Access and choose the team subdomain
-
-Open the Cloudflare Zero Trust dashboard, run the Enable Access onboarding, and pick a team name. The team name becomes `<team>.cloudflareaccess.com`, a public and semi-permanent identity that is baked into the Google OAuth redirect URI below, so choose it deliberately. The recommended value matching the platform brand is `lucaszanoni`, giving `lucaszanoni.cloudflareaccess.com`. The free Zero Trust plan is sufficient.
-
-### 2. Create a Google OAuth 2.0 Web Client
-
-In the owner's Google Cloud console, create an OAuth 2.0 Client ID of type Web application. Set the authorized redirect URI to the team callback:
+Cloudflare Access runs under a team subdomain `<team>.cloudflareaccess.com`. It is public and semi-permanent, because it is baked into the Google OAuth redirect URI:
 
 ```
 https://<team>.cloudflareaccess.com/cdn-cgi/access/callback
 ```
 
-For the recommended team name that is `https://lucaszanoni.cloudflareaccess.com/cdn-cgi/access/callback`. Google issues a client id and a client secret.
+Renaming the team breaks the OAuth client until the redirect URI is updated to match. The team name matching the platform brand is `lucaszanoni`, giving `lucaszanoni.cloudflareaccess.com` and the callback `https://lucaszanoni.cloudflareaccess.com/cdn-cgi/access/callback`. The free Zero Trust plan is sufficient.
 
-### 3. Set the two repo secrets
+## The Google OAuth client
 
-Set the Google client id and secret as GitHub Actions secrets on this repository. The deploy workflow already plumbs both onto the Terraform plan and apply steps (`.github/workflows/deploy-infrastructure.yml`); nothing else needs to change.
+Google SSO is backed by an OAuth 2.0 Web Client in the owner's Google Cloud console whose authorized redirect URI is the team callback above. Google issues a client id and a client secret for it. Rotating the secret means issuing a new one on that client and updating the CI secret below; the client id and the redirect URI stay put.
+
+## The secret-name wiring contract
+
+The credentials reach Terraform through two GitHub Actions secrets whose names match the module variables:
 
 ```
-GOOGLE_SSO_CLIENT_ID      = <the Google OAuth client id>
-GOOGLE_SSO_CLIENT_SECRET  = <the Google OAuth client secret>
+GOOGLE_SSO_CLIENT_ID      -> var.google_sso_client_id
+GOOGLE_SSO_CLIENT_SECRET  -> var.google_sso_client_secret
 ```
 
-The client secret is a credential: keep it in the secret only, never in a committed file.
+`.github/workflows/deploy-infrastructure.yml` already plumbs both onto the plan and apply steps as `TF_VAR_google_sso_client_id` and `TF_VAR_google_sso_client_secret`, so setting or clearing the two repository secrets is the entire control surface. Both variables are `sensitive` with empty defaults (`variables.tf`); the client secret is a credential and lives only in the secret, never in a committed file.
 
-### 4. Confirm the CD token Access scope
+## The CD token scope
 
-The single `CLOUDFLARE_API_TOKEN` used by CD must carry `Access: Apps and Policies: Edit` to manage the applications, policies, and the identity provider. If the org itself is ever managed declaratively, it also needs `Access: Organizations, Identity Providers, and Groups`. Widen the token in the Cloudflare dashboard if it lacks these.
-
-## What happens after
-
-Once Access is enabled and the two secrets are set, the next merge to `main` that re-lands a private app applies its `/`-path route and Access gate atomically, the Google identity provider provisions, and `auto_redirect_to_identity` sends the app straight to the Google login instead of the email one-time-pin. Verify live by loading the protected path: it should redirect to the Google sign-in and, after authenticating as an allowlisted account, return the app. The `google_sso_login_enabled` module output reads `true` once the provider is bound.
+The single `CLOUDFLARE_API_TOKEN` used by CD must carry `Access: Apps and Policies: Edit` to manage the applications, policies, and the identity provider. If the Cloudflare organization itself is ever managed declaratively, it additionally needs `Access: Organizations, Identity Providers, and Groups`. Widen the token in the Cloudflare dashboard if it lacks the scope.
