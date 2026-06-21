@@ -30,6 +30,7 @@ export function parseOrigin(value: unknown, context: string): AppOrigin {
           "appDirectoryName",
           "buildProfile",
           "nonSecretEnvironment",
+          "secretEnvironmentReferences",
         ],
         `${context} origin`,
       );
@@ -59,6 +60,11 @@ export function parseOrigin(value: unknown, context: string): AppOrigin {
         nonSecretEnvironment: requireStringMap(
           record,
           "nonSecretEnvironment",
+          `${context} origin`,
+        ),
+        secretEnvironmentReferences: requireStringMap(
+          record,
+          "secretEnvironmentReferences",
           `${context} origin`,
         ),
       };

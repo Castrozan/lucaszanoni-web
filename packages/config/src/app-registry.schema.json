@@ -91,7 +91,8 @@
             "appPackageName",
             "appDirectoryName",
             "buildProfile",
-            "nonSecretEnvironment"
+            "nonSecretEnvironment",
+            "secretEnvironmentReferences"
           ],
           "properties": {
             "kind": { "const": "in-repo-cloud-run" },
@@ -100,6 +101,10 @@
             "appDirectoryName": { "type": "string", "minLength": 1 },
             "buildProfile": { "enum": ["static-spa", "dynamic-service"] },
             "nonSecretEnvironment": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            },
+            "secretEnvironmentReferences": {
               "type": "object",
               "additionalProperties": { "type": "string" }
             }

@@ -46,6 +46,19 @@ resource "google_cloud_run_v2_service" "this" {
           value = env.value
         }
       }
+
+      dynamic "env" {
+        for_each = var.secret_environment_variable_references
+        content {
+          name = env.key
+          value_source {
+            secret_key_ref {
+              secret  = env.value
+              version = "latest"
+            }
+          }
+        }
+      }
     }
   }
 
@@ -66,4 +79,13 @@ resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
   project  = var.project_id
   role     = "roles/run.invoker"
   member   = "allUsers"
+}
+
+resource "google_secret_manager_secret_iam_member" "runtime_secret_accessor" {
+  for_each = toset(values(var.secret_environment_variable_references))
+
+  project   = var.project_id
+  secret_id = each.value
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${var.runtime_service_account_email}"
 }

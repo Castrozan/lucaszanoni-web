@@ -15,6 +15,7 @@ export const shellApp: AppRegistryEntry = {
     appDirectoryName: "shell",
     buildProfile: "static-spa",
     nonSecretEnvironment: {},
+    secretEnvironmentReferences: {},
   },
 };
 
@@ -33,6 +34,7 @@ export const usageDashboardApp: AppRegistryEntry = {
     appDirectoryName: "usage-dashboard",
     buildProfile: "static-spa",
     nonSecretEnvironment: {},
+    secretEnvironmentReferences: {},
   },
 };
 
@@ -51,6 +53,7 @@ export const reportsApp: AppRegistryEntry = {
     appDirectoryName: "reports",
     buildProfile: "static-spa",
     nonSecretEnvironment: {},
+    secretEnvironmentReferences: {},
   },
 };
 
