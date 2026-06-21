@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
+import { CROSS_SECTION_NAVIGATION_ROUTES } from "@platform/config";
 import { ShellApp } from "../src/ShellApp";
 
 afterEach(cleanup);
@@ -12,13 +13,16 @@ describe("ShellApp", () => {
     );
   });
 
-  it("links to every cross-section mount path", () => {
+  it("links to every publicly visible cross-section mount path and omits the gated ones", () => {
     render(<ShellApp />);
     const linkHrefs = screen
       .getAllByRole("link")
       .map((element) => element.getAttribute("href"));
-    expect(linkHrefs).toContain("/engineering/dotfiles/claude/usage/");
-    expect(linkHrefs).toContain("/engineering/dotfiles/reports/");
+    for (const route of CROSS_SECTION_NAVIGATION_ROUTES) {
+      expect(linkHrefs).toContain(route.mountPath);
+    }
+    expect(linkHrefs).not.toContain("/engineering/dotfiles/claude/usage/");
+    expect(linkHrefs).not.toContain("/engineering/dotfiles/reports/");
   });
 
   it("exposes the theme toggle from the shell chrome", () => {

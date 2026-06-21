@@ -5,7 +5,12 @@ import type { AppRegistryEntry } from "../src/app-registry-types";
 
 describe("public navigation visibility", () => {
   it("includes a public entry flagged for cross-section navigation", () => {
-    expect(isPubliclyVisibleNavigationEntry(reportsApp)).toBe(true);
+    const publicNavigableEntry: AppRegistryEntry = {
+      ...reportsApp,
+      id: "public-nav",
+      accessModel: { kind: "public" },
+    };
+    expect(isPubliclyVisibleNavigationEntry(publicNavigableEntry)).toBe(true);
   });
 
   it("excludes a public entry not flagged for cross-section navigation", () => {
