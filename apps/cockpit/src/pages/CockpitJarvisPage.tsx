@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { Button } from "@platform/design-system";
 import { JarvisGraphField } from "../jarvis/JarvisGraphField";
+import { JarvisSessionTerminal } from "../jarvis/JarvisSessionTerminal";
 import {
   appendOwnerMessage,
   type JarvisUtterance,
@@ -147,14 +148,7 @@ export function CockpitJarvisPage() {
           </form>
         </section>
       ) : (
-        <section
-          aria-label="Jarvis session terminal"
-          className="flex flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background"
-        >
-          <div className="flex flex-1 items-center justify-center font-mono text-xs uppercase tracking-[2px] text-text-faint">
-            websocket terminal mounts here
-          </div>
-        </section>
+        <JarvisSessionTerminal />
       )}
     </div>
   );
