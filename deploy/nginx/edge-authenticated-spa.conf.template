@@ -11,6 +11,8 @@ server {
 
     root ${NGINX_DOCUMENT_ROOT};
 
+    absolute_redirect off;
+
     location = /healthz {
         return 200 "ok";
     }
