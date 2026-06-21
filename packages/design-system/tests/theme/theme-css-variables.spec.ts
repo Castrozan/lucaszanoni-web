@@ -5,12 +5,15 @@ import { THEME_PALETTES } from "../../src/theme/theme-tokens";
 describe("paletteToCssVariables", () => {
   it("maps every palette field to a prefixed custom property", () => {
     const variables = paletteToCssVariables(THEME_PALETTES.dark);
-    expect(variables["--ls-color-background"]).toBe("#0d1117");
-    expect(variables["--ls-color-accent"]).toBe("#58a6ff");
+    expect(variables["--ls-color-background"]).toBe("#0A0A0A");
+    expect(variables["--ls-color-accent"]).toBe("#FFD600");
+    expect(variables["--ls-color-surface-raised"]).toBe("#1A1A1A");
+    expect(variables["--ls-color-text-faint"]).toBe("#555555");
+    expect(variables["--ls-color-accent-secondary"]).toBe("#FF6B35");
     expect(variables["--ls-color-surface-translucent"]).toBe(
-      "rgba(22, 27, 34, 0.72)",
+      "rgba(10, 10, 10, 0.85)",
     );
-    expect(Object.keys(variables)).toHaveLength(8);
+    expect(Object.keys(variables)).toHaveLength(11);
   });
 
   it("produces only custom-property keys", () => {
