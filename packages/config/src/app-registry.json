@@ -13,7 +13,8 @@
       "appPackageName": "@lucaszanoni-web/shell",
       "appDirectoryName": "shell",
       "buildProfile": "static-spa",
-      "nonSecretEnvironment": {}
+      "nonSecretEnvironment": {},
+      "secretEnvironmentReferences": {}
     }
   },
   {
@@ -30,7 +31,8 @@
       "appPackageName": "@lucaszanoni-web/usage-dashboard",
       "appDirectoryName": "usage-dashboard",
       "buildProfile": "static-spa",
-      "nonSecretEnvironment": {}
+      "nonSecretEnvironment": {},
+      "secretEnvironmentReferences": {}
     }
   },
   {
@@ -47,7 +49,8 @@
       "appPackageName": "@lucaszanoni-web/reports",
       "appDirectoryName": "reports",
       "buildProfile": "static-spa",
-      "nonSecretEnvironment": {}
+      "nonSecretEnvironment": {},
+      "secretEnvironmentReferences": {}
     }
   }
 ]

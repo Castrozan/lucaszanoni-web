@@ -23,3 +23,17 @@ corepack pnpm install
 corepack pnpm build
 corepack pnpm test
 ```
+
+## Cost and secret posture
+
+Every in-repo service runs scale-to-zero on Cloud Run: no always-on instance, no standing
+compute cost when idle. The platform deliberately keeps no always-on database. An app that needs
+persistence reaches for a serverless or external managed store that bills per request rather than
+for an idle instance, so the whole site stays inside the free tier at rest.
+
+Secrets never live in the public registry. An in-repo app declares the plain runtime configuration
+it needs through `nonSecretEnvironment` (literal values) and the secrets it needs through
+`secretEnvironmentReferences`, a map from environment variable name to a Google Secret Manager
+secret id. Only the non-secret id travels through the registry and this repository; the secret
+value is created out of band in Secret Manager and read at deploy time, and the runtime service
+account is granted access to exactly the referenced secrets.

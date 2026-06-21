@@ -49,3 +49,9 @@ variable "non_secret_environment_variables" {
   default     = {}
   description = "Non-secret plain environment variables rendered into the Cloud Run container, sourced from the registry origin's nonSecretEnvironment map. Secret material never travels through here; secret references are injected separately so the public registry stays free of secrets."
 }
+
+variable "secret_environment_variable_references" {
+  type        = map(string)
+  default     = {}
+  description = "Map of container environment variable name to the Google Secret Manager secret id that supplies its value, sourced from the registry origin's secretEnvironmentReferences map. The registry carries only the non-secret secret id; the value lives in Secret Manager and is read at deploy time, so the public registry never holds secret material. The runtime service account is granted secretAccessor on each referenced secret."
+}

@@ -17,6 +17,7 @@ export type AppOrigin =
       readonly appDirectoryName: string;
       readonly buildProfile: AppBuildProfile;
       readonly nonSecretEnvironment: Readonly<Record<string, string>>;
+      readonly secretEnvironmentReferences: Readonly<Record<string, string>>;
     }
   | {
       readonly kind: "external-https";
