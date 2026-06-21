@@ -1,5 +1,5 @@
-import { findMicroFrontendRoute } from "@lucaszanoni-web/config";
-import type { MicroFrontendId } from "@lucaszanoni-web/config";
+import { findMicroFrontendRoute } from "@platform/config";
+import type { MicroFrontendId } from "@platform/config";
 
 export interface BreadcrumbStep {
   readonly label: string;

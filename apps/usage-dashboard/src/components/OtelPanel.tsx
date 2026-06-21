@@ -1,10 +1,10 @@
-import { Badge, Card } from "@lucaszanoni-web/design-system";
+import { Badge, Card } from "@platform/design-system";
 import {
   OTEL_TOKEN_TYPE_LABELS,
   formatTokenCount,
   orderedOtelTokenTypes,
   type AggregatedOtelMetrics,
-} from "@lucaszanoni-web/snapshot-data";
+} from "@platform/snapshot-data";
 
 export interface OtelPanelProps {
   otelMetrics: AggregatedOtelMetrics;

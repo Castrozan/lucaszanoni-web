@@ -1,4 +1,4 @@
-import { Card } from "@lucaszanoni-web/design-system";
+import { Card } from "@platform/design-system";
 import {
   qualityListClassName,
   qualityPanelClassName,

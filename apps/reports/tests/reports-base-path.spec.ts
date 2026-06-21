@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { REPORTS_MOUNT_PATH } from "@lucaszanoni-web/config";
+import { REPORTS_MOUNT_PATH } from "@platform/config";
 import reportsViteConfig from "../vite.config";
 
 describe("reports vite base", () => {

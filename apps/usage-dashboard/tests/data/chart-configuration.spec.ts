@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ChartSeries } from "@lucaszanoni-web/snapshot-data";
+import type { ChartSeries } from "@platform/snapshot-data";
 import { buildDailyTokensChartConfiguration } from "../../src/data/chart-configuration";
 import { sampleUsageViewModel } from "../test-fixtures/usage-view-model-fixture";
 

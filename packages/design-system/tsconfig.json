@@ -1,5 +1,5 @@
 {
-  "extends": "@lucaszanoni-web/tsconfig/react-library.json",
+  "extends": "@platform/tsconfig/react-library.json",
   "compilerOptions": {
     "types": []
   },

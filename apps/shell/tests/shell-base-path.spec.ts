@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SHELL_MOUNT_PATH } from "@lucaszanoni-web/config";
+import { SHELL_MOUNT_PATH } from "@platform/config";
 import shellViteConfig from "../vite.config";
 
 describe("shell vite base", () => {

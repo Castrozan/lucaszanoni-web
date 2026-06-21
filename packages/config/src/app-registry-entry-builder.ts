@@ -37,7 +37,7 @@ export interface AppRegistryEntryBuilderInput {
 }
 
 const inRepoCloudRunServiceNamePrefix = "lucaszanoni-";
-const inRepoCloudRunPackageScope = "@lucaszanoni-web";
+const inRepoCloudRunPackageScope = "@platform";
 
 function buildOrigin(id: string, origin: AppOriginSpec): AppOrigin {
   switch (origin.kind) {

@@ -23,10 +23,10 @@ importers:
 
   apps/reports:
     dependencies:
-      '@lucaszanoni-web/config':
+      '@platform/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@lucaszanoni-web/design-system':
+      '@platform/design-system':
         specifier: workspace:*
         version: link:../../packages/design-system
       react:
@@ -39,7 +39,7 @@ importers:
         specifier: ^7.1.0
         version: 7.18.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
-      '@lucaszanoni-web/tsconfig':
+      '@platform/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@tailwindcss/vite':
@@ -78,10 +78,10 @@ importers:
 
   apps/shell:
     dependencies:
-      '@lucaszanoni-web/config':
+      '@platform/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@lucaszanoni-web/design-system':
+      '@platform/design-system':
         specifier: workspace:*
         version: link:../../packages/design-system
       react:
@@ -91,7 +91,7 @@ importers:
         specifier: ^19.0.0
         version: 19.2.7(react@19.2.7)
     devDependencies:
-      '@lucaszanoni-web/tsconfig':
+      '@platform/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@tailwindcss/vite':
@@ -130,13 +130,13 @@ importers:
 
   apps/usage-dashboard:
     dependencies:
-      '@lucaszanoni-web/config':
+      '@platform/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@lucaszanoni-web/design-system':
+      '@platform/design-system':
         specifier: workspace:*
         version: link:../../packages/design-system
-      '@lucaszanoni-web/snapshot-data':
+      '@platform/snapshot-data':
         specifier: workspace:*
         version: link:../../packages/snapshot-data
       '@tanstack/react-query':
@@ -158,7 +158,7 @@ importers:
         specifier: ^7.1.0
         version: 7.18.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
-      '@lucaszanoni-web/tsconfig':
+      '@platform/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@tailwindcss/vite':
@@ -197,7 +197,7 @@ importers:
 
   packages/config:
     devDependencies:
-      '@lucaszanoni-web/tsconfig':
+      '@platform/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       ajv:
@@ -212,7 +212,7 @@ importers:
 
   packages/design-system:
     dependencies:
-      '@lucaszanoni-web/config':
+      '@platform/config':
         specifier: workspace:*
         version: link:../config
       '@radix-ui/react-slot':
@@ -228,7 +228,7 @@ importers:
         specifier: ^3.6.0
         version: 3.6.0
     devDependencies:
-      '@lucaszanoni-web/tsconfig':
+      '@platform/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/react':
@@ -252,7 +252,7 @@ importers:
 
   packages/snapshot-data:
     devDependencies:
-      '@lucaszanoni-web/tsconfig':
+      '@platform/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       typescript:

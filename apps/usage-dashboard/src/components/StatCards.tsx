@@ -1,9 +1,9 @@
-import { Card } from "@lucaszanoni-web/design-system";
+import { Card } from "@platform/design-system";
 import {
   cacheReadSharePercent,
   formatTokenCount,
   type UsageSummary,
-} from "@lucaszanoni-web/snapshot-data";
+} from "@platform/snapshot-data";
 
 export interface StatCardsProps {
   summary: UsageSummary;

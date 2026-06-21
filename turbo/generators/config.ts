@@ -1,7 +1,7 @@
 import type { PlopTypes } from "@turbo/gen";
 import { registerAppendRegistryEntryAction } from "./add-app/registry-append-action.ts";
 import { addAppPrompts } from "./add-app/prompts.ts";
-import type { AddAppAnswers } from "@lucaszanoni-web/config";
+import type { AddAppAnswers } from "@platform/config";
 
 export default function generator(plop: PlopTypes.NodePlopAPI): void {
   registerAppendRegistryEntryAction(plop);

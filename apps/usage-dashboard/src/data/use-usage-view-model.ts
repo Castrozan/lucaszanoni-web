@@ -4,7 +4,7 @@ import {
   UsageAggregationService,
   fetchAllSnapshots,
   type UsageViewModel,
-} from "@lucaszanoni-web/snapshot-data";
+} from "@platform/snapshot-data";
 import {
   LIVE_REFRESH_INTERVAL_MILLISECONDS,
   USAGE_SNAPSHOT_SOURCE,

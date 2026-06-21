@@ -5,7 +5,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@lucaszanoni-web/design-system";
+} from "@platform/design-system";
 import {
   baselineDashboardHref,
   qualityContentLinkClassName,

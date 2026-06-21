@@ -1,8 +1,9 @@
-# lucaszanoni-web
+# atrium
 
-Personal engineering site for lucaszanoni.com.br. A core React shell at `/` with independently
-deployable single-page micro-frontends mounted at nested paths, fronted by a Cloudflare edge that
-path-routes each prefix to its own scale-to-zero Cloud Run service.
+Atrium is the personal web app platform behind lucaszanoni.com.br: a core React shell at `/` that
+hosts independently deployable single-page apps, each mounted at its own path prefix or subdomain and
+fronted by a Cloudflare edge that routes it to its own scale-to-zero Cloud Run service or to an
+attached external origin gated by Cloudflare Access.
 
 ## Layout
 

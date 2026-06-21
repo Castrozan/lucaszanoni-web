@@ -1,4 +1,4 @@
-import type { SnapshotSourceConfiguration } from "@lucaszanoni-web/snapshot-data";
+import type { SnapshotSourceConfiguration } from "@platform/snapshot-data";
 
 export const USAGE_SNAPSHOT_SOURCE: SnapshotSourceConfiguration = {
   snapshotsBucket: "zg-url-shortener-2026-dotfiles-usage-snapshots",

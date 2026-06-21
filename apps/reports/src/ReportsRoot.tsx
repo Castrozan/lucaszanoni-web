@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { REPORTS_MOUNT_PATH } from "@lucaszanoni-web/config";
-import { AppShell, ThemeProvider } from "@lucaszanoni-web/design-system";
+import { REPORTS_MOUNT_PATH } from "@platform/config";
+import { AppShell, ThemeProvider } from "@platform/design-system";
 import { ReportsHubPage } from "./components/ReportsHubPage";
 import { QualityPage } from "./components/QualityPage";
 

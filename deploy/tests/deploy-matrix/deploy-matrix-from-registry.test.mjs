@@ -19,21 +19,21 @@ const expectedDeployMatrixFromCommittedRegistry = {
   include: [
     {
       service_name: "lucaszanoni-shell",
-      app_package_name: "@lucaszanoni-web/shell",
+      app_package_name: "@platform/shell",
       app_directory_name: "shell",
       app_mount_path: "/",
       build_profile: "static-spa",
     },
     {
       service_name: "lucaszanoni-usage-dashboard",
-      app_package_name: "@lucaszanoni-web/usage-dashboard",
+      app_package_name: "@platform/usage-dashboard",
       app_directory_name: "usage-dashboard",
       app_mount_path: "/engineering/dotfiles/claude/usage/",
       build_profile: "static-spa",
     },
     {
       service_name: "lucaszanoni-reports",
-      app_package_name: "@lucaszanoni-web/reports",
+      app_package_name: "@platform/reports",
       app_directory_name: "reports",
       app_mount_path: "/engineering/dotfiles/reports/",
       build_profile: "static-spa",
@@ -75,7 +75,7 @@ test("the deploy matrix selects only in-repo-cloud-run origins, matching the Ter
       origin: {
         kind: "in-repo-cloud-run",
         cloudRunServiceName: "lucaszanoni-shell",
-        appPackageName: "@lucaszanoni-web/shell",
+        appPackageName: "@platform/shell",
         appDirectoryName: "shell",
         buildProfile: "static-spa",
       },
@@ -87,7 +87,7 @@ test("the deploy matrix selects only in-repo-cloud-run origins, matching the Ter
       origin: {
         kind: "in-repo-cloud-run",
         cloudRunServiceName: "lucaszanoni-ledger-service",
-        appPackageName: "@lucaszanoni-web/ledger-service",
+        appPackageName: "@platform/ledger-service",
         appDirectoryName: "ledger-service",
         buildProfile: "dynamic-service",
       },
@@ -108,14 +108,14 @@ test("the deploy matrix selects only in-repo-cloud-run origins, matching the Ter
       include: [
         {
           service_name: "lucaszanoni-shell",
-          app_package_name: "@lucaszanoni-web/shell",
+          app_package_name: "@platform/shell",
           app_directory_name: "shell",
           app_mount_path: "/",
           build_profile: "static-spa",
         },
         {
           service_name: "lucaszanoni-ledger-service",
-          app_package_name: "@lucaszanoni-web/ledger-service",
+          app_package_name: "@platform/ledger-service",
           app_directory_name: "ledger-service",
           app_mount_path: "/ledger/",
           build_profile: "dynamic-service",

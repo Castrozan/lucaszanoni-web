@@ -5,11 +5,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@lucaszanoni-web/design-system";
-import {
-  formatTokenCount,
-  type AccountView,
-} from "@lucaszanoni-web/snapshot-data";
+} from "@platform/design-system";
+import { formatTokenCount, type AccountView } from "@platform/snapshot-data";
 
 export interface AccountTableProps {
   accounts: AccountView[];

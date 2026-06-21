@@ -12,7 +12,7 @@ describe("parseAppRegistry in-repo origin environment", () => {
         origin: {
           kind: "in-repo-cloud-run",
           cloudRunServiceName: "lucaszanoni-shell",
-          appPackageName: "@lucaszanoni-web/shell",
+          appPackageName: "@platform/shell",
           appDirectoryName: "shell",
           buildProfile: "static-spa",
           nonSecretEnvironment: {
@@ -37,7 +37,7 @@ describe("parseAppRegistry in-repo origin environment", () => {
           origin: {
             kind: "in-repo-cloud-run",
             cloudRunServiceName: "lucaszanoni-shell",
-            appPackageName: "@lucaszanoni-web/shell",
+            appPackageName: "@platform/shell",
             appDirectoryName: "shell",
             buildProfile: "static-spa",
             nonSecretEnvironment: {},
@@ -56,7 +56,7 @@ describe("parseAppRegistry in-repo origin environment", () => {
           origin: {
             kind: "in-repo-cloud-run",
             cloudRunServiceName: "lucaszanoni-shell",
-            appPackageName: "@lucaszanoni-web/shell",
+            appPackageName: "@platform/shell",
             appDirectoryName: "shell",
             buildProfile: "static-spa",
             nonSecretEnvironment: { MAX_RETRIES: 5 },
@@ -74,7 +74,7 @@ describe("parseAppRegistry in-repo origin environment", () => {
           origin: {
             kind: "in-repo-cloud-run",
             cloudRunServiceName: "lucaszanoni-shell",
-            appPackageName: "@lucaszanoni-web/shell",
+            appPackageName: "@platform/shell",
             appDirectoryName: "shell",
             buildProfile: "static-spa",
             secretEnvironmentReferences: {},
@@ -91,7 +91,7 @@ describe("parseAppRegistry in-repo origin environment", () => {
         origin: {
           kind: "in-repo-cloud-run",
           cloudRunServiceName: "lucaszanoni-shell",
-          appPackageName: "@lucaszanoni-web/shell",
+          appPackageName: "@platform/shell",
           appDirectoryName: "shell",
           buildProfile: "static-spa",
           nonSecretEnvironment: {},
@@ -116,7 +116,7 @@ describe("parseAppRegistry in-repo origin environment", () => {
           origin: {
             kind: "in-repo-cloud-run",
             cloudRunServiceName: "lucaszanoni-shell",
-            appPackageName: "@lucaszanoni-web/shell",
+            appPackageName: "@platform/shell",
             appDirectoryName: "shell",
             buildProfile: "static-spa",
             nonSecretEnvironment: {},
@@ -135,7 +135,7 @@ describe("parseAppRegistry in-repo origin environment", () => {
           origin: {
             kind: "in-repo-cloud-run",
             cloudRunServiceName: "lucaszanoni-shell",
-            appPackageName: "@lucaszanoni-web/shell",
+            appPackageName: "@platform/shell",
             appDirectoryName: "shell",
             buildProfile: "static-spa",
             nonSecretEnvironment: {},
@@ -154,7 +154,7 @@ describe("parseAppRegistry in-repo origin environment", () => {
           origin: {
             kind: "in-repo-cloud-run",
             cloudRunServiceName: "lucaszanoni-shell",
-            appPackageName: "@lucaszanoni-web/shell",
+            appPackageName: "@platform/shell",
             appDirectoryName: "shell",
             buildProfile: "static-spa",
             nonSecretEnvironment: {},

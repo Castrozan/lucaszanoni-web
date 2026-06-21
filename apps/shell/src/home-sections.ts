@@ -1,4 +1,4 @@
-import { CROSS_SECTION_NAVIGATION_ROUTES } from "@lucaszanoni-web/config";
+import { CROSS_SECTION_NAVIGATION_ROUTES } from "@platform/config";
 
 export interface HomeSectionCard {
   readonly id: string;

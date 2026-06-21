@@ -23,7 +23,7 @@ describe("buildAppRegistryEntry", () => {
     expect(entry.origin).toEqual({
       kind: "in-repo-cloud-run",
       cloudRunServiceName: "lucaszanoni-ledger",
-      appPackageName: "@lucaszanoni-web/ledger",
+      appPackageName: "@platform/ledger",
       appDirectoryName: "ledger",
       buildProfile: "static-spa",
       nonSecretEnvironment: {},

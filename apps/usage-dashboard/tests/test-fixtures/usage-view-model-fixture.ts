@@ -5,7 +5,7 @@ import type {
   TokenTotals,
   UsageSummary,
   UsageViewModel,
-} from "@lucaszanoni-web/snapshot-data";
+} from "@platform/snapshot-data";
 
 const sampleTokenTotals: TokenTotals = {
   input_tokens: 1200,

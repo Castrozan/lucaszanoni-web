@@ -1,6 +1,6 @@
-import { REPORTS_MOUNT_PATH } from "@lucaszanoni-web/config";
-import { Card } from "@lucaszanoni-web/design-system";
-import type { UsageViewModel } from "@lucaszanoni-web/snapshot-data";
+import { REPORTS_MOUNT_PATH } from "@platform/config";
+import { Card } from "@platform/design-system";
+import type { UsageViewModel } from "@platform/snapshot-data";
 import { StatCards } from "./StatCards";
 import { DailyTokensChart } from "./DailyTokensChart";
 import { OtelPanel } from "./OtelPanel";

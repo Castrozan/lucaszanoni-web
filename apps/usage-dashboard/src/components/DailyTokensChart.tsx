@@ -1,6 +1,6 @@
 import { Chart, registerables } from "chart.js";
 import { Line } from "react-chartjs-2";
-import type { ChartSeries } from "@lucaszanoni-web/snapshot-data";
+import type { ChartSeries } from "@platform/snapshot-data";
 import { buildDailyTokensChartConfiguration } from "../data/chart-configuration";
 
 Chart.register(...registerables);

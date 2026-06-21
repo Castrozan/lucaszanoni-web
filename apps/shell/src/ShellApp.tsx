@@ -1,4 +1,4 @@
-import { AppShell, ThemeProvider } from "@lucaszanoni-web/design-system";
+import { AppShell, ThemeProvider } from "@platform/design-system";
 import { buildHomeSectionCards } from "./home-sections";
 
 export function ShellApp() {
