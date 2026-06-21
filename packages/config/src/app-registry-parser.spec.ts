@@ -50,6 +50,37 @@ describe("parseAppRegistry", () => {
     ).toThrow(/mountPath/);
   });
 
+  it("rejects duplicate cloud run service names across in-repo entries", () => {
+    expect(() =>
+      parseAppRegistry([
+        baseEntry,
+        {
+          ...baseEntry,
+          id: "shell-clone",
+          mountPath: "/clone/",
+          origin: { ...baseEntry.origin, appDirectoryName: "shell-clone" },
+        },
+      ]),
+    ).toThrow(/cloudRunServiceName/);
+  });
+
+  it("rejects duplicate app directory names across in-repo entries", () => {
+    expect(() =>
+      parseAppRegistry([
+        baseEntry,
+        {
+          ...baseEntry,
+          id: "shell-clone",
+          mountPath: "/clone/",
+          origin: {
+            ...baseEntry.origin,
+            cloudRunServiceName: "lucaszanoni-shell-clone",
+          },
+        },
+      ]),
+    ).toThrow(/appDirectoryName/);
+  });
+
   it("rejects an unknown origin kind", () => {
     expect(() =>
       parseAppRegistry([{ ...baseEntry, origin: { kind: "carrier-pigeon" } }]),
