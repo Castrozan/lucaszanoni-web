@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ThemeProvider } from "@platform/design-system";
 import { CockpitShell } from "../src/layout/CockpitShell";
@@ -37,6 +37,26 @@ describe("CockpitShell", () => {
     );
     expect(
       screen.getByRole("link", { name: "User" }).getAttribute("aria-current"),
+    ).toBe("page");
+  });
+
+  it("navigates to Jarvis on the leader-then-a sequence", () => {
+    render(
+      <ThemeProvider>
+        <MemoryRouter initialEntries={["/"]}>
+          <CockpitShell>
+            <div>main content</div>
+          </CockpitShell>
+        </MemoryRouter>
+      </ThemeProvider>,
+    );
+    expect(
+      screen.getByRole("link", { name: "Jarvis" }).getAttribute("aria-current"),
+    ).toBeNull();
+    fireEvent.keyDown(document.body, { key: "b", ctrlKey: true });
+    fireEvent.keyDown(document.body, { key: "a" });
+    expect(
+      screen.getByRole("link", { name: "Jarvis" }).getAttribute("aria-current"),
     ).toBe("page");
   });
 });

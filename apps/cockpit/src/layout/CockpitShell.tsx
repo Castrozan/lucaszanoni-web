@@ -1,7 +1,8 @@
-import type { ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useRef, type ReactNode } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button, useTheme } from "@platform/design-system";
 import { cockpitViews } from "../navigation/cockpit-views";
+import { useLeaderKeyNavigation } from "../navigation/use-leader-key-navigation";
 import { cockpitQuickAccessBookmarks } from "./cockpit-quick-access-bookmarks";
 
 export interface CockpitShellProps {
@@ -11,6 +12,17 @@ export interface CockpitShellProps {
 export function CockpitShell({ children }: CockpitShellProps) {
   const { themeName, toggleTheme } = useTheme();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const quickAccessBookmarksRef = useRef<HTMLDivElement>(null);
+  useLeaderKeyNavigation({
+    onCommand: (command) => {
+      if (command.kind === "navigate-view") {
+        navigate(command.path);
+        return;
+      }
+      quickAccessBookmarksRef.current?.querySelector("a")?.focus();
+    },
+  });
   return (
     <div className="flex min-h-screen">
       <nav
@@ -33,18 +45,20 @@ export function CockpitShell({ children }: CockpitShellProps) {
         <span className="mb-1 mt-6 px-3 font-mono text-[10px] uppercase tracking-[2px] text-text-faint">
           Quick access
         </span>
-        {cockpitQuickAccessBookmarks.map((bookmark) => (
-          <a
-            key={bookmark.id}
-            href={bookmark.href}
-            {...(bookmark.opensInNewTab
-              ? { target: "_blank", rel: "noreferrer" }
-              : {})}
-            className="rounded-md px-3 py-2 text-sm text-muted-foreground no-underline transition-colors hover:bg-surface-raised hover:text-primary"
-          >
-            {bookmark.label}
-          </a>
-        ))}
+        <div ref={quickAccessBookmarksRef} className="flex flex-col gap-1">
+          {cockpitQuickAccessBookmarks.map((bookmark) => (
+            <a
+              key={bookmark.id}
+              href={bookmark.href}
+              {...(bookmark.opensInNewTab
+                ? { target: "_blank", rel: "noreferrer" }
+                : {})}
+              className="rounded-md px-3 py-2 text-sm text-muted-foreground no-underline transition-colors hover:bg-surface-raised hover:text-primary"
+            >
+              {bookmark.label}
+            </a>
+          ))}
+        </div>
         <Button
           variant="outline"
           size="sm"
