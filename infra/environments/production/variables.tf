@@ -77,3 +77,17 @@ variable "runtime_service_account_email" {
   default     = "lucaszanoni-web-runtime@zg-url-shortener-2026.iam.gserviceaccount.com"
   description = "Shared Cloud Run runtime identity for the platform services, owned by the GCP federation state."
 }
+
+variable "owner_account_email" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Email of the sole platform owner, included by every owner-only Cloudflare Access policy. Supplied at apply time via TF_VAR_owner_account_email from a CI secret and never committed, to keep the owner's address out of the public repo. While empty, any owner-only app fails its Access policy precondition at plan."
+}
+
+variable "shared_access_audience_email_allowlists" {
+  type        = map(list(string))
+  default     = {}
+  sensitive   = true
+  description = "Map of audience key to the email allowlist included by every shared Cloudflare Access policy bound to that audience. Supplied at apply time via TF_VAR_shared_access_audience_email_allowlists from a CI secret and never committed. While an audience key resolves to an empty list, any shared app on that audience fails its Access policy precondition at plan."
+}

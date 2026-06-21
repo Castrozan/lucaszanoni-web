@@ -35,10 +35,14 @@ describe("registry projection", () => {
     }
   });
 
-  it("derives cross-section navigation from the registry flag", () => {
+  it("derives cross-section navigation from the registry flag and public access", () => {
     expect(CROSS_SECTION_NAVIGATION_ROUTES.map((route) => route.id)).toEqual(
       appRegistry
-        .filter((entry) => entry.showInCrossSectionNavigation)
+        .filter(
+          (entry) =>
+            entry.showInCrossSectionNavigation &&
+            entry.accessModel.kind === "public",
+        )
         .map((entry) => entry.id),
     );
   });

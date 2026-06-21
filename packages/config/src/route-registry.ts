@@ -33,13 +33,19 @@ export function findMicroFrontendRoute(
   return route;
 }
 
-const crossSectionNavigationIds = new Set(
-  appRegistry
-    .filter((entry) => entry.showInCrossSectionNavigation)
-    .map((entry) => entry.id),
+export function isPubliclyVisibleNavigationEntry(
+  entry: AppRegistryEntry,
+): boolean {
+  return (
+    entry.showInCrossSectionNavigation && entry.accessModel.kind === "public"
+  );
+}
+
+const publiclyVisibleNavigationIds = new Set(
+  appRegistry.filter(isPubliclyVisibleNavigationEntry).map((entry) => entry.id),
 );
 
 export const CROSS_SECTION_NAVIGATION_ROUTES: readonly MicroFrontendRoute[] =
   MICRO_FRONTEND_ROUTES.filter((route) =>
-    crossSectionNavigationIds.has(route.id),
+    publiclyVisibleNavigationIds.has(route.id),
   );
