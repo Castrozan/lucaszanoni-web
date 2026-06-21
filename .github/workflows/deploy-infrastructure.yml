@@ -1,10 +1,17 @@
 name: deploy-infrastructure
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - infra/**
+      - packages/config/src/app-registry.json
+      - .github/workflows/deploy-infrastructure.yml
   push:
     branches: [main]
     paths:
       - infra/**
+      - packages/config/src/app-registry.json
       - .github/workflows/deploy-infrastructure.yml
   workflow_dispatch:
 

@@ -1,41 +1,58 @@
-module "shell" {
-  source = "../../modules/serverless-cloud-run-app"
-
-  project_id                    = var.project_id
-  region                        = var.region
-  service_name                  = "lucaszanoni-shell"
-  container_image               = var.shell_container_image
-  runtime_service_account_email = var.runtime_service_account_email
-  mount_path                    = "/"
-  edge_shared_secret_value      = var.edge_shared_secret_value
-}
-
-module "usage_dashboard" {
-  source = "../../modules/serverless-cloud-run-app"
-
-  project_id                    = var.project_id
-  region                        = var.region
-  service_name                  = "lucaszanoni-usage-dashboard"
-  container_image               = var.usage_dashboard_container_image
-  runtime_service_account_email = var.runtime_service_account_email
-  mount_path                    = "/engineering/dotfiles/claude/usage/"
-  edge_shared_secret_value      = var.edge_shared_secret_value
-}
-
-module "reports" {
-  source = "../../modules/serverless-cloud-run-app"
-
-  project_id                    = var.project_id
-  region                        = var.region
-  service_name                  = "lucaszanoni-reports"
-  container_image               = var.reports_container_image
-  runtime_service_account_email = var.runtime_service_account_email
-  mount_path                    = "/engineering/dotfiles/reports/"
-  edge_shared_secret_value      = var.edge_shared_secret_value
-}
-
 locals {
+  app_registry = jsondecode(file("${path.root}/../../../packages/config/src/app-registry.json"))
+
+  in_repo_cloud_run_apps = {
+    for app in local.app_registry :
+    app.id => app
+    if app.origin.kind == "in-repo-cloud-run"
+  }
+
+  in_repo_app_container_images = {
+    shell             = var.shell_container_image
+    "usage-dashboard" = var.usage_dashboard_container_image
+    reports           = var.reports_container_image
+  }
+
+  root_app_id = one([
+    for app_id, app in local.in_repo_cloud_run_apps : app_id
+    if app.mountPath == "/"
+  ])
+
+  prefix_origin_hosts = {
+    for app_id, app in local.in_repo_cloud_run_apps :
+    app.mountPath => module.in_repo_cloud_run_app[app_id].origin_host
+    if app.mountPath != "/"
+  }
+
   edge_serving_domain = var.enable_dotcom_canonical ? var.canonical_domain_name : var.domain_name
+}
+
+module "in_repo_cloud_run_app" {
+  source   = "../../modules/serverless-cloud-run-app"
+  for_each = local.in_repo_cloud_run_apps
+
+  project_id                    = var.project_id
+  region                        = var.region
+  service_name                  = each.value.origin.cloudRunServiceName
+  container_image               = local.in_repo_app_container_images[each.key]
+  runtime_service_account_email = var.runtime_service_account_email
+  mount_path                    = each.value.mountPath
+  edge_shared_secret_value      = var.edge_shared_secret_value
+}
+
+moved {
+  from = module.shell
+  to   = module.in_repo_cloud_run_app["shell"]
+}
+
+moved {
+  from = module.usage_dashboard
+  to   = module.in_repo_cloud_run_app["usage-dashboard"]
+}
+
+moved {
+  from = module.reports
+  to   = module.in_repo_cloud_run_app["reports"]
 }
 
 module "edge" {
@@ -44,11 +61,8 @@ module "edge" {
 
   zone_name             = local.edge_serving_domain
   cloudflare_account_id = var.cloudflare_account_id
-  shell_origin_host     = module.shell.origin_host
-  prefix_origin_hosts = {
-    "/engineering/dotfiles/claude/usage/" = module.usage_dashboard.origin_host
-    "/engineering/dotfiles/reports/"      = module.reports.origin_host
-  }
+  shell_origin_host     = module.in_repo_cloud_run_app[local.root_app_id].origin_host
+  prefix_origin_hosts   = local.prefix_origin_hosts
   static_bucket_prefix_origins = var.enable_reports_static_gcs_routes ? {
     "/engineering/dotfiles/reports/baseline/" = {
       bucket            = var.reports_static_bucket_name
