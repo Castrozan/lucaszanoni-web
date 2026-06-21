@@ -150,7 +150,7 @@ assert_candidate_tag_within_cloud_run_combined_limit "$scenario_call_log" "[heal
 assert_log_contains "curl" "$scenario_call_log" "[healthy] the candidate revision is health-checked"
 assert_log_contains "update-traffic" "$scenario_call_log" "[healthy] production traffic is migrated after the health check passes"
 assert_log_contains "--remove-tags $expected_candidate_revision_tag --quiet" "$scenario_call_log" "[healthy] the same length-bounded candidate tag is removed after migration"
-assert_log_contains "http://candidate---${cloud_run_service_name}.example.invalid/healthz" "$scenario_call_log" "[healthy] the health probe targets the jq-resolved candidate URL with the health path"
+assert_log_contains "http://candidate---${cloud_run_service_name}.example.invalid/livez" "$scenario_call_log" "[healthy] the health probe targets the jq-resolved candidate URL with the health path"
 assert_log_contains "--to-revisions ${cloud_run_service_name}-00002-abc=100" "$scenario_call_log" "[healthy] production traffic migrates to the exact health-checked candidate revision rather than merely the latest"
 assert_log_order "--no-traffic" "curl" "$scenario_call_log" "[healthy] the no-traffic deploy precedes the health check"
 assert_log_order "curl" "update-traffic" "$scenario_call_log" "[healthy] the health check precedes the traffic migration"
