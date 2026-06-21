@@ -55,5 +55,8 @@ jobs:
       - name: Cloud Run health-gated rollout test
         run: sh deploy/tests/assert-cloud-run-health-gated-rollout.sh
 
+      - name: Worker rollout smoke-gate test
+        run: sh deploy/tests/assert-worker-rollout-smoke-gate.sh
+
       - name: Build
         run: pnpm build
