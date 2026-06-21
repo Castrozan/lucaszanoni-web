@@ -42,7 +42,7 @@ jobs:
           - service_name: lucaszanoni-reports
             app_package_name: "@lucaszanoni-web/reports"
             app_directory_name: reports
-            app_mount_path: /reports/
+            app_mount_path: /engineering/dotfiles/reports/
     concurrency:
       group: deploy-apps-${{ matrix.service_name }}
       cancel-in-progress: false
