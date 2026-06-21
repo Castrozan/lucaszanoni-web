@@ -91,3 +91,17 @@ variable "shared_access_audience_email_allowlists" {
   sensitive   = true
   description = "Map of audience key to the email allowlist included by every shared Cloudflare Access policy bound to that audience. Supplied at apply time via TF_VAR_shared_access_audience_email_allowlists from a CI secret and never committed. While an audience key resolves to an empty list, any shared app on that audience fails its Access policy precondition at plan."
 }
+
+variable "google_sso_client_id" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "OAuth 2.0 client id of the Google identity provider Cloudflare Access offers as the login method for the managed Access applications. Supplied at apply time via TF_VAR_google_sso_client_id from a CI secret and never committed. Empty leaves Access on its default email one-time-pin login."
+}
+
+variable "google_sso_client_secret" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "OAuth 2.0 client secret paired with google_sso_client_id. Supplied at apply time via TF_VAR_google_sso_client_secret from a CI secret and never committed."
+}

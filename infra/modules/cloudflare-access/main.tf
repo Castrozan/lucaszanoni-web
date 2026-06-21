@@ -7,6 +7,12 @@ locals {
       lookup(var.shared_access_audience_email_allowlists, app.audience_key, [])
     )
   }
+
+  google_sso_enabled = var.google_sso_client_id != "" && var.google_sso_client_secret != ""
+
+  google_identity_provider_ids = [
+    for identity_provider in cloudflare_zero_trust_access_identity_provider.google : identity_provider.id
+  ]
 }
 
 resource "cloudflare_zero_trust_access_policy" "app" {
@@ -32,6 +38,19 @@ resource "cloudflare_zero_trust_access_policy" "app" {
   }
 }
 
+resource "cloudflare_zero_trust_access_identity_provider" "google" {
+  count = local.google_sso_enabled ? 1 : 0
+
+  account_id = var.cloudflare_account_id
+  name       = "Google"
+  type       = "google"
+
+  config = {
+    client_id     = var.google_sso_client_id
+    client_secret = var.google_sso_client_secret
+  }
+}
+
 resource "cloudflare_zero_trust_access_application" "app" {
   for_each = var.non_public_apps
 
@@ -40,6 +59,9 @@ resource "cloudflare_zero_trust_access_application" "app" {
   domain           = "${var.zone_name}${trimsuffix(each.value.mount_path, "/")}"
   type             = "self_hosted"
   session_duration = var.session_duration
+
+  allowed_idps              = local.google_sso_enabled ? local.google_identity_provider_ids : null
+  auto_redirect_to_identity = local.google_sso_enabled ? true : null
 
   policies = [
     {

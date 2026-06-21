@@ -78,3 +78,18 @@ jobs:
         run: |
           tofu init -backend=false -input=false
           tofu test
+
+  cloudflare-access-module-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.11.8
+
+      - name: Cloudflare access module test
+        working-directory: infra/modules/cloudflare-access
+        run: |
+          tofu init -backend=false -input=false
+          tofu test
