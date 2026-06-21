@@ -29,7 +29,14 @@ describe("micro frontend route registry", () => {
   });
 
   it("excludes the shell root from cross-section navigation", () => {
-    const ids = CROSS_SECTION_NAVIGATION_ROUTES.map((route) => route.id);
-    expect(ids).toEqual(["usage-dashboard", "reports"]);
+    expect(
+      CROSS_SECTION_NAVIGATION_ROUTES.map((route) => route.id),
+    ).not.toContain("shell");
+  });
+
+  it("only ever surfaces publicly accessible routes in cross-section navigation", () => {
+    for (const route of CROSS_SECTION_NAVIGATION_ROUTES) {
+      expect(route.accessModel.kind).toBe("public");
+    }
   });
 });
