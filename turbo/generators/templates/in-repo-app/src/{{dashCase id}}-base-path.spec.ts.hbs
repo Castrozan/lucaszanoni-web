@@ -1,0 +1,17 @@
+import { describe, expect, it } from "vitest";
+import { findMicroFrontendRoute } from "@lucaszanoni-web/config";
+import {{camelCase id}}ViteConfig from "../vite.config";
+
+describe("{{dashCase id}} vite base", () => {
+  it("pins the production build base to the {{dashCase id}} mount path from the registry", () => {
+    expect({{camelCase id}}ViteConfig.base).toBe(
+      findMicroFrontendRoute("{{dashCase id}}").mountPath,
+    );
+  });
+
+  it("keeps the {{dashCase id}} mount path at the value chosen when it was scaffolded", () => {
+    expect(findMicroFrontendRoute("{{dashCase id}}").mountPath).toBe(
+      "{{mountPath}}",
+    );
+  });
+});

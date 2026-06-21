@@ -1,0 +1,15 @@
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { {{pascalCase id}}Root } from "./{{pascalCase id}}Root";
+import "./styles/globals.css";
+
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("missing #root element to mount the {{dashCase id}} app");
+}
+
+createRoot(rootElement).render(
+  <StrictMode>
+    <{{pascalCase id}}Root />
+  </StrictMode>,
+);
