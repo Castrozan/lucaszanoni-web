@@ -69,9 +69,18 @@ jobs:
       - name: Build and push the micro-frontend image
         env:
           image_repository: ${{ env.gcp_region }}-docker.pkg.dev/${{ env.gcp_project_id }}/${{ env.artifact_registry_repository }}/${{ matrix.app_directory_name }}
+          build_profile: ${{ matrix.build_profile }}
         run: |
+          case "${build_profile}" in
+            static-spa) dockerfile_path="deploy/docker/Dockerfile" ;;
+            dynamic-service) dockerfile_path="deploy/docker/dynamic-service.Dockerfile" ;;
+            *)
+              echo "::error::Unknown build profile '${build_profile}' for service ${{ matrix.service_name }}; expected static-spa or dynamic-service."
+              exit 1
+              ;;
+          esac
           docker build \
-            --file deploy/docker/Dockerfile \
+            --file "${dockerfile_path}" \
             --build-arg APP_PACKAGE_NAME="${{ matrix.app_package_name }}" \
             --build-arg APP_DIRECTORY_NAME="${{ matrix.app_directory_name }}" \
             --build-arg APP_MOUNT_PATH="${{ matrix.app_mount_path }}" \
