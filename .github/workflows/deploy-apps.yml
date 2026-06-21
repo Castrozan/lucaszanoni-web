@@ -25,24 +25,30 @@ env:
   artifact_registry_repository: lucaszanoni-web
 
 jobs:
+  prepare-deploy-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      deploy_matrix: ${{ steps.derive-deploy-matrix.outputs.deploy_matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Derive the deploy matrix from the application registry
+        id: derive-deploy-matrix
+        run: |
+          deploy_matrix="$(jq -c -f deploy/deploy-matrix-from-registry.jq packages/config/src/app-registry.json)"
+          deploy_matrix_row_count="$(jq '.include | length' <<<"${deploy_matrix}")"
+          if [ "${deploy_matrix_row_count}" -eq 0 ]; then
+            echo "::error::The deploy matrix derived from app-registry.json is empty; no in-repo-cloud-run apps to deploy. Refusing to pass green having deployed nothing."
+            exit 1
+          fi
+          echo "deploy_matrix=${deploy_matrix}" >> "$GITHUB_OUTPUT"
+
   build-and-deploy:
+    needs: prepare-deploy-matrix
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - service_name: lucaszanoni-shell
-            app_package_name: "@lucaszanoni-web/shell"
-            app_directory_name: shell
-            app_mount_path: /
-          - service_name: lucaszanoni-usage-dashboard
-            app_package_name: "@lucaszanoni-web/usage-dashboard"
-            app_directory_name: usage-dashboard
-            app_mount_path: /engineering/dotfiles/claude/usage/
-          - service_name: lucaszanoni-reports
-            app_package_name: "@lucaszanoni-web/reports"
-            app_directory_name: reports
-            app_mount_path: /engineering/dotfiles/reports/
+      matrix: ${{ fromJSON(needs.prepare-deploy-matrix.outputs.deploy_matrix) }}
     concurrency:
       group: deploy-apps-${{ matrix.service_name }}
       cancel-in-progress: false
@@ -79,6 +85,17 @@ jobs:
         env:
           image_repository: ${{ env.gcp_region }}-docker.pkg.dev/${{ env.gcp_project_id }}/${{ env.artifact_registry_repository }}/${{ matrix.app_directory_name }}
         run: |
+          describe_error="$(gcloud run services describe "${{ matrix.service_name }}" \
+            --project "${{ env.gcp_project_id }}" \
+            --region "${{ env.gcp_region }}" 2>&1 >/dev/null)" && describe_status=0 || describe_status=$?
+          if [ "${describe_status}" -ne 0 ]; then
+            if printf '%s' "${describe_error}" | grep -qiE 'NOT_FOUND|could not be found|does not exist'; then
+              echo "::warning::Cloud Run service ${{ matrix.service_name }} is not provisioned yet; deploy-infrastructure (Terraform) must apply before its image can roll. Skipping the image roll for this run."
+              exit 0
+            fi
+            echo "::error::Failed to describe Cloud Run service ${{ matrix.service_name }}: ${describe_error}"
+            exit 1
+          fi
           gcloud run services update "${{ matrix.service_name }}" \
             --project "${{ env.gcp_project_id }}" \
             --region "${{ env.gcp_region }}" \
