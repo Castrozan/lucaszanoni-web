@@ -52,5 +52,8 @@ jobs:
           sudo apt-get install -y nginx-light gettext-base
           sh deploy/tests/assert-edge-nginx-serving-contract.sh
 
+      - name: Cloud Run health-gated rollout test
+        run: sh deploy/tests/assert-cloud-run-health-gated-rollout.sh
+
       - name: Build
         run: pnpm build
