@@ -57,8 +57,27 @@ export const reportsApp: AppRegistryEntry = {
   },
 };
 
+export const dbApp: AppRegistryEntry = {
+  id: "db",
+  mountPath: "/db/",
+  navigationLabel: "Database",
+  description:
+    "Owner-only application attached at the edge and gated by Cloudflare Access.",
+  showInCrossSectionNavigation: false,
+  status: "active",
+  accessModel: { kind: "owner-only" },
+  origin: {
+    kind: "external-https",
+    originHost: "example.com",
+    pathRewrite: "preserve",
+    forwardedBasePath: "",
+    trusted: false,
+  },
+};
+
 export const todaysApps: readonly AppRegistryEntry[] = [
   shellApp,
   usageDashboardApp,
   reportsApp,
+  dbApp,
 ];
