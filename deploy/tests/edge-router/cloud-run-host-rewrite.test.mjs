@@ -7,8 +7,8 @@ import {
   reportsOriginHost,
   edgeSharedSecretHeaderName,
   edgeSharedSecretValue,
-  dispatchThroughEdge,
-} from "./edge-router-test-harness.mjs";
+} from "./edge-router-test-constants.mjs";
+import { dispatchThroughEdge } from "./edge-router-test-dispatch.mjs";
 
 test("root path routes to the shell origin", async () => {
   const { capturedOriginRequest } = await dispatchThroughEdge("/");

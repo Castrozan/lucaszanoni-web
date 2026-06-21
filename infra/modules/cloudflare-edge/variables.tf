@@ -43,6 +43,12 @@ variable "external_https_prefix_origins" {
   description = "Map of edge path prefix to an external HTTPS origin hosted outside this repo. The Worker matches these prefixes after the static-bucket prefixes and before the Cloud Run prefixes, rewrites the host to the external origin, strips any inbound copy of the in-repo shared-secret header, and never injects the shared-secret header. path_rewrite preserve forwards the path unchanged; strip-mount-path replaces the matched prefix with forwarded_base_path, which must be empty or both start and end with a slash. A trusted origin receives the forwarded Cloudflare Access identity assertion header; an untrusted origin has that header stripped and is edge-gated only. Because the Worker runs after Cloudflare Access and cannot tell an Access-injected assertion from a client-supplied one, trusted may be set only for a route already gated by a Cloudflare Access application that overwrites any client-supplied assertion; marking an origin trusted before its Access gate exists would forward a client-forged identity. Empty by default; populated once an external-https app is registered."
 }
 
+variable "retired_prefixes" {
+  type        = list(string)
+  default     = []
+  description = "Edge path prefixes whose application has been retired in the app registry. The Worker matches these prefixes immediately after the alias redirect and before every origin lookup, answering each with a 410 Gone instead of silently falling through to the shell SPA. Empty by default; populated from the registry whenever an app's status is set to retired, so a removed app stops masquerading as a live route."
+}
+
 variable "edge_shared_secret_header_name" {
   type    = string
   default = "X-Edge-Auth"

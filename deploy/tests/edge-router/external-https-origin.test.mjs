@@ -8,12 +8,13 @@ import {
   untrustedExternalOriginHost,
   multiSegmentBaseExternalOriginHost,
   cloudflareAccessJwtAssertionHeaderName,
-  dispatchThroughEdgeWithExternalHttps,
-} from "./edge-router-test-harness.mjs";
+} from "./edge-router-test-constants.mjs";
+import { dispatchThroughEdgeWithExternalHttps } from "./edge-router-test-dispatch.mjs";
 
 test("a preserve external route forwards to the external origin host", async () => {
-  const { capturedOriginRequest } =
-    await dispatchThroughEdgeWithExternalHttps("/vendor/catalog/item");
+  const { capturedOriginRequest } = await dispatchThroughEdgeWithExternalHttps(
+    "/vendor/catalog/item",
+  );
   assert.equal(
     new URL(capturedOriginRequest.url).hostname,
     untrustedExternalOriginHost,
@@ -143,10 +144,7 @@ test("a strip-mount-path route joins a multi-segment forwarded base path with a 
   const { capturedOriginRequest } =
     await dispatchThroughEdgeWithExternalHttps("/app/foo/bar?q=1");
   const forwardedOriginUrl = new URL(capturedOriginRequest.url);
-  assert.equal(
-    forwardedOriginUrl.hostname,
-    multiSegmentBaseExternalOriginHost,
-  );
+  assert.equal(forwardedOriginUrl.hostname, multiSegmentBaseExternalOriginHost);
   assert.equal(forwardedOriginUrl.pathname, "/api/foo/bar");
   assert.equal(forwardedOriginUrl.search, "?q=1");
 });

@@ -5,10 +5,12 @@ import {
   shellOriginHost,
   aliasRedirectCanonicalHost,
   aliasRedirectStatusCode,
-  edgeEnvironmentWithAliasRedirect,
+} from "./edge-router-test-constants.mjs";
+import { edgeEnvironmentWithAliasRedirect } from "./edge-router-test-environments.mjs";
+import {
   dispatchThroughEdge,
   dispatchThroughEdgeFromHost,
-} from "./edge-router-test-harness.mjs";
+} from "./edge-router-test-dispatch.mjs";
 
 test("an alias-host request is permanently redirected to the canonical host", async () => {
   const { edgeResponse } = await dispatchThroughEdge(
@@ -58,7 +60,8 @@ test("a request already on the canonical host is served by the origin, not redir
 });
 
 test("a routing table without an alias redirect serves the origin normally", async () => {
-  const { capturedOriginRequest, edgeResponse } = await dispatchThroughEdge("/");
+  const { capturedOriginRequest, edgeResponse } =
+    await dispatchThroughEdge("/");
   assert.equal(edgeResponse.status, 200);
   assert.equal(new URL(capturedOriginRequest.url).hostname, shellOriginHost);
 });
