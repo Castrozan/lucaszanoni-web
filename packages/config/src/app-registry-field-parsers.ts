@@ -70,6 +70,33 @@ export function requireStringAllowEmpty(
   return candidate;
 }
 
+export function requireStringMap(
+  record: Record<string, unknown>,
+  key: string,
+  context: string,
+): Record<string, string> {
+  const candidate = record[key];
+  if (
+    typeof candidate !== "object" ||
+    candidate === null ||
+    Array.isArray(candidate)
+  ) {
+    throw new AppRegistryValidationError(
+      `${context} field ${key} must be an object`,
+    );
+  }
+  const stringMap: Record<string, string> = {};
+  for (const [mapKey, mapValue] of Object.entries(candidate)) {
+    if (typeof mapValue !== "string") {
+      throw new AppRegistryValidationError(
+        `${context} field ${key} value for ${mapKey} must be a string`,
+      );
+    }
+    stringMap[mapKey] = mapValue;
+  }
+  return stringMap;
+}
+
 export function requireMountPath(
   record: Record<string, unknown>,
   context: string,

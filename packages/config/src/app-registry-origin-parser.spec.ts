@@ -121,4 +121,80 @@ describe("parseAppRegistry origin variants", () => {
       ]),
     ).toThrow(/originHost/);
   });
+
+  it("surfaces an in-repo origin's non-secret environment map", () => {
+    const [entry] = parseAppRegistry([
+      {
+        ...baseEntry,
+        origin: {
+          kind: "in-repo-cloud-run",
+          cloudRunServiceName: "lucaszanoni-shell",
+          appPackageName: "@lucaszanoni-web/shell",
+          appDirectoryName: "shell",
+          buildProfile: "static-spa",
+          nonSecretEnvironment: {
+            PUBLIC_API_BASE_URL: "https://api.example.com",
+          },
+        },
+      },
+    ]);
+    expect(entry?.origin).toMatchObject({
+      nonSecretEnvironment: {
+        PUBLIC_API_BASE_URL: "https://api.example.com",
+      },
+    });
+  });
+
+  it("accepts an in-repo origin with an empty non-secret environment map", () => {
+    expect(() =>
+      parseAppRegistry([
+        {
+          ...baseEntry,
+          origin: {
+            kind: "in-repo-cloud-run",
+            cloudRunServiceName: "lucaszanoni-shell",
+            appPackageName: "@lucaszanoni-web/shell",
+            appDirectoryName: "shell",
+            buildProfile: "static-spa",
+            nonSecretEnvironment: {},
+          },
+        },
+      ]),
+    ).not.toThrow();
+  });
+
+  it("rejects an in-repo non-secret environment map carrying a non-string value", () => {
+    expect(() =>
+      parseAppRegistry([
+        {
+          ...baseEntry,
+          origin: {
+            kind: "in-repo-cloud-run",
+            cloudRunServiceName: "lucaszanoni-shell",
+            appPackageName: "@lucaszanoni-web/shell",
+            appDirectoryName: "shell",
+            buildProfile: "static-spa",
+            nonSecretEnvironment: { MAX_RETRIES: 5 },
+          },
+        },
+      ]),
+    ).toThrow(/value for MAX_RETRIES must be a string/);
+  });
+
+  it("rejects an in-repo origin missing the non-secret environment map", () => {
+    expect(() =>
+      parseAppRegistry([
+        {
+          ...baseEntry,
+          origin: {
+            kind: "in-repo-cloud-run",
+            cloudRunServiceName: "lucaszanoni-shell",
+            appPackageName: "@lucaszanoni-web/shell",
+            appDirectoryName: "shell",
+            buildProfile: "static-spa",
+          },
+        },
+      ]),
+    ).toThrow(/nonSecretEnvironment/);
+  });
 });

@@ -57,13 +57,14 @@ module "in_repo_cloud_run_app" {
   source   = "../../modules/serverless-cloud-run-app"
   for_each = local.in_repo_cloud_run_apps
 
-  project_id                    = var.project_id
-  region                        = var.region
-  service_name                  = each.value.origin.cloudRunServiceName
-  container_image               = local.in_repo_app_container_images[each.key]
-  runtime_service_account_email = var.runtime_service_account_email
-  mount_path                    = each.value.mountPath
-  edge_shared_secret_value      = var.edge_shared_secret_value
+  project_id                       = var.project_id
+  region                           = var.region
+  service_name                     = each.value.origin.cloudRunServiceName
+  container_image                  = local.in_repo_app_container_images[each.key]
+  runtime_service_account_email    = var.runtime_service_account_email
+  mount_path                       = each.value.mountPath
+  edge_shared_secret_value         = var.edge_shared_secret_value
+  non_secret_environment_variables = each.value.origin.nonSecretEnvironment
 }
 
 moved {

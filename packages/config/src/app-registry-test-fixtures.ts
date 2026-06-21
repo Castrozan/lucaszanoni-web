@@ -14,6 +14,7 @@ export const shellApp: AppRegistryEntry = {
     appPackageName: "@lucaszanoni-web/shell",
     appDirectoryName: "shell",
     buildProfile: "static-spa",
+    nonSecretEnvironment: {},
   },
 };
 
@@ -31,6 +32,7 @@ export const usageDashboardApp: AppRegistryEntry = {
     appPackageName: "@lucaszanoni-web/usage-dashboard",
     appDirectoryName: "usage-dashboard",
     buildProfile: "static-spa",
+    nonSecretEnvironment: {},
   },
 };
 
@@ -48,6 +50,7 @@ export const reportsApp: AppRegistryEntry = {
     appPackageName: "@lucaszanoni-web/reports",
     appDirectoryName: "reports",
     buildProfile: "static-spa",
+    nonSecretEnvironment: {},
   },
 };
 

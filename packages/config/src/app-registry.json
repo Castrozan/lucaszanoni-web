@@ -12,7 +12,8 @@
       "cloudRunServiceName": "lucaszanoni-shell",
       "appPackageName": "@lucaszanoni-web/shell",
       "appDirectoryName": "shell",
-      "buildProfile": "static-spa"
+      "buildProfile": "static-spa",
+      "nonSecretEnvironment": {}
     }
   },
   {
@@ -28,7 +29,8 @@
       "cloudRunServiceName": "lucaszanoni-usage-dashboard",
       "appPackageName": "@lucaszanoni-web/usage-dashboard",
       "appDirectoryName": "usage-dashboard",
-      "buildProfile": "static-spa"
+      "buildProfile": "static-spa",
+      "nonSecretEnvironment": {}
     }
   },
   {
@@ -44,7 +46,8 @@
       "cloudRunServiceName": "lucaszanoni-reports",
       "appPackageName": "@lucaszanoni-web/reports",
       "appDirectoryName": "reports",
-      "buildProfile": "static-spa"
+      "buildProfile": "static-spa",
+      "nonSecretEnvironment": {}
     }
   }
 ]
