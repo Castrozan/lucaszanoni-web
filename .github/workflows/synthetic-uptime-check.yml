@@ -1,0 +1,29 @@
+name: synthetic-uptime-check
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: synthetic-uptime-check
+  cancel-in-progress: true
+
+jobs:
+  probe-live-edge:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || vars.ENABLE_SYNTHETIC_UPTIME_CHECK == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Probe every active app route from the registry and export uptime metrics
+        env:
+          BASE_URL: ${{ vars.SYNTHETIC_UPTIME_BASE_URL }}
+          OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
+          OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT }}
+          OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
+        run: node deploy/synthetic-uptime/run-synthetic-uptime-check.mjs
