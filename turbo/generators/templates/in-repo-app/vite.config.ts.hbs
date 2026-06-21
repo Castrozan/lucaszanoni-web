@@ -1,0 +1,21 @@
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vitest/config";
+import appRegistry from "../../packages/config/src/app-registry.json";
+
+const {{camelCase id}}MountPath = appRegistry.find(
+  (registryEntry) => registryEntry.id === "{{dashCase id}}",
+)?.mountPath;
+
+if (!{{camelCase id}}MountPath) {
+  throw new Error("no app-registry entry with id {{dashCase id}}");
+}
+
+export default defineConfig({
+  base: {{camelCase id}}MountPath,
+  plugins: [react(), tailwindcss()],
+  test: {
+    environment: "jsdom",
+    include: ["src/**/*.spec.{ts,tsx}"],
+  },
+});

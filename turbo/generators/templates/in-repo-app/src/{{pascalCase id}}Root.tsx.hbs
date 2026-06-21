@@ -1,0 +1,29 @@
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { findMicroFrontendRoute } from "@lucaszanoni-web/config";
+import { AppShell, ThemeProvider } from "@lucaszanoni-web/design-system";
+
+const microFrontendRoute = findMicroFrontendRoute("{{dashCase id}}");
+
+function {{pascalCase id}}Placeholder() {
+  return (
+    <section>
+      <h1>{microFrontendRoute.navigationLabel}</h1>
+      <p>{microFrontendRoute.description}</p>
+    </section>
+  );
+}
+
+export function {{pascalCase id}}Root() {
+  return (
+    <ThemeProvider>
+      <BrowserRouter basename={microFrontendRoute.mountPath}>
+        <AppShell activeRouteId="{{dashCase id}}">
+          <Routes>
+            <Route path="/" element={<{{pascalCase id}}Placeholder />} />
+            <Route path="*" element={<{{pascalCase id}}Placeholder />} />
+          </Routes>
+        </AppShell>
+      </BrowserRouter>
+    </ThemeProvider>
+  );
+}

@@ -10,3 +10,24 @@ export {
   CROSS_SECTION_NAVIGATION_ROUTES,
   findMicroFrontendRoute,
 } from "./route-registry";
+export type {
+  AppLifecycleStatus,
+  AppBuildProfile,
+  AppExternalOriginPathRewrite,
+  AppAccessModel,
+  AppOrigin,
+  AppRegistryEntry,
+} from "./app-registry-types";
+export { parseAppRegistry } from "./app-registry-parser";
+export { appRegistry } from "./app-registry";
+export type {
+  AppOriginSpec,
+  AppRegistryEntryBuilderInput,
+} from "./app-registry-entry-builder";
+export { buildAppRegistryEntry } from "./app-registry-entry-builder";
+export type { AddAppAnswers } from "./app-registry-answers-resolver";
+export {
+  resolveAccessModel,
+  resolveOriginSpec,
+} from "./app-registry-answers-resolver";
+export { appendEntryToRegistryDocument } from "./app-registry-document-writer";
