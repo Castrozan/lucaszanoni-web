@@ -2,6 +2,7 @@ import type {
   AppAccessModel,
   AppOrigin,
   AppRegistryEntry,
+  AppServingLocation,
 } from "./app-registry-types";
 import { AppRegistryValidationError } from "./app-registry-types";
 import {
@@ -12,6 +13,7 @@ import {
   requireMountPath,
   requireOneOf,
   requireString,
+  requireSubdomainLabel,
 } from "./app-registry-field-parsers";
 import { parseOrigin } from "./app-registry-origin-parser";
 
@@ -42,6 +44,39 @@ function parseAccessModel(value: unknown, context: string): AppAccessModel {
   return { kind };
 }
 
+function parseServingLocation(
+  value: unknown,
+  context: string,
+): AppServingLocation | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  const record = asObjectRecord(value, `${context} servingLocation`);
+  const kind = requireOneOf(
+    record,
+    "kind",
+    ["path-prefix", "subdomain"] as const,
+    `${context} servingLocation`,
+  );
+  if (kind === "subdomain") {
+    rejectUnknownKeys(
+      record,
+      ["kind", "subdomainLabel"],
+      `${context} servingLocation`,
+    );
+    return {
+      kind,
+      subdomainLabel: requireSubdomainLabel(
+        record,
+        "subdomainLabel",
+        `${context} servingLocation`,
+      ),
+    };
+  }
+  rejectUnknownKeys(record, ["kind"], `${context} servingLocation`);
+  return { kind };
+}
+
 function parseAppRegistryEntry(
   value: unknown,
   index: number,
@@ -59,6 +94,7 @@ function parseAppRegistryEntry(
       "status",
       "accessModel",
       "origin",
+      "servingLocation",
       "healthProbePath",
     ],
     context,
@@ -88,6 +124,7 @@ function parseAppRegistryEntry(
     ),
     accessModel,
     origin,
+    servingLocation: parseServingLocation(record["servingLocation"], context),
     healthProbePath: optionalAbsolutePath(record, "healthProbePath", context),
   };
 }
@@ -116,6 +153,18 @@ function collectInRepoCloudRunOrigins(
   return origins;
 }
 
+function collectSubdomainLabels(
+  entries: readonly AppRegistryEntry[],
+): readonly string[] {
+  const subdomainLabels: string[] = [];
+  for (const entry of entries) {
+    if (entry.servingLocation?.kind === "subdomain") {
+      subdomainLabels.push(entry.servingLocation.subdomainLabel);
+    }
+  }
+  return subdomainLabels;
+}
+
 export function parseAppRegistry(value: unknown): readonly AppRegistryEntry[] {
   if (!Array.isArray(value)) {
     throw new AppRegistryValidationError("app registry must be a json array");
@@ -138,5 +187,6 @@ export function parseAppRegistry(value: unknown): readonly AppRegistryEntry[] {
     inRepoCloudRunOrigins.map((origin) => origin.appDirectoryName),
     "appDirectoryName",
   );
+  assertUnique(collectSubdomainLabels(entries), "subdomainLabel");
   return entries;
 }

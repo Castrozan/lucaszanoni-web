@@ -4,6 +4,10 @@ export type AppBuildProfile = "static-spa" | "dynamic-service";
 
 export type AppExternalOriginPathRewrite = "preserve" | "strip-mount-path";
 
+export type AppServingLocation =
+  | { readonly kind: "path-prefix" }
+  | { readonly kind: "subdomain"; readonly subdomainLabel: string };
+
 export type AppAccessModel =
   | { readonly kind: "public" }
   | { readonly kind: "owner-only" }
@@ -41,6 +45,7 @@ export interface AppRegistryEntry {
   readonly status: AppLifecycleStatus;
   readonly accessModel: AppAccessModel;
   readonly origin: AppOrigin;
+  readonly servingLocation?: AppServingLocation;
   readonly healthProbePath?: string;
 }
 

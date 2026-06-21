@@ -127,6 +127,22 @@ export function optionalAbsolutePath(
   return candidate;
 }
 
+const subdomainLabelPattern = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/;
+
+export function requireSubdomainLabel(
+  record: Record<string, unknown>,
+  key: string,
+  context: string,
+): string {
+  const subdomainLabel = requireString(record, key, context);
+  if (!subdomainLabelPattern.test(subdomainLabel)) {
+    throw new AppRegistryValidationError(
+      `${context} field ${key} must be a dns label of lowercase letters, digits, and hyphens that does not start or end with a hyphen`,
+    );
+  }
+  return subdomainLabel;
+}
+
 export function requireBareHostname(
   record: Record<string, unknown>,
   key: string,
