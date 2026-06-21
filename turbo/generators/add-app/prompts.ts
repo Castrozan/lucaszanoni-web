@@ -1,5 +1,5 @@
 import type { PlopTypes } from "@turbo/gen";
-import type { AddAppAnswers } from "@lucaszanoni-web/config";
+import type { AddAppAnswers } from "@platform/config";
 
 export const addAppPrompts: PlopTypes.PromptQuestion[] = [
   {

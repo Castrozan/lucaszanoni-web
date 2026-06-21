@@ -74,7 +74,7 @@ test("the committed registry and the apps directories are mutually consistent", 
 test("flags an in-repo entry whose app directory is missing", () => {
   assert.deepEqual(
     findRegistryAppDirectoryInconsistencies(
-      [inRepoCloudRunEntry("shell", "shell", "@lucaszanoni-web/shell")],
+      [inRepoCloudRunEntry("shell", "shell", "@platform/shell")],
       [],
     ),
     [
@@ -90,16 +90,16 @@ test("flags an in-repo entry whose app directory is missing", () => {
 test("flags an in-repo entry whose app directory package name diverges", () => {
   assert.deepEqual(
     findRegistryAppDirectoryInconsistencies(
-      [inRepoCloudRunEntry("shell", "shell", "@lucaszanoni-web/shell")],
-      [{ directoryName: "shell", packageName: "@lucaszanoni-web/renamed" }],
+      [inRepoCloudRunEntry("shell", "shell", "@platform/shell")],
+      [{ directoryName: "shell", packageName: "@platform/renamed" }],
     ),
     [
       {
         kind: "package-name-mismatch",
         entryId: "shell",
         appDirectoryName: "shell",
-        expectedPackageName: "@lucaszanoni-web/shell",
-        actualPackageName: "@lucaszanoni-web/renamed",
+        expectedPackageName: "@platform/shell",
+        actualPackageName: "@platform/renamed",
       },
     ],
   );
@@ -108,12 +108,12 @@ test("flags an in-repo entry whose app directory package name diverges", () => {
 test("flags an apps directory that no in-repo entry claims", () => {
   assert.deepEqual(
     findRegistryAppDirectoryInconsistencies(
-      [inRepoCloudRunEntry("shell", "shell", "@lucaszanoni-web/shell")],
+      [inRepoCloudRunEntry("shell", "shell", "@platform/shell")],
       [
-        { directoryName: "shell", packageName: "@lucaszanoni-web/shell" },
+        { directoryName: "shell", packageName: "@platform/shell" },
         {
           directoryName: "abandoned",
-          packageName: "@lucaszanoni-web/abandoned",
+          packageName: "@platform/abandoned",
         },
       ],
     ),
@@ -128,7 +128,7 @@ test("flags a non-in-repo entry that nonetheless owns an apps directory", () => 
       [
         {
           directoryName: "private-portal",
-          packageName: "@lucaszanoni-web/private-portal",
+          packageName: "@platform/private-portal",
         },
       ],
     ),
@@ -148,11 +148,11 @@ test("does not flag a non-in-repo id that collides with an in-repo app directory
   const inRepo = inRepoCloudRunEntry(
     "reports-app",
     "reports",
-    "@lucaszanoni-web/reports",
+    "@platform/reports",
   );
   const external = externalHttpsEntry("reports");
   const inventory = [
-    { directoryName: "reports", packageName: "@lucaszanoni-web/reports" },
+    { directoryName: "reports", packageName: "@platform/reports" },
   ];
   assert.deepEqual(
     findRegistryAppDirectoryInconsistencies([inRepo, external], inventory),
@@ -168,10 +168,10 @@ test("accepts a non-in-repo entry that owns no apps directory", () => {
   assert.deepEqual(
     findRegistryAppDirectoryInconsistencies(
       [
-        inRepoCloudRunEntry("shell", "shell", "@lucaszanoni-web/shell"),
+        inRepoCloudRunEntry("shell", "shell", "@platform/shell"),
         externalHttpsEntry("private-portal"),
       ],
-      [{ directoryName: "shell", packageName: "@lucaszanoni-web/shell" }],
+      [{ directoryName: "shell", packageName: "@platform/shell" }],
     ),
     [],
   );

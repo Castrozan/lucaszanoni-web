@@ -8,21 +8,21 @@ import {
 const fullMatrixInclude = [
   {
     service_name: "lucaszanoni-shell",
-    app_package_name: "@lucaszanoni-web/shell",
+    app_package_name: "@platform/shell",
     app_directory_name: "shell",
     app_mount_path: "/",
     build_profile: "static-spa",
   },
   {
     service_name: "lucaszanoni-usage-dashboard",
-    app_package_name: "@lucaszanoni-web/usage-dashboard",
+    app_package_name: "@platform/usage-dashboard",
     app_directory_name: "usage-dashboard",
     app_mount_path: "/engineering/dotfiles/claude/usage/",
     build_profile: "static-spa",
   },
   {
     service_name: "lucaszanoni-reports",
-    app_package_name: "@lucaszanoni-web/reports",
+    app_package_name: "@platform/reports",
     app_directory_name: "reports",
     app_mount_path: "/engineering/dotfiles/reports/",
     build_profile: "static-spa",
@@ -36,25 +36,25 @@ function scopedPackageNames(scopedMatrix) {
 test("scopes the matrix to a single app when only that app's source changed", () => {
   const scoped = scopeDeployMatrixToChangedApps({
     fullMatrixInclude,
-    affectedAppPackageNames: ["@lucaszanoni-web/shell"],
+    affectedAppPackageNames: ["@platform/shell"],
     changedFilePaths: ["apps/shell/src/App.tsx"],
   });
-  assert.deepEqual(scopedPackageNames(scoped), ["@lucaszanoni-web/shell"]);
+  assert.deepEqual(scopedPackageNames(scoped), ["@platform/shell"]);
 });
 
 test("scopes to exactly the dependent apps turbo reports affected by a shared-package edit", () => {
   const scoped = scopeDeployMatrixToChangedApps({
     fullMatrixInclude,
     affectedAppPackageNames: [
-      "@lucaszanoni-web/design-system",
-      "@lucaszanoni-web/shell",
-      "@lucaszanoni-web/reports",
+      "@platform/design-system",
+      "@platform/shell",
+      "@platform/reports",
     ],
     changedFilePaths: ["packages/design-system/src/Button.tsx"],
   });
   assert.deepEqual(scopedPackageNames(scoped), [
-    "@lucaszanoni-web/shell",
-    "@lucaszanoni-web/reports",
+    "@platform/shell",
+    "@platform/reports",
   ]);
 });
 
@@ -70,7 +70,7 @@ test("forces the full matrix when a shared Dockerfile changed even with no affec
 test("forces the full matrix when the registry itself changed", () => {
   const scoped = scopeDeployMatrixToChangedApps({
     fullMatrixInclude,
-    affectedAppPackageNames: ["@lucaszanoni-web/shell"],
+    affectedAppPackageNames: ["@platform/shell"],
     changedFilePaths: ["packages/config/src/app-registry.json"],
   });
   assert.deepEqual(scoped.include, fullMatrixInclude);

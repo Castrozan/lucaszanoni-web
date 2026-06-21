@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { USAGE_DASHBOARD_MOUNT_PATH } from "@lucaszanoni-web/config";
-import { AppShell, ThemeProvider } from "@lucaszanoni-web/design-system";
+import { USAGE_DASHBOARD_MOUNT_PATH } from "@platform/config";
+import { AppShell, ThemeProvider } from "@platform/design-system";
 import { UsageDashboardContainer } from "./components/UsageDashboardContainer";
 
 const usageDashboardQueryClient = new QueryClient();

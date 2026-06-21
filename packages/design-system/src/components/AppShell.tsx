@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { CROSS_SECTION_NAVIGATION_ROUTES } from "@lucaszanoni-web/config";
-import type { MicroFrontendId } from "@lucaszanoni-web/config";
+import { CROSS_SECTION_NAVIGATION_ROUTES } from "@platform/config";
+import type { MicroFrontendId } from "@platform/config";
 import { useTheme } from "../theme/theme-context";
 import { buildBreadcrumbTrail } from "../navigation/breadcrumb-trail";
 import { cn } from "../lib/utils";

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { USAGE_DASHBOARD_MOUNT_PATH } from "@lucaszanoni-web/config";
+import { USAGE_DASHBOARD_MOUNT_PATH } from "@platform/config";
 import usageDashboardViteConfig from "../vite.config";
 
 describe("usage dashboard vite base", () => {

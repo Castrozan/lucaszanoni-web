@@ -1,7 +1,7 @@
 import {
   REPORTS_MOUNT_PATH,
   USAGE_DASHBOARD_MOUNT_PATH,
-} from "@lucaszanoni-web/config";
+} from "@platform/config";
 
 export interface ReportHubCard {
   readonly id: string;

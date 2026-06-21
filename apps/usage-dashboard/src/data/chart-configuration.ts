@@ -2,7 +2,7 @@ import type { ChartData, ChartOptions } from "chart.js";
 import {
   ACCOUNT_SERIES_COLORS,
   type ChartSeries,
-} from "@lucaszanoni-web/snapshot-data";
+} from "@platform/snapshot-data";
 
 export interface DailyTokensChartConfiguration {
   data: ChartData<"line", (number | null)[], string>;

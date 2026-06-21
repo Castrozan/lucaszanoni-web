@@ -1,5 +1,5 @@
 {
-  "name": "@lucaszanoni-web/usage-dashboard",
+  "name": "@platform/usage-dashboard",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,9 +11,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@lucaszanoni-web/config": "workspace:*",
-    "@lucaszanoni-web/design-system": "workspace:*",
-    "@lucaszanoni-web/snapshot-data": "workspace:*",
+    "@platform/config": "workspace:*",
+    "@platform/design-system": "workspace:*",
+    "@platform/snapshot-data": "workspace:*",
     "@tanstack/react-query": "^5.62.0",
     "chart.js": "^4.5.0",
     "react": "^19.0.0",
@@ -22,7 +22,7 @@
     "react-router-dom": "^7.1.0"
   },
   "devDependencies": {
-    "@lucaszanoni-web/tsconfig": "workspace:*",
+    "@platform/tsconfig": "workspace:*",
     "@tailwindcss/vite": "^4.3.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.1.0",

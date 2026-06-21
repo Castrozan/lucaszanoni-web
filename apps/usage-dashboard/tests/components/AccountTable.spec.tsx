@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
-import type { AccountView } from "@lucaszanoni-web/snapshot-data";
+import type { AccountView } from "@platform/snapshot-data";
 import { AccountTable } from "../../src/components/AccountTable";
 import { sampleUsageViewModel } from "../test-fixtures/usage-view-model-fixture";
 

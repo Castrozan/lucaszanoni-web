@@ -1,4 +1,4 @@
-import { REPORTS_MOUNT_PATH } from "@lucaszanoni-web/config";
+import { REPORTS_MOUNT_PATH } from "@platform/config";
 
 export const qualitySectionHeadingClassName =
   "mt-9 mb-3 border-b border-border pb-1.5 text-lg font-semibold";

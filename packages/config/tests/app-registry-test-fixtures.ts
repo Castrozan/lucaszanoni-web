@@ -11,7 +11,7 @@ export const shellApp: AppRegistryEntry = {
   origin: {
     kind: "in-repo-cloud-run",
     cloudRunServiceName: "lucaszanoni-shell",
-    appPackageName: "@lucaszanoni-web/shell",
+    appPackageName: "@platform/shell",
     appDirectoryName: "shell",
     buildProfile: "static-spa",
     nonSecretEnvironment: {},
@@ -30,7 +30,7 @@ export const usageDashboardApp: AppRegistryEntry = {
   origin: {
     kind: "in-repo-cloud-run",
     cloudRunServiceName: "lucaszanoni-usage-dashboard",
-    appPackageName: "@lucaszanoni-web/usage-dashboard",
+    appPackageName: "@platform/usage-dashboard",
     appDirectoryName: "usage-dashboard",
     buildProfile: "static-spa",
     nonSecretEnvironment: {},
@@ -49,7 +49,7 @@ export const reportsApp: AppRegistryEntry = {
   origin: {
     kind: "in-repo-cloud-run",
     cloudRunServiceName: "lucaszanoni-reports",
-    appPackageName: "@lucaszanoni-web/reports",
+    appPackageName: "@platform/reports",
     appDirectoryName: "reports",
     buildProfile: "static-spa",
     nonSecretEnvironment: {},

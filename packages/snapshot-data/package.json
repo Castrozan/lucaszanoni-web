@@ -1,5 +1,5 @@
 {
-  "name": "@lucaszanoni-web/snapshot-data",
+  "name": "@platform/snapshot-data",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@lucaszanoni-web/tsconfig": "workspace:*",
+    "@platform/tsconfig": "workspace:*",
     "typescript": "^5.7.3",
     "vitest": "^4.1.9"
   }
