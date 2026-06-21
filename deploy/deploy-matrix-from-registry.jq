@@ -6,7 +6,8 @@
         service_name: .origin.cloudRunServiceName,
         app_package_name: .origin.appPackageName,
         app_directory_name: .origin.appDirectoryName,
-        app_mount_path: .mountPath
+        app_mount_path: .mountPath,
+        build_profile: .origin.buildProfile
       }
   ]
 }
