@@ -28,20 +28,66 @@ jobs:
   prepare-deploy-matrix:
     runs-on: ubuntu-latest
     outputs:
-      deploy_matrix: ${{ steps.derive-deploy-matrix.outputs.deploy_matrix }}
+      deploy_matrix: ${{ steps.select-deploy-matrix.outputs.deploy_matrix }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Derive the deploy matrix from the application registry
-        id: derive-deploy-matrix
+      - name: Derive the full deploy matrix from the application registry
+        id: derive-full-deploy-matrix
         run: |
-          deploy_matrix="$(jq -c -f deploy/deploy-matrix-from-registry.jq packages/config/src/app-registry.json)"
-          deploy_matrix_row_count="$(jq '.include | length' <<<"${deploy_matrix}")"
-          if [ "${deploy_matrix_row_count}" -eq 0 ]; then
+          full_deploy_matrix="$(jq -c -f deploy/deploy-matrix-from-registry.jq packages/config/src/app-registry.json)"
+          full_deploy_matrix_row_count="$(jq '.include | length' <<<"${full_deploy_matrix}")"
+          if [ "${full_deploy_matrix_row_count}" -eq 0 ]; then
             echo "::error::The deploy matrix derived from app-registry.json is empty; no in-repo-cloud-run apps to deploy. Refusing to pass green having deployed nothing."
             exit 1
           fi
-          echo "deploy_matrix=${deploy_matrix}" >> "$GITHUB_OUTPUT"
+          echo "full_deploy_matrix=${full_deploy_matrix}" >> "$GITHUB_OUTPUT"
+
+      - name: Enable corepack
+        if: vars.ENABLE_CHANGE_SCOPED_DEPLOY == 'true' && github.event_name == 'push'
+        run: corepack enable
+
+      - uses: actions/setup-node@v4
+        if: vars.ENABLE_CHANGE_SCOPED_DEPLOY == 'true' && github.event_name == 'push'
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies so turbo can compute the affected package set
+        if: vars.ENABLE_CHANGE_SCOPED_DEPLOY == 'true' && github.event_name == 'push'
+        run: pnpm install --frozen-lockfile
+
+      - name: Scope the deploy matrix to the apps affected by this push
+        id: scope-deploy-matrix
+        if: vars.ENABLE_CHANGE_SCOPED_DEPLOY == 'true' && github.event_name == 'push'
+        env:
+          deploy_change_base_ref: ${{ github.event.before }}
+          deploy_change_head_ref: ${{ github.sha }}
+          FULL_DEPLOY_MATRIX: ${{ steps.derive-full-deploy-matrix.outputs.full_deploy_matrix }}
+        run: |
+          if ! git cat-file -e "${deploy_change_base_ref}^{commit}" 2>/dev/null; then
+            echo "Base ref ${deploy_change_base_ref} is unavailable; forcing a full deploy."
+            scoped_deploy_matrix="${FULL_DEPLOY_MATRIX}"
+          else
+            changed_file_paths="$(git diff --name-only "${deploy_change_base_ref}" "${deploy_change_head_ref}")"
+            affected_app_package_names="$(TURBO_SCM_BASE="${deploy_change_base_ref}" TURBO_SCM_HEAD="${deploy_change_head_ref}" npx turbo ls --affected --output=json | jq -c '[.packages.items[].name]')"
+            scoped_deploy_matrix="$(AFFECTED_APP_PACKAGE_NAMES="${affected_app_package_names}" CHANGED_FILE_PATHS="${changed_file_paths}" node deploy/deploy-matrix/print-scoped-deploy-matrix.mjs)"
+          fi
+          echo "scoped_deploy_matrix=${scoped_deploy_matrix}" >> "$GITHUB_OUTPUT"
+
+      - name: Select the scoped matrix when change-scoped deploy is enabled, otherwise the full registry matrix
+        id: select-deploy-matrix
+        env:
+          scoped_deploy_matrix: ${{ steps.scope-deploy-matrix.outputs.scoped_deploy_matrix }}
+          full_deploy_matrix: ${{ steps.derive-full-deploy-matrix.outputs.full_deploy_matrix }}
+        run: |
+          if [ -n "${scoped_deploy_matrix}" ]; then
+            echo "deploy_matrix=${scoped_deploy_matrix}" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy_matrix=${full_deploy_matrix}" >> "$GITHUB_OUTPUT"
+          fi
 
   build-and-deploy:
     needs: prepare-deploy-matrix
