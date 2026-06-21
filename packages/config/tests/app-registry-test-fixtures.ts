@@ -26,7 +26,7 @@ export const usageDashboardApp: AppRegistryEntry = {
   description: "Live Claude Code token usage and cost across machines.",
   showInCrossSectionNavigation: true,
   status: "active",
-  accessModel: { kind: "public" },
+  accessModel: { kind: "owner-only" },
   origin: {
     kind: "in-repo-cloud-run",
     cloudRunServiceName: "lucaszanoni-usage-dashboard",
@@ -45,7 +45,7 @@ export const reportsApp: AppRegistryEntry = {
   description: "Generated reports hub.",
   showInCrossSectionNavigation: true,
   status: "active",
-  accessModel: { kind: "public" },
+  accessModel: { kind: "owner-only" },
   origin: {
     kind: "in-repo-cloud-run",
     cloudRunServiceName: "lucaszanoni-reports",
