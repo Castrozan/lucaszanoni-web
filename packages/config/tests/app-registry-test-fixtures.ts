@@ -94,10 +94,29 @@ export const cockpitApp: AppRegistryEntry = {
   },
 };
 
+export const jarvisSessionApp: AppRegistryEntry = {
+  id: "jarvis-session",
+  mountPath: "/cockpit/jarvis-session/",
+  navigationLabel: "Jarvis session",
+  description:
+    "Owner-only websocket bridge to the Jarvis session host, attached at the edge and gated by Cloudflare Access.",
+  showInCrossSectionNavigation: false,
+  status: "active",
+  accessModel: { kind: "owner-only" },
+  origin: {
+    kind: "external-https",
+    originHost: "jarvis-session-origin.lucaszanoni.com",
+    pathRewrite: "preserve",
+    forwardedBasePath: "",
+    trusted: false,
+  },
+};
+
 export const todaysApps: readonly AppRegistryEntry[] = [
   shellApp,
   usageDashboardApp,
   reportsApp,
   dbApp,
   cockpitApp,
+  jarvisSessionApp,
 ];
