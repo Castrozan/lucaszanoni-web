@@ -1,0 +1,36 @@
+name: jarvis-token-probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe Cloudflare Tunnel edit scope without touching the live edge
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          tunnel_secret=$(openssl rand -base64 32)
+          create_http=$(curl -s -o /tmp/create.json -w '%{http_code}' \
+            -X POST "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/cfd_tunnel" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "{\"name\":\"jarvis-token-probe-throwaway\",\"config_src\":\"local\",\"tunnel_secret\":\"$tunnel_secret\"}")
+          success=$(jq -r '.success' /tmp/create.json 2>/dev/null || echo false)
+          echo "create http_status=$create_http success=$success"
+          if [ "$success" = "true" ]; then
+            tunnel_id=$(jq -r '.result.id' /tmp/create.json)
+            curl -s -X DELETE "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/cfd_tunnel/$tunnel_id" \
+              -H "Authorization: Bearer $CF_TOKEN" >/dev/null
+            echo "RESULT: TUNNEL_EDIT_OK"
+          else
+            jq -c '.errors' /tmp/create.json 2>/dev/null || true
+            echo "RESULT: TUNNEL_EDIT_MISSING"
+            exit 1
+          fi
