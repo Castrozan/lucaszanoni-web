@@ -1,19 +1,21 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import {
+  encodeResizeControlMessage,
   initialJarvisTerminalState,
   reduceJarvisTerminal,
-  type JarvisTerminalLine,
   type JarvisTerminalStatus,
+  type JarvisTerminalWindowSize,
 } from "./jarvis-session-terminal-model";
 
 export interface JarvisSessionSocket {
-  send(payload: string): void;
+  sendOwnerKeystrokes(bytes: Uint8Array): void;
+  sendControlMessage(message: string): void;
   close(): void;
 }
 
 export interface JarvisSessionSocketHandlers {
   onOpen(): void;
-  onMessage(data: string): void;
+  onOutputBytes(bytes: Uint8Array): void;
   onClose(reason: string): void;
   onError(message: string): void;
 }
@@ -23,42 +25,60 @@ export type JarvisSessionSocketFactory = (
   handlers: JarvisSessionSocketHandlers,
 ) => JarvisSessionSocket;
 
+const stringFrameEncoder = new TextEncoder();
+
 export const connectJarvisSessionWebSocket: JarvisSessionSocketFactory = (
   endpoint,
   handlers,
 ) => {
   const socket = new WebSocket(endpoint);
+  socket.binaryType = "arraybuffer";
   socket.onopen = () => handlers.onOpen();
-  socket.onmessage = (event) =>
-    handlers.onMessage(typeof event.data === "string" ? event.data : "");
+  socket.onmessage = (event) => {
+    const data = event.data;
+    if (data instanceof ArrayBuffer) {
+      handlers.onOutputBytes(new Uint8Array(data));
+    } else if (typeof data === "string") {
+      handlers.onOutputBytes(stringFrameEncoder.encode(data));
+    }
+  };
   socket.onclose = (event) =>
     handlers.onClose(event.reason || `code ${event.code}`);
   socket.onerror = () => handlers.onError("connection error");
   return {
-    send: (payload) => socket.send(payload),
+    sendOwnerKeystrokes: (bytes) => socket.send(bytes),
+    sendControlMessage: (message) => socket.send(message),
     close: () => socket.close(),
   };
 };
 
 export interface JarvisSessionTerminalController {
   status: JarvisTerminalStatus;
-  lines: readonly JarvisTerminalLine[];
-  pendingOutput: string;
-  isConnectable: boolean;
+  detail: string;
   connect(): void;
   disconnect(): void;
-  sendInput(text: string): void;
+  sendOwnerKeystrokes(bytes: Uint8Array): void;
+  sendWindowSize(windowSize: JarvisTerminalWindowSize): void;
+}
+
+export interface UseJarvisSessionTerminalOptions {
+  createSocket?: JarvisSessionSocketFactory;
+  onOutputBytes?: (bytes: Uint8Array) => void;
 }
 
 export function useJarvisSessionTerminal(
   endpoint: string | null,
-  createSocket: JarvisSessionSocketFactory = connectJarvisSessionWebSocket,
+  options: UseJarvisSessionTerminalOptions = {},
 ): JarvisSessionTerminalController {
+  const { createSocket = connectJarvisSessionWebSocket, onOutputBytes } =
+    options;
   const [state, dispatch] = useReducer(
     reduceJarvisTerminal,
     initialJarvisTerminalState,
   );
   const socketRef = useRef<JarvisSessionSocket | null>(null);
+  const onOutputBytesRef = useRef(onOutputBytes);
+  onOutputBytesRef.current = onOutputBytes;
 
   const connect = useCallback(() => {
     if (!endpoint || socketRef.current) {
@@ -67,12 +87,15 @@ export function useJarvisSessionTerminal(
     dispatch({ type: "connecting" });
     socketRef.current = createSocket(endpoint, {
       onOpen: () => dispatch({ type: "opened" }),
-      onMessage: (data) => dispatch({ type: "output", chunk: data }),
+      onOutputBytes: (bytes) => onOutputBytesRef.current?.(bytes),
       onClose: (reason) => {
         socketRef.current = null;
         dispatch({ type: "closed", reason });
       },
-      onError: (message) => dispatch({ type: "errored", message }),
+      onError: (message) => {
+        socketRef.current = null;
+        dispatch({ type: "errored", message });
+      },
     });
   }, [endpoint, createSocket]);
 
@@ -81,12 +104,20 @@ export function useJarvisSessionTerminal(
     socketRef.current = null;
   }, []);
 
-  const sendInput = useCallback((text: string) => {
-    if (!socketRef.current || text.length === 0) {
+  const sendOwnerKeystrokes = useCallback((bytes: Uint8Array) => {
+    if (!socketRef.current || bytes.length === 0) {
       return;
     }
-    socketRef.current.send(`${text}\n`);
-    dispatch({ type: "owner-input", text });
+    socketRef.current.sendOwnerKeystrokes(bytes);
+  }, []);
+
+  const sendWindowSize = useCallback((windowSize: JarvisTerminalWindowSize) => {
+    if (!socketRef.current) {
+      return;
+    }
+    socketRef.current.sendControlMessage(
+      encodeResizeControlMessage(windowSize),
+    );
   }, []);
 
   useEffect(
@@ -99,11 +130,10 @@ export function useJarvisSessionTerminal(
 
   return {
     status: state.status,
-    lines: state.lines,
-    pendingOutput: state.pendingOutput,
-    isConnectable: Boolean(endpoint),
+    detail: state.detail,
     connect,
     disconnect,
-    sendInput,
+    sendOwnerKeystrokes,
+    sendWindowSize,
   };
 }

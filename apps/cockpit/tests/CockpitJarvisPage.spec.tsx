@@ -1,6 +1,17 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { CockpitJarvisPage } from "../src/pages/CockpitJarvisPage";
+
+vi.mock("../src/jarvis/browser-terminal-emulator", () => ({
+  createBrowserTerminalEmulator: () => ({
+    attachTo: () => ({ columns: 80, rows: 24 }),
+    writeOutputBytes: () => {},
+    onOwnerInput: () => {},
+    fitToContainer: () => ({ columns: 80, rows: 24 }),
+    focus: () => {},
+    dispose: () => {},
+  }),
+}));
 
 afterEach(cleanup);
 
