@@ -13,6 +13,13 @@ export type AppAccessModel =
   | { readonly kind: "owner-only" }
   | { readonly kind: "shared"; readonly audienceKey: string };
 
+export type AppAccessApplicationProvisioning =
+  | { readonly kind: "dedicated" }
+  | {
+      readonly kind: "inherited-from-parent-path";
+      readonly parentMountPath: string;
+    };
+
 export type AppOrigin =
   | {
       readonly kind: "in-repo-cloud-run";
@@ -44,6 +51,7 @@ export interface AppRegistryEntry {
   readonly showInCrossSectionNavigation: boolean;
   readonly status: AppLifecycleStatus;
   readonly accessModel: AppAccessModel;
+  readonly accessApplicationProvisioning?: AppAccessApplicationProvisioning;
   readonly origin: AppOrigin;
   readonly servingLocation?: AppServingLocation;
   readonly healthProbePath?: string;

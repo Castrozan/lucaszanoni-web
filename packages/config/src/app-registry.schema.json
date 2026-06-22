@@ -27,6 +27,9 @@
         "showInCrossSectionNavigation": { "type": "boolean" },
         "status": { "enum": ["active", "retired"] },
         "accessModel": { "$ref": "#/definitions/accessModel" },
+        "accessApplicationProvisioning": {
+          "$ref": "#/definitions/accessApplicationProvisioning"
+        },
         "origin": { "$ref": "#/definitions/origin" },
         "servingLocation": { "$ref": "#/definitions/servingLocation" },
         "healthProbePath": { "type": "string", "pattern": "^/" }
@@ -75,6 +78,25 @@
               "type": "string",
               "pattern": "^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$"
             }
+          }
+        }
+      ]
+    },
+    "accessApplicationProvisioning": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": { "kind": { "const": "dedicated" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "parentMountPath"],
+          "properties": {
+            "kind": { "const": "inherited-from-parent-path" },
+            "parentMountPath": { "type": "string", "pattern": "^/.*/$" }
           }
         }
       ]

@@ -103,6 +103,10 @@ export const jarvisSessionApp: AppRegistryEntry = {
   showInCrossSectionNavigation: false,
   status: "active",
   accessModel: { kind: "owner-only" },
+  accessApplicationProvisioning: {
+    kind: "inherited-from-parent-path",
+    parentMountPath: "/cockpit/",
+  },
   origin: {
     kind: "external-https",
     originHost: "jarvis-session-origin.lucaszanoni.com",
