@@ -145,3 +145,13 @@ module "access" {
   google_sso_client_id                    = var.google_sso_client_id
   google_sso_client_secret                = var.google_sso_client_secret
 }
+
+module "jarvis_session_tunnel" {
+  source = "../../modules/cloudflare-jarvis-tunnel"
+  count  = var.enable_jarvis_session_tunnel ? 1 : 0
+
+  cloudflare_account_id = var.cloudflare_account_id
+  zone_name             = local.edge_serving_domain
+  origin_hostname       = "jarvis-session-origin.${local.edge_serving_domain}"
+  tunnel_secret         = var.jarvis_session_tunnel_secret
+}
