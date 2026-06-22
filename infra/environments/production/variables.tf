@@ -111,3 +111,16 @@ variable "google_sso_client_secret" {
   sensitive   = true
   description = "OAuth 2.0 client secret paired with google_sso_client_id. Supplied at apply time via TF_VAR_google_sso_client_secret from a CI secret and never committed."
 }
+
+variable "enable_jarvis_session_tunnel" {
+  type        = bool
+  default     = false
+  description = "Whether to provision the locally-managed Cloudflare Tunnel that publishes the owner-only cockpit Jarvis session bridge on chise to the edge. Defaults off so a push applies no public origin; flipped on together with jarvis_session_tunnel_secret only once the connector credentials are minted into chise's agenix store, which is the single irreversible step that exposes the Access-gated session shell."
+}
+
+variable "jarvis_session_tunnel_secret" {
+  type        = string
+  sensitive   = true
+  default     = ""
+  description = "Base64-encoded 32-byte secret that authenticates chise's cloudflared connector to the named Jarvis tunnel. Supplied at apply time via TF_VAR_jarvis_session_tunnel_secret from a CI secret and never committed; the same value is marshalled into the connector credentials JSON output for the agenix handoff. Ignored while enable_jarvis_session_tunnel is off."
+}
