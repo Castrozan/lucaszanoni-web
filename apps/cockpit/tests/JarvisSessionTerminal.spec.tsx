@@ -12,25 +12,33 @@ import type {
   JarvisSessionSocketFactory,
   JarvisSessionSocketHandlers,
 } from "../src/jarvis/use-jarvis-session-terminal";
+import type {
+  JarvisTerminalEmulator,
+  JarvisTerminalEmulatorFactory,
+} from "../src/jarvis/browser-terminal-emulator";
 
 afterEach(cleanup);
 
 interface FakeSocketControl {
   factory: JarvisSessionSocketFactory;
   handlers: JarvisSessionSocketHandlers | null;
-  sent: string[];
+  ownerKeystrokeFrames: Uint8Array[];
+  controlMessages: string[];
   closed: boolean;
 }
 
 function createFakeSocketControl(): FakeSocketControl {
   const control: FakeSocketControl = {
     handlers: null,
-    sent: [],
+    ownerKeystrokeFrames: [],
+    controlMessages: [],
     closed: false,
     factory: (_endpoint, handlers) => {
       control.handlers = handlers;
       const socket: JarvisSessionSocket = {
-        send: (payload) => control.sent.push(payload),
+        sendOwnerKeystrokes: (bytes) =>
+          control.ownerKeystrokeFrames.push(bytes),
+        sendControlMessage: (message) => control.controlMessages.push(message),
         close: () => {
           control.closed = true;
           handlers.onClose("closed by client");
@@ -41,6 +49,42 @@ function createFakeSocketControl(): FakeSocketControl {
   };
   return control;
 }
+
+interface FakeEmulatorControl {
+  factory: JarvisTerminalEmulatorFactory;
+  writtenOutput: Uint8Array[];
+  ownerInputHandler: ((bytes: Uint8Array) => void) | null;
+  windowSize: { columns: number; rows: number };
+  disposed: boolean;
+}
+
+function createFakeEmulatorControl(): FakeEmulatorControl {
+  const control: FakeEmulatorControl = {
+    writtenOutput: [],
+    ownerInputHandler: null,
+    windowSize: { columns: 100, rows: 30 },
+    disposed: false,
+    factory: () => {
+      const emulator: JarvisTerminalEmulator = {
+        attachTo: () => control.windowSize,
+        writeOutputBytes: (bytes) => control.writtenOutput.push(bytes),
+        onOwnerInput: (handler) => {
+          control.ownerInputHandler = handler;
+        },
+        fitToContainer: () => control.windowSize,
+        focus: () => {},
+        dispose: () => {
+          control.disposed = true;
+        },
+      };
+      return emulator;
+    },
+  };
+  return control;
+}
+
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
 
 describe("JarvisSessionTerminal", () => {
   it("shows a configuration notice and no connect control without an endpoint", () => {
@@ -56,49 +100,97 @@ describe("JarvisSessionTerminal", () => {
     ).toBeDefined();
   });
 
-  it("connects, streams agent output, and echoes owner input over the socket", () => {
-    const control = createFakeSocketControl();
+  it("writes raw session output bytes into the terminal emulator", () => {
+    const socket = createFakeSocketControl();
+    const emulator = createFakeEmulatorControl();
     render(
       <JarvisSessionTerminal
         endpoint="ws://localhost:9999/session"
-        createSocket={control.factory}
+        createSocket={socket.factory}
+        createEmulator={emulator.factory}
       />,
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Connect" }));
-    expect(control.handlers).not.toBeNull();
+    expect(socket.handlers).not.toBeNull();
+    act(() => socket.handlers?.onOpen());
 
-    act(() => control.handlers?.onOpen());
-    expect(screen.getByText("session open")).toBeDefined();
+    const outputBytes = textEncoder.encode("[2Jopencode ready");
+    act(() => socket.handlers?.onOutputBytes(outputBytes));
+    expect(emulator.writtenOutput).toContainEqual(outputBytes);
+  });
 
-    act(() => control.handlers?.onMessage("hello from [32mjarvis[0m\n"));
-    expect(screen.getByText("hello from jarvis")).toBeDefined();
+  it("sends owner keystrokes from the emulator as binary frames", () => {
+    const socket = createFakeSocketControl();
+    const emulator = createFakeEmulatorControl();
+    render(
+      <JarvisSessionTerminal
+        endpoint="ws://localhost:9999/session"
+        createSocket={socket.factory}
+        createEmulator={emulator.factory}
+      />,
+    );
 
-    const input = screen.getByLabelText(
-      "Send to Jarvis session",
-    ) as HTMLInputElement;
-    fireEvent.change(input, { target: { value: "status" } });
-    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    fireEvent.click(screen.getByRole("button", { name: "Connect" }));
+    act(() => socket.handlers?.onOpen());
+    act(() => emulator.ownerInputHandler?.(textEncoder.encode("l")));
 
-    expect(control.sent).toContain("status\n");
-    expect(screen.getByText("status")).toBeDefined();
-    expect(input.value).toBe("");
+    expect(
+      socket.ownerKeystrokeFrames.map((frame) => textDecoder.decode(frame)),
+    ).toContain("l");
+  });
+
+  it("sends a resize control frame once the session opens", () => {
+    const socket = createFakeSocketControl();
+    const emulator = createFakeEmulatorControl();
+    emulator.windowSize = { columns: 120, rows: 32 };
+    render(
+      <JarvisSessionTerminal
+        endpoint="ws://localhost:9999/session"
+        createSocket={socket.factory}
+        createEmulator={emulator.factory}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Connect" }));
+    act(() => socket.handlers?.onOpen());
+
+    expect(socket.controlMessages).toContain(
+      '{"type":"resize","columns":120,"rows":32}',
+    );
   });
 
   it("disconnects and reflects the closed status", () => {
-    const control = createFakeSocketControl();
+    const socket = createFakeSocketControl();
+    const emulator = createFakeEmulatorControl();
     render(
       <JarvisSessionTerminal
         endpoint="ws://localhost:9999/session"
-        createSocket={control.factory}
+        createSocket={socket.factory}
+        createEmulator={emulator.factory}
       />,
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Connect" }));
-    act(() => control.handlers?.onOpen());
+    act(() => socket.handlers?.onOpen());
     fireEvent.click(screen.getByRole("button", { name: "Disconnect" }));
 
-    expect(control.closed).toBe(true);
-    expect(screen.getByText(/session closed/)).toBeDefined();
+    expect(socket.closed).toBe(true);
+    expect(screen.getByText("closed")).toBeDefined();
+  });
+
+  it("disposes the terminal emulator on unmount", () => {
+    const socket = createFakeSocketControl();
+    const emulator = createFakeEmulatorControl();
+    const { unmount } = render(
+      <JarvisSessionTerminal
+        endpoint="ws://localhost:9999/session"
+        createSocket={socket.factory}
+        createEmulator={emulator.factory}
+      />,
+    );
+
+    unmount();
+    expect(emulator.disposed).toBe(true);
   });
 });
