@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   CROSS_SECTION_NAVIGATION_ROUTES,
   MICRO_FRONTEND_ROUTES,
+  OWNER_SIGN_IN_ENTRY_ROUTE,
   findMicroFrontendRoute,
 } from "../src/route-registry";
 import type { MicroFrontendId } from "../src/route-registry";
@@ -38,5 +39,11 @@ describe("micro frontend route registry", () => {
     for (const route of CROSS_SECTION_NAVIGATION_ROUTES) {
       expect(route.accessModel.kind).toBe("public");
     }
+  });
+
+  it("lands the authenticated owner in the cockpit after sign-in", () => {
+    expect(OWNER_SIGN_IN_ENTRY_ROUTE.id).toBe("cockpit");
+    expect(OWNER_SIGN_IN_ENTRY_ROUTE.mountPath).toBe("/cockpit/");
+    expect(OWNER_SIGN_IN_ENTRY_ROUTE.accessModel.kind).toBe("owner-only");
   });
 });
