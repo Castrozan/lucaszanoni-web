@@ -49,7 +49,7 @@ locals {
       access_model_kind = app.accessModel.kind
       audience_key      = try(app.accessModel.audienceKey, "")
     }
-    if app.accessModel.kind != "public"
+    if app.accessModel.kind != "public" && try(app.accessApplicationProvisioning.kind, "dedicated") != "inherited-from-parent-path"
   }
 
   retired_app_mount_prefixes = [

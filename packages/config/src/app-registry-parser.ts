@@ -1,5 +1,4 @@
 import type {
-  AppAccessModel,
   AppOrigin,
   AppRegistryEntry,
   AppServingLocation,
@@ -15,34 +14,12 @@ import {
   requireString,
   requireSubdomainLabel,
 } from "./app-registry-field-parsers";
+import {
+  assertInheritedAccessProvisioningIsSound,
+  parseAccessApplicationProvisioning,
+  parseAccessModel,
+} from "./app-registry-access-parsers";
 import { parseOrigin } from "./app-registry-origin-parser";
-
-function parseAccessModel(value: unknown, context: string): AppAccessModel {
-  const record = asObjectRecord(value, `${context} accessModel`);
-  const kind = requireOneOf(
-    record,
-    "kind",
-    ["public", "owner-only", "shared"] as const,
-    `${context} accessModel`,
-  );
-  if (kind === "shared") {
-    rejectUnknownKeys(
-      record,
-      ["kind", "audienceKey"],
-      `${context} accessModel`,
-    );
-    return {
-      kind,
-      audienceKey: requireString(
-        record,
-        "audienceKey",
-        `${context} accessModel`,
-      ),
-    };
-  }
-  rejectUnknownKeys(record, ["kind"], `${context} accessModel`);
-  return { kind };
-}
 
 function parseServingLocation(
   value: unknown,
@@ -93,6 +70,7 @@ function parseAppRegistryEntry(
       "showInCrossSectionNavigation",
       "status",
       "accessModel",
+      "accessApplicationProvisioning",
       "origin",
       "servingLocation",
       "healthProbePath",
@@ -123,6 +101,10 @@ function parseAppRegistryEntry(
       context,
     ),
     accessModel,
+    accessApplicationProvisioning: parseAccessApplicationProvisioning(
+      record["accessApplicationProvisioning"],
+      context,
+    ),
     origin,
     servingLocation: parseServingLocation(record["servingLocation"], context),
     healthProbePath: optionalAbsolutePath(record, "healthProbePath", context),
@@ -188,5 +170,6 @@ export function parseAppRegistry(value: unknown): readonly AppRegistryEntry[] {
     "appDirectoryName",
   );
   assertUnique(collectSubdomainLabels(entries), "subdomainLabel");
+  assertInheritedAccessProvisioningIsSound(entries);
   return entries;
 }
