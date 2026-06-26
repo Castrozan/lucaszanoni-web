@@ -1,6 +1,7 @@
 export type LeaderCommand =
   | { readonly kind: "focus-quick-access" }
-  | { readonly kind: "navigate-view"; readonly path: string };
+  | { readonly kind: "navigate-view"; readonly path: string }
+  | { readonly kind: "open-command-palette" };
 
 export interface LeaderBinding {
   readonly key: string;
@@ -36,5 +37,10 @@ export const cockpitLeaderBindings: readonly LeaderBinding[] = [
     key: "a",
     description: "Jump to Jarvis",
     command: { kind: "navigate-view", path: "/jarvis" },
+  },
+  {
+    key: "k",
+    description: "Open the command palette",
+    command: { kind: "open-command-palette" },
   },
 ];
