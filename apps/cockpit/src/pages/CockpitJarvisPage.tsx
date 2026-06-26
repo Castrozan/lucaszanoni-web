@@ -7,11 +7,13 @@ import {
   type JarvisUtterance,
 } from "../jarvis/jarvis-dialogue";
 import { useJarvisSpeech } from "../jarvis/use-jarvis-speech";
+import { useCockpitSessions } from "../sessions/use-cockpit-sessions";
 
 type JarvisView = "main" | "internal";
 
 export function CockpitJarvisPage() {
   const [activeView, setActiveView] = useState<JarvisView>("main");
+  const cockpitSessions = useCockpitSessions();
   const [draftMessage, setDraftMessage] = useState("");
   const [transcript, setTranscript] = useState<readonly JarvisUtterance[]>([]);
 
@@ -148,7 +150,11 @@ export function CockpitJarvisPage() {
           </form>
         </section>
       ) : (
-        <JarvisSessionTerminal />
+        <JarvisSessionTerminal
+          sessions={cockpitSessions.sessions}
+          activeSessionKey={cockpitSessions.activeKey}
+          onSelectSession={cockpitSessions.selectSession}
+        />
       )}
     </div>
   );

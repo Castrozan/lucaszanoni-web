@@ -11,6 +11,13 @@ import {
   type JarvisTerminalEmulator,
   type JarvisTerminalEmulatorFactory,
 } from "./browser-terminal-emulator";
+import { isMultiSessionEnabled } from "../feature-flags/cockpit-feature-flags";
+import { SessionSwitcher } from "../sessions/SessionSwitcher";
+import type { CockpitSession } from "../sessions/session-registry";
+import {
+  encodeSessionListCommand,
+  encodeSessionSwitchCommand,
+} from "../sessions/session-commands";
 
 const STATUS_DOT_CLASS: Record<JarvisTerminalStatus, string> = {
   idle: "bg-text-faint",
@@ -24,12 +31,20 @@ export interface JarvisSessionTerminalProps {
   endpoint?: string | null;
   createSocket?: JarvisSessionSocketFactory;
   createEmulator?: JarvisTerminalEmulatorFactory;
+  sessions?: readonly CockpitSession[];
+  activeSessionKey?: string | null;
+  onSelectSession?: (key: string) => void;
+  onListSessions?: () => void;
 }
 
 export function JarvisSessionTerminal({
   endpoint = resolveJarvisSessionEndpoint(),
   createSocket,
   createEmulator = createBrowserTerminalEmulator,
+  sessions = [],
+  activeSessionKey = null,
+  onSelectSession,
+  onListSessions,
 }: JarvisSessionTerminalProps) {
   const terminalContainerRef = useRef<HTMLDivElement | null>(null);
   const emulatorRef = useRef<JarvisTerminalEmulator | null>(null);
@@ -99,12 +114,31 @@ export function JarvisSessionTerminal({
   }
 
   const isOpen = status === "open";
+  const multiSessionEnabled = isMultiSessionEnabled();
+
+  const selectSession = (key: string) => {
+    sendOwnerKeystrokes(encodeSessionSwitchCommand(key));
+    onSelectSession?.(key);
+  };
+
+  const requestSessionList = () => {
+    sendOwnerKeystrokes(encodeSessionListCommand());
+    onListSessions?.();
+  };
 
   return (
     <section
       aria-label="Jarvis session terminal"
       className="flex flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background"
     >
+      {multiSessionEnabled ? (
+        <SessionSwitcher
+          sessions={sessions}
+          activeKey={activeSessionKey}
+          onSelect={selectSession}
+          onListSessions={requestSessionList}
+        />
+      ) : null}
       <header className="flex items-center justify-between border-b border-border bg-surface px-4 py-2">
         <div className="flex items-center gap-2">
           <span
