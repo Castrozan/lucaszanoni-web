@@ -5,3 +5,7 @@ export function isMultiSessionEnabled(): boolean {
 export function isCommandPaletteEnabled(): boolean {
   return import.meta.env.VITE_COCKPIT_COMMAND_PALETTE === "true";
 }
+
+export function isVoiceControlEnabled(): boolean {
+  return import.meta.env.VITE_COCKPIT_VOICE === "true";
+}

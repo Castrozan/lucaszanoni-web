@@ -11,8 +11,13 @@ import {
   type JarvisTerminalEmulator,
   type JarvisTerminalEmulatorFactory,
 } from "./browser-terminal-emulator";
-import { isMultiSessionEnabled } from "../feature-flags/cockpit-feature-flags";
+import {
+  isMultiSessionEnabled,
+  isVoiceControlEnabled,
+} from "../feature-flags/cockpit-feature-flags";
 import { SessionSwitcher } from "../sessions/SessionSwitcher";
+import { SessionVoiceControl } from "./SessionVoiceControl";
+import { encodeSpokenSessionInput } from "./spoken-session-input";
 import type { CockpitSession } from "../sessions/session-registry";
 import {
   encodeSessionListCommand,
@@ -115,6 +120,14 @@ export function JarvisSessionTerminal({
 
   const isOpen = status === "open";
   const multiSessionEnabled = isMultiSessionEnabled();
+  const voiceEnabled = isVoiceControlEnabled();
+
+  const submitSpokenInput = (transcript: string) => {
+    const bytes = encodeSpokenSessionInput(transcript);
+    if (bytes) {
+      sendOwnerKeystrokes(bytes);
+    }
+  };
 
   const selectSession = (key: string) => {
     sendOwnerKeystrokes(encodeSessionSwitchCommand(key));
@@ -138,6 +151,9 @@ export function JarvisSessionTerminal({
           onSelect={selectSession}
           onListSessions={requestSessionList}
         />
+      ) : null}
+      {voiceEnabled ? (
+        <SessionVoiceControl onSpokenInput={submitSpokenInput} />
       ) : null}
       <header className="flex items-center justify-between border-b border-border bg-surface px-4 py-2">
         <div className="flex items-center gap-2">
