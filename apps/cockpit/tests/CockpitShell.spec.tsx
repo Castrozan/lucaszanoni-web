@@ -1,10 +1,25 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ThemeProvider } from "@platform/design-system";
 import { CockpitShell } from "../src/layout/CockpitShell";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.unstubAllEnvs();
+});
+
+function renderShell() {
+  render(
+    <ThemeProvider>
+      <MemoryRouter initialEntries={["/"]}>
+        <CockpitShell>
+          <div>main content</div>
+        </CockpitShell>
+      </MemoryRouter>
+    </ThemeProvider>,
+  );
+}
 
 describe("CockpitShell", () => {
   it("renders a left rail carrying the cockpit views and the owner bookmarks", () => {
@@ -58,5 +73,28 @@ describe("CockpitShell", () => {
     expect(
       screen.getByRole("link", { name: "Jarvis" }).getAttribute("aria-current"),
     ).toBe("page");
+  });
+
+  it("opens the command palette on the leader-then-k sequence when enabled", () => {
+    vi.stubEnv("VITE_COCKPIT_COMMAND_PALETTE", "true");
+    renderShell();
+    expect(
+      screen.queryByRole("dialog", { name: "Command palette" }),
+    ).toBeNull();
+    fireEvent.keyDown(document.body, { key: "b", ctrlKey: true });
+    fireEvent.keyDown(document.body, { key: "k" });
+    expect(
+      screen.getByRole("dialog", { name: "Command palette" }),
+    ).toBeDefined();
+  });
+
+  it("keeps the command palette unavailable while the flag is off", () => {
+    vi.stubEnv("VITE_COCKPIT_COMMAND_PALETTE", "");
+    renderShell();
+    fireEvent.keyDown(document.body, { key: "b", ctrlKey: true });
+    fireEvent.keyDown(document.body, { key: "k" });
+    expect(
+      screen.queryByRole("dialog", { name: "Command palette" }),
+    ).toBeNull();
   });
 });

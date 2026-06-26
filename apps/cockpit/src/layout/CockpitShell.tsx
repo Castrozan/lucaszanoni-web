@@ -1,8 +1,12 @@
-import { useRef, type ReactNode } from "react";
+import { useMemo, useRef, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button, useTheme } from "@platform/design-system";
 import { cockpitViews } from "../navigation/cockpit-views";
 import { useLeaderKeyNavigation } from "../navigation/use-leader-key-navigation";
+import { isCommandPaletteEnabled } from "../feature-flags/cockpit-feature-flags";
+import { buildNavigationCommands } from "../command-palette/cockpit-commands";
+import { useCommandPalette } from "../command-palette/use-command-palette";
+import { CommandPalette } from "../command-palette/CommandPalette";
 import { cockpitQuickAccessBookmarks } from "./cockpit-quick-access-bookmarks";
 
 export interface CockpitShellProps {
@@ -14,13 +18,27 @@ export function CockpitShell({ children }: CockpitShellProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const quickAccessBookmarksRef = useRef<HTMLDivElement>(null);
+  const commandPaletteEnabled = isCommandPaletteEnabled();
+  const navigationCommands = useMemo(
+    () => buildNavigationCommands(navigate),
+    [navigate],
+  );
+  const commandPalette = useCommandPalette(navigationCommands);
   useLeaderKeyNavigation({
     onCommand: (command) => {
-      if (command.kind === "navigate-view") {
-        navigate(command.path);
-        return;
+      switch (command.kind) {
+        case "navigate-view":
+          navigate(command.path);
+          return;
+        case "open-command-palette":
+          if (commandPaletteEnabled) {
+            commandPalette.openPalette();
+          }
+          return;
+        case "focus-quick-access":
+          quickAccessBookmarksRef.current?.querySelector("a")?.focus();
+          return;
       }
-      quickAccessBookmarksRef.current?.querySelector("a")?.focus();
     },
   });
   return (
@@ -69,6 +87,9 @@ export function CockpitShell({ children }: CockpitShellProps) {
         </Button>
       </nav>
       <main className="flex-1 px-8 py-8">{children}</main>
+      {commandPaletteEnabled ? (
+        <CommandPalette controller={commandPalette} />
+      ) : null}
     </div>
   );
 }
