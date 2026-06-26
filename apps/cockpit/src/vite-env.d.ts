@@ -5,4 +5,5 @@ interface ImportMetaEnv {
   readonly VITE_COCKPIT_MULTI_SESSION?: string;
   readonly VITE_COCKPIT_COMMAND_PALETTE?: string;
   readonly VITE_COCKPIT_SESSIONS?: string;
+  readonly VITE_COCKPIT_VOICE?: string;
 }

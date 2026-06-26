@@ -1,0 +1,106 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
+import { JarvisSessionTerminal } from "../src/jarvis/JarvisSessionTerminal";
+import {
+  createFakeEmulatorControl,
+  createFakeSocketControl,
+} from "./support/jarvis-session-terminal-fakes";
+import type {
+  JarvisRecognitionConstructor,
+  JarvisSpeechRecognition,
+} from "../src/jarvis/use-jarvis-speech";
+
+const textDecoder = new TextDecoder();
+
+const sessions = [{ key: "global", label: "Jarvis" }];
+
+function installFakeRecognition() {
+  const instances: FakeRecognition[] = [];
+  class FakeRecognition implements JarvisSpeechRecognition {
+    lang = "";
+    interimResults = false;
+    continuous = false;
+    onresult:
+      | ((event: {
+          results: ArrayLike<ArrayLike<{ transcript: string }>>;
+        }) => void)
+      | null = null;
+    onend: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    start() {
+      instances.push(this);
+    }
+    stop() {
+      this.onend?.();
+    }
+    emit(transcript: string) {
+      this.onresult?.({ results: [[{ transcript }]] });
+    }
+  }
+  (
+    window as unknown as { SpeechRecognition: JarvisRecognitionConstructor }
+  ).SpeechRecognition =
+    FakeRecognition as unknown as JarvisRecognitionConstructor;
+  return instances;
+}
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllEnvs();
+  delete (window as unknown as { SpeechRecognition?: unknown })
+    .SpeechRecognition;
+  delete (window as unknown as { webkitSpeechRecognition?: unknown })
+    .webkitSpeechRecognition;
+});
+
+describe("JarvisSessionTerminal voice control", () => {
+  it("hides the voice control while the voice flag is off", () => {
+    installFakeRecognition();
+    const socket = createFakeSocketControl();
+    const emulator = createFakeEmulatorControl();
+    render(
+      <JarvisSessionTerminal
+        endpoint="ws://localhost:9999/session"
+        createSocket={socket.factory}
+        createEmulator={emulator.factory}
+        sessions={sessions}
+        activeSessionKey="global"
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", { name: "Talk to session" }),
+    ).toBeNull();
+  });
+
+  it("forwards a recognized phrase into the open socket as owner keystrokes", () => {
+    vi.stubEnv("VITE_COCKPIT_VOICE", "true");
+    const instances = installFakeRecognition();
+    const socket = createFakeSocketControl();
+    const emulator = createFakeEmulatorControl();
+    render(
+      <JarvisSessionTerminal
+        endpoint="ws://localhost:9999/session"
+        createSocket={socket.factory}
+        createEmulator={emulator.factory}
+        sessions={sessions}
+        activeSessionKey="global"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Connect" }));
+    act(() => socket.handlers?.onOpen());
+    fireEvent.click(screen.getByRole("button", { name: "Talk to session" }));
+    act(() => instances[0]?.emit("deploy the build"));
+
+    expect(
+      socket.ownerKeystrokeFrames.map((frame) => textDecoder.decode(frame)),
+    ).toContain("deploy the build\r");
+  });
+});
