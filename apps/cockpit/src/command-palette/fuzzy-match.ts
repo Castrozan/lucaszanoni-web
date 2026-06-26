@@ -50,7 +50,11 @@ function isWordBoundary(text: string, index: number): boolean {
   if (index === 0) {
     return true;
   }
-  return WORD_BOUNDARY_CHARACTERS.has(text[index - 1]);
+  const previousCharacter = text[index - 1];
+  return (
+    previousCharacter !== undefined &&
+    WORD_BOUNDARY_CHARACTERS.has(previousCharacter)
+  );
 }
 
 export function rankByFuzzy<Item>(

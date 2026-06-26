@@ -56,7 +56,7 @@ describe("rankByFuzzy", () => {
 
   it("orders matches by descending score", () => {
     const ranked = rankByFuzzy("us", commands, (command) => command.title);
-    expect(ranked[0].id).toBe("user");
+    expect(ranked[0]?.id).toBe("user");
   });
 
   it("keeps original order for items of equal score", () => {
