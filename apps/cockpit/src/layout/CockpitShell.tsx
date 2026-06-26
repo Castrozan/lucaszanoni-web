@@ -4,9 +4,13 @@ import { Button, useTheme } from "@platform/design-system";
 import { cockpitViews } from "../navigation/cockpit-views";
 import { useLeaderKeyNavigation } from "../navigation/use-leader-key-navigation";
 import { isCommandPaletteEnabled } from "../feature-flags/cockpit-feature-flags";
-import { buildNavigationCommands } from "../command-palette/cockpit-commands";
+import {
+  buildNavigationCommands,
+  buildSessionCommands,
+} from "../command-palette/cockpit-commands";
 import { useCommandPalette } from "../command-palette/use-command-palette";
 import { CommandPalette } from "../command-palette/CommandPalette";
+import { useCockpitSessionsContext } from "../sessions/cockpit-sessions-context";
 import { cockpitQuickAccessBookmarks } from "./cockpit-quick-access-bookmarks";
 
 export interface CockpitShellProps {
@@ -18,12 +22,16 @@ export function CockpitShell({ children }: CockpitShellProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const quickAccessBookmarksRef = useRef<HTMLDivElement>(null);
+  const { sessions, selectSession } = useCockpitSessionsContext();
   const commandPaletteEnabled = isCommandPaletteEnabled();
-  const navigationCommands = useMemo(
-    () => buildNavigationCommands(navigate),
-    [navigate],
+  const paletteCommands = useMemo(
+    () => [
+      ...buildNavigationCommands(navigate),
+      ...buildSessionCommands(sessions, selectSession),
+    ],
+    [navigate, sessions, selectSession],
   );
-  const commandPalette = useCommandPalette(navigationCommands);
+  const commandPalette = useCommandPalette(paletteCommands);
   useLeaderKeyNavigation({
     onCommand: (command) => {
       switch (command.kind) {

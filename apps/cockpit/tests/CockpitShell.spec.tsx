@@ -3,35 +3,34 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ThemeProvider } from "@platform/design-system";
 import { CockpitShell } from "../src/layout/CockpitShell";
+import { CockpitSessionsProvider } from "../src/sessions/cockpit-sessions-context";
+import { createFakeStorage } from "./support/fake-web-storage";
 
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
 });
 
-function renderShell() {
+function renderShell(initialEntries: readonly string[] = ["/"]) {
   render(
     <ThemeProvider>
-      <MemoryRouter initialEntries={["/"]}>
-        <CockpitShell>
-          <div>main content</div>
-        </CockpitShell>
-      </MemoryRouter>
+      <CockpitSessionsProvider
+        initialSessions={[{ key: "global", label: "Jarvis" }]}
+        storage={createFakeStorage()}
+      >
+        <MemoryRouter initialEntries={[...initialEntries]}>
+          <CockpitShell>
+            <div>main content</div>
+          </CockpitShell>
+        </MemoryRouter>
+      </CockpitSessionsProvider>
     </ThemeProvider>,
   );
 }
 
 describe("CockpitShell", () => {
   it("renders a left rail carrying the cockpit views and the owner bookmarks", () => {
-    render(
-      <ThemeProvider>
-        <MemoryRouter>
-          <CockpitShell>
-            <div>main content</div>
-          </CockpitShell>
-        </MemoryRouter>
-      </ThemeProvider>,
-    );
+    renderShell();
     expect(
       screen.getByRole("navigation", { name: "Cockpit navigation" }),
     ).toBeDefined();
@@ -41,30 +40,14 @@ describe("CockpitShell", () => {
   });
 
   it("marks the active view with aria-current for keyboard switching", () => {
-    render(
-      <ThemeProvider>
-        <MemoryRouter initialEntries={["/user"]}>
-          <CockpitShell>
-            <div>main content</div>
-          </CockpitShell>
-        </MemoryRouter>
-      </ThemeProvider>,
-    );
+    renderShell(["/user"]);
     expect(
       screen.getByRole("link", { name: "User" }).getAttribute("aria-current"),
     ).toBe("page");
   });
 
   it("navigates to Jarvis on the leader-then-a sequence", () => {
-    render(
-      <ThemeProvider>
-        <MemoryRouter initialEntries={["/"]}>
-          <CockpitShell>
-            <div>main content</div>
-          </CockpitShell>
-        </MemoryRouter>
-      </ThemeProvider>,
-    );
+    renderShell();
     expect(
       screen.getByRole("link", { name: "Jarvis" }).getAttribute("aria-current"),
     ).toBeNull();
@@ -96,5 +79,18 @@ describe("CockpitShell", () => {
     expect(
       screen.queryByRole("dialog", { name: "Command palette" }),
     ).toBeNull();
+  });
+
+  it("exposes session-switch commands in the palette for fuzzy search", () => {
+    vi.stubEnv("VITE_COCKPIT_COMMAND_PALETTE", "true");
+    renderShell();
+    fireEvent.keyDown(document.body, { key: "b", ctrlKey: true });
+    fireEvent.keyDown(document.body, { key: "k" });
+    fireEvent.change(screen.getByRole("textbox", { name: "Search commands" }), {
+      target: { value: "switch" },
+    });
+    expect(
+      screen.getByRole("option", { name: "Switch to Jarvis" }),
+    ).toBeDefined();
   });
 });

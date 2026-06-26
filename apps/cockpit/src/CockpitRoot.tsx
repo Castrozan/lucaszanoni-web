@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "@platform/design-system";
 import { COCKPIT_MOUNT_PATH } from "@platform/config";
 import { CockpitShell } from "./layout/CockpitShell";
+import { CockpitSessionsProvider } from "./sessions/cockpit-sessions-context";
 import { CockpitDashboardPage } from "./pages/CockpitDashboardPage";
 import { CockpitJarvisPage } from "./pages/CockpitJarvisPage";
 import { CockpitUserPage } from "./pages/CockpitUserPage";
@@ -13,16 +14,18 @@ export function CockpitRoot() {
   return (
     <QueryClientProvider client={cockpitQueryClient}>
       <ThemeProvider>
-        <BrowserRouter basename={COCKPIT_MOUNT_PATH}>
-          <CockpitShell>
-            <Routes>
-              <Route path="/" element={<CockpitDashboardPage />} />
-              <Route path="/jarvis" element={<CockpitJarvisPage />} />
-              <Route path="/user" element={<CockpitUserPage />} />
-              <Route path="*" element={<CockpitDashboardPage />} />
-            </Routes>
-          </CockpitShell>
-        </BrowserRouter>
+        <CockpitSessionsProvider>
+          <BrowserRouter basename={COCKPIT_MOUNT_PATH}>
+            <CockpitShell>
+              <Routes>
+                <Route path="/" element={<CockpitDashboardPage />} />
+                <Route path="/jarvis" element={<CockpitJarvisPage />} />
+                <Route path="/user" element={<CockpitUserPage />} />
+                <Route path="*" element={<CockpitDashboardPage />} />
+              </Routes>
+            </CockpitShell>
+          </BrowserRouter>
+        </CockpitSessionsProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
