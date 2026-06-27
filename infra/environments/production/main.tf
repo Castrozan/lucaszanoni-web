@@ -8,10 +8,12 @@ locals {
   }
 
   in_repo_app_container_images = {
-    shell             = var.shell_container_image
-    "usage-dashboard" = var.usage_dashboard_container_image
-    reports           = var.reports_container_image
-    cockpit           = var.cockpit_container_image
+    shell                   = var.shell_container_image
+    "usage-dashboard"       = var.usage_dashboard_container_image
+    reports                 = var.reports_container_image
+    cockpit                 = var.cockpit_container_image
+    "dynamic-ia-canvas"     = var.dynamic_ia_canvas_container_image
+    "dynamic-ia-interfaces" = var.dynamic_ia_interfaces_container_image
   }
 
   root_app_id = one([
