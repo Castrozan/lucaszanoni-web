@@ -34,7 +34,7 @@ function renderJarvisPage() {
 describe("CockpitJarvisPage GitLab review pairing", () => {
   it("shows the review pairing empty-state prompt when no GitLab host is configured", () => {
     renderJarvisPage();
-    fireEvent.click(screen.getByRole("tab", { name: "Internal" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Terminal" }));
     expect(
       screen.getByRole("region", { name: "GitLab review pairing" }),
     ).toBeDefined();
@@ -52,7 +52,7 @@ describe("CockpitJarvisPage GitLab review pairing", () => {
     vi.stubEnv("VITE_COCKPIT_GITLAB_BRANCH", "feature/login");
 
     renderJarvisPage();
-    fireEvent.click(screen.getByRole("tab", { name: "Internal" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Terminal" }));
 
     expect(
       screen.getByRole("region", { name: "GitLab review pairing" }),

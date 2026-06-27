@@ -13,10 +13,10 @@ import { MachineSwitcher } from "../machines/MachineSwitcher";
 import { readConfiguredMachines } from "../machines/configured-machines";
 import { resolveActiveMachine } from "../machines/machine-registry";
 
-type JarvisView = "main" | "internal";
+type JarvisView = "terminal" | "conversation";
 
 export function CockpitJarvisPage() {
-  const [activeView, setActiveView] = useState<JarvisView>("main");
+  const [activeView, setActiveView] = useState<JarvisView>("terminal");
   const cockpitSessions = useCockpitSessionsContext();
   const [draftMessage, setDraftMessage] = useState("");
   const [transcript, setTranscript] = useState<readonly JarvisUtterance[]>([]);
@@ -67,27 +67,27 @@ export function CockpitJarvisPage() {
           <Button
             type="button"
             role="tab"
-            aria-selected={activeView === "main"}
-            variant={activeView === "main" ? "default" : "ghost"}
+            aria-selected={activeView === "terminal"}
+            variant={activeView === "terminal" ? "default" : "ghost"}
             size="sm"
-            onClick={() => setActiveView("main")}
+            onClick={() => setActiveView("terminal")}
           >
-            Main
+            Terminal
           </Button>
           <Button
             type="button"
             role="tab"
-            aria-selected={activeView === "internal"}
-            variant={activeView === "internal" ? "default" : "ghost"}
+            aria-selected={activeView === "conversation"}
+            variant={activeView === "conversation" ? "default" : "ghost"}
             size="sm"
-            onClick={() => setActiveView("internal")}
+            onClick={() => setActiveView("conversation")}
           >
-            Internal
+            Conversation
           </Button>
         </div>
       </header>
 
-      {activeView === "main" ? (
+      {activeView === "conversation" ? (
         <section
           aria-label="Jarvis conversation"
           className="relative flex flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background"

@@ -76,6 +76,7 @@ test.describe("cockpit leader-key bindings", () => {
     page,
   }) => {
     await gotoCockpit(page, cockpitJarvisPath);
+    await page.getByRole("tab", { name: "Conversation" }).click();
     await page.getByRole("textbox", { name: "Message Jarvis" }).click();
     await pressCockpitLeaderChord(page);
     await page.keyboard.press("k");

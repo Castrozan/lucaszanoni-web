@@ -34,7 +34,7 @@ function renderJarvisPage() {
 describe("CockpitJarvisPage multi-machine routing", () => {
   it("hides the machine switcher when no machines are configured", () => {
     renderJarvisPage();
-    fireEvent.click(screen.getByRole("tab", { name: "Internal" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Terminal" }));
     expect(
       screen.queryByRole("navigation", { name: "Cockpit machines" }),
     ).toBeNull();
@@ -47,7 +47,7 @@ describe("CockpitJarvisPage multi-machine routing", () => {
     );
 
     renderJarvisPage();
-    fireEvent.click(screen.getByRole("tab", { name: "Internal" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Terminal" }));
 
     expect(
       screen.getByRole("navigation", { name: "Cockpit machines" }),
