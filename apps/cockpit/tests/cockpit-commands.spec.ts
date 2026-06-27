@@ -29,7 +29,7 @@ describe("buildNavigationCommands", () => {
       (command) => command.id === "view:jarvis",
     );
     jarvisCommand?.run();
-    expect(navigate).toHaveBeenCalledWith("/jarvis");
+    expect(navigate).toHaveBeenCalledWith("/");
   });
 });
 

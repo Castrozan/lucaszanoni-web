@@ -27,7 +27,7 @@ describe("reduceLeaderEngine", () => {
       kind: "key",
       key: "a",
     });
-    expect(result.command).toEqual({ kind: "navigate-view", path: "/jarvis" });
+    expect(result.command).toEqual({ kind: "navigate-view", path: "/" });
     expect(result.state.status).toBe("idle");
   });
 

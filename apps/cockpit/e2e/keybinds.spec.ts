@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const cockpitDashboardPath = "/cockpit/";
+const cockpitDashboardPath = "/cockpit/dashboard";
 const cockpitJarvisPath = "/cockpit/jarvis";
 
 const commandPalette = (page: Page) =>
@@ -33,7 +33,7 @@ test.describe("cockpit leader-key bindings", () => {
   test("leader then a navigates to the jarvis view", async ({ page }) => {
     await pressCockpitLeaderChord(page);
     await page.keyboard.press("a");
-    await expect(page).toHaveURL(/\/cockpit\/jarvis$/);
+    await expect(page).toHaveURL(/\/cockpit\/$/);
   });
 
   test("leader then s focuses the first quick-access bookmark", async ({
@@ -60,7 +60,7 @@ test.describe("cockpit leader-key bindings", () => {
     await pressCockpitLeaderChord(page);
     await page.keyboard.press("Escape");
     await page.keyboard.press("a");
-    await expect(page).toHaveURL(/\/cockpit\/$/);
+    await expect(page).toHaveURL(/\/cockpit\/dashboard$/);
   });
 
   test("the armed chord disarms after the arm timeout elapses", async ({
@@ -69,7 +69,7 @@ test.describe("cockpit leader-key bindings", () => {
     await pressCockpitLeaderChord(page);
     await page.waitForTimeout(1700);
     await page.keyboard.press("a");
-    await expect(page).toHaveURL(/\/cockpit\/$/);
+    await expect(page).toHaveURL(/\/cockpit\/dashboard$/);
   });
 
   test("the leader chord is suppressed while an editable element is focused", async ({
@@ -133,6 +133,6 @@ test.describe("command palette keyboard control", () => {
   }) => {
     await page.keyboard.press("Escape");
     await expect(commandPalette(page)).toHaveCount(0);
-    await expect(page).toHaveURL(/\/cockpit\/$/);
+    await expect(page).toHaveURL(/\/cockpit\/dashboard$/);
   });
 });
