@@ -64,6 +64,28 @@ jobs:
       - name: Build
         run: pnpm build
 
+  cockpit-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: pnpm --filter @platform/cockpit exec playwright install --with-deps chromium
+
+      - name: Cockpit keybind e2e
+        run: pnpm --filter @platform/cockpit e2e
+
   cloudflare-edge-module-test:
     runs-on: ubuntu-latest
     steps:
