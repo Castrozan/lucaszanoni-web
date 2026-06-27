@@ -26,7 +26,7 @@ export const THEME_PALETTES: Record<ThemeName, ThemePalette> = {
     border: "#2A2A2A",
     textPrimary: "#F5F5F0",
     textMuted: "#888888",
-    textFaint: "#555555",
+    textFaint: "#757575",
     accent: "#FFD600",
     accentMuted: "#E6C200",
     accentSecondary: "#FF6B35",
