@@ -31,6 +31,26 @@ describe("JarvisSessionTerminal", () => {
     ).toBeDefined();
   });
 
+  it("auto-attaches to the session on mount without a manual connect click", () => {
+    const socket = createFakeSocketControl();
+    const emulator = createFakeEmulatorControl();
+    render(
+      <JarvisSessionTerminal
+        endpoint="ws://localhost:9999/session"
+        createSocket={socket.factory}
+        createEmulator={emulator.factory}
+      />,
+    );
+
+    expect(socket.handlers).not.toBeNull();
+    expect(screen.getByText("connecting")).toBeDefined();
+
+    act(() => socket.handlers?.onOpen());
+
+    expect(screen.getByText("open")).toBeDefined();
+    expect(screen.getByRole("button", { name: "Disconnect" })).toBeDefined();
+  });
+
   it("writes raw session output bytes into the terminal emulator", () => {
     const socket = createFakeSocketControl();
     const emulator = createFakeEmulatorControl();

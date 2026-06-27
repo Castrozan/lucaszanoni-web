@@ -63,6 +63,18 @@ export function JarvisSessionTerminal({
   });
 
   useEffect(() => {
+    if (!endpoint) {
+      return;
+    }
+    const canOpenSocket =
+      createSocket != null || typeof WebSocket !== "undefined";
+    if (!canOpenSocket) {
+      return;
+    }
+    connect();
+  }, [endpoint, createSocket, connect]);
+
+  useEffect(() => {
     const container = terminalContainerRef.current;
     if (!container) {
       return;
