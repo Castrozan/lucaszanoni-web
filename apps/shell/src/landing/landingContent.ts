@@ -105,6 +105,35 @@ export const featurePreviews: readonly FeaturePreview[] = [
   },
 ];
 
+export interface RoadmapCapability {
+  readonly id: string;
+  readonly label: string;
+  readonly status: "shipped" | "planned";
+}
+
+export const roadmapCapabilities: readonly RoadmapCapability[] = [
+  { id: "command-palette", label: "Command palette", status: "shipped" },
+  {
+    id: "registry-directory",
+    label: "Registry-driven directory",
+    status: "shipped",
+  },
+  { id: "edge-signal", label: "Live edge signal", status: "shipped" },
+  { id: "feature-previews", label: "Feature previews", status: "shipped" },
+  {
+    id: "engineering-table",
+    label: "Self-rendering registry table",
+    status: "shipped",
+  },
+  {
+    id: "keyboard-navigation",
+    label: "Keyboard navigation",
+    status: "planned",
+  },
+  { id: "theming", label: "Theming", status: "planned" },
+  { id: "live-ai-previews", label: "Live AI previews", status: "planned" },
+];
+
 export interface EngineeringNarrativeCard {
   readonly id: string;
   readonly title: string;
