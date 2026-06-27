@@ -11,8 +11,8 @@ describe("landingContent", () => {
     expect(heroContent.dynamicHeadlineLine).toBe("MANY APPS.");
   });
 
-  it("provides hero call to actions with hrefs", () => {
-    expect(heroContent.primaryCallToAction.href).toBe("#sections");
+  it("points the hero call to actions at the about page and the source", () => {
+    expect(heroContent.primaryCallToAction.href).toBe("/about");
     expect(heroContent.secondaryCallToAction.external).toBe(true);
   });
 

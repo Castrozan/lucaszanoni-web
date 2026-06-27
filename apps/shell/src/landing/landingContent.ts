@@ -31,12 +31,12 @@ export interface PlatformFeature {
 }
 
 export const heroContent: HeroContent = {
-  kicker: "[ATRIUM] // ONE EDGE, MANY APPS",
+  kicker: "LUCAS ZANONI // SOFTWARE ENGINEER",
   staticHeadlineLine: "ONE EDGE.",
   dynamicHeadlineLine: "MANY APPS.",
   subhead:
-    "Engineering notes and live operational dashboards, served as independently deployed micro-frontends behind a single edge.",
-  primaryCallToAction: { label: "EXPLORE", href: "#sections" },
+    "I'm Lucas, a software engineer. Atrium is my platform: one Cloudflare edge fronting every app and experiment I ship, each deployed on its own and all driven by a single registry. It's my portfolio and engineering playground, built so the next idea ships without touching the last.",
+  primaryCallToAction: { label: "ABOUT ATRIUM", href: "/about" },
   secondaryCallToAction: {
     label: "VIEW SOURCE >",
     href: "https://github.com/Castrozan/lucaszanoni-web",
