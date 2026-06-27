@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   resolveActiveCockpitWorkspaceMachine,
   resolveCockpitWorkspaceMachines,
@@ -66,11 +66,11 @@ describe("resolveCockpitWorkspaceMachines maps configured machines to their own 
     ]);
   });
 
-  it("ignores blank entries, surrounding whitespace, deduplicates keys, and skips entries without an endpoint", () => {
+  it("ignores blank entries, surrounding whitespace, deduplicates keys, skips entries without an endpoint, skips entries with no colon separator, and skips entries with an empty key", () => {
     expect(
       resolveCockpitWorkspaceMachines({
         configuredMachines:
-          " chise:Chise:wss://chise.example/cockpit/lifecycle , , kira:Kira , chise:Duplicate:wss://other.example/cockpit/lifecycle ",
+          " chise:Chise:wss://chise.example/cockpit/lifecycle , , kira:Kira , localhost , :Ghost:wss://ghost.example/cockpit/lifecycle , chise:Duplicate:wss://other.example/cockpit/lifecycle ",
         baseEndpoint: null,
       }),
     ).toEqual([
@@ -78,6 +78,43 @@ describe("resolveCockpitWorkspaceMachines maps configured machines to their own 
         key: "chise",
         label: "Chise",
         endpoint: "wss://chise.example/cockpit/lifecycle",
+      },
+    ]);
+  });
+});
+
+describe("resolveCockpitWorkspaceMachines reads its defaults from the build environment", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("parses the configured machines from VITE_COCKPIT_WORKSPACE_MACHINES when no override is passed", () => {
+    vi.stubEnv(
+      "VITE_COCKPIT_WORKSPACE_MACHINES",
+      "chise:Chise:wss://chise.example/cockpit/lifecycle",
+    );
+
+    expect(resolveCockpitWorkspaceMachines()).toEqual([
+      {
+        key: "chise",
+        label: "Chise",
+        endpoint: "wss://chise.example/cockpit/lifecycle",
+      },
+    ]);
+  });
+
+  it("falls back to a single local machine at the resolved base lifecycle endpoint when no machines are configured in the environment", () => {
+    vi.stubEnv("VITE_COCKPIT_WORKSPACE_MACHINES", "");
+    vi.stubEnv(
+      "VITE_COCKPIT_LIFECYCLE_WS_URL",
+      "wss://edge.example/cockpit/lifecycle",
+    );
+
+    expect(resolveCockpitWorkspaceMachines()).toEqual([
+      {
+        key: "local",
+        label: "Local",
+        endpoint: "wss://edge.example/cockpit/lifecycle",
       },
     ]);
   });
