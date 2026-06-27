@@ -1,7 +1,6 @@
 const nextConfig = {
   basePath: "/dynamic-ia-canvas",
   assetPrefix: "/dynamic-ia-canvas",
-  trailingSlash: true,
   skipTrailingSlashRedirect: true,
   eslint: {
     ignoreDuringBuilds: true,
