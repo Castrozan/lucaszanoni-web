@@ -1,6 +1,7 @@
 const nextConfig = {
   basePath: "/dynamic-ia-interfaces",
   assetPrefix: "/dynamic-ia-interfaces",
+  skipTrailingSlashRedirect: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
