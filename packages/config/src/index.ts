@@ -4,12 +4,14 @@ export {
   USAGE_DASHBOARD_MOUNT_PATH,
   REPORTS_MOUNT_PATH,
   COCKPIT_MOUNT_PATH,
+  WORKSPACE_MOUNT_PATH,
 } from "./mount-paths";
 export type { MicroFrontendId, MicroFrontendRoute } from "./route-registry";
 export {
   MICRO_FRONTEND_ROUTES,
   CROSS_SECTION_NAVIGATION_ROUTES,
   OWNER_SIGN_IN_ENTRY_ROUTE,
+  OWNER_WORKSPACE_ENTRY_ROUTE,
   findMicroFrontendRoute,
 } from "./route-registry";
 export type {

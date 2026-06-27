@@ -116,6 +116,26 @@ export const jarvisSessionApp: AppRegistryEntry = {
   },
 };
 
+export const workspaceApp: AppRegistryEntry = {
+  id: "workspace",
+  mountPath: "/workspace/",
+  navigationLabel: "Workspace",
+  description:
+    "Owner-only keyboard-first terminal that orchestrates AI agent sessions across the owner's machines over tmux.",
+  showInCrossSectionNavigation: false,
+  status: "active",
+  accessModel: { environment: "private", audience: { kind: "owner" } },
+  origin: {
+    kind: "in-repo-cloud-run",
+    cloudRunServiceName: "lucaszanoni-workspace",
+    appPackageName: "@platform/workspace",
+    appDirectoryName: "workspace",
+    buildProfile: "static-spa",
+    nonSecretEnvironment: {},
+    secretEnvironmentReferences: {},
+  },
+};
+
 export const dynamicIaCanvasApp: AppRegistryEntry = {
   id: "dynamic-ia-canvas",
   mountPath: "/dynamic-ia-canvas/",
@@ -171,6 +191,7 @@ export const todaysApps: readonly AppRegistryEntry[] = [
   dbApp,
   cockpitApp,
   jarvisSessionApp,
+  workspaceApp,
   dynamicIaCanvasApp,
   dynamicIaInterfacesApp,
 ];
