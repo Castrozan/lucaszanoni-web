@@ -46,6 +46,13 @@ const expectedDeployMatrixFromCommittedRegistry = {
       build_profile: "static-spa",
     },
     {
+      service_name: "lucaszanoni-workspace",
+      app_package_name: "@platform/workspace",
+      app_directory_name: "workspace",
+      app_mount_path: "/workspace/",
+      build_profile: "static-spa",
+    },
+    {
       service_name: "lucaszanoni-dynamic-ia-canvas",
       app_package_name: "@platform/dynamic-ia-canvas",
       app_directory_name: "dynamic-ia-canvas",
