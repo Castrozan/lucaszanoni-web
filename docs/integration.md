@@ -13,9 +13,9 @@ For platform shape and toolchain see `README.md`; for cost ceilings see `infra/C
 - **Keyless CD.** Both deploy workflows authenticate to Google Cloud via Workload Identity Federation (OIDC, `id-token: write` + `google-github-actions/auth`). No service-account key JSON is stored. The WIF provider path and deployer service account are in the `env:` block at the top of each workflow; treat that block as authoritative rather than memorizing identifiers.
 - **The edge is the only door.** Cloud Run services are public-invoker at GCP IAM and `INGRESS_TRAFFIC_ALL`, but reachable only through the Worker, which injects the `EDGE_SHARED_SECRET` header that Cloud Run requires. Access control is the shared-secret header plus Cloudflare Access, never GCP IAM.
 
-## Origin kinds and access models (the two closed unions)
+## Origin kinds and access models (origin union, environment split)
 
-`origin.kind` is a closed union of exactly three kinds; `accessModel.kind` is a closed union of exactly three kinds. Per-field requirements live in the schema (`origin`/`accessModel` definitions) and the parsers (`app-registry-origin-parser.ts`, `parseAccessModel`). How each origin routes and what builds it:
+`origin.kind` is a closed union of exactly three kinds. `accessModel` splits the site into two environments on its `environment` discriminant, `public` (the public-facing environment) or `private` (the logged-in, Cloudflare-Access-gated environment that hosts the cockpit and the engineering dashboards). Per-field requirements live in the schema (`origin`/`accessModel` definitions) and the parsers (`app-registry-origin-parser.ts`, `parseAccessModel`). How each origin routes and what builds it:
 
 | `origin.kind`       | Built by deploy-apps?                        | How the Worker routes it                                                                                                                                                                                                                                             |
 | ------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -23,11 +23,11 @@ For platform shape and toolchain see `README.md`; for cost ceilings see `infra/C
 | `external-https`    | No (edge-only)                               | `externalHttpsPrefixes`: rewrites host to `originHost`; if `pathRewrite === "strip-mount-path"` strips the mount prefix and prepends `forwardedBasePath`; deletes the shared-secret header; strips Access cookies; forwards the identity assertion only if `trusted` |
 | `static-gcs-bucket` | No (edge-only)                               | `staticBucketPrefixes`: rewrites host to `storage.googleapis.com`, builds the object key, appends `index.html` for a trailing slash, no shared-secret header                                                                                                         |
 
-`accessModel.kind` is `public`, `owner-only`, or `shared`. `shared` carries a non-empty `audienceKey`; `public` and `owner-only` carry only `kind`. Non-public entries project into the Cloudflare Access module, which stands up one Access application + one allow policy per app (`infra/modules/cloudflare-access/main.tf`).
+`accessModel.environment` is `public` or `private`. A `public` entry carries only `environment`. A `private` entry carries a nested `audience` naming who inside the logged-in environment may reach it: `{ kind: "owner" }` for the sole platform owner, or `{ kind: "shared", audienceKey }` with a non-empty `audienceKey` for a named group. The boundary is read through one named accessor, `belongsToPrivateEnvironment` (`app-registry-access-environment.ts`), never by re-inspecting the discriminant inline. Private-environment entries project into the Cloudflare Access module, which stands up one Access application + one allow policy per app (`infra/modules/cloudflare-access/main.tf`).
 
 **Two cross-field rules, each enforced in schema and parser:**
 
-- `static-gcs-bucket` ⇒ `public` access model (the bucket object URL bypasses edge auth). Schema `if/then`; parser throw in `parseAppRegistryEntry` (`app-registry-parser.ts`), the only guard rejecting a `static-gcs-bucket` origin paired with a non-public access model; structurally prevented in the add-app prompt, which offers the bucket choice only when the access model is public.
+- `static-gcs-bucket` ⇒ the public environment (the bucket object URL bypasses edge auth). Schema `if/then`; parser throw in `parseAppRegistryEntry` (`app-registry-parser.ts`), the only guard rejecting a `static-gcs-bucket` origin paired with a private-environment access model; structurally prevented in the add-app prompt, which offers the bucket choice only when the access model is the public environment.
 - `trusted` ⇒ the route is already Access-gated and overwrites client-supplied identity. The Worker forwards `Cf-Access-Jwt-Assertion` to a trusted origin and strips it from an untrusted one. Marking an ungated origin `trusted` forwards a client-forged identity.
 
 `servingLocation` is optional, defaulting to `path-prefix` (route by `mountPath`). Set it to `subdomain` with a DNS-label `subdomainLabel` to route the app by its own `<label>.<zone>` hostname and cookie jar.
@@ -47,21 +47,21 @@ The generator derives in-repo origin fields from the id by the naming convention
 Append one object with all required entry fields and exactly the fields the chosen `origin`/`accessModel` variant requires, no extras (unknown keys are a hard failure at every level). Match the file's 2-space indent and trailing newline (`app-registry-document-writer.ts` is the canonical formatter). Then:
 
 1. **Pick the origin kind and supply its required fields** per the schema/parser. For `in-repo-cloud-run`, follow the id-derived naming convention exactly and create `apps/<appDirectoryName>/package.json` with `name === appPackageName`. Wire its seed container image into `in_repo_app_container_images` in `infra/environments/production/main.tf` and add the matching seed-image variable. For `external-https` / `static-gcs-bucket`, do **not** create an `apps/` directory under that id.
-2. **Pick the access model.** If the origin is `static-gcs-bucket`, the access model must be `public`.
+2. **Pick the access model.** If the origin is `static-gcs-bucket`, the access model must be the public environment.
 3. **Check whole-array uniqueness:** `id` and `mountPath` are globally unique; `cloudRunServiceName` and `appDirectoryName` are unique among in-repo entries; a `subdomain` serving location's `subdomainLabel` is unique. Enforced by `parseAppRegistry`'s `assertUnique` calls (`app-registry-parser.ts`).
 4. **Do not touch the Worker or add a route, DNS record, or allowed-status list by hand.** The production projection locals derive the matching routing-table list, DNS record, and Worker route from the new entry and re-render `EDGE_ROUTES` on apply.
 5. **Validate locally** through both gates: the Ajv schema test and `parseAppRegistry`. Run the config package vitest suite and the deploy `node --test` suites. Mirror the new live registry into the test fixtures (`packages/config/tests/app-registry-test-fixtures.ts`); `app-registry.spec.ts` asserts `appRegistry` deep-equals the fixtures list, so a registry change that skips the fixture update fails CI.
 
-### Adding a new origin kind or access-model kind (not just a new app)
+### Adding a new origin kind or access audience (not just a new app)
 
-Extend all lockstep surfaces together: the `AppOrigin`/`AppAccessModel` union (`app-registry-types.ts`), the schema `oneOf`, the parser switch and its `requireOneOf` allow-lists, and the builder/answers-resolver/prompts. The dual-enforcement design exists to catch divergence between these.
+Extend all lockstep surfaces together: the `AppOrigin`/`AppAccessModel`/`AppAccessAudience` unions (`app-registry-types.ts`), the schema `oneOf`, the parser switch and its `requireOneOf` allow-lists, and the builder/answers-resolver/prompts. The dual-enforcement design exists to catch divergence between these.
 
 ## Gate an app with Cloudflare Access + Google SSO
 
 Gating is data-driven; no module edit is needed.
 
-1. Set the registry `accessModel.kind` to `owner-only` or `shared` (with a non-empty `audienceKey`). Production projects non-public apps into `local.non_public_apps` and the access module creates one Access application (domain = serving zone + the app's `mountPath`, trailing slash trimmed) and one allow policy.
-2. **Owner-only** resolves the allowlist to the single owner email; **shared** resolves to the email list of its `audienceKey` looked up in `shared_access_audience_email_allowlists`. Each policy has a precondition that the resolved allowlist is non-empty, so a missing owner email or an empty audience list fails at plan rather than provisioning an open Access app.
+1. Set the registry `accessModel.environment` to `private` and its `audience` to `{ kind: "owner" }` or `{ kind: "shared", audienceKey: … }` (with a non-empty `audienceKey`). Production projects private-environment apps into `local.private_environment_apps` and the access module creates one Access application (domain = serving zone + the app's `mountPath`, trailing slash trimmed) and one allow policy.
+2. An **owner** audience resolves the allowlist to the single owner email; a **shared** audience resolves to the email list of its `audienceKey` looked up in `shared_access_audience_email_allowlists`. Each policy has a precondition that the resolved allowlist is non-empty, so a missing owner email or an empty audience list fails at plan rather than provisioning an open Access app.
 3. For a shared app, add the `audienceKey -> email-list` entry to the `SHARED_ACCESS_AUDIENCE_EMAIL_ALLOWLISTS` CI secret (a JSON map) before relying on it.
 4. **Google SSO is wired in once for every managed Access application** via `allowed_idps` + `auto_redirect_to_identity`; you do not re-run SSO setup per app. It is count-gated on both `GOOGLE_SSO_CLIENT_ID` and `GOOGLE_SSO_CLIENT_SECRET` being non-empty (`infra/modules/cloudflare-access/main.tf`); the `google_sso_login_enabled` output is the live signal. See `GOOGLE-SSO-ENABLEMENT.md` for the wiring contract (team subdomain, token scope, secret names).
 
@@ -89,12 +89,12 @@ Terse checklist; see the sections above for the mechanics.
 
 - **Registry is the only source of truth.** Never hardcode an app, route, mount path, origin host, DNS record, or allowed-status list where a registry projection belongs. Never fork app metadata into a second list a workflow reads.
 - **Schema and parser are one contract.** Any union or field change lands in both, plus the parser's `requireOneOf` allow-lists. Both reject unknown properties at every level.
-- **Closed unions stay closed.** `origin.kind` ∈ {`in-repo-cloud-run`, `external-https`, `static-gcs-bucket`}; `accessModel.kind` ∈ {`public`, `owner-only`, `shared`}. Each variant carries exactly its own fields.
-- **`static-gcs-bucket` ⇒ `public`**, and **`trusted` only for an Access-gated route** that overwrites client assertions. (See the cross-field rules above.)
+- **Closed unions stay closed.** `origin.kind` ∈ {`in-repo-cloud-run`, `external-https`, `static-gcs-bucket`}; `accessModel.environment` ∈ {`public`, `private`}, and a `private` entry's `audience.kind` ∈ {`owner`, `shared`}. Each variant carries exactly its own fields.
+- **`static-gcs-bucket` ⇒ the public environment**, and **`trusted` only for an Access-gated route** that overwrites client assertions. (See the cross-field rules above.)
 - **Uniqueness:** `id`, `mountPath` globally; `cloudRunServiceName`, `appDirectoryName` among in-repo entries; `subdomainLabel` among subdomain serving locations.
 - **The in-repo naming convention** (`cloudRunServiceName=lucaszanoni-<id>`, `appPackageName=@platform/<id>`, `appDirectoryName=<id>`) is load-bearing for the deploy matrix and consistency check.
 - **Every in-repo entry maps 1:1 to a real app package** (directory + `package.json name`); no orphaned `apps/` directory; no non-in-repo entry secretly owns one. The consistency gate must return empty.
-- **Public nav requires public access.** `CROSS_SECTION_NAVIGATION_ROUTES` includes an entry only when `showInCrossSectionNavigation` is true _and_ the access model is `public`.
+- **Public nav requires the public environment.** `CROSS_SECTION_NAVIGATION_ROUTES` includes an entry only when `showInCrossSectionNavigation` is true _and_ the access model is the public environment.
 - **Only `in-repo-cloud-run` entries are built/rolled** by `deploy-apps`; edge-only origins are attached at the edge, never turned into build targets.
 - **One edge Worker, data-only.** Never introduce a per-app Worker; never branch on a specific app inside the Worker. The Worker's branch order is fixed and load-bearing: aliasRedirect → subdomain (by hostname) → retired (410) → static bucket → external-https → Cloud Run prefix with shell fallback. Reordering changes which origin a path resolves to.
 - **The shared-secret boundary.** Only `in-repo-cloud-run` origins receive the `EDGE_SHARED_SECRET` header; external and bucket origins never do; Cloud Run rejects any request lacking it.

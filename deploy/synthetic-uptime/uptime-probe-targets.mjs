@@ -2,8 +2,8 @@ const publicHealthyStatuses = [200];
 const gatedHealthyStatuses = [302, 401];
 
 function healthyStatusesForAccessModel(accessModel) {
-  const accessModelKind = accessModel?.kind ?? "public";
-  if (accessModelKind === "public") {
+  const accessEnvironment = accessModel?.environment ?? "public";
+  if (accessEnvironment === "public") {
     return publicHealthyStatuses;
   }
   return gatedHealthyStatuses;

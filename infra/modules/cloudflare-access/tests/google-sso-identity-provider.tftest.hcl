@@ -4,11 +4,11 @@ variables {
   cloudflare_account_id = "0000000000000000000000000000abcd"
   zone_name             = "lucaszanoni.test"
   owner_account_email   = "owner@example.test"
-  non_public_apps = {
+  private_environment_apps = {
     db = {
-      mount_path        = "/db/"
-      access_model_kind = "owner-only"
-      audience_key      = ""
+      mount_path    = "/db/"
+      audience_kind = "owner"
+      audience_key  = ""
     }
   }
 }

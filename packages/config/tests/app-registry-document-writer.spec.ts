@@ -12,7 +12,7 @@ const existingEntry = buildAppRegistryEntry({
   description: "Double-entry ledger service.",
   showInCrossSectionNavigation: true,
   status: "active",
-  accessModel: { kind: "public" },
+  accessModel: { environment: "public" },
   origin: { kind: "in-repo-cloud-run", buildProfile: "static-spa" },
 });
 
@@ -25,7 +25,7 @@ const appendedEntry = buildAppRegistryEntry({
   description: "Static download index.",
   showInCrossSectionNavigation: false,
   status: "active",
-  accessModel: { kind: "public" },
+  accessModel: { environment: "public" },
   origin: {
     kind: "static-gcs-bucket",
     bucketName: "lucaszanoni-downloads",
@@ -68,7 +68,10 @@ describe("appendEntryToRegistryDocument", () => {
       description: "Static download index.",
       showInCrossSectionNavigation: false,
       status: "active",
-      accessModel: { kind: "shared", audienceKey: "" },
+      accessModel: {
+        environment: "private",
+        audience: { kind: "shared", audienceKey: "" },
+      },
       origin: { kind: "in-repo-cloud-run", buildProfile: "static-spa" },
     });
     const nextDocument = appendEntryToRegistryDocument(

@@ -1,6 +1,8 @@
 import type { AppAccessModel } from "./app-registry-types";
 import type { AppOriginSpec } from "./app-registry-entry-builder";
 
+export type AddAppAccessModelChoice = "public" | "owner" | "shared";
+
 export interface AddAppAnswers {
   id: string;
   mountPath: string;
@@ -8,7 +10,7 @@ export interface AddAppAnswers {
   description: string;
   showInCrossSectionNavigation: boolean;
   status: "active" | "retired";
-  accessModelKind: AppAccessModel["kind"];
+  accessModelChoice: AddAppAccessModelChoice;
   audienceKey?: string;
   originKind: AppOriginSpec["kind"];
   buildProfile?: "static-spa" | "dynamic-service";
@@ -21,10 +23,16 @@ export interface AddAppAnswers {
 }
 
 export function resolveAccessModel(answers: AddAppAnswers): AppAccessModel {
-  if (answers.accessModelKind === "shared") {
-    return { kind: "shared", audienceKey: answers.audienceKey ?? "" };
+  if (answers.accessModelChoice === "public") {
+    return { environment: "public" };
   }
-  return { kind: answers.accessModelKind };
+  if (answers.accessModelChoice === "shared") {
+    return {
+      environment: "private",
+      audience: { kind: "shared", audienceKey: answers.audienceKey ?? "" },
+    };
+  }
+  return { environment: "private", audience: { kind: "owner" } };
 }
 
 export function resolveOriginSpec(answers: AddAppAnswers): AppOriginSpec {

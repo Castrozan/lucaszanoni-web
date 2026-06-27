@@ -19,6 +19,7 @@ import {
   parseAccessApplicationProvisioning,
   parseAccessModel,
 } from "./app-registry-access-parsers";
+import { belongsToPrivateEnvironment } from "./app-registry-access-environment";
 import { parseOrigin } from "./app-registry-origin-parser";
 
 function parseServingLocation(
@@ -79,7 +80,10 @@ function parseAppRegistryEntry(
   );
   const accessModel = parseAccessModel(record["accessModel"], context);
   const origin = parseOrigin(record["origin"], context);
-  if (origin.kind === "static-gcs-bucket" && accessModel.kind !== "public") {
+  if (
+    origin.kind === "static-gcs-bucket" &&
+    belongsToPrivateEnvironment(accessModel)
+  ) {
     throw new AppRegistryValidationError(
       `${context} with a static-gcs-bucket origin must use a public access model because the bucket object url bypasses edge auth`,
     );

@@ -48,15 +48,16 @@ export const addAppPrompts: PlopTypes.PromptQuestion[] = [
   },
   {
     type: "list",
-    name: "accessModelKind",
-    message: "Access model (choose deliberately, there is no safe default)",
-    choices: ["public", "owner-only", "shared"],
+    name: "accessModelChoice",
+    message:
+      "Access model: public exposes the app, owner gates it to the private environment for the owner only, shared gates it to the private environment for a named audience",
+    choices: ["public", "owner", "shared"],
   },
   {
     type: "input",
     name: "audienceKey",
     message: "Shared audience key (the Access policy audience identifier)",
-    when: (answers: AddAppAnswers) => answers.accessModelKind === "shared",
+    when: (answers: AddAppAnswers) => answers.accessModelChoice === "shared",
     validate: (value: string) =>
       value.trim().length > 0 || "audience key is required for shared apps",
   },
@@ -65,7 +66,7 @@ export const addAppPrompts: PlopTypes.PromptQuestion[] = [
     name: "originKind",
     message: "Origin kind",
     choices: (answers: AddAppAnswers) =>
-      answers.accessModelKind === "public"
+      answers.accessModelChoice === "public"
         ? ["in-repo-cloud-run", "external-https", "static-gcs-bucket"]
         : ["in-repo-cloud-run", "external-https"],
     default: "in-repo-cloud-run",

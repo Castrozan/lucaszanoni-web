@@ -14,22 +14,22 @@ The engine layer and the palette layer are deliberately separate: the engine bin
 
 The shell is the server. Everything below is shell-owned client state persisted to `localStorage` and reflected into the URL; no micro-frontend needs to know it exists.
 
-| tmux | atrium concept | justification |
-|---|---|---|
-| **server** | the shell SPA instance, one per browser profile | single owner of `appRegistry` and the viewport; survives all navigation |
-| **session** | a named, persisted **workspace**: ordered windows + layout + focus | a saved working set you detach from (close the tab) and reattach to (reopen, rehydrate from `localStorage`); multiple sessions like `work`, `dotfiles`, `db-ops` |
-| **window** | a **tab bound to one registry entry** booted at a mount-relative path | the full-viewport unit cycled with `prefix n`/`p`; the window's "command" is the micro-frontend id plus its boot path |
-| **pane** | a **split inside a window**, each hosting one app-at-a-path in an iframe | a CSS-grid cell with its own iframe; panes may host different apps or the same app at different routes |
-| **buffer (pane content)** | a **route inside the active app**: `mountPath` + app-internal subpath | the one layer the shell does not fully own; addressable as `mountPath + subpath`, e.g. `/engineering/dotfiles/reports/2026-06/`, deep only when the app speaks the contract |
-| **paste-buffer / yank-ring** | a shell-owned **ring of yanked deep URLs** | tmux's named-buffer clipboard ring mapped to captured deep links; `prefix ]` opens the top one in a new pane, no app contract needed |
-| **prefix / leader** | a chord the shell grabs globally in the capture phase, default **`Ctrl-b`**, rebindable | the shell is the only frame that can reliably own a global key; it captures and stops propagation so the focused app never sees the leader |
-| **status line** | a persistent shell-rendered bar (top or bottom) | the shell already renders chrome around apps in `AppShell.tsx`; the status line is that chrome made tmux-shaped, and it doubles as the mode indicator |
-| **copy-mode** | a shell **overlay** that freezes the focused pane for scroll/find/select | intercepts keys, scrolls and finds within the pane, yanks selection text or the pane URL into the ring; works fully only same-origin |
-| **quick-switch (`prefix s`/`w`)** | a **cmdk palette** seeded from the session/window/pane tree, fuzzy-filtered | collapses sessions, windows and panes into one searchable tree, recency-seeded so revisiting costs zero keystrokes |
+| tmux                              | atrium concept                                                                          | justification                                                                                                                                                               |
+| --------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **server**                        | the shell SPA instance, one per browser profile                                         | single owner of `appRegistry` and the viewport; survives all navigation                                                                                                     |
+| **session**                       | a named, persisted **workspace**: ordered windows + layout + focus                      | a saved working set you detach from (close the tab) and reattach to (reopen, rehydrate from `localStorage`); multiple sessions like `work`, `dotfiles`, `db-ops`            |
+| **window**                        | a **tab bound to one registry entry** booted at a mount-relative path                   | the full-viewport unit cycled with `prefix n`/`p`; the window's "command" is the micro-frontend id plus its boot path                                                       |
+| **pane**                          | a **split inside a window**, each hosting one app-at-a-path in an iframe                | a CSS-grid cell with its own iframe; panes may host different apps or the same app at different routes                                                                      |
+| **buffer (pane content)**         | a **route inside the active app**: `mountPath` + app-internal subpath                   | the one layer the shell does not fully own; addressable as `mountPath + subpath`, e.g. `/engineering/dotfiles/reports/2026-06/`, deep only when the app speaks the contract |
+| **paste-buffer / yank-ring**      | a shell-owned **ring of yanked deep URLs**                                              | tmux's named-buffer clipboard ring mapped to captured deep links; `prefix ]` opens the top one in a new pane, no app contract needed                                        |
+| **prefix / leader**               | a chord the shell grabs globally in the capture phase, default **`Ctrl-b`**, rebindable | the shell is the only frame that can reliably own a global key; it captures and stops propagation so the focused app never sees the leader                                  |
+| **status line**                   | a persistent shell-rendered bar (top or bottom)                                         | the shell already renders chrome around apps in `AppShell.tsx`; the status line is that chrome made tmux-shaped, and it doubles as the mode indicator                       |
+| **copy-mode**                     | a shell **overlay** that freezes the focused pane for scroll/find/select                | intercepts keys, scrolls and finds within the pane, yanks selection text or the pane URL into the ring; works fully only same-origin                                        |
+| **quick-switch (`prefix s`/`w`)** | a **cmdk palette** seeded from the session/window/pane tree, fuzzy-filtered             | collapses sessions, windows and panes into one searchable tree, recency-seeded so revisiting costs zero keystrokes                                                          |
 
 ### The micro-frontend boundary
 
-Draw a hard line. **Above the boundary, shell-authoritative, zero cooperation:** which session, which window, the pane grid, which pane is focused, and the leader sequences operating on these. The shell does all of this today with only `app-registry.json`, because picking an app and a mount path is just setting an iframe `src`. **At or below the boundary, needs a `postMessage` contract, degrades without it:** reading an app's current internal route (for deep yanks), driving an app to an internal route (to restore a deep buffer), and forwarding an unhandled leader up from a focused iframe. The minimal three-message contract: app to shell `{ type: "route-changed", path }` on every internal navigation; shell to app `{ type: "navigate", path }`; app to shell `{ type: "leader-passthrough", chord }` when the app did not consume the leader. An app implementing none of it still works fully as a window and pane; you only lose deep-link fidelity and boot it at its mount root. The `db` entry (`owner-only`, `external-https`, `trusted: false`) and any external origin will never implement the contract, so contract-absent is the default the model assumes, not the exception.
+Draw a hard line. **Above the boundary, shell-authoritative, zero cooperation:** which session, which window, the pane grid, which pane is focused, and the leader sequences operating on these. The shell does all of this today with only `app-registry.json`, because picking an app and a mount path is just setting an iframe `src`. **At or below the boundary, needs a `postMessage` contract, degrades without it:** reading an app's current internal route (for deep yanks), driving an app to an internal route (to restore a deep buffer), and forwarding an unhandled leader up from a focused iframe. The minimal three-message contract: app to shell `{ type: "route-changed", path }` on every internal navigation; shell to app `{ type: "navigate", path }`; app to shell `{ type: "leader-passthrough", chord }` when the app did not consume the leader. An app implementing none of it still works fully as a window and pane; you only lose deep-link fidelity and boot it at its mount root. The `db` entry (private owner, `external-https`, `trusted: false`) and any external origin will never implement the contract, so contract-absent is the default the model assumes, not the exception.
 
 ## Keybinding system
 
@@ -48,7 +48,7 @@ The keymap is data, not code, and it lives beside the app registry so it follows
       "sequence": ["leader", "n"],
       "command": { "kind": "window-next" },
       "context": "global",
-      "whichKeyGroup": "window"
+      "whichKeyGroup": "window",
     },
     {
       "id": "nav.goto.reports",
@@ -56,7 +56,7 @@ The keymap is data, not code, and it lives beside the app registry so it follows
       "sequence": ["g", "r"],
       "command": { "kind": "navigate-app", "appId": "reports" },
       "context": "global",
-      "whichKeyGroup": "goto"
+      "whichKeyGroup": "goto",
     },
     {
       "id": "hint.activate",
@@ -64,9 +64,9 @@ The keymap is data, not code, and it lives beside the app registry so it follows
       "sequence": ["f"],
       "command": { "kind": "hint-mode" },
       "context": "same-origin-pane",
-      "whichKeyGroup": "motion"
-    }
-  ]
+      "whichKeyGroup": "motion",
+    },
+  ],
 }
 ```
 
@@ -118,8 +118,8 @@ Every slice is flag-gated behind a shell-level feature flag, reversible by flipp
 
 These are owner-only or taste calls; each is flagged rather than silently resolved.
 
-- **Default leader key.** Proposed `Control+b` for tmux fidelity. Alternatives: `Control+space` (no tmux clash, awkward on some layouts) or a bare ``` ` ``` backtick leader (fast, collides with code input). Owner call; the schema makes it a one-field change regardless.
+- **Default leader key.** Proposed `Control+b` for tmux fidelity. Alternatives: `Control+space` (no tmux clash, awkward on some layouts) or a bare `` ` `` backtick leader (fast, collides with code input). Owner call; the schema makes it a one-field change regardless.
 - **Ship hint mode at all.** It is the highest-value "click anything" primitive but also the heaviest same-origin-only feature and the one most likely to clobber input focus. Decision: ship it (slice 5) or stop at palette + go-to sequences. Owner call on scope.
 - **Panes as iframes vs route-level splits.** This document assumes iframe-per-pane, which is the only model that works for cross-origin and for apps the shell does not bundle. The alternative, route-level splits rendering multiple same-origin apps as mounted React subtrees, is lighter and fully drivable but cannot host cross-origin or external apps (`db`, future subdomains) at all. Owner call; a hybrid (route-level for same-origin, iframe for cross-origin) is possible but doubles the pane implementation.
 - **Cross-device session sync.** v1 is per-browser-profile `localStorage`, matching tmux's per-machine server. Server-backed sessions gated by `accessModel` are deferred; decide if and when the cross-device working set is worth the backend.
-- **Keymap override storage location.** `localStorage` sparse patch in v1. Whether overrides ever move server-side (and thus become an `owner-only` or `shared` synced resource) is an owner call tied to the cross-device decision above.
+- **Keymap override storage location.** `localStorage` sparse patch in v1. Whether overrides ever move server-side (and thus become a private-environment synced resource, owner or shared audience) is an owner call tied to the cross-device decision above.

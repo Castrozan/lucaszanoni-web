@@ -1,6 +1,7 @@
 import { appRegistry } from "./app-registry";
 import type { MicroFrontendId } from "./app-registry";
 import type { AppRegistryEntry } from "./app-registry-types";
+import { belongsToPrivateEnvironment } from "./app-registry-access-environment";
 
 export type { MicroFrontendId };
 
@@ -40,7 +41,8 @@ export function isPubliclyVisibleNavigationEntry(
   entry: AppRegistryEntry,
 ): boolean {
   return (
-    entry.showInCrossSectionNavigation && entry.accessModel.kind === "public"
+    entry.showInCrossSectionNavigation &&
+    !belongsToPrivateEnvironment(entry.accessModel)
   );
 }
 

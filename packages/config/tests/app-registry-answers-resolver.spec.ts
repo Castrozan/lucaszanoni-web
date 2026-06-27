@@ -15,39 +15,45 @@ const baseAnswers: AddAppAnswers = {
   description: "Double-entry ledger service.",
   showInCrossSectionNavigation: true,
   status: "active",
-  accessModelKind: "public",
+  accessModelChoice: "public",
   originKind: "in-repo-cloud-run",
 };
 
 describe("resolveAccessModel", () => {
-  it("maps the public access model kind", () => {
+  it("maps the public choice to the public environment", () => {
     expect(
-      resolveAccessModel({ ...baseAnswers, accessModelKind: "public" }),
+      resolveAccessModel({ ...baseAnswers, accessModelChoice: "public" }),
     ).toEqual({
-      kind: "public",
+      environment: "public",
     });
   });
 
-  it("maps the owner-only access model kind", () => {
+  it("maps the owner choice to the private environment with an owner audience", () => {
     expect(
-      resolveAccessModel({ ...baseAnswers, accessModelKind: "owner-only" }),
-    ).toEqual({ kind: "owner-only" });
+      resolveAccessModel({ ...baseAnswers, accessModelChoice: "owner" }),
+    ).toEqual({ environment: "private", audience: { kind: "owner" } });
   });
 
   it("carries the shared audience key through", () => {
     expect(
       resolveAccessModel({
         ...baseAnswers,
-        accessModelKind: "shared",
+        accessModelChoice: "shared",
         audienceKey: "engineering",
       }),
-    ).toEqual({ kind: "shared", audienceKey: "engineering" });
+    ).toEqual({
+      environment: "private",
+      audience: { kind: "shared", audienceKey: "engineering" },
+    });
   });
 
   it("falls back to an empty audience key when a shared key is omitted", () => {
     expect(
-      resolveAccessModel({ ...baseAnswers, accessModelKind: "shared" }),
-    ).toEqual({ kind: "shared", audienceKey: "" });
+      resolveAccessModel({ ...baseAnswers, accessModelChoice: "shared" }),
+    ).toEqual({
+      environment: "private",
+      audience: { kind: "shared", audienceKey: "" },
+    });
   });
 });
 
@@ -144,12 +150,12 @@ describe("the answers to registry entry path", () => {
     expect(parseAppRegistry([entry])).toEqual([entry]);
   });
 
-  it("round-trips an owner-only external-https app through the parser", () => {
+  it("round-trips a private owner external-https app through the parser", () => {
     const entry = entryFromAnswers({
       ...baseAnswers,
       id: "status-page",
       mountPath: "/status/",
-      accessModelKind: "owner-only",
+      accessModelChoice: "owner",
       originKind: "external-https",
       externalOriginHost: "status.example.test",
       externalPathRewrite: "strip-mount-path",
@@ -162,9 +168,12 @@ describe("the answers to registry entry path", () => {
   it("produces a parser-rejected entry when a shared app omits its audience key", () => {
     const entry = entryFromAnswers({
       ...baseAnswers,
-      accessModelKind: "shared",
+      accessModelChoice: "shared",
     });
-    expect(entry.accessModel).toEqual({ kind: "shared", audienceKey: "" });
+    expect(entry.accessModel).toEqual({
+      environment: "private",
+      audience: { kind: "shared", audienceKey: "" },
+    });
     expect(() => parseAppRegistry([entry])).toThrow(AppRegistryValidationError);
   });
 });

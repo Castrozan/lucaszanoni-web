@@ -8,7 +8,7 @@ describe("public navigation visibility", () => {
     const publicNavigableEntry: AppRegistryEntry = {
       ...reportsApp,
       id: "public-nav",
-      accessModel: { kind: "public" },
+      accessModel: { environment: "public" },
     };
     expect(isPubliclyVisibleNavigationEntry(publicNavigableEntry)).toBe(true);
   });
@@ -17,22 +17,25 @@ describe("public navigation visibility", () => {
     expect(isPubliclyVisibleNavigationEntry(shellApp)).toBe(false);
   });
 
-  it("excludes an owner-only entry even when flagged for cross-section navigation", () => {
+  it("excludes a private owner entry even when flagged for cross-section navigation", () => {
     const ownerOnlyNavigableEntry: AppRegistryEntry = {
       ...reportsApp,
       id: "owner-only-nav",
-      accessModel: { kind: "owner-only" },
+      accessModel: { environment: "private", audience: { kind: "owner" } },
     };
     expect(isPubliclyVisibleNavigationEntry(ownerOnlyNavigableEntry)).toBe(
       false,
     );
   });
 
-  it("excludes a shared entry even when flagged for cross-section navigation", () => {
+  it("excludes a private shared entry even when flagged for cross-section navigation", () => {
     const sharedNavigableEntry: AppRegistryEntry = {
       ...reportsApp,
       id: "shared-nav",
-      accessModel: { kind: "shared", audienceKey: "inner-circle" },
+      accessModel: {
+        environment: "private",
+        audience: { kind: "shared", audienceKey: "inner-circle" },
+      },
     };
     expect(isPubliclyVisibleNavigationEntry(sharedNavigableEntry)).toBe(false);
   });

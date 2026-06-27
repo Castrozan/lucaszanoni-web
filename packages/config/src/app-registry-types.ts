@@ -8,10 +8,23 @@ export type AppServingLocation =
   | { readonly kind: "path-prefix" }
   | { readonly kind: "subdomain"; readonly subdomainLabel: string };
 
-export type AppAccessModel =
-  | { readonly kind: "public" }
-  | { readonly kind: "owner-only" }
+export const PUBLIC_ENVIRONMENT = "public";
+export const PRIVATE_ENVIRONMENT = "private";
+
+export type AppAccessEnvironment =
+  | typeof PUBLIC_ENVIRONMENT
+  | typeof PRIVATE_ENVIRONMENT;
+
+export type AppAccessAudience =
+  | { readonly kind: "owner" }
   | { readonly kind: "shared"; readonly audienceKey: string };
+
+export type AppAccessModel =
+  | { readonly environment: typeof PUBLIC_ENVIRONMENT }
+  | {
+      readonly environment: typeof PRIVATE_ENVIRONMENT;
+      readonly audience: AppAccessAudience;
+    };
 
 export type AppAccessApplicationProvisioning =
   | { readonly kind: "dedicated" }

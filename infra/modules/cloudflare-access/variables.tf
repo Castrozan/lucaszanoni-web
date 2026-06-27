@@ -8,14 +8,14 @@ variable "zone_name" {
   description = "Serving zone whose hostnames the Access applications protect. Combined with each app mount path it forms the host-and-path domain Cloudflare Access gates at the edge, before the routing Worker runs."
 }
 
-variable "non_public_apps" {
+variable "private_environment_apps" {
   type = map(object({
-    mount_path        = string
-    access_model_kind = string
-    audience_key      = optional(string, "")
+    mount_path    = string
+    audience_kind = string
+    audience_key  = optional(string, "")
   }))
   default     = {}
-  description = "Map of registry app id to the non-public app descriptor whose edge hostname Cloudflare Access gates. access_model_kind is owner-only or shared; an owner-only app resolves its allowlist to the single owner email, a shared app resolves to the email allowlist of its audience_key. Empty by default so the module provisions nothing until a non-public app is registered."
+  description = "Map of registry app id to the private-environment app descriptor whose edge hostname Cloudflare Access gates. audience_kind is owner or shared; an owner audience resolves its allowlist to the single owner email, a shared audience resolves to the email allowlist of its audience_key. Empty by default so the module provisions nothing until a private-environment app is registered."
 }
 
 variable "owner_account_email" {
