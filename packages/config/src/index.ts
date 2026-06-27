@@ -12,7 +12,6 @@ export {
   CROSS_SECTION_NAVIGATION_ROUTES,
   NAVIGATION_TEASE_ROUTES,
   OWNER_SIGN_IN_ENTRY_ROUTE,
-  OWNER_WORKSPACE_ENTRY_ROUTE,
   findMicroFrontendRoute,
 } from "./route-registry";
 export type {

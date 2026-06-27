@@ -1,8 +1,5 @@
 import { Button } from "@platform/design-system";
-import {
-  OWNER_SIGN_IN_ENTRY_ROUTE,
-  OWNER_WORKSPACE_ENTRY_ROUTE,
-} from "@platform/config";
+import { OWNER_SIGN_IN_ENTRY_ROUTE } from "@platform/config";
 import { useScrolledPastThreshold } from "./useScrolledPastThreshold";
 import { openCommandPalette } from "./CommandPalette";
 
@@ -57,9 +54,6 @@ export function LandingHeader() {
               &#8984;K
             </span>
           </button>
-          <Button asChild variant="terminal" size="sm">
-            <a href={OWNER_WORKSPACE_ENTRY_ROUTE.mountPath}>WORKSPACE</a>
-          </Button>
           <Button asChild variant="brand" size="sm">
             <a href={OWNER_SIGN_IN_ENTRY_ROUTE.mountPath}>ENTER</a>
           </Button>
