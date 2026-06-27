@@ -1,6 +1,7 @@
 import { LandingHeader } from "./LandingHeader";
 import { HeroSection } from "./HeroSection";
 import { SectionsGrid } from "./SectionsGrid";
+import { FeaturePreview } from "./FeaturePreview";
 import { PlatformFeatureTrio } from "./PlatformFeatureTrio";
 import { EngineeringSection } from "./EngineeringSection";
 import { RoadmapHintStrip } from "./RoadmapHintStrip";
@@ -15,6 +16,7 @@ export function LandingPage() {
       <main className="mx-auto max-w-[1400px] px-6 md:px-12">
         <HeroSection />
         <SectionsGrid />
+        <FeaturePreview />
         <PlatformFeatureTrio />
         <EngineeringSection />
         <RoadmapHintStrip />

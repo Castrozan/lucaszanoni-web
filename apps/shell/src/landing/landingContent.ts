@@ -74,6 +74,37 @@ export const platformFeatures: readonly PlatformFeature[] = [
   },
 ];
 
+export interface FeaturePreview {
+  readonly routeId: string;
+  readonly intentExample: string;
+  readonly sampleCaption: string;
+  readonly sampleLines: readonly string[];
+}
+
+export const featurePreviews: readonly FeaturePreview[] = [
+  {
+    routeId: "dynamic-ia-interfaces",
+    intentExample: "What's the weather in Tokyo?",
+    sampleCaption: "Gemini selects a UI tool and the app renders it inline.",
+    sampleLines: [
+      "tool: displayWeatherForecast",
+      "Tokyo · 19°C · Overcast",
+      "humidity 59% · wind 19 km/h W",
+    ],
+  },
+  {
+    routeId: "dynamic-ia-canvas",
+    intentExample: "A pricing card with three tiers",
+    sampleCaption:
+      "Gemini writes the component code; it renders on the canvas.",
+    sampleLines: [
+      "component: PricingCard",
+      "Basic $19 · Pro $49 (recommended) · Enterprise $99",
+      "rendered in a sandboxed iframe",
+    ],
+  },
+];
+
 export interface EngineeringNarrativeCard {
   readonly id: string;
   readonly title: string;
