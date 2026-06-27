@@ -51,6 +51,9 @@ describe("WorkspaceMachineSwitcher routes the terminal across machines only when
         onSelect={vi.fn()}
       />,
     );
+    expect(
+      screen.getByRole("navigation", { name: "Workspace machines" }),
+    ).toBeDefined();
     const chise = screen.getByRole("button", { name: "Chise" });
     const kira = screen.getByRole("button", { name: "Kira" });
     expect(chise.getAttribute("aria-current")).toBe("false");
@@ -67,6 +70,6 @@ describe("WorkspaceMachineSwitcher routes the terminal across machines only when
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: "Kira" }));
-    expect(onSelect).toHaveBeenCalledWith("kira");
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith("kira");
   });
 });
