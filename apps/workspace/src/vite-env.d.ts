@@ -3,6 +3,7 @@
 interface ImportMetaEnv {
   readonly VITE_COCKPIT_LIFECYCLE_WS_URL?: string;
   readonly VITE_COCKPIT_REAL_COMPUTE?: string;
+  readonly VITE_COCKPIT_WORKSPACE_MACHINES?: string;
 }
 
 interface ImportMeta {

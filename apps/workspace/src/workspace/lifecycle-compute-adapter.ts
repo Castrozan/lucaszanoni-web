@@ -94,6 +94,9 @@ export function createLifecycleComputeAdapter(
         windowIdentifier: windowId,
       });
     },
+    dispose() {
+      transport.close();
+    },
   };
 }
 

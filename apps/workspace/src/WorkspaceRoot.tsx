@@ -1,13 +1,15 @@
 import { ThemeProvider } from "@platform/design-system";
-import { WorkspacePage } from "./WorkspacePage";
-import { resolveWorkspaceComputeFactory } from "./workspace/resolve-workspace-compute";
+import { WorkspaceMachineRouter } from "./WorkspaceMachineRouter";
+import { resolveCockpitWorkspaceMachines } from "./workspace/cockpit-machine-endpoints";
+import { resolveWorkspaceComputeForMachine } from "./workspace/resolve-workspace-compute";
 
 export function WorkspaceRoot() {
   return (
     <ThemeProvider>
-      <WorkspacePage
+      <WorkspaceMachineRouter
+        machines={resolveCockpitWorkspaceMachines()}
         storage={window.localStorage}
-        createCompute={resolveWorkspaceComputeFactory()}
+        createComputeForMachine={resolveWorkspaceComputeForMachine}
       />
     </ThemeProvider>
   );
