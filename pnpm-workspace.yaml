@@ -3,3 +3,9 @@ packages:
   - packages/*
 allowBuilds:
   esbuild: true
+  sharp: true
+  unrs-resolver: false
+minimumReleaseAgeExclude:
+  - "@ai-sdk/google@3.0.85"
+  - "@ai-sdk/provider-utils@4.0.32"
+  - "@ai-sdk/provider@3.0.12"
