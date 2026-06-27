@@ -13,7 +13,9 @@ function buildPlatformStats(): PlatformStat[] {
       label: "MICRO-FRONTENDS",
     },
     {
-      value: String(buildHomeSectionCards().length).padStart(2, "0"),
+      value: String(
+        buildHomeSectionCards().filter((card) => !card.locked).length,
+      ).padStart(2, "0"),
       label: "PUBLIC SECTIONS",
     },
     { value: "STATIC", label: "BUILD PROFILE" },

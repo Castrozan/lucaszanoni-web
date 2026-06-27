@@ -37,12 +37,21 @@ describe("ShellApp", () => {
     );
   });
 
-  it("keeps the usage dashboard off the public landing", () => {
+  it("teases opted-in private apps as locked tiles and keeps public apps live", () => {
     render(<ShellApp />);
-    const linkHrefs = screen
+    const tiles = screen
       .getAllByRole("link")
+      .filter((element) => element.hasAttribute("data-locked"));
+    const lockedHrefs = tiles
+      .filter((element) => element.getAttribute("data-locked") === "true")
       .map((element) => element.getAttribute("href"));
-    expect(linkHrefs).not.toContain("/engineering/dotfiles/claude/usage/");
+    const liveHrefs = tiles
+      .filter((element) => element.getAttribute("data-locked") === "false")
+      .map((element) => element.getAttribute("href"));
+    expect(lockedHrefs).toContain("/engineering/dotfiles/claude/usage/");
+    expect(lockedHrefs).toContain("/engineering/dotfiles/reports/");
+    expect(liveHrefs).toContain("/dynamic-ia-canvas/");
+    expect(liveHrefs).toContain("/dynamic-ia-interfaces/");
   });
 
   it("hints the roadmap features as inert preview controls", () => {
