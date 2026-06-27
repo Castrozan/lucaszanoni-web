@@ -82,7 +82,7 @@ describe("useJarvisSpeech", () => {
     expect(result.current.isListening).toBe(false);
   });
 
-  it("speaks through the resolved synthesis after cancelling prior speech", () => {
+  it("speaks through the resolved synthesis without cancelling in-flight speech so queued output finishes", () => {
     const speak = vi.fn();
     const cancel = vi.fn();
     const { result } = renderHook(() =>
@@ -94,7 +94,9 @@ describe("useJarvisSpeech", () => {
     );
     expect(result.current.synthesisSupported).toBe(true);
     act(() => result.current.speak("at your service"));
-    expect(cancel).toHaveBeenCalledOnce();
-    expect(speak).toHaveBeenCalledWith({ text: "at your service" });
+    act(() => result.current.speak("right away"));
+    expect(cancel).not.toHaveBeenCalled();
+    expect(speak).toHaveBeenNthCalledWith(1, { text: "at your service" });
+    expect(speak).toHaveBeenNthCalledWith(2, { text: "right away" });
   });
 });
