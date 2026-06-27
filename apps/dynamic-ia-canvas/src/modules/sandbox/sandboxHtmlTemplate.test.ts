@@ -20,9 +20,9 @@ describe("buildSandboxHtmlDocument", () => {
   it("includes React and ReactDOM CDN scripts", () => {
     const htmlDocument = buildSandboxHtmlDocument("function App() {}");
 
-    expect(htmlDocument).toContain("react@18/umd/react.production.min.js");
+    expect(htmlDocument).toContain("react@18.3.1/umd/react.production.min.js");
     expect(htmlDocument).toContain(
-      "react-dom@18/umd/react-dom.production.min.js",
+      "react-dom@18.3.1/umd/react-dom.production.min.js",
     );
   });
 
