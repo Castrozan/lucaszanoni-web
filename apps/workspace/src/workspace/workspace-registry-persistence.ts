@@ -5,7 +5,7 @@ import type {
   WorkspaceRegistryState,
 } from "./workspace-registry";
 
-const PERSISTED_WORKSPACE_KEY = "cockpit.workspace.v1";
+const PERSISTED_WORKSPACE_KEY = "workspace.v1";
 
 interface PersistedWorkspace {
   sessions: unknown;

@@ -69,3 +69,56 @@ describe("CockpitComputePort contract (in-memory adapter)", () => {
     expect((await compute.listSessions()).map((s) => s.key)).toEqual(["infra"]);
   });
 });
+
+describe("default id sequencing after a non-tail close is reloaded", () => {
+  it("does not regenerate a surviving session key when a middle session was closed", async () => {
+    const compute = createInMemoryComputeAdapter({
+      initialState: {
+        sessions: [
+          { key: "session-1", label: "A", windows: [], activeWindowId: null },
+          { key: "session-3", label: "C", windows: [], activeWindowId: null },
+        ],
+        activeSessionKey: "session-3",
+      },
+    });
+
+    const opened = await compute.openSession("D");
+
+    expect(opened.label).toBe("D");
+    expect(opened.key).not.toBe("session-3");
+    const sessions = await compute.listSessions();
+    expect(sessions).toHaveLength(3);
+    expect(sessions.map((s) => s.key)).toContain(opened.key);
+  });
+
+  it("does not regenerate a surviving window id when a middle window was closed", async () => {
+    const compute = createInMemoryComputeAdapter({
+      initialState: {
+        sessions: [
+          {
+            key: "session-1",
+            label: "A",
+            windows: [
+              { id: "window-1", title: "claude", driver: "claude" },
+              { id: "window-3", title: "codex", driver: "codex" },
+            ],
+            activeWindowId: "window-1",
+          },
+        ],
+        activeSessionKey: "session-1",
+      },
+    });
+
+    const opened = await compute.openWindow("session-1", {
+      title: "claude",
+      driver: "claude",
+    });
+
+    expect(opened.id).not.toBe("window-3");
+    const session = (await compute.listSessions()).find(
+      (s) => s.key === "session-1",
+    );
+    expect(session?.windows).toHaveLength(3);
+    expect(session?.windows.map((w) => w.id)).toContain(opened.id);
+  });
+});

@@ -53,7 +53,7 @@ describe("workspace registry persistence", () => {
   it("drops malformed sessions and windows on load", () => {
     const storage = memoryStorage();
     storage.setItem(
-      "cockpit.workspace.v1",
+      "workspace.v1",
       JSON.stringify({
         sessions: [
           { key: "platform", label: "Platform", windows: "nope" },
