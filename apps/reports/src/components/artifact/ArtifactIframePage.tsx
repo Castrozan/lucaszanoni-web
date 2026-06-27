@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface ArtifactIframePageProps {
   readonly heading: string;
@@ -16,6 +16,24 @@ export function ArtifactIframePage({
   iframeTitle,
 }: ArtifactIframePageProps) {
   const [loadState, setLoadState] = useState<ArtifactLoadState>("loading");
+  useEffect(() => {
+    let subscribed = true;
+    setLoadState("loading");
+    fetch(artifactUrl, { method: "GET" })
+      .then((response) => {
+        if (subscribed) {
+          setLoadState(response.ok ? "loaded" : "error");
+        }
+      })
+      .catch(() => {
+        if (subscribed) {
+          setLoadState("error");
+        }
+      });
+    return () => {
+      subscribed = false;
+    };
+  }, [artifactUrl]);
   return (
     <div className="flex h-full min-h-[80vh] flex-col">
       <h1 className="mt-2 mb-1 text-2xl font-semibold">{heading}</h1>
@@ -37,13 +55,13 @@ export function ArtifactIframePage({
             </span>
           </div>
         )}
-        <iframe
-          title={iframeTitle}
-          src={artifactUrl}
-          className="h-full min-h-[70vh] w-full border-0"
-          onLoad={() => setLoadState("loaded")}
-          onError={() => setLoadState("error")}
-        />
+        {loadState !== "error" && (
+          <iframe
+            title={iframeTitle}
+            src={artifactUrl}
+            className="h-full min-h-[70vh] w-full border-0"
+          />
+        )}
       </div>
     </div>
   );
