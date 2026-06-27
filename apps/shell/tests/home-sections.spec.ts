@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { NAVIGATION_TEASE_ROUTES } from "@platform/config";
-import { buildHomeSectionCards } from "../src/home-sections";
+import { buildCatalogCards, buildHomeSectionCards } from "../src/home-sections";
 
 describe("buildHomeSectionCards", () => {
   it("creates one card per opted-in navigation route in order", () => {
@@ -44,5 +44,23 @@ describe("buildHomeSectionCards", () => {
     expect(cardIds).not.toContain("jarvis-session");
     expect(cardIds).not.toContain("cockpit");
     expect(cardIds).not.toContain("shell");
+  });
+});
+
+describe("buildCatalogCards", () => {
+  it("lists every micro-frontend except the shell itself", () => {
+    const ids = buildCatalogCards().map((card) => card.id);
+    expect(ids).not.toContain("shell");
+    expect(ids).toContain("dynamic-ia-canvas");
+    expect(ids).toContain("dynamic-ia-interfaces");
+    expect(ids).toContain("cockpit");
+  });
+
+  it("locks owner-gated apps and keeps public apps unlocked", () => {
+    const cards = buildCatalogCards();
+    expect(cards.find((card) => card.id === "dynamic-ia-canvas")?.locked).toBe(
+      false,
+    );
+    expect(cards.find((card) => card.id === "cockpit")?.locked).toBe(true);
   });
 });
