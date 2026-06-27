@@ -19,6 +19,9 @@ override.tf.json
 .DS_Store
 *.local
 coverage/
+test-results/
+playwright-report/
+.playwright/
 
 .terraform.lock.hcl
 .deep-work/
