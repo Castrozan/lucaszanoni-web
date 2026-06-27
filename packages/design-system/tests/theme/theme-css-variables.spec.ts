@@ -8,7 +8,7 @@ describe("paletteToCssVariables", () => {
     expect(variables["--ls-color-background"]).toBe("#0A0A0A");
     expect(variables["--ls-color-accent"]).toBe("#FFD600");
     expect(variables["--ls-color-surface-raised"]).toBe("#1A1A1A");
-    expect(variables["--ls-color-text-faint"]).toBe("#555555");
+    expect(variables["--ls-color-text-faint"]).toBe("#757575");
     expect(variables["--ls-color-accent-secondary"]).toBe("#FF6B35");
     expect(variables["--ls-color-surface-translucent"]).toBe(
       "rgba(10, 10, 10, 0.85)",

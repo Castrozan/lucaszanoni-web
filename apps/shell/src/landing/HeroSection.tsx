@@ -59,11 +59,11 @@ export function HeroSection() {
             </a>
           </Button>
         </div>
-        <p className="m-0 font-mono text-[11px] uppercase tracking-[2px] text-text-faint">
+        <p className="m-0 font-mono text-[11px] uppercase tracking-[2px] text-muted-foreground">
           {heroContent.deploymentTagline}
         </p>
         {buildProvenance.isAvailable && (
-          <p className="m-0 font-mono text-[11px] uppercase tracking-[2px] text-text-faint">
+          <p className="m-0 font-mono text-[11px] uppercase tracking-[2px] text-muted-foreground">
             DEPLOYED {buildProvenance.shortSha}
             {buildDate ? ` · ${buildDate}` : ""}
           </p>
