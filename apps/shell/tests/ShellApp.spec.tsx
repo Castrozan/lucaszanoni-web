@@ -54,12 +54,13 @@ describe("ShellApp", () => {
     expect(liveHrefs).toContain("/dynamic-ia-interfaces/");
   });
 
-  it("exposes the command palette trigger and keeps remaining roadmap previews", () => {
+  it("exposes the command palette trigger and an honest shipped/planned roadmap", () => {
     render(<ShellApp />);
     expect(
       screen.getByRole("button", { name: "Open command palette" }),
     ).toBeTruthy();
     expect(screen.getByText("Keyboard navigation")).toBeTruthy();
-    expect(screen.getAllByText("SOON").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Shipped").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Planned").length).toBeGreaterThan(0);
   });
 });
