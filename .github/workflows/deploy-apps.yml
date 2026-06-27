@@ -133,6 +133,7 @@ jobs:
             --build-arg APP_PACKAGE_NAME="${{ matrix.app_package_name }}" \
             --build-arg APP_DIRECTORY_NAME="${{ matrix.app_directory_name }}" \
             --build-arg APP_MOUNT_PATH="${{ matrix.app_mount_path }}" \
+            --build-arg ATRIUM_BUILD_SHA="${{ github.sha }}" \
             --build-arg VITE_COCKPIT_GITLAB_BASE_URL="${COCKPIT_GITLAB_BASE_URL}" \
             --build-arg VITE_COCKPIT_GITLAB_PROJECT="${COCKPIT_GITLAB_PROJECT}" \
             --build-arg VITE_COCKPIT_MACHINES="${COCKPIT_MACHINES}" \
