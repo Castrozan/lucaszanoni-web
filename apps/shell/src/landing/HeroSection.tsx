@@ -3,13 +3,12 @@ import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 import { useCharacterDecode } from "./useCharacterDecode";
 import { BlockCursor } from "./BlockCursor";
 import { HeroTerminalPanel } from "./HeroTerminalPanel";
-
-const dynamicHeadlineLine = "MANY APPS.";
+import { heroContent } from "./landingContent";
 
 export function HeroSection() {
   const prefersReducedMotion = usePrefersReducedMotion();
   const decodedHeadline = useCharacterDecode(
-    dynamicHeadlineLine,
+    heroContent.dynamicHeadlineLine,
     prefersReducedMotion,
   );
   return (
@@ -18,14 +17,16 @@ export function HeroSection() {
         <span className="flex w-fit items-center gap-2.5 border-2 border-primary bg-surface-raised px-3 py-1.5">
           <span className="h-[8px] w-[8px] bg-primary" />
           <span className="font-mono text-[11px] font-bold uppercase tracking-[2px] text-primary">
-            [ATRIUM] // ONE EDGE, MANY APPS
+            {heroContent.kicker}
           </span>
         </span>
         <h1 className="m-0 font-grotesk text-[clamp(32px,10vw,96px)] font-bold leading-none tracking-[-1px]">
-          <span className="block text-foreground">ONE EDGE.</span>
+          <span className="block text-foreground">
+            {heroContent.staticHeadlineLine}
+          </span>
           <span className="relative block text-primary">
             <span aria-hidden="true" className="invisible whitespace-nowrap">
-              {dynamicHeadlineLine}
+              {heroContent.dynamicHeadlineLine}
             </span>
             <span
               className="absolute inset-0 whitespace-nowrap"
@@ -37,25 +38,26 @@ export function HeroSection() {
           </span>
         </h1>
         <p className="m-0 max-w-[44rem] font-mono text-[14px] leading-[1.6] tracking-[1px] text-muted-foreground">
-          Engineering notes and live operational dashboards, served as
-          independently deployed micro-frontends behind a single edge.
+          {heroContent.subhead}
         </p>
         <div className="flex flex-wrap items-center gap-4">
           <Button asChild variant="brand" size="lg">
-            <a href="#sections">EXPLORE</a>
+            <a href={heroContent.primaryCallToAction.href}>
+              {heroContent.primaryCallToAction.label}
+            </a>
           </Button>
           <Button asChild variant="terminal" size="lg">
             <a
-              href="https://github.com/Castrozan/lucaszanoni-web"
+              href={heroContent.secondaryCallToAction.href}
               target="_blank"
               rel="noreferrer"
             >
-              VIEW SOURCE &gt;
+              {heroContent.secondaryCallToAction.label}
             </a>
           </Button>
         </div>
         <p className="m-0 font-mono text-[11px] uppercase tracking-[2px] text-text-faint">
-          STATICALLY DEPLOYED // CLOUDFLARE EDGE // OPEN BUILD
+          {heroContent.deploymentTagline}
         </p>
       </div>
       <HeroTerminalPanel />
