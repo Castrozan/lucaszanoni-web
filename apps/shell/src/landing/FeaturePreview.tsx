@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { MICRO_FRONTEND_ROUTES } from "@platform/config";
 import type { MicroFrontendRoute } from "@platform/config";
 import { featurePreviews } from "./landingContent";
 import type { FeaturePreview as FeaturePreviewContent } from "./landingContent";
+
+const MAX_SHOWCASE_CARDS = 4;
 
 interface PreviewableApp {
   readonly route: MicroFrontendRoute;
@@ -76,24 +79,38 @@ function FeaturePreviewCard({ route, preview }: PreviewableApp) {
 }
 
 export function FeaturePreview() {
-  const previewableApps = resolvePreviewableApps();
+  const previewableApps = resolvePreviewableApps().slice(0, MAX_SHOWCASE_CARDS);
   if (previewableApps.length === 0) {
     return null;
   }
   return (
-    <section id="preview" className="border-t border-border py-20">
-      <div className="mb-10 flex items-end justify-between">
-        <h2 className="m-0 font-grotesk text-[clamp(28px,6vw,64px)] font-bold tracking-[-0.5px] text-foreground">
-          SEE IT WORK
-        </h2>
-        <span className="font-mono text-[11px] uppercase tracking-[2px] text-text-faint">
-          FEATURE PREVIEW
+    <section id="showcase" className="border-t border-border py-20">
+      <div className="mb-10 flex items-end justify-between gap-6">
+        <div className="flex flex-col gap-3">
+          <h2 className="m-0 font-grotesk text-[clamp(28px,6vw,64px)] font-bold tracking-[-0.5px] text-foreground">
+            BUILT BY LUCAS
+          </h2>
+          <p className="m-0 max-w-[40rem] font-mono text-[13px] leading-[1.6] tracking-[0.5px] text-muted-foreground">
+            Apps and experiments I ship on this platform. Reveal a sample, or
+            run the real thing.
+          </p>
+        </div>
+        <span className="shrink-0 font-mono text-[11px] uppercase tracking-[2px] text-text-faint">
+          PORTFOLIO
         </span>
       </div>
       <div className="grid gap-6 md:grid-cols-2">
         {previewableApps.map(({ route, preview }) => (
           <FeaturePreviewCard key={route.id} route={route} preview={preview} />
         ))}
+      </div>
+      <div className="mt-10 flex justify-center">
+        <Link
+          to="/catalog"
+          className="border border-border px-5 py-2.5 font-mono text-[12px] uppercase tracking-[1.5px] text-foreground no-underline transition-colors hover:border-primary hover:text-primary"
+        >
+          View full catalog &rarr;
+        </Link>
       </div>
     </section>
   );
