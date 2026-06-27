@@ -1,0 +1,13 @@
+.deep-work/
+node_modules/
+.next/
+.devenv/
+.devenv.flake.nix
+devenv.lock
+.direnv/
+dist/
+coverage/
+test-results/
+playwright-report/
+.env.local
+*.tsbuildinfo

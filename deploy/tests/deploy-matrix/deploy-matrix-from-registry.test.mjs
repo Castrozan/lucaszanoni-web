@@ -45,6 +45,20 @@ const expectedDeployMatrixFromCommittedRegistry = {
       app_mount_path: "/cockpit/",
       build_profile: "static-spa",
     },
+    {
+      service_name: "lucaszanoni-dynamic-ia-canvas",
+      app_package_name: "@platform/dynamic-ia-canvas",
+      app_directory_name: "dynamic-ia-canvas",
+      app_mount_path: "/dynamic-ia-canvas/",
+      build_profile: "dynamic-service",
+    },
+    {
+      service_name: "lucaszanoni-dynamic-ia-interfaces",
+      app_package_name: "@platform/dynamic-ia-interfaces",
+      app_directory_name: "dynamic-ia-interfaces",
+      app_mount_path: "/dynamic-ia-interfaces/",
+      build_profile: "dynamic-service",
+    },
   ],
 };
 

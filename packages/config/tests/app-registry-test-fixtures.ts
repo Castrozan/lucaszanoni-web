@@ -116,6 +116,54 @@ export const jarvisSessionApp: AppRegistryEntry = {
   },
 };
 
+export const dynamicIaCanvasApp: AppRegistryEntry = {
+  id: "dynamic-ia-canvas",
+  mountPath: "/dynamic-ia-canvas/",
+  navigationLabel: "Dynamic IA Canvas",
+  description:
+    "AI-driven generative component canvas that renders interfaces from natural language prompts.",
+  showInCrossSectionNavigation: true,
+  status: "active",
+  accessModel: { environment: "public" },
+  origin: {
+    kind: "in-repo-cloud-run",
+    cloudRunServiceName: "lucaszanoni-dynamic-ia-canvas",
+    appPackageName: "@platform/dynamic-ia-canvas",
+    appDirectoryName: "dynamic-ia-canvas",
+    buildProfile: "dynamic-service",
+    nonSecretEnvironment: {
+      APP_SERVER_ENTRYPOINT_PATH: "server-entrypoint.mjs",
+    },
+    secretEnvironmentReferences: {
+      GOOGLE_GENERATIVE_AI_API_KEY: "dynamic-ia-gemini-api-key",
+    },
+  },
+};
+
+export const dynamicIaInterfacesApp: AppRegistryEntry = {
+  id: "dynamic-ia-interfaces",
+  mountPath: "/dynamic-ia-interfaces/",
+  navigationLabel: "Dynamic IA Interfaces",
+  description:
+    "AI-driven generative interfaces explorer that streams chat-composed UIs from natural language prompts.",
+  showInCrossSectionNavigation: true,
+  status: "active",
+  accessModel: { environment: "public" },
+  origin: {
+    kind: "in-repo-cloud-run",
+    cloudRunServiceName: "lucaszanoni-dynamic-ia-interfaces",
+    appPackageName: "@platform/dynamic-ia-interfaces",
+    appDirectoryName: "dynamic-ia-interfaces",
+    buildProfile: "dynamic-service",
+    nonSecretEnvironment: {
+      APP_SERVER_ENTRYPOINT_PATH: "server-entrypoint.mjs",
+    },
+    secretEnvironmentReferences: {
+      GOOGLE_GENERATIVE_AI_API_KEY: "dynamic-ia-gemini-api-key",
+    },
+  },
+};
+
 export const todaysApps: readonly AppRegistryEntry[] = [
   shellApp,
   usageDashboardApp,
@@ -123,4 +171,6 @@ export const todaysApps: readonly AppRegistryEntry[] = [
   dbApp,
   cockpitApp,
   jarvisSessionApp,
+  dynamicIaCanvasApp,
+  dynamicIaInterfacesApp,
 ];

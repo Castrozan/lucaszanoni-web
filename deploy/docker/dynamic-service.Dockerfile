@@ -11,11 +11,13 @@ COPY packages ./packages
 COPY apps ./apps
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter "${APP_PACKAGE_NAME}" build
-RUN pnpm --filter "${APP_PACKAGE_NAME}" --prod deploy /standalone-service
+RUN pnpm --filter "${APP_PACKAGE_NAME}" --prod --legacy deploy /standalone-service
+RUN cp -r "apps/${APP_DIRECTORY_NAME}/.next" /standalone-service/.next
+RUN if [ -d "apps/${APP_DIRECTORY_NAME}/public" ]; then cp -r "apps/${APP_DIRECTORY_NAME}/public" /standalone-service/public; fi
 
 FROM ${NODE_RUNTIME_IMAGE} AS runtime
 ARG APP_MOUNT_PATH
-ARG APP_SERVER_ENTRYPOINT_PATH=dist/server/entry.mjs
+ARG APP_SERVER_ENTRYPOINT_PATH=server-entrypoint.mjs
 ENV NODE_ENV=production
 ENV APP_MOUNT_PATH=${APP_MOUNT_PATH}
 ENV APP_SERVER_ENTRYPOINT_PATH=${APP_SERVER_ENTRYPOINT_PATH}

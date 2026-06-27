@@ -36,7 +36,7 @@ export function useLeaderKeyNavigation(
   handlersRef.current = handlers;
   useEffect(() => {
     let engineState: LeaderEngineState = initialLeaderEngineState;
-    let armTimeoutId: ReturnType<typeof window.setTimeout> | undefined;
+    let armTimeoutId: number | undefined;
     const clearArmTimeout = () => {
       if (armTimeoutId !== undefined) {
         window.clearTimeout(armTimeoutId);
