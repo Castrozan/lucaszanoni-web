@@ -1,5 +1,6 @@
 import type { CockpitComputePort } from "./compute-port";
 import type { WorkspaceRegistryState } from "./workspace-registry";
+import type { CockpitWorkspaceMachine } from "./cockpit-machine-endpoints";
 import { createLifecycleComputeAdapter } from "./lifecycle-compute-adapter";
 import {
   connectCockpitLifecycleWebSocket,
@@ -12,6 +13,10 @@ export interface WorkspaceComputeResolution {
   readonly endpoint?: string | null;
   readonly connectTransport?: CockpitLifecycleTransportFactory;
 }
+
+export type WorkspaceComputeFactoryResolver = (
+  resolution: WorkspaceComputeResolution,
+) => ((seed: WorkspaceRegistryState) => CockpitComputePort) | undefined;
 
 export function resolveWorkspaceComputeFactory(
   resolution: WorkspaceComputeResolution = {},
@@ -32,4 +37,11 @@ export function resolveWorkspaceComputeFactory(
   const connectTransport =
     resolution.connectTransport ?? connectCockpitLifecycleWebSocket;
   return () => createLifecycleComputeAdapter(connectTransport(endpoint));
+}
+
+export function resolveWorkspaceComputeForMachine(
+  machine: CockpitWorkspaceMachine | null,
+  resolveFactory: WorkspaceComputeFactoryResolver = resolveWorkspaceComputeFactory,
+): ((seed: WorkspaceRegistryState) => CockpitComputePort) | undefined {
+  return resolveFactory({ endpoint: machine?.endpoint ?? null });
 }

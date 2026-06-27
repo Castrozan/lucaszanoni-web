@@ -1,7 +1,7 @@
 import { ThemeProvider } from "@platform/design-system";
 import { WorkspaceMachineRouter } from "./WorkspaceMachineRouter";
 import { resolveCockpitWorkspaceMachines } from "./workspace/cockpit-machine-endpoints";
-import { resolveWorkspaceComputeFactory } from "./workspace/resolve-workspace-compute";
+import { resolveWorkspaceComputeForMachine } from "./workspace/resolve-workspace-compute";
 
 export function WorkspaceRoot() {
   return (
@@ -9,11 +9,7 @@ export function WorkspaceRoot() {
       <WorkspaceMachineRouter
         machines={resolveCockpitWorkspaceMachines()}
         storage={window.localStorage}
-        createComputeForMachine={(machine) =>
-          resolveWorkspaceComputeFactory({
-            endpoint: machine?.endpoint ?? null,
-          })
-        }
+        createComputeForMachine={resolveWorkspaceComputeForMachine}
       />
     </ThemeProvider>
   );
