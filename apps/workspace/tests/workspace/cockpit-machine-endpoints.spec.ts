@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { resolveCockpitWorkspaceMachines } from "../../src/workspace/cockpit-machine-endpoints";
+import {
+  resolveActiveCockpitWorkspaceMachine,
+  resolveCockpitWorkspaceMachines,
+  type CockpitWorkspaceMachine,
+} from "../../src/workspace/cockpit-machine-endpoints";
 
 describe("resolveCockpitWorkspaceMachines maps configured machines to their own lifecycle endpoints", () => {
   it("falls back to a single local machine at the base lifecycle endpoint when none are configured", () => {
@@ -76,5 +80,42 @@ describe("resolveCockpitWorkspaceMachines maps configured machines to their own 
         endpoint: "wss://chise.example/cockpit/lifecycle",
       },
     ]);
+  });
+});
+
+describe("resolveActiveCockpitWorkspaceMachine selects the routed machine for the lifecycle transport", () => {
+  const machines: readonly CockpitWorkspaceMachine[] = [
+    {
+      key: "chise",
+      label: "Chise",
+      endpoint: "wss://chise.example/cockpit/lifecycle",
+    },
+    {
+      key: "kira",
+      label: "Kira",
+      endpoint: "wss://kira.example:8443/cockpit/lifecycle",
+    },
+  ];
+
+  it("returns the machine matching the active key", () => {
+    expect(resolveActiveCockpitWorkspaceMachine(machines, "kira")).toEqual(
+      machines[1],
+    );
+  });
+
+  it("falls back to the first machine when the active key is null", () => {
+    expect(resolveActiveCockpitWorkspaceMachine(machines, null)).toEqual(
+      machines[0],
+    );
+  });
+
+  it("falls back to the first machine when the active key matches no machine", () => {
+    expect(resolveActiveCockpitWorkspaceMachine(machines, "rin")).toEqual(
+      machines[0],
+    );
+  });
+
+  it("returns null when there are no machines", () => {
+    expect(resolveActiveCockpitWorkspaceMachine([], "chise")).toBeNull();
   });
 });

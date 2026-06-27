@@ -41,6 +41,18 @@ export function resolveCockpitWorkspaceMachines(
   ];
 }
 
+export function resolveActiveCockpitWorkspaceMachine(
+  machines: readonly CockpitWorkspaceMachine[],
+  activeKey: string | null | undefined,
+): CockpitWorkspaceMachine | null {
+  const [firstMachine] = machines;
+  if (!firstMachine) {
+    return null;
+  }
+  const activeMachine = machines.find((machine) => machine.key === activeKey);
+  return activeMachine ?? firstMachine;
+}
+
 function parseConfiguredWorkspaceMachines(
   configuredMachines: string | null | undefined,
 ): CockpitWorkspaceMachine[] {
