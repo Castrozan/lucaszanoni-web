@@ -54,9 +54,12 @@ describe("ShellApp", () => {
     expect(liveHrefs).toContain("/dynamic-ia-interfaces/");
   });
 
-  it("hints the roadmap features as inert preview controls", () => {
+  it("exposes the command palette trigger and keeps remaining roadmap previews", () => {
     render(<ShellApp />);
-    expect(screen.getByText("Command palette")).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Open command palette" }),
+    ).toBeTruthy();
+    expect(screen.getByText("Keyboard navigation")).toBeTruthy();
     expect(screen.getAllByText("SOON").length).toBeGreaterThan(0);
   });
 });

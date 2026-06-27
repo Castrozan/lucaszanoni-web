@@ -16,31 +16,6 @@ interface RoadmapHint {
 
 const roadmapHints: readonly RoadmapHint[] = [
   {
-    id: "command-palette",
-    label: "Command palette",
-    preview: (
-      <div className="flex items-center justify-between gap-2 border border-border bg-surface-raised px-3 py-2">
-        <span className="font-mono text-[12px] text-text-faint">
-          Search anything…
-        </span>
-        <Keycap>⌘K</Keycap>
-      </div>
-    ),
-  },
-  {
-    id: "global-search",
-    label: "Global search",
-    preview: (
-      <div className="flex items-center gap-2">
-        <span className="font-mono text-[14px] text-text-faint">⌕</span>
-        <Keycap>/</Keycap>
-        <span className="font-mono text-[12px] text-text-faint">
-          jump to anything
-        </span>
-      </div>
-    ),
-  },
-  {
     id: "keyboard-navigation",
     label: "Keyboard navigation",
     preview: (
