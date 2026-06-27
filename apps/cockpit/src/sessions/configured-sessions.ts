@@ -1,5 +1,11 @@
 import type { CockpitSession } from "./session-registry";
 
+export const DEFAULT_COCKPIT_SESSIONS: readonly CockpitSession[] = [
+  { key: "main", label: "Main" },
+  { key: "build", label: "Build" },
+  { key: "deploy", label: "Deploy" },
+];
+
 export function parseConfiguredSessions(raw: string): CockpitSession[] {
   const sessions: CockpitSession[] = [];
   const seenKeys = new Set<string>();
@@ -26,6 +32,11 @@ export function parseConfiguredSessions(raw: string): CockpitSession[] {
   return sessions;
 }
 
+export function resolveConfiguredSessions(raw: string): CockpitSession[] {
+  const configured = parseConfiguredSessions(raw);
+  return configured.length > 0 ? configured : [...DEFAULT_COCKPIT_SESSIONS];
+}
+
 export function readConfiguredSessions(): CockpitSession[] {
-  return parseConfiguredSessions(import.meta.env.VITE_COCKPIT_SESSIONS ?? "");
+  return resolveConfiguredSessions(import.meta.env.VITE_COCKPIT_SESSIONS ?? "");
 }

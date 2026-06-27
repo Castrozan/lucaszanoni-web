@@ -29,24 +29,25 @@ function renderJarvisPage() {
 }
 
 describe("CockpitJarvisPage", () => {
-  it("opens on the main view with a message input for talking to Jarvis", () => {
+  it("opens on the session terminal view by default", () => {
     renderJarvisPage();
+    expect(
+      screen.getByRole("region", { name: "Jarvis session terminal" }),
+    ).toBeDefined();
+  });
+
+  it("switches to the conversation view with a message input for talking to Jarvis", () => {
+    renderJarvisPage();
+    fireEvent.click(screen.getByRole("tab", { name: "Conversation" }));
     expect(screen.getByLabelText("Message Jarvis")).toBeDefined();
     expect(
       screen.getByRole("region", { name: "Jarvis conversation" }),
     ).toBeDefined();
   });
 
-  it("switches to the internal session terminal view", () => {
-    renderJarvisPage();
-    fireEvent.click(screen.getByRole("tab", { name: "Internal" }));
-    expect(
-      screen.getByRole("region", { name: "Jarvis session terminal" }),
-    ).toBeDefined();
-  });
-
   it("appends the owner message to the transcript and clears the input on send", () => {
     renderJarvisPage();
+    fireEvent.click(screen.getByRole("tab", { name: "Conversation" }));
     const input = screen.getByLabelText("Message Jarvis") as HTMLInputElement;
     fireEvent.change(input, { target: { value: "status report" } });
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
@@ -57,6 +58,7 @@ describe("CockpitJarvisPage", () => {
 
   it("disables the voice control where speech recognition is unavailable", () => {
     renderJarvisPage();
+    fireEvent.click(screen.getByRole("tab", { name: "Conversation" }));
     expect(
       (
         screen.getByRole("button", {
