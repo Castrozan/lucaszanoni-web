@@ -47,7 +47,7 @@ describe("CockpitShell", () => {
   });
 
   it("navigates to Jarvis on the leader-then-a sequence", () => {
-    renderShell();
+    renderShell(["/dashboard"]);
     expect(
       screen.getByRole("link", { name: "Jarvis" }).getAttribute("aria-current"),
     ).toBeNull();
