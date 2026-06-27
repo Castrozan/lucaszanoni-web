@@ -18,6 +18,35 @@ export type DisplayDataTableToolOutput = z.infer<
   typeof displayDataTableToolOutputSchema
 >;
 
+export interface GenerateDataTableRequest {
+  topic: string;
+  columns?: string[];
+  rowCount?: number;
+}
+
+export function generateDataTableForRequest({
+  topic,
+  columns,
+  rowCount = 5,
+}: GenerateDataTableRequest): DisplayDataTableToolOutput {
+  const resolvedColumns = columns ?? inferColumnsFromTopic(topic);
+
+  const tableColumns = resolvedColumns.map((columnName) => ({
+    key: columnName.toLowerCase().replace(/\s+/g, "_"),
+    label: columnName,
+    alignment: "left" as const,
+  }));
+
+  const rows = generateSampleRowsForTopic(topic, tableColumns, rowCount);
+
+  return {
+    title: `${topic}`,
+    columns: tableColumns,
+    rows,
+    totalRowCount: rows.length,
+  };
+}
+
 export const displayDataTableTool = tool({
   description:
     "Display data in an interactive table format. Use when the user asks to see data, lists, records, comparisons, or any structured information that fits a tabular layout.",
@@ -33,28 +62,7 @@ export const displayDataTableTool = tool({
       .default(5)
       .optional(),
   }),
-  execute: async function ({ topic, columns, rowCount = 5 }) {
-    const resolvedColumns = columns ?? inferColumnsFromTopic(topic);
-
-    const tableColumns = resolvedColumns.map((columnName) => ({
-      key: columnName.toLowerCase().replace(/\s+/g, "_"),
-      label: columnName,
-      alignment: "left" as const,
-    }));
-
-    const rows = generateSampleRowsForTopic(
-      topic,
-      tableColumns,
-      rowCount,
-    );
-
-    return {
-      title: `${topic}`,
-      columns: tableColumns,
-      rows,
-      totalRowCount: rows.length,
-    };
-  },
+  execute: async (request) => generateDataTableForRequest(request),
 });
 
 function inferColumnsFromTopic(topic: string): string[] {
@@ -95,9 +103,15 @@ function generateCellValueForColumn(
   topic: string,
 ): string | number {
   if (columnKey.includes("price") || columnKey.includes("amount")) {
-    return Math.round((10 + rowIndex * 15.5 + Math.sin(rowIndex) * 20) * 100) / 100;
+    return (
+      Math.round((10 + rowIndex * 15.5 + Math.sin(rowIndex) * 20) * 100) / 100
+    );
   }
-  if (columnKey.includes("stock") || columnKey.includes("population") || columnKey.includes("area")) {
+  if (
+    columnKey.includes("stock") ||
+    columnKey.includes("population") ||
+    columnKey.includes("area")
+  ) {
     return Math.round(100 + rowIndex * 250 + Math.cos(rowIndex) * 50);
   }
   if (columnKey.includes("date")) {
@@ -105,7 +119,9 @@ function generateCellValueForColumn(
     return date.toISOString().split("T")[0];
   }
   if (columnKey.includes("status")) {
-    return ["Active", "Pending", "Completed", "Active", "Inactive"][rowIndex % 5];
+    return ["Active", "Pending", "Completed", "Active", "Inactive"][
+      rowIndex % 5
+    ];
   }
   if (columnKey.includes("id")) {
     return `${topic.substring(0, 3).toUpperCase()}-${1000 + rowIndex}`;

@@ -23,28 +23,32 @@ export type DisplayWeatherForecastToolOutput = z.infer<
   typeof displayWeatherForecastToolOutputSchema
 >;
 
+export function generateWeatherForecastForLocation(
+  location: string,
+): DisplayWeatherForecastToolOutput {
+  const baseTemperature = generateDeterministicTemperatureForLocation(location);
+
+  return {
+    location,
+    temperature: baseTemperature,
+    feelsLike: baseTemperature - 2,
+    condition: pickWeatherConditionFromTemperature(baseTemperature),
+    humidity: 45 + (hashStringToNumber(location) % 40),
+    windSpeed: 5 + (hashStringToNumber(location) % 20),
+    windDirection: ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][
+      hashStringToNumber(location) % 8
+    ],
+    forecast: generateFiveDayForecast(location, baseTemperature),
+  };
+}
+
 export const displayWeatherForecastTool = tool({
   description:
     "Display a weather forecast card for a location. Use when the user asks about weather, temperature, forecast, or climate conditions.",
   inputSchema: z.object({
     location: z.string().describe("City name or location to get weather for"),
   }),
-  execute: async function ({ location }) {
-    const baseTemperature = generateDeterministicTemperatureForLocation(location);
-
-    return {
-      location,
-      temperature: baseTemperature,
-      feelsLike: baseTemperature - 2,
-      condition: pickWeatherConditionFromTemperature(baseTemperature),
-      humidity: 45 + ((hashStringToNumber(location) % 40)),
-      windSpeed: 5 + (hashStringToNumber(location) % 20),
-      windDirection: ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][
-        hashStringToNumber(location) % 8
-      ],
-      forecast: generateFiveDayForecast(location, baseTemperature),
-    };
-  },
+  execute: async ({ location }) => generateWeatherForecastForLocation(location),
 });
 
 function generateDeterministicTemperatureForLocation(location: string): number {
