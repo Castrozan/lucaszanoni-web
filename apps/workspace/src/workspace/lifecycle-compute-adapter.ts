@@ -25,7 +25,9 @@ export function createLifecycleComputeAdapter(
       );
     }
     if (!isCockpitLifecycleListReply(reply)) {
-      return [];
+      throw new Error(
+        "cockpit lifecycle list-sessions returned an unrecognized reply shape",
+      );
     }
     return reply.sessions.map(mapSessionInventory);
   }

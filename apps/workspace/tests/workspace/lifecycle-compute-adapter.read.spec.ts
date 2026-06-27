@@ -50,4 +50,15 @@ describe("real lifecycle adapter reads the live tmux inventory", () => {
     );
     await expect(compute.listSessions()).rejects.toThrow(/invalid-request/);
   });
+
+  it("throws on a malformed reply instead of wiping the workspace as empty", async () => {
+    const compute = createLifecycleComputeAdapter(
+      createScriptedLifecycleTransport(() => ({
+        operation: "list-sessions",
+        exitCode: 0,
+        standardError: "",
+      })),
+    );
+    await expect(compute.listSessions()).rejects.toThrow(/unrecognized/);
+  });
 });
