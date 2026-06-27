@@ -13,3 +13,7 @@ export function isVoiceControlEnabled(): boolean {
 export function isGitlabReviewEnabled(): boolean {
   return import.meta.env.VITE_COCKPIT_GITLAB_REVIEW === "true";
 }
+
+export function isMultiMachineEnabled(): boolean {
+  return import.meta.env.VITE_COCKPIT_MULTI_MACHINE === "true";
+}
