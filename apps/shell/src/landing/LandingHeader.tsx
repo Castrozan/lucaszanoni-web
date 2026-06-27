@@ -1,5 +1,8 @@
 import { Button } from "@platform/design-system";
-import { OWNER_SIGN_IN_ENTRY_ROUTE } from "@platform/config";
+import {
+  OWNER_SIGN_IN_ENTRY_ROUTE,
+  OWNER_WORKSPACE_ENTRY_ROUTE,
+} from "@platform/config";
 import { useScrolledPastThreshold } from "./useScrolledPastThreshold";
 
 const headerNavigationLinks = [
@@ -41,9 +44,14 @@ export function LandingHeader() {
             ))}
           </ul>
         </nav>
-        <Button asChild variant="brand" size="sm">
-          <a href={OWNER_SIGN_IN_ENTRY_ROUTE.mountPath}>ENTER</a>
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button asChild variant="terminal" size="sm">
+            <a href={OWNER_WORKSPACE_ENTRY_ROUTE.mountPath}>WORKSPACE</a>
+          </Button>
+          <Button asChild variant="brand" size="sm">
+            <a href={OWNER_SIGN_IN_ENTRY_ROUTE.mountPath}>ENTER</a>
+          </Button>
+        </div>
       </div>
     </header>
   );
