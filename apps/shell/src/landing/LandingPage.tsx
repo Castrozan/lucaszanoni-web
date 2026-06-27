@@ -5,6 +5,7 @@ import { PlatformFeatureTrio } from "./PlatformFeatureTrio";
 import { RoadmapHintStrip } from "./RoadmapHintStrip";
 import { StatsBand } from "./StatsBand";
 import { LandingFooter } from "./LandingFooter";
+import { CommandPalette } from "./CommandPalette";
 
 export function LandingPage() {
   return (
@@ -18,6 +19,7 @@ export function LandingPage() {
         <StatsBand />
         <LandingFooter />
       </main>
+      <CommandPalette />
     </div>
   );
 }

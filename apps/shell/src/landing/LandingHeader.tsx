@@ -1,6 +1,7 @@
 import { Button } from "@platform/design-system";
 import { OWNER_SIGN_IN_ENTRY_ROUTE } from "@platform/config";
 import { useScrolledPastThreshold } from "./useScrolledPastThreshold";
+import { openCommandPalette } from "./CommandPalette";
 
 const headerNavigationLinks = [
   { label: "SECTIONS", href: "#sections" },
@@ -41,9 +42,22 @@ export function LandingHeader() {
             ))}
           </ul>
         </nav>
-        <Button asChild variant="brand" size="sm">
-          <a href={OWNER_SIGN_IN_ENTRY_ROUTE.mountPath}>ENTER</a>
-        </Button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            aria-label="Open command palette"
+            className="hidden items-center gap-2 border border-border px-3 py-1.5 font-mono text-[10px] uppercase tracking-[1.5px] text-text-faint transition-colors hover:text-foreground sm:flex"
+          >
+            <span>Jump to</span>
+            <span className="border border-border px-1.5 py-0.5 text-[10px] normal-case tracking-normal text-muted-foreground">
+              &#8984;K
+            </span>
+          </button>
+          <Button asChild variant="brand" size="sm">
+            <a href={OWNER_SIGN_IN_ENTRY_ROUTE.mountPath}>ENTER</a>
+          </Button>
+        </div>
       </div>
     </header>
   );
