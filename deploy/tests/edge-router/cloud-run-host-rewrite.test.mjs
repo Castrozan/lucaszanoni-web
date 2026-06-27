@@ -33,8 +33,13 @@ test("the reports prefix routes to the reports origin", async () => {
   assert.equal(new URL(capturedOriginRequest.url).hostname, reportsOriginHost);
 });
 
-test("a prefix without its trailing slash falls back to the shell origin", async () => {
+test("the bare mount path without its trailing slash routes to the app origin", async () => {
   const { capturedOriginRequest } = await dispatchThroughEdge("/reports");
+  assert.equal(new URL(capturedOriginRequest.url).hostname, reportsOriginHost);
+});
+
+test("a path that only shares a prefix segment still falls back to the shell origin", async () => {
+  const { capturedOriginRequest } = await dispatchThroughEdge("/reportsxyz");
   assert.equal(new URL(capturedOriginRequest.url).hostname, shellOriginHost);
 });
 

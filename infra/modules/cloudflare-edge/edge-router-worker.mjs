@@ -1,3 +1,7 @@
+const requestPathMatchesMountPrefix = (requestPath, mountPrefix) =>
+  requestPath.startsWith(mountPrefix) ||
+  (mountPrefix.endsWith("/") && requestPath === mountPrefix.slice(0, -1));
+
 const selectRetiredRoute = (requestPath, routingTable) =>
   (routingTable.retiredPrefixes ?? []).find((route) =>
     requestPath.startsWith(route.prefix),
@@ -10,7 +14,7 @@ const selectStaticBucketRoute = (requestPath, routingTable) =>
 
 const selectCloudRunOriginHost = (requestPath, routingTable) => {
   const matchedRoute = routingTable.prefixes.find((route) =>
-    requestPath.startsWith(route.prefix),
+    requestPathMatchesMountPrefix(requestPath, route.prefix),
   );
   return matchedRoute ? matchedRoute.host : routingTable.shell;
 };
