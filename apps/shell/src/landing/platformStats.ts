@@ -1,8 +1,7 @@
 import { MICRO_FRONTEND_ROUTES } from "@platform/config";
 import type { MicroFrontendRoute } from "@platform/config";
-import { EdgeSignalLine } from "./EdgeSignalLine";
 
-interface PlatformStat {
+export interface PlatformStat {
   readonly value: string;
   readonly label: string;
 }
@@ -28,25 +27,4 @@ export function buildPlatformStats(): PlatformStat[] {
     { value: String(ownerGatedRoutes).padStart(2, "0"), label: "OWNER-GATED" },
     { value: String(aiPoweredRoutes).padStart(2, "0"), label: "AI-POWERED" },
   ];
-}
-
-export function StatsBand() {
-  const platformStats = buildPlatformStats();
-  return (
-    <section className="border-t border-border py-20">
-      <EdgeSignalLine />
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        {platformStats.map((stat) => (
-          <div key={stat.label} className="flex flex-col gap-2">
-            <span className="font-grotesk text-[clamp(36px,5vw,56px)] font-bold leading-none tracking-[-1px] text-primary">
-              {stat.value}
-            </span>
-            <span className="font-mono text-[11px] uppercase tracking-[2px] text-text-faint">
-              {stat.label}
-            </span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
 }

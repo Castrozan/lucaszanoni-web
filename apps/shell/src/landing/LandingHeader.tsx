@@ -6,7 +6,8 @@ import { openCommandPalette } from "./CommandPalette";
 
 const headerNavigationLinks = [
   { label: "SECTIONS", href: "#sections" },
-  { label: "PLATFORM", href: "#platform" },
+  { label: "SHOWCASE", href: "#showcase" },
+  { label: "ABOUT", href: "#about-atrium" },
 ] as const;
 
 export function LandingHeader() {

@@ -2,9 +2,7 @@ import { LandingHeader } from "./LandingHeader";
 import { HeroSection } from "./HeroSection";
 import { SectionsGrid } from "./SectionsGrid";
 import { FeaturePreview } from "./FeaturePreview";
-import { PlatformFeatureTrio } from "./PlatformFeatureTrio";
-import { EngineeringSection } from "./EngineeringSection";
-import { StatsBand } from "./StatsBand";
+import { AboutAtriumSection } from "./AboutAtriumSection";
 import { LandingFooter } from "./LandingFooter";
 import { CommandPalette } from "./CommandPalette";
 
@@ -16,9 +14,7 @@ export function LandingPage() {
         <HeroSection />
         <SectionsGrid />
         <FeaturePreview />
-        <PlatformFeatureTrio />
-        <EngineeringSection />
-        <StatsBand />
+        <AboutAtriumSection />
         <LandingFooter />
       </main>
       <CommandPalette />

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MICRO_FRONTEND_ROUTES } from "@platform/config";
-import { buildPlatformStats } from "../src/landing/StatsBand";
+import { buildPlatformStats } from "../src/landing/platformStats";
 
 function statValueByLabel(label: string): number {
   const stat = buildPlatformStats().find(
