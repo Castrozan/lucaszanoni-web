@@ -26,7 +26,6 @@ export function buildRouteSitemapLinks(): FooterLink[] {
 const inPageLinks: readonly FooterLink[] = [
   { label: "Sections", href: "#sections" },
   { label: "Built for the terminal", href: "#platform" },
-  { label: "Roadmap", href: "#roadmap" },
 ];
 
 const sourceLink: FooterLink = {
