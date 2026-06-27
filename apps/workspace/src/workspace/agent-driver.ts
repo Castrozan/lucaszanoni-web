@@ -32,3 +32,9 @@ export function resolveAgentDriver(
     cockpitAgentDrivers.find((driver) => driver.kind === kind) ?? claudeDriver
   );
 }
+
+export function isCockpitAgentDriverKind(
+  value: string,
+): value is CockpitAgentDriverKind {
+  return cockpitAgentDrivers.some((driver) => driver.kind === value);
+}
