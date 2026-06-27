@@ -18,6 +18,47 @@ export type DisplayDataTableToolOutput = z.infer<
   typeof displayDataTableToolOutputSchema
 >;
 
+export interface ModelProvidedDataTableInput {
+  title: string;
+  columns: string[];
+  rows: Array<Array<string | number>>;
+}
+
+export function buildDataTableFromModelInput({
+  title,
+  columns,
+  rows,
+}: ModelProvidedDataTableInput): DisplayDataTableToolOutput {
+  if (columns.length === 0 || rows.length === 0) {
+    return generateDataTableForRequest({
+      topic: title,
+      columns: columns.length > 0 ? columns : undefined,
+    });
+  }
+
+  const tableColumns = columns.map((label, columnIndex) => ({
+    key: `column_${columnIndex}`,
+    label,
+    alignment: "left" as const,
+  }));
+
+  const tableRows = rows.map((cells) =>
+    Object.fromEntries(
+      tableColumns.map((column, columnIndex) => [
+        column.key,
+        cells[columnIndex] ?? "—",
+      ]),
+    ),
+  );
+
+  return {
+    title,
+    columns: tableColumns,
+    rows: tableRows,
+    totalRowCount: tableRows.length,
+  };
+}
+
 export interface GenerateDataTableRequest {
   topic: string;
   columns?: string[];
@@ -49,20 +90,20 @@ export function generateDataTableForRequest({
 
 export const displayDataTableTool = tool({
   description:
-    "Display data in an interactive table format. Use when the user asks to see data, lists, records, comparisons, or any structured information that fits a tabular layout.",
+    "Display real, factual data in an interactive table. You MUST fill columns and rows with accurate content that actually answers the request (real programming languages, real countries, real figures), never placeholders like 'Name 1' or 'Value 1'. Use when the user asks to see data, lists, records, comparisons, or any structured information that fits a tabular layout.",
   inputSchema: z.object({
-    topic: z.string().describe("What data to display in the table"),
+    title: z.string().describe("Title describing what the table shows"),
     columns: z
       .array(z.string())
-      .describe("Column names for the table")
-      .optional(),
-    rowCount: z
-      .number()
-      .describe("Number of rows to generate")
-      .default(5)
-      .optional(),
+      .min(1)
+      .describe("Column header labels, in display order"),
+    rows: z
+      .array(z.array(z.union([z.string(), z.number()])))
+      .describe(
+        "Each row's cell values in the same order as columns, populated with real data",
+      ),
   }),
-  execute: async (request) => generateDataTableForRequest(request),
+  execute: async (request) => buildDataTableFromModelInput(request),
 });
 
 function inferColumnsFromTopic(topic: string): string[] {
