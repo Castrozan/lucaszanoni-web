@@ -1,24 +1,13 @@
 import { useEffect, useState } from "react";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 import { BlockCursor } from "./BlockCursor";
-
-interface TerminalLine {
-  readonly kind: "command" | "output";
-  readonly text: string;
-}
-
-const terminalLines: readonly TerminalLine[] = [
-  { kind: "command", text: "$ curl lucaszanoni.com/engineering/reports/" },
-  { kind: "output", text: "→ 200 OK  served from cloudflare edge" },
-  { kind: "output", text: "→ micro-frontend: reports  build: static-spa" },
-  { kind: "command", text: "$ open /engineering/dotfiles/claude/usage/" },
-  { kind: "output", text: "→ live operational dashboard mounted" },
-];
+import { terminalContent } from "./landingContent";
 
 const trafficLightColors = ["#FF5F57", "#FEBC2E", "#4ADE80"];
 
 export function HeroTerminalPanel() {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const terminalLines = terminalContent.lines;
   const [visibleLineCount, setVisibleLineCount] = useState(
     prefersReducedMotion ? terminalLines.length : 0,
   );
@@ -38,7 +27,7 @@ export function HeroTerminalPanel() {
       }
     }, 700);
     return () => clearInterval(interval);
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, terminalLines.length]);
 
   return (
     <div className="border-2 border-[#2D2D2D] bg-surface">
@@ -53,7 +42,7 @@ export function HeroTerminalPanel() {
           ))}
         </div>
         <span className="font-mono text-[11px] tracking-[1px] text-text-faint">
-          ~/lucaszanoni — zsh
+          {terminalContent.promptLabel}
         </span>
       </div>
       <div className="flex flex-col gap-1 px-4 py-5">
