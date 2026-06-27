@@ -2,6 +2,7 @@ import { LandingHeader } from "./LandingHeader";
 import { HeroSection } from "./HeroSection";
 import { SectionsGrid } from "./SectionsGrid";
 import { PlatformFeatureTrio } from "./PlatformFeatureTrio";
+import { EngineeringSection } from "./EngineeringSection";
 import { RoadmapHintStrip } from "./RoadmapHintStrip";
 import { StatsBand } from "./StatsBand";
 import { LandingFooter } from "./LandingFooter";
@@ -15,6 +16,7 @@ export function LandingPage() {
         <HeroSection />
         <SectionsGrid />
         <PlatformFeatureTrio />
+        <EngineeringSection />
         <RoadmapHintStrip />
         <StatsBand />
         <LandingFooter />

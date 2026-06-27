@@ -73,3 +73,66 @@ export const platformFeatures: readonly PlatformFeature[] = [
     accented: false,
   },
 ];
+
+export interface EngineeringNarrativeCard {
+  readonly id: string;
+  readonly title: string;
+  readonly body: string;
+  readonly evidenceLabel: string;
+  readonly evidenceHref: string;
+}
+
+export interface EngineeringContent {
+  readonly heading: string;
+  readonly subtitle: string;
+  readonly registryTableCaption: string;
+  readonly narrativeCards: readonly EngineeringNarrativeCard[];
+}
+
+const REPOSITORY_FILE_BASE_URL =
+  "https://github.com/Castrozan/lucaszanoni-web/blob/main";
+
+export const engineeringContent: EngineeringContent = {
+  heading: "HOW THIS SITE BUILDS ITSELF",
+  subtitle:
+    "The same app-registry.json that drives Terraform, the deploy matrix, and the edge worker also assembles this page. Every claim below links to the code.",
+  registryTableCaption:
+    "Rendered live from packages/config/src/app-registry.json — the platform's single source of truth.",
+  narrativeCards: [
+    {
+      id: "edge-worker",
+      title: "ONE DATA-DRIVEN EDGE WORKER",
+      body: "A single Cloudflare Worker routes every app from an EDGE_ROUTES binding, with no per-app code and no hardcoded routes.",
+      evidenceLabel: "edge-router-worker.mjs",
+      evidenceHref: `${REPOSITORY_FILE_BASE_URL}/infra/modules/cloudflare-edge/edge-router-worker.mjs`,
+    },
+    {
+      id: "scale-to-zero",
+      title: "SCALE-TO-ZERO CLOUD RUN",
+      body: "Every in-repo service runs with min_instance_count set to zero, so an idle app costs nothing to keep online.",
+      evidenceLabel: "serverless-cloud-run-app/main.tf",
+      evidenceHref: `${REPOSITORY_FILE_BASE_URL}/infra/modules/serverless-cloud-run-app/main.tf`,
+    },
+    {
+      id: "keyless-cd",
+      title: "KEYLESS CD VIA OIDC",
+      body: "Deploys authenticate to Google Cloud through Workload Identity Federation, so no service-account key is stored.",
+      evidenceLabel: "deploy-infrastructure.yml",
+      evidenceHref: `${REPOSITORY_FILE_BASE_URL}/.github/workflows/deploy-infrastructure.yml`,
+    },
+    {
+      id: "registry-ssot",
+      title: "REGISTRY AS SINGLE SOURCE OF TRUTH",
+      body: "One JSON array defines every app; routing, infrastructure, the deploy matrix, access policy, and this page all derive from it.",
+      evidenceLabel: "app-registry.json",
+      evidenceHref: `${REPOSITORY_FILE_BASE_URL}/packages/config/src/app-registry.json`,
+    },
+    {
+      id: "ai-core",
+      title: "FREE GEMINI AI CORE",
+      body: "The dynamic apps generate UI with Google Gemini 2.5 Flash via the Vercel AI SDK, server-side behind the edge.",
+      evidenceLabel: "generateComponentAction.ts",
+      evidenceHref: `${REPOSITORY_FILE_BASE_URL}/apps/dynamic-ia-canvas/src/modules/generation/generateComponentAction.ts`,
+    },
+  ],
+};
