@@ -46,6 +46,24 @@ describe("CockpitJarvisPage GitLab review pairing", () => {
     ).toBeNull();
   });
 
+  it("renders enabled review deep-links on the main branch by default when only the host and project are configured", () => {
+    vi.stubEnv("VITE_COCKPIT_GITLAB_BASE_URL", "https://gitlab.example.com");
+    vi.stubEnv("VITE_COCKPIT_GITLAB_PROJECT", "group/app");
+
+    renderJarvisPage();
+    fireEvent.click(screen.getByRole("tab", { name: "Terminal" }));
+
+    expect(
+      (
+        screen.getByRole("link", {
+          name: "Open merge request review",
+        }) as HTMLAnchorElement
+      ).getAttribute("href"),
+    ).toBe(
+      "https://gitlab.example.com/group/app/-/merge_requests?scope=all&state=opened&source_branch=main",
+    );
+  });
+
   it("deep-links the configured GitLab host in the internal view", () => {
     vi.stubEnv("VITE_COCKPIT_GITLAB_BASE_URL", "https://gitlab.example.com");
     vi.stubEnv("VITE_COCKPIT_GITLAB_PROJECT", "group/app");
