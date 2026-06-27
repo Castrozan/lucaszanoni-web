@@ -1,26 +1,4 @@
-interface PlatformFeature {
-  readonly label: string;
-  readonly body: string;
-  readonly accented: boolean;
-}
-
-const platformFeatures: readonly PlatformFeature[] = [
-  {
-    label: "SINGLE EDGE",
-    body: "One Cloudflare edge fronts many independently deployed micro-frontends. Ship a section without redeploying the rest.",
-    accented: false,
-  },
-  {
-    label: "STATIC-FIRST",
-    body: "Static-SPA build profile. No server bloat, no cold starts, just fingerprinted assets served from the edge.",
-    accented: true,
-  },
-  {
-    label: "DARK-NATIVE",
-    body: "Built dark for the terminal generation. Hard edges, mono labels, a yellow block cursor that means business.",
-    accented: false,
-  },
-];
+import { platformFeatures } from "./landingContent";
 
 export function PlatformFeatureTrio() {
   return (

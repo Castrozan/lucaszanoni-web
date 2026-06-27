@@ -7,7 +7,7 @@ import { DynamicInterfaceChatMessage } from "@/conversation/components/dynamic-i
 import { DynamicInterfaceChatInput } from "@/conversation/components/dynamic-interface-chat-input";
 
 const chatTransport = new DefaultChatTransport({
-  api: "/api/chat",
+  api: "/dynamic-ia-interfaces/api/chat",
 });
 
 export default function DynamicInterfacesHomePage() {

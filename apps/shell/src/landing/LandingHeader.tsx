@@ -4,6 +4,7 @@ import {
   OWNER_WORKSPACE_ENTRY_ROUTE,
 } from "@platform/config";
 import { useScrolledPastThreshold } from "./useScrolledPastThreshold";
+import { openCommandPalette } from "./CommandPalette";
 
 const headerNavigationLinks = [
   { label: "SECTIONS", href: "#sections" },
@@ -45,6 +46,17 @@ export function LandingHeader() {
           </ul>
         </nav>
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            aria-label="Open command palette"
+            className="hidden items-center gap-2 border border-border px-3 py-1.5 font-mono text-[10px] uppercase tracking-[1.5px] text-text-faint transition-colors hover:text-foreground sm:flex"
+          >
+            <span>Jump to</span>
+            <span className="border border-border px-1.5 py-0.5 text-[10px] normal-case tracking-normal text-muted-foreground">
+              &#8984;K
+            </span>
+          </button>
           <Button asChild variant="terminal" size="sm">
             <a href={OWNER_WORKSPACE_ENTRY_ROUTE.mountPath}>WORKSPACE</a>
           </Button>

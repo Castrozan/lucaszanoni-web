@@ -1,23 +1,32 @@
 import { MICRO_FRONTEND_ROUTES } from "@platform/config";
-import { buildHomeSectionCards } from "../home-sections";
+import type { MicroFrontendRoute } from "@platform/config";
+import { EdgeSignalLine } from "./EdgeSignalLine";
 
 interface PlatformStat {
   readonly value: string;
   readonly label: string;
 }
 
-function buildPlatformStats(): PlatformStat[] {
+function countRoutes(
+  predicate: (route: MicroFrontendRoute) => boolean,
+): number {
+  return MICRO_FRONTEND_ROUTES.filter(predicate).length;
+}
+
+export function buildPlatformStats(): PlatformStat[] {
+  const totalRoutes = MICRO_FRONTEND_ROUTES.length;
+  const publicRoutes = countRoutes(
+    (route) => route.accessModel.environment === "public",
+  );
+  const ownerGatedRoutes = countRoutes(
+    (route) => route.accessModel.environment === "private",
+  );
+  const aiPoweredRoutes = countRoutes((route) => route.isAiPowered);
   return [
-    {
-      value: String(MICRO_FRONTEND_ROUTES.length).padStart(2, "0"),
-      label: "MICRO-FRONTENDS",
-    },
-    {
-      value: String(buildHomeSectionCards().length).padStart(2, "0"),
-      label: "PUBLIC SECTIONS",
-    },
-    { value: "STATIC", label: "BUILD PROFILE" },
-    { value: "1", label: "CLOUDFLARE EDGE" },
+    { value: String(totalRoutes).padStart(2, "0"), label: "MICRO-FRONTENDS" },
+    { value: String(publicRoutes).padStart(2, "0"), label: "PUBLIC" },
+    { value: String(ownerGatedRoutes).padStart(2, "0"), label: "OWNER-GATED" },
+    { value: String(aiPoweredRoutes).padStart(2, "0"), label: "AI-POWERED" },
   ];
 }
 
@@ -25,6 +34,7 @@ export function StatsBand() {
   const platformStats = buildPlatformStats();
   return (
     <section className="border-t border-border py-20">
+      <EdgeSignalLine />
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {platformStats.map((stat) => (
           <div key={stat.label} className="flex flex-col gap-2">
