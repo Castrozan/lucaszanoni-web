@@ -11,10 +11,6 @@ import {
   type JarvisTerminalEmulator,
   type JarvisTerminalEmulatorFactory,
 } from "./browser-terminal-emulator";
-import {
-  isMultiSessionEnabled,
-  isVoiceControlEnabled,
-} from "../feature-flags/cockpit-feature-flags";
 import { SessionSwitcher } from "../sessions/SessionSwitcher";
 import { SessionVoiceControl } from "./SessionVoiceControl";
 import { encodeSpokenSessionInput } from "./spoken-session-input";
@@ -119,8 +115,6 @@ export function JarvisSessionTerminal({
   }
 
   const isOpen = status === "open";
-  const multiSessionEnabled = isMultiSessionEnabled();
-  const voiceEnabled = isVoiceControlEnabled();
 
   const submitSpokenInput = (transcript: string) => {
     const bytes = encodeSpokenSessionInput(transcript);
@@ -144,17 +138,13 @@ export function JarvisSessionTerminal({
       aria-label="Jarvis session terminal"
       className="flex flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background"
     >
-      {multiSessionEnabled ? (
-        <SessionSwitcher
-          sessions={sessions}
-          activeKey={activeSessionKey}
-          onSelect={selectSession}
-          onListSessions={requestSessionList}
-        />
-      ) : null}
-      {voiceEnabled ? (
-        <SessionVoiceControl onSpokenInput={submitSpokenInput} />
-      ) : null}
+      <SessionSwitcher
+        sessions={sessions}
+        activeKey={activeSessionKey}
+        onSelect={selectSession}
+        onListSessions={requestSessionList}
+      />
+      <SessionVoiceControl onSpokenInput={submitSpokenInput} />
       <header className="flex items-center justify-between border-b border-border bg-surface px-4 py-2">
         <div className="flex items-center gap-2">
           <span

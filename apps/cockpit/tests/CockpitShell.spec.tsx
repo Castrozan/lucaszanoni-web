@@ -58,8 +58,7 @@ describe("CockpitShell", () => {
     ).toBe("page");
   });
 
-  it("opens the command palette on the leader-then-k sequence when enabled", () => {
-    vi.stubEnv("VITE_COCKPIT_COMMAND_PALETTE", "true");
+  it("opens the command palette on the leader-then-k sequence", () => {
     renderShell();
     expect(
       screen.queryByRole("dialog", { name: "Command palette" }),
@@ -71,18 +70,7 @@ describe("CockpitShell", () => {
     ).toBeDefined();
   });
 
-  it("keeps the command palette unavailable while the flag is off", () => {
-    vi.stubEnv("VITE_COCKPIT_COMMAND_PALETTE", "");
-    renderShell();
-    fireEvent.keyDown(document.body, { key: "b", ctrlKey: true });
-    fireEvent.keyDown(document.body, { key: "k" });
-    expect(
-      screen.queryByRole("dialog", { name: "Command palette" }),
-    ).toBeNull();
-  });
-
   it("exposes session-switch commands in the palette for fuzzy search", () => {
-    vi.stubEnv("VITE_COCKPIT_COMMAND_PALETTE", "true");
     renderShell();
     fireEvent.keyDown(document.body, { key: "b", ctrlKey: true });
     fireEvent.keyDown(document.body, { key: "k" });

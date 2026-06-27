@@ -32,16 +32,21 @@ function renderJarvisPage() {
 }
 
 describe("CockpitJarvisPage GitLab review pairing", () => {
-  it("hides the review pairing in the internal view while the flag is off", () => {
+  it("shows the review pairing empty-state prompt when no GitLab host is configured", () => {
     renderJarvisPage();
     fireEvent.click(screen.getByRole("tab", { name: "Internal" }));
     expect(
-      screen.queryByRole("region", { name: "GitLab review pairing" }),
+      screen.getByRole("region", { name: "GitLab review pairing" }),
+    ).toBeDefined();
+    expect(
+      screen.getByText(/configure the GitLab host for this machine/i),
+    ).toBeDefined();
+    expect(
+      screen.queryByRole("link", { name: "Open merge request review" }),
     ).toBeNull();
   });
 
-  it("deep-links the configured GitLab host in the internal view when the flag is on", () => {
-    vi.stubEnv("VITE_COCKPIT_GITLAB_REVIEW", "true");
+  it("deep-links the configured GitLab host in the internal view", () => {
     vi.stubEnv("VITE_COCKPIT_GITLAB_BASE_URL", "https://gitlab.example.com");
     vi.stubEnv("VITE_COCKPIT_GITLAB_PROJECT", "group/app");
     vi.stubEnv("VITE_COCKPIT_GITLAB_BRANCH", "feature/login");

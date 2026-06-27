@@ -32,11 +32,7 @@ function renderJarvisPage() {
 }
 
 describe("CockpitJarvisPage multi-machine routing", () => {
-  it("hides the machine switcher in the internal view while the flag is off", () => {
-    vi.stubEnv(
-      "VITE_COCKPIT_MACHINES",
-      "chise:Chise:ws://machine-a.example/session",
-    );
+  it("hides the machine switcher when no machines are configured", () => {
     renderJarvisPage();
     fireEvent.click(screen.getByRole("tab", { name: "Internal" }));
     expect(
@@ -44,8 +40,7 @@ describe("CockpitJarvisPage multi-machine routing", () => {
     ).toBeNull();
   });
 
-  it("lists the configured machines and routes selection in the internal view when the flag is on", () => {
-    vi.stubEnv("VITE_COCKPIT_MULTI_MACHINE", "true");
+  it("lists the configured machines and routes selection in the internal view", () => {
     vi.stubEnv(
       "VITE_COCKPIT_MACHINES",
       "chise:Chise:ws://machine-a.example/session,air:Air:ws://machine-b.example/session",

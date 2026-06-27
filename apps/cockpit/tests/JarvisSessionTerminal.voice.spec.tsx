@@ -60,8 +60,7 @@ afterEach(() => {
 });
 
 describe("JarvisSessionTerminal voice control", () => {
-  it("hides the voice control while the voice flag is off", () => {
-    installFakeRecognition();
+  it("disables the voice control when speech recognition is unavailable", () => {
     const socket = createFakeSocketControl();
     const emulator = createFakeEmulatorControl();
     render(
@@ -75,12 +74,15 @@ describe("JarvisSessionTerminal voice control", () => {
     );
 
     expect(
-      screen.queryByRole("button", { name: "Talk to session" }),
-    ).toBeNull();
+      (
+        screen.getByRole("button", {
+          name: "Talk to session",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
   });
 
   it("forwards a recognized phrase into the open socket as owner keystrokes", () => {
-    vi.stubEnv("VITE_COCKPIT_VOICE", "true");
     const instances = installFakeRecognition();
     const socket = createFakeSocketControl();
     const emulator = createFakeEmulatorControl();
