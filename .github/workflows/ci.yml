@@ -46,6 +46,9 @@ jobs:
       - name: Registry app-directory consistency test
         run: node --test deploy/tests/registry-consistency/*.test.mjs
 
+      - name: App build-config forwarding test
+        run: node --test deploy/tests/app-build-config/*.test.mjs
+
       - name: Synthetic uptime check unit test
         run: node --test deploy/tests/synthetic-uptime/*.test.mjs
 

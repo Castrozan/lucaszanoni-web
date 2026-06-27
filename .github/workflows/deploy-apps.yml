@@ -116,6 +116,9 @@ jobs:
         env:
           image_repository: ${{ env.gcp_region }}-docker.pkg.dev/${{ env.gcp_project_id }}/${{ env.artifact_registry_repository }}/${{ matrix.app_directory_name }}
           build_profile: ${{ matrix.build_profile }}
+          COCKPIT_GITLAB_BASE_URL: ${{ secrets.COCKPIT_GITLAB_BASE_URL }}
+          COCKPIT_GITLAB_PROJECT: ${{ secrets.COCKPIT_GITLAB_PROJECT }}
+          COCKPIT_MACHINES: ${{ secrets.COCKPIT_MACHINES }}
         run: |
           case "${build_profile}" in
             static-spa) dockerfile_path="deploy/docker/Dockerfile" ;;
@@ -130,6 +133,9 @@ jobs:
             --build-arg APP_PACKAGE_NAME="${{ matrix.app_package_name }}" \
             --build-arg APP_DIRECTORY_NAME="${{ matrix.app_directory_name }}" \
             --build-arg APP_MOUNT_PATH="${{ matrix.app_mount_path }}" \
+            --build-arg VITE_COCKPIT_GITLAB_BASE_URL="${COCKPIT_GITLAB_BASE_URL}" \
+            --build-arg VITE_COCKPIT_GITLAB_PROJECT="${COCKPIT_GITLAB_PROJECT}" \
+            --build-arg VITE_COCKPIT_MACHINES="${COCKPIT_MACHINES}" \
             --tag "${image_repository}:${{ github.sha }}" \
             --tag "${image_repository}:latest" \
             .
