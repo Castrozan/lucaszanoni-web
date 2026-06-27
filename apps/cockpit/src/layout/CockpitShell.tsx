@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button, useTheme } from "@platform/design-system";
 import { cockpitViews } from "../navigation/cockpit-views";
 import { useLeaderKeyNavigation } from "../navigation/use-leader-key-navigation";
-import { isCommandPaletteEnabled } from "../feature-flags/cockpit-feature-flags";
 import {
   buildNavigationCommands,
   buildSessionCommands,
@@ -23,7 +22,6 @@ export function CockpitShell({ children }: CockpitShellProps) {
   const navigate = useNavigate();
   const quickAccessBookmarksRef = useRef<HTMLDivElement>(null);
   const { sessions, selectSession } = useCockpitSessionsContext();
-  const commandPaletteEnabled = isCommandPaletteEnabled();
   const paletteCommands = useMemo(
     () => [
       ...buildNavigationCommands(navigate),
@@ -39,9 +37,7 @@ export function CockpitShell({ children }: CockpitShellProps) {
           navigate(command.path);
           return;
         case "open-command-palette":
-          if (commandPaletteEnabled) {
-            commandPalette.openPalette();
-          }
+          commandPalette.openPalette();
           return;
         case "focus-quick-access":
           quickAccessBookmarksRef.current?.querySelector("a")?.focus();
@@ -95,9 +91,7 @@ export function CockpitShell({ children }: CockpitShellProps) {
         </Button>
       </nav>
       <main className="flex-1 px-8 py-8">{children}</main>
-      {commandPaletteEnabled ? (
-        <CommandPalette controller={commandPalette} />
-      ) : null}
+      <CommandPalette controller={commandPalette} />
     </div>
   );
 }

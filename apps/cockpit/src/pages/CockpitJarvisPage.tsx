@@ -8,10 +8,6 @@ import {
 } from "../jarvis/jarvis-dialogue";
 import { useJarvisSpeech } from "../jarvis/use-jarvis-speech";
 import { useCockpitSessionsContext } from "../sessions/cockpit-sessions-context";
-import {
-  isGitlabReviewEnabled,
-  isMultiMachineEnabled,
-} from "../feature-flags/cockpit-feature-flags";
 import { SessionReviewPairing } from "../review/SessionReviewPairing";
 import { MachineSwitcher } from "../machines/MachineSwitcher";
 import { readConfiguredMachines } from "../machines/configured-machines";
@@ -24,10 +20,8 @@ export function CockpitJarvisPage() {
   const cockpitSessions = useCockpitSessionsContext();
   const [draftMessage, setDraftMessage] = useState("");
   const [transcript, setTranscript] = useState<readonly JarvisUtterance[]>([]);
-  const gitlabReviewEnabled = isGitlabReviewEnabled();
-  const multiMachineEnabled = isMultiMachineEnabled();
   const [activeMachineKey, setActiveMachineKey] = useState<string | null>(null);
-  const machines = multiMachineEnabled ? readConfiguredMachines() : [];
+  const machines = readConfiguredMachines();
   const activeMachine = resolveActiveMachine(machines, activeMachineKey);
 
   const receiveTranscript = useCallback((text: string) => {
@@ -164,14 +158,12 @@ export function CockpitJarvisPage() {
         </section>
       ) : (
         <div className="flex flex-1 flex-col gap-3 overflow-hidden">
-          {multiMachineEnabled ? (
-            <MachineSwitcher
-              machines={machines}
-              activeKey={activeMachine?.key ?? null}
-              onSelect={setActiveMachineKey}
-            />
-          ) : null}
-          {gitlabReviewEnabled ? <SessionReviewPairing /> : null}
+          <MachineSwitcher
+            machines={machines}
+            activeKey={activeMachine?.key ?? null}
+            onSelect={setActiveMachineKey}
+          />
+          <SessionReviewPairing />
           <JarvisSessionTerminal
             key={activeMachine?.key ?? "default"}
             endpoint={activeMachine?.endpoint}

@@ -25,7 +25,7 @@ const sessions = [
 ];
 
 describe("JarvisSessionTerminal multi-session switcher", () => {
-  it("hides the session switcher while the multi-session flag is off", () => {
+  it("hides the session switcher when there are no configured sessions", () => {
     const socket = createFakeSocketControl();
     const emulator = createFakeEmulatorControl();
     render(
@@ -33,8 +33,8 @@ describe("JarvisSessionTerminal multi-session switcher", () => {
         endpoint="ws://localhost:9999/session"
         createSocket={socket.factory}
         createEmulator={emulator.factory}
-        sessions={sessions}
-        activeSessionKey="global"
+        sessions={[]}
+        activeSessionKey={null}
       />,
     );
 
@@ -44,7 +44,6 @@ describe("JarvisSessionTerminal multi-session switcher", () => {
   });
 
   it("drives a /session switch into the open socket when a session is picked", () => {
-    vi.stubEnv("VITE_COCKPIT_MULTI_SESSION", "true");
     const socket = createFakeSocketControl();
     const emulator = createFakeEmulatorControl();
     const onSelectSession = vi.fn();
@@ -70,7 +69,6 @@ describe("JarvisSessionTerminal multi-session switcher", () => {
   });
 
   it("drives a /sessions list request when the list control is used", () => {
-    vi.stubEnv("VITE_COCKPIT_MULTI_SESSION", "true");
     const socket = createFakeSocketControl();
     const emulator = createFakeEmulatorControl();
     const onListSessions = vi.fn();
