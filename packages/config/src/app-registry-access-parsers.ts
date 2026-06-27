@@ -1,9 +1,15 @@
 import type {
   AppAccessApplicationProvisioning,
+  AppAccessAudience,
   AppAccessModel,
   AppRegistryEntry,
 } from "./app-registry-types";
-import { AppRegistryValidationError } from "./app-registry-types";
+import {
+  AppRegistryValidationError,
+  PRIVATE_ENVIRONMENT,
+  PUBLIC_ENVIRONMENT,
+} from "./app-registry-types";
+import { belongsToPrivateEnvironment } from "./app-registry-access-environment";
 import {
   asObjectRecord,
   rejectUnknownKeys,
@@ -11,34 +17,60 @@ import {
   requireString,
 } from "./app-registry-field-parsers";
 
-export function parseAccessModel(
+function parseAccessAudience(
   value: unknown,
   context: string,
-): AppAccessModel {
-  const record = asObjectRecord(value, `${context} accessModel`);
+): AppAccessAudience {
+  const record = asObjectRecord(value, `${context} accessModel audience`);
   const kind = requireOneOf(
     record,
     "kind",
-    ["public", "owner-only", "shared"] as const,
-    `${context} accessModel`,
+    ["owner", "shared"] as const,
+    `${context} accessModel audience`,
   );
   if (kind === "shared") {
     rejectUnknownKeys(
       record,
       ["kind", "audienceKey"],
-      `${context} accessModel`,
+      `${context} accessModel audience`,
     );
     return {
       kind,
       audienceKey: requireString(
         record,
         "audienceKey",
-        `${context} accessModel`,
+        `${context} accessModel audience`,
       ),
     };
   }
-  rejectUnknownKeys(record, ["kind"], `${context} accessModel`);
+  rejectUnknownKeys(record, ["kind"], `${context} accessModel audience`);
   return { kind };
+}
+
+export function parseAccessModel(
+  value: unknown,
+  context: string,
+): AppAccessModel {
+  const record = asObjectRecord(value, `${context} accessModel`);
+  const environment = requireOneOf(
+    record,
+    "environment",
+    [PUBLIC_ENVIRONMENT, PRIVATE_ENVIRONMENT] as const,
+    `${context} accessModel`,
+  );
+  if (environment === PRIVATE_ENVIRONMENT) {
+    rejectUnknownKeys(
+      record,
+      ["environment", "audience"],
+      `${context} accessModel`,
+    );
+    return {
+      environment,
+      audience: parseAccessAudience(record["audience"], context),
+    };
+  }
+  rejectUnknownKeys(record, ["environment"], `${context} accessModel`);
+  return { environment };
 }
 
 export function parseAccessApplicationProvisioning(
@@ -110,7 +142,7 @@ export function assertInheritedAccessProvisioningIsSound(
         `app registry entry ${entry.id} inherits its access application from ${parentMountPath} but no app is mounted there`,
       );
     }
-    if (parent.accessModel.kind === "public") {
+    if (!belongsToPrivateEnvironment(parent.accessModel)) {
       throw new AppRegistryValidationError(
         `app registry entry ${entry.id} inherits its access application from the public app ${parent.id} which would leave it ungated`,
       );

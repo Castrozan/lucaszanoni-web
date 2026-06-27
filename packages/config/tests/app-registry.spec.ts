@@ -12,9 +12,12 @@ describe("application registry", () => {
     expect(appRegistry).toEqual(todaysApps);
   });
 
-  it("registers the owner-only db app on an external origin and hides it from public navigation", () => {
+  it("registers the private owner db app on an external origin and hides it from public navigation", () => {
     const dbApp = appRegistry.find((entry) => entry.id === "db");
-    expect(dbApp?.accessModel).toEqual({ kind: "owner-only" });
+    expect(dbApp?.accessModel).toEqual({
+      environment: "private",
+      audience: { kind: "owner" },
+    });
     expect(dbApp?.origin.kind).toBe("external-https");
     expect(dbApp?.showInCrossSectionNavigation).toBe(false);
     expect(
@@ -59,7 +62,7 @@ describe("application registry json schema", () => {
     expect(validate([withoutAccessModel])).toBe(false);
   });
 
-  it("rejects a static bucket origin paired with a non-public access model", () => {
+  it("rejects a static bucket origin paired with a private-environment access model", () => {
     const staticBucketEntry = {
       id: "private-bucket-app",
       mountPath: "/private/bucket/",
@@ -67,7 +70,7 @@ describe("application registry json schema", () => {
       description: "An app served directly from a bucket.",
       showInCrossSectionNavigation: false,
       status: "active",
-      accessModel: { kind: "owner-only" },
+      accessModel: { environment: "private", audience: { kind: "owner" } },
       origin: {
         kind: "static-gcs-bucket",
         bucketName: "some-bucket",

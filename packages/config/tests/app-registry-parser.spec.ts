@@ -22,15 +22,25 @@ describe("parseAppRegistry", () => {
     );
   });
 
-  it("rejects an unknown access model kind", () => {
+  it("rejects an unknown access environment", () => {
     expect(() =>
-      parseAppRegistry([{ ...baseEntry, accessModel: { kind: "everyone" } }]),
+      parseAppRegistry([
+        { ...baseEntry, accessModel: { environment: "everyone" } },
+      ]),
     ).toThrow(AppRegistryValidationError);
   });
 
-  it("rejects a shared access model without an audience key", () => {
+  it("rejects a private shared audience without an audience key", () => {
     expect(() =>
-      parseAppRegistry([{ ...baseEntry, accessModel: { kind: "shared" } }]),
+      parseAppRegistry([
+        {
+          ...baseEntry,
+          accessModel: {
+            environment: "private",
+            audience: { kind: "shared" },
+          },
+        },
+      ]),
     ).toThrow(/audienceKey/);
   });
 
@@ -90,7 +100,10 @@ describe("parseAppRegistry", () => {
   it("rejects an access model carrying a foreign property", () => {
     expect(() =>
       parseAppRegistry([
-        { ...baseEntry, accessModel: { kind: "public", audienceKey: "x" } },
+        {
+          ...baseEntry,
+          accessModel: { environment: "public", audienceKey: "x" },
+        },
       ]),
     ).toThrow(AppRegistryValidationError);
   });

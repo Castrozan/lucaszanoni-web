@@ -42,7 +42,7 @@ describe("registry projection", () => {
         .filter(
           (entry) =>
             entry.showInCrossSectionNavigation &&
-            entry.accessModel.kind === "public",
+            entry.accessModel.environment === "public",
         )
         .map((entry) => entry.id),
     );

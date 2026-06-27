@@ -24,7 +24,7 @@ describe("parseAppRegistry accessApplicationProvisioning", () => {
     });
   });
 
-  it("accepts a child inheriting its access application from a non-public dedicated parent", () => {
+  it("accepts a child inheriting its access application from a private-environment dedicated parent", () => {
     const parsed = parseAppRegistry([cockpitApp, jarvisSessionApp]);
     expect(parsed[1]?.accessApplicationProvisioning).toEqual({
       kind: "inherited-from-parent-path",
@@ -95,7 +95,7 @@ describe("parseAppRegistry accessApplicationProvisioning", () => {
   it("rejects an inheritance from a public parent that would leave it ungated", () => {
     expect(() =>
       parseAppRegistry([
-        { ...cockpitApp, accessModel: { kind: "public" } },
+        { ...cockpitApp, accessModel: { environment: "public" } },
         jarvisSessionApp,
       ]),
     ).toThrow(/ungated/);
@@ -104,7 +104,10 @@ describe("parseAppRegistry accessApplicationProvisioning", () => {
   it("rejects an inheritance from a parent that does not own a dedicated access application", () => {
     expect(() =>
       parseAppRegistry([
-        { ...shellApp, accessModel: { kind: "owner-only" } },
+        {
+          ...shellApp,
+          accessModel: { environment: "private", audience: { kind: "owner" } },
+        },
         {
           ...cockpitApp,
           accessApplicationProvisioning: {

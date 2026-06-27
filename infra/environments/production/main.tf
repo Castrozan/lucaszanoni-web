@@ -42,14 +42,14 @@ locals {
     if try(app.servingLocation.kind, "path-prefix") != "subdomain"
   }
 
-  non_public_apps = {
+  private_environment_apps = {
     for app in local.app_registry :
     app.id => {
-      mount_path        = app.mountPath
-      access_model_kind = app.accessModel.kind
-      audience_key      = try(app.accessModel.audienceKey, "")
+      mount_path    = app.mountPath
+      audience_kind = try(app.accessModel.audience.kind, "owner")
+      audience_key  = try(app.accessModel.audience.audienceKey, "")
     }
-    if app.accessModel.kind != "public" && try(app.accessApplicationProvisioning.kind, "dedicated") != "inherited-from-parent-path"
+    if app.accessModel.environment != "public" && try(app.accessApplicationProvisioning.kind, "dedicated") != "inherited-from-parent-path"
   }
 
   retired_app_mount_prefixes = [
@@ -139,7 +139,7 @@ module "access" {
 
   cloudflare_account_id                   = var.cloudflare_account_id
   zone_name                               = local.edge_serving_domain
-  non_public_apps                         = local.non_public_apps
+  private_environment_apps                = local.private_environment_apps
   owner_account_email                     = var.owner_account_email
   shared_access_audience_email_allowlists = var.shared_access_audience_email_allowlists
   google_sso_client_id                    = var.google_sso_client_id

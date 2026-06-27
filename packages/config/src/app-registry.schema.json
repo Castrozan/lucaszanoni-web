@@ -50,9 +50,9 @@
           "then": {
             "properties": {
               "accessModel": {
-                "required": ["kind"],
+                "required": ["environment"],
                 "properties": {
-                  "kind": { "const": "public" }
+                  "environment": { "const": "public" }
                 }
               }
             }
@@ -106,14 +106,27 @@
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["kind"],
-          "properties": { "kind": { "const": "public" } }
+          "required": ["environment"],
+          "properties": { "environment": { "const": "public" } }
         },
         {
           "type": "object",
           "additionalProperties": false,
+          "required": ["environment", "audience"],
+          "properties": {
+            "environment": { "const": "private" },
+            "audience": { "$ref": "#/definitions/accessAudience" }
+          }
+        }
+      ]
+    },
+    "accessAudience": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
           "required": ["kind"],
-          "properties": { "kind": { "const": "owner-only" } }
+          "properties": { "kind": { "const": "owner" } }
         },
         {
           "type": "object",

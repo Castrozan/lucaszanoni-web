@@ -7,7 +7,7 @@ export const shellApp: AppRegistryEntry = {
   description: "Platform overview and entry point.",
   showInCrossSectionNavigation: false,
   status: "active",
-  accessModel: { kind: "public" },
+  accessModel: { environment: "public" },
   origin: {
     kind: "in-repo-cloud-run",
     cloudRunServiceName: "lucaszanoni-shell",
@@ -26,7 +26,7 @@ export const usageDashboardApp: AppRegistryEntry = {
   description: "Live Claude Code token usage and cost across machines.",
   showInCrossSectionNavigation: true,
   status: "active",
-  accessModel: { kind: "owner-only" },
+  accessModel: { environment: "private", audience: { kind: "owner" } },
   origin: {
     kind: "in-repo-cloud-run",
     cloudRunServiceName: "lucaszanoni-usage-dashboard",
@@ -45,7 +45,7 @@ export const reportsApp: AppRegistryEntry = {
   description: "Generated reports hub.",
   showInCrossSectionNavigation: true,
   status: "active",
-  accessModel: { kind: "owner-only" },
+  accessModel: { environment: "private", audience: { kind: "owner" } },
   origin: {
     kind: "in-repo-cloud-run",
     cloudRunServiceName: "lucaszanoni-reports",
@@ -65,7 +65,7 @@ export const dbApp: AppRegistryEntry = {
     "Owner-only application attached at the edge and gated by Cloudflare Access.",
   showInCrossSectionNavigation: false,
   status: "active",
-  accessModel: { kind: "owner-only" },
+  accessModel: { environment: "private", audience: { kind: "owner" } },
   origin: {
     kind: "external-https",
     originHost: "example.com",
@@ -82,7 +82,7 @@ export const cockpitApp: AppRegistryEntry = {
   description: "Owner cockpit landing with quick access, live usage, and data.",
   showInCrossSectionNavigation: false,
   status: "active",
-  accessModel: { kind: "owner-only" },
+  accessModel: { environment: "private", audience: { kind: "owner" } },
   origin: {
     kind: "in-repo-cloud-run",
     cloudRunServiceName: "lucaszanoni-cockpit",
@@ -102,7 +102,7 @@ export const jarvisSessionApp: AppRegistryEntry = {
     "Owner-only websocket bridge to the Jarvis session host, attached at the edge and gated by Cloudflare Access.",
   showInCrossSectionNavigation: false,
   status: "active",
-  accessModel: { kind: "owner-only" },
+  accessModel: { environment: "private", audience: { kind: "owner" } },
   accessApplicationProvisioning: {
     kind: "inherited-from-parent-path",
     parentMountPath: "/cockpit/",

@@ -1,7 +1,7 @@
 locals {
   app_email_includes = {
-    for app_id, app in var.non_public_apps :
-    app_id => app.access_model_kind == "owner-only" ? (
+    for app_id, app in var.private_environment_apps :
+    app_id => app.audience_kind == "owner" ? (
       var.owner_account_email == "" ? [] : [var.owner_account_email]
       ) : (
       lookup(var.shared_access_audience_email_allowlists, app.audience_key, [])
@@ -16,7 +16,7 @@ locals {
 }
 
 resource "cloudflare_zero_trust_access_policy" "app" {
-  for_each = var.non_public_apps
+  for_each = var.private_environment_apps
 
   account_id = var.cloudflare_account_id
   name       = "lucaszanoni-${each.key}-allow"
@@ -52,7 +52,7 @@ resource "cloudflare_zero_trust_access_identity_provider" "google" {
 }
 
 resource "cloudflare_zero_trust_access_application" "app" {
-  for_each = var.non_public_apps
+  for_each = var.private_environment_apps
 
   account_id       = var.cloudflare_account_id
   name             = "lucaszanoni-${each.key}"

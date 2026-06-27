@@ -27,10 +27,10 @@ chmod +x "$fake_command_directory/curl"
 fixture_registry_path="$base_temporary_directory/app-registry.json"
 cat >"$fixture_registry_path" <<'FIXTURE_REGISTRY'
 [
-  { "mountPath": "/", "status": "active", "accessModel": { "kind": "public" } },
-  { "mountPath": "/legacy/", "status": "retired", "accessModel": { "kind": "public" } },
-  { "mountPath": "/db/", "status": "active", "accessModel": { "kind": "owner-only" } },
-  { "mountPath": "/admin/", "status": "active", "accessModel": { "kind": "owner-only" } }
+  { "mountPath": "/", "status": "active", "accessModel": { "environment": "public" } },
+  { "mountPath": "/legacy/", "status": "retired", "accessModel": { "environment": "public" } },
+  { "mountPath": "/db/", "status": "active", "accessModel": { "environment": "private", "audience": { "kind": "owner" } } },
+  { "mountPath": "/admin/", "status": "active", "accessModel": { "environment": "private", "audience": { "kind": "owner" } } }
 ]
 FIXTURE_REGISTRY
 

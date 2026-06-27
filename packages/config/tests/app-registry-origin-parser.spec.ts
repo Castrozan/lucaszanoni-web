@@ -23,12 +23,12 @@ describe("parseAppRegistry origin variants", () => {
     ).toThrow(AppRegistryValidationError);
   });
 
-  it("rejects a non-public static bucket origin", () => {
+  it("rejects a private-environment static bucket origin", () => {
     expect(() =>
       parseAppRegistry([
         {
           ...baseEntry,
-          accessModel: { kind: "owner-only" },
+          accessModel: { environment: "private", audience: { kind: "owner" } },
           origin: {
             kind: "static-gcs-bucket",
             bucketName: "some-bucket",

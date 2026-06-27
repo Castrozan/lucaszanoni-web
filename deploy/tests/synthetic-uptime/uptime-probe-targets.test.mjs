@@ -10,7 +10,7 @@ function publicEntry(id, mountPath, healthProbePath) {
     id,
     mountPath,
     status: "active",
-    accessModel: { kind: "public" },
+    accessModel: { environment: "public" },
     origin: {
       kind: "in-repo-cloud-run",
       cloudRunServiceName: `lucaszanoni-${id}`,
@@ -24,7 +24,7 @@ function ownerOnlyEntry(id, mountPath, healthProbePath) {
     id,
     mountPath,
     status: "active",
-    accessModel: { kind: "owner-only" },
+    accessModel: { environment: "private", audience: { kind: "owner" } },
     origin: { kind: "external-https", originHost: "private-app.example.test" },
     ...(healthProbePath === undefined ? {} : { healthProbePath }),
   };
@@ -35,7 +35,7 @@ function retiredEntry(id, mountPath) {
     id,
     mountPath,
     status: "retired",
-    accessModel: { kind: "public" },
+    accessModel: { environment: "public" },
     origin: {
       kind: "in-repo-cloud-run",
       cloudRunServiceName: `lucaszanoni-${id}`,
@@ -93,7 +93,7 @@ test("treats a missing status as active so a legacy entry without status is stil
   const entryWithoutStatus = {
     id: "shell",
     mountPath: "/",
-    accessModel: { kind: "public" },
+    accessModel: { environment: "public" },
     origin: {
       kind: "in-repo-cloud-run",
       cloudRunServiceName: "lucaszanoni-shell",

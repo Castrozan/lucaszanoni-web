@@ -17,10 +17,14 @@ export type {
   AppBuildProfile,
   AppExternalOriginPathRewrite,
   AppServingLocation,
+  AppAccessEnvironment,
+  AppAccessAudience,
   AppAccessModel,
   AppOrigin,
   AppRegistryEntry,
 } from "./app-registry-types";
+export { PUBLIC_ENVIRONMENT, PRIVATE_ENVIRONMENT } from "./app-registry-types";
+export { belongsToPrivateEnvironment } from "./app-registry-access-environment";
 export { parseAppRegistry } from "./app-registry-parser";
 export {
   defaultServingLocation,
@@ -32,7 +36,10 @@ export type {
   AppRegistryEntryBuilderInput,
 } from "./app-registry-entry-builder";
 export { buildAppRegistryEntry } from "./app-registry-entry-builder";
-export type { AddAppAnswers } from "./app-registry-answers-resolver";
+export type {
+  AddAppAnswers,
+  AddAppAccessModelChoice,
+} from "./app-registry-answers-resolver";
 export {
   resolveAccessModel,
   resolveOriginSpec,

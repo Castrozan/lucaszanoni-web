@@ -37,13 +37,13 @@ describe("micro frontend route registry", () => {
 
   it("only ever surfaces publicly accessible routes in cross-section navigation", () => {
     for (const route of CROSS_SECTION_NAVIGATION_ROUTES) {
-      expect(route.accessModel.kind).toBe("public");
+      expect(route.accessModel.environment).toBe("public");
     }
   });
 
   it("lands the authenticated owner in the cockpit after sign-in", () => {
     expect(OWNER_SIGN_IN_ENTRY_ROUTE.id).toBe("cockpit");
     expect(OWNER_SIGN_IN_ENTRY_ROUTE.mountPath).toBe("/cockpit/");
-    expect(OWNER_SIGN_IN_ENTRY_ROUTE.accessModel.kind).toBe("owner-only");
+    expect(OWNER_SIGN_IN_ENTRY_ROUTE.accessModel.environment).toBe("private");
   });
 });

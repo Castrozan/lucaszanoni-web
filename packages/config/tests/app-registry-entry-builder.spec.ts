@@ -13,7 +13,7 @@ const baseInput: AppRegistryEntryBuilderInput = {
   description: "Double-entry ledger service.",
   showInCrossSectionNavigation: true,
   status: "active",
-  accessModel: { kind: "public" },
+  accessModel: { environment: "public" },
   origin: { kind: "in-repo-cloud-run", buildProfile: "static-spa" },
 };
 
@@ -50,7 +50,7 @@ describe("buildAppRegistryEntry", () => {
     expect(entry.description).toBe("Double-entry ledger service.");
     expect(entry.showInCrossSectionNavigation).toBe(true);
     expect(entry.status).toBe("active");
-    expect(entry.accessModel).toEqual({ kind: "public" });
+    expect(entry.accessModel).toEqual({ environment: "public" });
   });
 
   it("produces an in-repo entry the registry parser accepts and round-trips", () => {
@@ -58,23 +58,29 @@ describe("buildAppRegistryEntry", () => {
     expect(parseAppRegistry([entry])).toEqual([entry]);
   });
 
-  it("builds an owner-only access model unchanged", () => {
+  it("builds a private owner access model unchanged", () => {
     const entry = buildAppRegistryEntry({
       ...baseInput,
-      accessModel: { kind: "owner-only" },
+      accessModel: { environment: "private", audience: { kind: "owner" } },
     });
-    expect(entry.accessModel).toEqual({ kind: "owner-only" });
+    expect(entry.accessModel).toEqual({
+      environment: "private",
+      audience: { kind: "owner" },
+    });
     expect(parseAppRegistry([entry])).toEqual([entry]);
   });
 
-  it("passes a shared access model audience key through", () => {
+  it("passes a private shared access model audience key through", () => {
     const entry = buildAppRegistryEntry({
       ...baseInput,
-      accessModel: { kind: "shared", audienceKey: "engineering" },
+      accessModel: {
+        environment: "private",
+        audience: { kind: "shared", audienceKey: "engineering" },
+      },
     });
     expect(entry.accessModel).toEqual({
-      kind: "shared",
-      audienceKey: "engineering",
+      environment: "private",
+      audience: { kind: "shared", audienceKey: "engineering" },
     });
     expect(parseAppRegistry([entry])).toEqual([entry]);
   });
@@ -84,7 +90,7 @@ describe("buildAppRegistryEntry", () => {
       ...baseInput,
       id: "status-page",
       mountPath: "/status/",
-      accessModel: { kind: "owner-only" },
+      accessModel: { environment: "private", audience: { kind: "owner" } },
       origin: {
         kind: "external-https",
         originHost: "status.example.test",
@@ -108,7 +114,7 @@ describe("buildAppRegistryEntry", () => {
       ...baseInput,
       id: "downloads",
       mountPath: "/downloads/",
-      accessModel: { kind: "public" },
+      accessModel: { environment: "public" },
       origin: {
         kind: "static-gcs-bucket",
         bucketName: "lucaszanoni-downloads",
@@ -128,7 +134,7 @@ describe("buildAppRegistryEntry", () => {
       ...baseInput,
       id: "downloads",
       mountPath: "/downloads/",
-      accessModel: { kind: "owner-only" },
+      accessModel: { environment: "private", audience: { kind: "owner" } },
       origin: {
         kind: "static-gcs-bucket",
         bucketName: "lucaszanoni-downloads",
