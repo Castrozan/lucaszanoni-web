@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@platform/design-system";
 import { OWNER_SIGN_IN_ENTRY_ROUTE } from "@platform/config";
 import { useScrolledPastThreshold } from "./useScrolledPastThreshold";
@@ -6,7 +7,6 @@ import { openCommandPalette } from "./CommandPalette";
 const headerNavigationLinks = [
   { label: "SECTIONS", href: "#sections" },
   { label: "PLATFORM", href: "#platform" },
-  { label: "ROADMAP", href: "#roadmap" },
 ] as const;
 
 export function LandingHeader() {
@@ -21,12 +21,24 @@ export function LandingHeader() {
       }
     >
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-4 md:px-12">
-        <a href="#top" className="flex items-center gap-3 no-underline">
+        <div className="flex items-center gap-3">
           <span className="h-[10px] w-[10px] bg-primary" />
-          <span className="font-grotesk text-[13px] font-bold tracking-[2.5px] text-foreground">
-            LUCASZANONI
+          <span className="font-grotesk text-[13px] font-bold tracking-[2.5px]">
+            <Link
+              to="/"
+              className="text-foreground no-underline transition-colors hover:text-primary"
+            >
+              LUCASZANONI
+            </Link>
+            <span className="text-text-faint"> / </span>
+            <Link
+              to="/about"
+              className="text-foreground no-underline transition-colors hover:text-primary"
+            >
+              ATRIUM
+            </Link>
           </span>
-        </a>
+        </div>
         <nav aria-label="Primary" className="hidden md:block">
           <ul className="m-0 flex list-none items-center gap-7 p-0">
             {headerNavigationLinks.map((link) => (

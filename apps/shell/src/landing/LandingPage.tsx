@@ -4,7 +4,6 @@ import { SectionsGrid } from "./SectionsGrid";
 import { FeaturePreview } from "./FeaturePreview";
 import { PlatformFeatureTrio } from "./PlatformFeatureTrio";
 import { EngineeringSection } from "./EngineeringSection";
-import { RoadmapHintStrip } from "./RoadmapHintStrip";
 import { StatsBand } from "./StatsBand";
 import { LandingFooter } from "./LandingFooter";
 import { CommandPalette } from "./CommandPalette";
@@ -19,7 +18,6 @@ export function LandingPage() {
         <FeaturePreview />
         <PlatformFeatureTrio />
         <EngineeringSection />
-        <RoadmapHintStrip />
         <StatsBand />
         <LandingFooter />
       </main>
