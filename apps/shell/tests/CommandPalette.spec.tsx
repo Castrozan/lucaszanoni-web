@@ -6,8 +6,10 @@ import {
   render,
   screen,
 } from "@testing-library/react";
-import { CROSS_SECTION_NAVIGATION_ROUTES } from "@platform/config";
-import { CommandPalette } from "../src/landing/CommandPalette";
+import {
+  CommandPalette,
+  buildCommandPaletteDestinations,
+} from "@platform/design-system";
 
 afterEach(cleanup);
 
@@ -27,15 +29,22 @@ describe("CommandPalette", () => {
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
-  it("lists every public cross-section route when open", () => {
+  it("lists in-page sections, shell pages, and apps when open", () => {
     render(<CommandPalette navigate={() => {}} />);
     pressOpenShortcut();
-    for (const route of CROSS_SECTION_NAVIGATION_ROUTES) {
-      expect(screen.getByText(route.navigationLabel)).toBeTruthy();
+    for (const label of [
+      "Sections",
+      "Showcase",
+      "About page",
+      "Catalog",
+      "Dynamic IA Canvas",
+      "Cockpit",
+    ]) {
+      expect(screen.getByText(label)).toBeTruthy();
     }
   });
 
-  it("filters routes by the typed query", () => {
+  it("filters destinations by the typed query", () => {
     render(<CommandPalette navigate={() => {}} />);
     pressOpenShortcut();
     fireEvent.change(screen.getByLabelText("Search sections"), {
@@ -45,10 +54,10 @@ describe("CommandPalette", () => {
     expect(screen.queryByText("Dynamic IA Canvas")).toBeNull();
   });
 
-  it("navigates to the highlighted route on enter", () => {
-    const firstRoute = CROSS_SECTION_NAVIGATION_ROUTES[0];
-    if (!firstRoute) {
-      throw new Error("expected at least one public cross-section route");
+  it("navigates to the highlighted destination on enter", () => {
+    const firstDestination = buildCommandPaletteDestinations()[0];
+    if (!firstDestination) {
+      throw new Error("expected at least one palette destination");
     }
     const navigate = vi.fn();
     render(<CommandPalette navigate={navigate} />);
@@ -56,7 +65,7 @@ describe("CommandPalette", () => {
     fireEvent.keyDown(screen.getByLabelText("Search sections"), {
       key: "Enter",
     });
-    expect(navigate).toHaveBeenCalledWith(firstRoute.mountPath);
+    expect(navigate).toHaveBeenCalledWith(firstDestination.href);
   });
 
   it("closes on escape", () => {

@@ -30,3 +30,10 @@ export {
   TableHead,
   TableCell,
 } from "./components/ui/table";
+export type { CommandPaletteProps } from "./command-palette/CommandPalette";
+export {
+  CommandPalette,
+  openCommandPalette,
+} from "./command-palette/CommandPalette";
+export type { PaletteDestination } from "./command-palette/commandPaletteDestinations";
+export { buildCommandPaletteDestinations } from "./command-palette/commandPaletteDestinations";

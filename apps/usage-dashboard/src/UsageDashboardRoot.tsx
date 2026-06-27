@@ -1,7 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { USAGE_DASHBOARD_MOUNT_PATH } from "@platform/config";
-import { AppShell, ThemeProvider } from "@platform/design-system";
+import {
+  AppShell,
+  ThemeProvider,
+  CommandPalette,
+} from "@platform/design-system";
 import { UsageDashboardContainer } from "./components/UsageDashboardContainer";
 
 const usageDashboardQueryClient = new QueryClient();
@@ -18,6 +22,7 @@ export function UsageDashboardRoot() {
             </Routes>
           </AppShell>
         </BrowserRouter>
+        <CommandPalette />
       </ThemeProvider>
     </QueryClientProvider>
   );
