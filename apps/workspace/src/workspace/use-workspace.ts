@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   emptyWorkspaceRegistry,
   reduceWorkspaceRegistry,
@@ -45,6 +45,14 @@ export function useWorkspace(
   const compute = computeRef.current;
   const [state, setState] = useState<WorkspaceRegistryState>(initialState);
   const stateRef = useRef<WorkspaceRegistryState>(initialState);
+
+  useEffect(
+    () => () => {
+      computeRef.current?.dispose();
+      computeRef.current = null;
+    },
+    [],
+  );
 
   const commit = useCallback(
     (next: WorkspaceRegistryState) => {

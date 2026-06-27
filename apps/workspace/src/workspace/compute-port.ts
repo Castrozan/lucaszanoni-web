@@ -19,4 +19,5 @@ export interface CockpitComputePort {
     spec: ComputeWindowSpec,
   ): Promise<CockpitWorkspaceWindow>;
   closeWindow(sessionKey: string, windowId: string): Promise<void>;
+  dispose(): void;
 }
