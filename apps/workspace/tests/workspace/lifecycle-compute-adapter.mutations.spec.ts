@@ -103,7 +103,45 @@ describe("real lifecycle adapter mutates live tmux sessions and windows", () => 
         operation: "open-window",
         sessionName: "platform",
         windowTitle: "claude",
-        agentLaunchCommand: "",
+        agentLaunchCommand: "claude",
+      },
+    ]);
+  });
+
+  it("launches the selected agent driver command when opening a codex window", async () => {
+    const transport = createScriptedLifecycleTransport((request) => {
+      if (request.operation === "list-sessions") {
+        return inventoryReply([
+          {
+            sessionName: "platform",
+            windows:
+              sentListSessionsCount(transport) === 0
+                ? [{ windowIdentifier: "@1", windowTitle: "shell" }]
+                : [
+                    { windowIdentifier: "@1", windowTitle: "shell" },
+                    { windowIdentifier: "@2", windowTitle: "codex" },
+                  ],
+          },
+        ]);
+      }
+      return successfulMutation;
+    });
+    const compute = createLifecycleComputeAdapter(transport);
+
+    const created = await compute.openWindow("platform", {
+      title: "codex",
+      driver: "codex",
+    });
+
+    expect(created).toEqual({ id: "@2", title: "codex", driver: "codex" });
+    expect(
+      transport.sentRequests.filter((r) => r.operation === "open-window"),
+    ).toEqual([
+      {
+        operation: "open-window",
+        sessionName: "platform",
+        windowTitle: "codex",
+        agentLaunchCommand: "codex",
       },
     ]);
   });

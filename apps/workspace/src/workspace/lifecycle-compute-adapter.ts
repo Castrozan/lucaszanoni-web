@@ -1,5 +1,9 @@
 import type { CockpitComputePort, ComputeWindowSpec } from "./compute-port";
-import { defaultCockpitAgentDriverKind } from "./agent-driver";
+import {
+  defaultCockpitAgentDriverKind,
+  isCockpitAgentDriverKind,
+  resolveAgentDriver,
+} from "./agent-driver";
 import type {
   CockpitWorkspaceSession,
   CockpitWorkspaceWindow,
@@ -71,7 +75,7 @@ export function createLifecycleComputeAdapter(
         operation: "open-window",
         sessionName: sessionKey,
         windowTitle: spec.title,
-        agentLaunchCommand: "",
+        agentLaunchCommand: resolveAgentDriver(spec.driver).launchCommand(),
       });
       const windowsAfterOpen = await windowsOfSession(sessionKey);
       const createdWindow =
@@ -99,7 +103,9 @@ function mapSessionInventory(
   const windows = session.windows.map<CockpitWorkspaceWindow>((window) => ({
     id: window.windowIdentifier,
     title: window.windowTitle,
-    driver: defaultCockpitAgentDriverKind,
+    driver: isCockpitAgentDriverKind(window.windowTitle)
+      ? window.windowTitle
+      : defaultCockpitAgentDriverKind,
   }));
   return {
     key: session.sessionName,

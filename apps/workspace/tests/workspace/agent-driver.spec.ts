@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   cockpitAgentDrivers,
   defaultCockpitAgentDriverKind,
+  isCockpitAgentDriverKind,
   resolveAgentDriver,
 } from "../../src/workspace/agent-driver";
 
@@ -30,5 +31,12 @@ describe("cockpit agent drivers", () => {
     expect(resolveAgentDriver(defaultCockpitAgentDriverKind).kind).toBe(
       "claude",
     );
+  });
+
+  it("recognizes only registered driver kinds as a driver title", () => {
+    expect(isCockpitAgentDriverKind("claude")).toBe(true);
+    expect(isCockpitAgentDriverKind("codex")).toBe(true);
+    expect(isCockpitAgentDriverKind("shell")).toBe(false);
+    expect(isCockpitAgentDriverKind("")).toBe(false);
   });
 });

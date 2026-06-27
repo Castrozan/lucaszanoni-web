@@ -37,6 +37,38 @@ describe("real lifecycle adapter reads the live tmux inventory", () => {
     ]);
   });
 
+  it("recovers each window's agent driver from the round-tripped window title", async () => {
+    const compute = createLifecycleComputeAdapter(
+      createScriptedLifecycleTransport(() =>
+        inventoryReply([
+          {
+            sessionName: "platform",
+            windows: [
+              { windowIdentifier: "@1", windowTitle: "codex" },
+              { windowIdentifier: "@2", windowTitle: "claude" },
+              { windowIdentifier: "@3", windowTitle: "shell" },
+            ],
+          },
+        ]),
+      ),
+    );
+
+    const sessions = await compute.listSessions();
+
+    expect(sessions).toEqual([
+      {
+        key: "platform",
+        label: "platform",
+        windows: [
+          { id: "@1", title: "codex", driver: "codex" },
+          { id: "@2", title: "claude", driver: "claude" },
+          { id: "@3", title: "shell", driver: "claude" },
+        ],
+        activeWindowId: "@1",
+      },
+    ]);
+  });
+
   it("returns an empty inventory as no sessions", async () => {
     const compute = createLifecycleComputeAdapter(
       createScriptedLifecycleTransport(() => inventoryReply([])),
