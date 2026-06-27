@@ -56,6 +56,9 @@ export function findMicroFrontendRoute(
 export const OWNER_SIGN_IN_ENTRY_ROUTE: MicroFrontendRoute =
   findMicroFrontendRoute("cockpit");
 
+export const OWNER_WORKSPACE_ENTRY_ROUTE: MicroFrontendRoute =
+  findMicroFrontendRoute("workspace");
+
 export function isPubliclyVisibleNavigationEntry(
   entry: AppRegistryEntry,
 ): boolean {

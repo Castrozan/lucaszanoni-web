@@ -43,6 +43,12 @@ variable "cockpit_container_image" {
   default     = "us-docker.pkg.dev/cloudrun/container/hello"
 }
 
+variable "workspace_container_image" {
+  type        = string
+  description = "Fully qualified Artifact Registry image for the workspace service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."
+  default     = "us-docker.pkg.dev/cloudrun/container/hello"
+}
+
 variable "dynamic_ia_canvas_container_image" {
   type        = string
   description = "Fully qualified Artifact Registry image for the dynamic-ia-canvas service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."

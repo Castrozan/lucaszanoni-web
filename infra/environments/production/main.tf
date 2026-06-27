@@ -12,6 +12,7 @@ locals {
     "usage-dashboard"       = var.usage_dashboard_container_image
     reports                 = var.reports_container_image
     cockpit                 = var.cockpit_container_image
+    workspace               = var.workspace_container_image
     "dynamic-ia-canvas"     = var.dynamic_ia_canvas_container_image
     "dynamic-ia-interfaces" = var.dynamic_ia_interfaces_container_image
   }
