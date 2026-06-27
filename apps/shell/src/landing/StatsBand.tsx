@@ -1,5 +1,6 @@
 import { MICRO_FRONTEND_ROUTES } from "@platform/config";
 import type { MicroFrontendRoute } from "@platform/config";
+import { EdgeSignalLine } from "./EdgeSignalLine";
 
 interface PlatformStat {
   readonly value: string;
@@ -33,6 +34,7 @@ export function StatsBand() {
   const platformStats = buildPlatformStats();
   return (
     <section className="border-t border-border py-20">
+      <EdgeSignalLine />
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {platformStats.map((stat) => (
           <div key={stat.label} className="flex flex-col gap-2">
