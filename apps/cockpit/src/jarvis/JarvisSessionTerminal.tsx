@@ -1,24 +1,13 @@
-import { useEffect, useRef } from "react";
 import { Button } from "@platform/design-system";
 import { resolveJarvisSessionEndpoint } from "./jarvis-session-config";
 import { type JarvisTerminalStatus } from "./jarvis-session-terminal-model";
-import {
-  useJarvisSessionTerminal,
-  type JarvisSessionSocketFactory,
-} from "./use-jarvis-session-terminal";
-import {
-  createBrowserTerminalEmulator,
-  type JarvisTerminalEmulator,
-  type JarvisTerminalEmulatorFactory,
-} from "./browser-terminal-emulator";
+import { type JarvisSessionSocketFactory } from "./use-jarvis-session-terminal";
+import { type JarvisTerminalEmulatorFactory } from "./browser-terminal-emulator";
+import { type JarvisSpeechResolvers } from "./use-jarvis-speech";
 import { SessionSwitcher } from "../sessions/SessionSwitcher";
 import { SessionVoiceControl } from "./SessionVoiceControl";
-import { encodeSpokenSessionInput } from "./spoken-session-input";
+import { useJarvisSessionTerminalView } from "./use-jarvis-session-terminal-view";
 import type { CockpitSession } from "../sessions/session-registry";
-import {
-  encodeSessionListCommand,
-  encodeSessionSwitchCommand,
-} from "../sessions/session-commands";
 
 const STATUS_DOT_CLASS: Record<JarvisTerminalStatus, string> = {
   idle: "bg-text-faint",
@@ -36,78 +25,39 @@ export interface JarvisSessionTerminalProps {
   activeSessionKey?: string | null;
   onSelectSession?: (key: string) => void;
   onListSessions?: () => void;
+  speechResolvers?: JarvisSpeechResolvers;
+  speakDebounceMs?: number;
 }
 
 export function JarvisSessionTerminal({
   endpoint = resolveJarvisSessionEndpoint(),
   createSocket,
-  createEmulator = createBrowserTerminalEmulator,
+  createEmulator,
   sessions = [],
   activeSessionKey = null,
   onSelectSession,
   onListSessions,
+  speechResolvers,
+  speakDebounceMs,
 }: JarvisSessionTerminalProps) {
-  const terminalContainerRef = useRef<HTMLDivElement | null>(null);
-  const emulatorRef = useRef<JarvisTerminalEmulator | null>(null);
-
   const {
     status,
     detail,
     connect,
     disconnect,
-    sendOwnerKeystrokes,
-    sendWindowSize,
-  } = useJarvisSessionTerminal(endpoint ?? null, {
+    terminalContainerRef,
+    voice,
+    selectSession,
+    requestSessionList,
+  } = useJarvisSessionTerminalView({
+    endpoint: endpoint ?? null,
     createSocket,
-    onOutputBytes: (bytes) => emulatorRef.current?.writeOutputBytes(bytes),
+    createEmulator,
+    onSelectSession,
+    onListSessions,
+    speechResolvers,
+    speakDebounceMs,
   });
-
-  useEffect(() => {
-    if (!endpoint) {
-      return;
-    }
-    const canOpenSocket =
-      createSocket != null || typeof WebSocket !== "undefined";
-    if (!canOpenSocket) {
-      return;
-    }
-    connect();
-  }, [endpoint, createSocket, connect]);
-
-  useEffect(() => {
-    const container = terminalContainerRef.current;
-    if (!container) {
-      return;
-    }
-    const emulator = createEmulator();
-    emulator.attachTo(container);
-    emulator.onOwnerInput((bytes) => sendOwnerKeystrokes(bytes));
-    emulatorRef.current = emulator;
-
-    const resizeObserver =
-      typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver(() => sendWindowSize(emulator.fitToContainer()))
-        : null;
-    resizeObserver?.observe(container);
-
-    return () => {
-      resizeObserver?.disconnect();
-      emulator.dispose();
-      emulatorRef.current = null;
-    };
-  }, [createEmulator, sendOwnerKeystrokes, sendWindowSize]);
-
-  useEffect(() => {
-    if (status !== "open") {
-      return;
-    }
-    const emulator = emulatorRef.current;
-    if (!emulator) {
-      return;
-    }
-    sendWindowSize(emulator.fitToContainer());
-    emulator.focus();
-  }, [status, sendWindowSize]);
 
   if (!endpoint) {
     return (
@@ -128,23 +78,6 @@ export function JarvisSessionTerminal({
 
   const isOpen = status === "open";
 
-  const submitSpokenInput = (transcript: string) => {
-    const bytes = encodeSpokenSessionInput(transcript);
-    if (bytes) {
-      sendOwnerKeystrokes(bytes);
-    }
-  };
-
-  const selectSession = (key: string) => {
-    sendOwnerKeystrokes(encodeSessionSwitchCommand(key));
-    onSelectSession?.(key);
-  };
-
-  const requestSessionList = () => {
-    sendOwnerKeystrokes(encodeSessionListCommand());
-    onListSessions?.();
-  };
-
   return (
     <section
       aria-label="Jarvis session terminal"
@@ -156,7 +89,14 @@ export function JarvisSessionTerminal({
         onSelect={selectSession}
         onListSessions={requestSessionList}
       />
-      <SessionVoiceControl onSpokenInput={submitSpokenInput} />
+      <SessionVoiceControl
+        isListening={voice.isListening}
+        recognitionSupported={voice.recognitionSupported}
+        onToggleListening={voice.toggleListening}
+        synthesisSupported={voice.synthesisSupported}
+        spokenOutputMuted={voice.spokenOutputMuted}
+        onToggleSpokenOutput={voice.toggleSpokenOutput}
+      />
       <header className="flex items-center justify-between border-b border-border bg-surface px-4 py-2">
         <div className="flex items-center gap-2">
           <span

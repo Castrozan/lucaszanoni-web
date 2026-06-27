@@ -17,8 +17,25 @@ import type {
 } from "../src/jarvis/use-jarvis-speech";
 
 const textDecoder = new TextDecoder();
+const textEncoder = new TextEncoder();
 
 const sessions = [{ key: "global", label: "Jarvis" }];
+
+function captureSpokenSynthesis() {
+  const spoken: string[] = [];
+  return {
+    spoken,
+    resolvers: {
+      resolveRecognitionConstructor: () => null,
+      resolveSynthesis: () => ({
+        speak: (utterance: unknown) =>
+          spoken.push((utterance as { text: string }).text),
+        cancel: () => {},
+      }),
+      createUtterance: (text: string) => ({ text }),
+    },
+  };
+}
 
 function installFakeRecognition() {
   const instances: FakeRecognition[] = [];
@@ -104,5 +121,72 @@ describe("JarvisSessionTerminal voice control", () => {
     expect(
       socket.ownerKeystrokeFrames.map((frame) => textDecoder.decode(frame)),
     ).toContain("deploy the build\r");
+  });
+
+  it("speaks new settled session output through speech synthesis by default", () => {
+    vi.useFakeTimers();
+    try {
+      const { spoken, resolvers } = captureSpokenSynthesis();
+      const socket = createFakeSocketControl();
+      const emulator = createFakeEmulatorControl();
+      render(
+        <JarvisSessionTerminal
+          endpoint="ws://localhost:9999/session"
+          createSocket={socket.factory}
+          createEmulator={emulator.factory}
+          sessions={sessions}
+          activeSessionKey="global"
+          speakDebounceMs={20}
+          speechResolvers={resolvers}
+        />,
+      );
+
+      act(() => socket.handlers?.onOpen());
+      act(() =>
+        socket.handlers?.onOutputBytes(
+          textEncoder.encode("\x1b[2Jbuild succeeded\n"),
+        ),
+      );
+      act(() => vi.advanceTimersByTime(40));
+
+      expect(spoken).toContain("build succeeded");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("stops speaking session output once the owner mutes spoken output", () => {
+    vi.useFakeTimers();
+    try {
+      const { spoken, resolvers } = captureSpokenSynthesis();
+      const socket = createFakeSocketControl();
+      const emulator = createFakeEmulatorControl();
+      render(
+        <JarvisSessionTerminal
+          endpoint="ws://localhost:9999/session"
+          createSocket={socket.factory}
+          createEmulator={emulator.factory}
+          sessions={sessions}
+          activeSessionKey="global"
+          speakDebounceMs={20}
+          speechResolvers={resolvers}
+        />,
+      );
+
+      act(() => socket.handlers?.onOpen());
+      fireEvent.click(
+        screen.getByRole("button", { name: "Speak session output" }),
+      );
+      act(() =>
+        socket.handlers?.onOutputBytes(
+          textEncoder.encode("\x1b[2Jhidden status\n"),
+        ),
+      );
+      act(() => vi.advanceTimersByTime(40));
+
+      expect(spoken).toEqual([]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
