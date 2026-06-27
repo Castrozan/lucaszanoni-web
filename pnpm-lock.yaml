@@ -488,7 +488,7 @@ importers:
         version: link:../../packages/tsconfig
       '@tailwindcss/vite':
         specifier: ^4.3.1
-        version: 4.3.1(vite@8.0.16(jiti@2.7.0))
+        version: 4.3.1(vite@8.0.16(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0))
       '@testing-library/dom':
         specifier: ^10.4.0
         version: 10.4.1
@@ -503,7 +503,7 @@ importers:
         version: 19.2.3(@types/react@19.2.17)
       '@vitejs/plugin-react':
         specifier: ^6.0.2
-        version: 6.0.2(vite@8.0.16(jiti@2.7.0))
+        version: 6.0.2(vite@8.0.16(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0))
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
@@ -515,10 +515,10 @@ importers:
         version: 5.9.3
       vite:
         specifier: ^8.0.16
-        version: 8.0.16(jiti@2.7.0)
+        version: 8.0.16(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0)
       vitest:
         specifier: ^4.1.9
-        version: 4.1.9(jsdom@25.0.1)(vite@8.0.16(jiti@2.7.0))
+        version: 4.1.9(@opentelemetry/api@1.9.1)(@types/node@22.20.0)(jsdom@25.0.1)(vite@8.0.16(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0))
 
   packages/config:
     devDependencies:
