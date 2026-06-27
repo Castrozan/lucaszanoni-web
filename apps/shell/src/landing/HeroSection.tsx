@@ -4,6 +4,7 @@ import { useCharacterDecode } from "./useCharacterDecode";
 import { BlockCursor } from "./BlockCursor";
 import { HeroTerminalPanel } from "./HeroTerminalPanel";
 import { heroContent } from "./landingContent";
+import { getBuildProvenance, formatBuildDate } from "./buildProvenance";
 
 export function HeroSection() {
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -11,6 +12,8 @@ export function HeroSection() {
     heroContent.dynamicHeadlineLine,
     prefersReducedMotion,
   );
+  const buildProvenance = getBuildProvenance();
+  const buildDate = formatBuildDate(buildProvenance.timestamp);
   return (
     <section className="grid items-center gap-12 pt-40 pb-24 lg:grid-cols-[1.05fr_0.95fr]">
       <div className="flex flex-col gap-7">
@@ -59,6 +62,12 @@ export function HeroSection() {
         <p className="m-0 font-mono text-[11px] uppercase tracking-[2px] text-text-faint">
           {heroContent.deploymentTagline}
         </p>
+        {buildProvenance.isAvailable && (
+          <p className="m-0 font-mono text-[11px] uppercase tracking-[2px] text-text-faint">
+            DEPLOYED {buildProvenance.shortSha}
+            {buildDate ? ` · ${buildDate}` : ""}
+          </p>
+        )}
       </div>
       <HeroTerminalPanel />
     </section>
