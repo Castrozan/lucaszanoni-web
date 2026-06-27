@@ -6,4 +6,8 @@ interface ImportMetaEnv {
   readonly VITE_COCKPIT_COMMAND_PALETTE?: string;
   readonly VITE_COCKPIT_SESSIONS?: string;
   readonly VITE_COCKPIT_VOICE?: string;
+  readonly VITE_COCKPIT_GITLAB_REVIEW?: string;
+  readonly VITE_COCKPIT_GITLAB_BASE_URL?: string;
+  readonly VITE_COCKPIT_GITLAB_PROJECT?: string;
+  readonly VITE_COCKPIT_GITLAB_BRANCH?: string;
 }

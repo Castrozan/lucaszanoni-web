@@ -9,3 +9,7 @@ export function isCommandPaletteEnabled(): boolean {
 export function isVoiceControlEnabled(): boolean {
   return import.meta.env.VITE_COCKPIT_VOICE === "true";
 }
+
+export function isGitlabReviewEnabled(): boolean {
+  return import.meta.env.VITE_COCKPIT_GITLAB_REVIEW === "true";
+}

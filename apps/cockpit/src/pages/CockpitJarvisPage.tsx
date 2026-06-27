@@ -8,6 +8,8 @@ import {
 } from "../jarvis/jarvis-dialogue";
 import { useJarvisSpeech } from "../jarvis/use-jarvis-speech";
 import { useCockpitSessionsContext } from "../sessions/cockpit-sessions-context";
+import { isGitlabReviewEnabled } from "../feature-flags/cockpit-feature-flags";
+import { SessionReviewPairing } from "../review/SessionReviewPairing";
 
 type JarvisView = "main" | "internal";
 
@@ -16,6 +18,7 @@ export function CockpitJarvisPage() {
   const cockpitSessions = useCockpitSessionsContext();
   const [draftMessage, setDraftMessage] = useState("");
   const [transcript, setTranscript] = useState<readonly JarvisUtterance[]>([]);
+  const gitlabReviewEnabled = isGitlabReviewEnabled();
 
   const receiveTranscript = useCallback((text: string) => {
     setDraftMessage(text);
@@ -150,11 +153,14 @@ export function CockpitJarvisPage() {
           </form>
         </section>
       ) : (
-        <JarvisSessionTerminal
-          sessions={cockpitSessions.sessions}
-          activeSessionKey={cockpitSessions.activeKey}
-          onSelectSession={cockpitSessions.selectSession}
-        />
+        <div className="flex flex-1 flex-col gap-3 overflow-hidden">
+          {gitlabReviewEnabled ? <SessionReviewPairing /> : null}
+          <JarvisSessionTerminal
+            sessions={cockpitSessions.sessions}
+            activeSessionKey={cockpitSessions.activeKey}
+            onSelectSession={cockpitSessions.selectSession}
+          />
+        </div>
       )}
     </div>
   );
