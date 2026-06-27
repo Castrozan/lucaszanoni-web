@@ -1,8 +1,6 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  basePath: "/dynamic-ia-interfaces",
-  assetPrefix: "/dynamic-ia-interfaces",
+const nextConfig = {
+  basePath: "/dynamic-ia-canvas",
+  assetPrefix: "/dynamic-ia-canvas",
   eslint: {
     ignoreDuringBuilds: true,
   },
