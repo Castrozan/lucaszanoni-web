@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { selectPreferredSpeechVoice } from "./preferred-speech-voice";
 
 export interface JarvisRecognitionAlternative {
   readonly transcript: string;
@@ -82,6 +83,17 @@ function defaultResolveSynthesis(): JarvisSpeechSynthesis | null {
 function defaultCreateUtterance(text: string): unknown {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "en-US";
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  if (typeof window !== "undefined" && window.speechSynthesis) {
+    const preferredVoice = selectPreferredSpeechVoice(
+      window.speechSynthesis.getVoices(),
+    );
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+      utterance.lang = preferredVoice.lang;
+    }
+  }
   return utterance;
 }
 
@@ -153,7 +165,6 @@ export function useJarvisSpeech(
       if (!synthesis || trimmed.length === 0) {
         return;
       }
-      synthesis.cancel();
       synthesis.speak(createUtterance(trimmed));
     },
     [synthesis, createUtterance],
