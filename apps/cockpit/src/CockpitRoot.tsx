@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
-import { ThemeProvider } from "@platform/design-system";
+import { ThemeProvider, CommandPalette } from "@platform/design-system";
 import { COCKPIT_MOUNT_PATH } from "@platform/config";
 import { CockpitShell } from "./layout/CockpitShell";
 import { CockpitSessionsProvider } from "./sessions/cockpit-sessions-context";
@@ -19,6 +19,7 @@ export function CockpitRoot() {
             </CockpitShell>
           </BrowserRouter>
         </CockpitSessionsProvider>
+        <CommandPalette />
       </ThemeProvider>
     </QueryClientProvider>
   );

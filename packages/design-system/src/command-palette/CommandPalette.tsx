@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CROSS_SECTION_NAVIGATION_ROUTES } from "@platform/config";
-import type { MicroFrontendRoute } from "@platform/config";
+import {
+  buildCommandPaletteDestinations,
+  type PaletteDestination,
+} from "./commandPaletteDestinations";
 
 const COMMAND_PALETTE_OPEN_EVENT = "atrium:command-palette";
+
+const DEFAULT_COMMAND_PALETTE_DESTINATIONS = buildCommandPaletteDestinations();
 
 export function openCommandPalette(): void {
   window.dispatchEvent(new Event(COMMAND_PALETTE_OPEN_EVENT));
@@ -25,12 +29,12 @@ function activeElementAcceptsTextInput(): boolean {
 }
 
 export interface CommandPaletteProps {
-  readonly routes?: readonly MicroFrontendRoute[];
+  readonly destinations?: readonly PaletteDestination[];
   readonly navigate?: (href: string) => void;
 }
 
 export function CommandPalette({
-  routes = CROSS_SECTION_NAVIGATION_ROUTES,
+  destinations = DEFAULT_COMMAND_PALETTE_DESTINATIONS,
   navigate = navigateToHref,
 }: CommandPaletteProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,17 +42,17 @@ export function CommandPalette({
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const inputReference = useRef<HTMLInputElement>(null);
 
-  const matchingRoutes = useMemo(() => {
+  const matchingDestinations = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) {
-      return routes;
+      return destinations;
     }
-    return routes.filter((route) =>
-      `${route.navigationLabel} ${route.mountPath}`
+    return destinations.filter((destination) =>
+      `${destination.label} ${destination.href}`
         .toLowerCase()
         .includes(normalizedQuery),
     );
-  }, [routes, query]);
+  }, [destinations, query]);
 
   const closePalette = useCallback(() => {
     setIsOpen(false);
@@ -93,9 +97,9 @@ export function CommandPalette({
     return null;
   }
 
-  function commitRoute(route: MicroFrontendRoute) {
+  function commitDestination(destination: PaletteDestination) {
     closePalette();
-    navigate(route.mountPath);
+    navigate(destination.href);
   }
 
   function handleInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -107,7 +111,7 @@ export function CommandPalette({
     if (event.key === "ArrowDown") {
       event.preventDefault();
       setHighlightedIndex((index) =>
-        Math.min(index + 1, Math.max(matchingRoutes.length - 1, 0)),
+        Math.min(index + 1, Math.max(matchingDestinations.length - 1, 0)),
       );
       return;
     }
@@ -118,9 +122,9 @@ export function CommandPalette({
     }
     if (event.key === "Enter") {
       event.preventDefault();
-      const route = matchingRoutes[highlightedIndex];
-      if (route) {
-        commitRoute(route);
+      const destination = matchingDestinations[highlightedIndex];
+      if (destination) {
+        commitDestination(destination);
       }
     }
   }
@@ -146,7 +150,7 @@ export function CommandPalette({
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={handleInputKeyDown}
-          placeholder="Jump to a section…"
+          placeholder="Jump to a section, page, or app…"
           aria-label="Search sections"
           className="w-full border-b border-border bg-transparent px-4 py-3 font-mono text-[14px] text-foreground outline-none placeholder:text-text-faint"
         />
@@ -155,21 +159,21 @@ export function CommandPalette({
           aria-label="Sections"
           className="max-h-[50vh] overflow-y-auto"
         >
-          {matchingRoutes.length === 0 ? (
+          {matchingDestinations.length === 0 ? (
             <li className="px-4 py-3 font-mono text-[13px] text-text-faint">
               No matches
             </li>
           ) : (
-            matchingRoutes.map((route, index) => (
+            matchingDestinations.map((destination, index) => (
               <li
-                key={route.id}
+                key={destination.id}
                 role="option"
                 aria-selected={index === highlightedIndex}
               >
                 <button
                   type="button"
                   onMouseEnter={() => setHighlightedIndex(index)}
-                  onClick={() => commitRoute(route)}
+                  onClick={() => commitDestination(destination)}
                   data-highlighted={
                     index === highlightedIndex ? "true" : "false"
                   }
@@ -180,8 +184,8 @@ export function CommandPalette({
                       : "text-muted-foreground")
                   }
                 >
-                  <span>{route.navigationLabel}</span>
-                  <span className="text-text-faint">{route.mountPath}</span>
+                  <span>{destination.label}</span>
+                  <span className="text-text-faint">{destination.href}</span>
                 </button>
               </li>
             ))

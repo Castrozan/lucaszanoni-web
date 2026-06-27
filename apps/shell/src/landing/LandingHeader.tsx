@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { Button } from "@platform/design-system";
+import { Button, openCommandPalette } from "@platform/design-system";
 import { OWNER_SIGN_IN_ENTRY_ROUTE } from "@platform/config";
 import { useScrolledPastThreshold } from "./useScrolledPastThreshold";
-import { openCommandPalette } from "./CommandPalette";
 
 const headerNavigationLinks = [
   { label: "SECTIONS", href: "#sections" },

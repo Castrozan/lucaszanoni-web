@@ -4,7 +4,6 @@ import { SectionsGrid } from "./SectionsGrid";
 import { FeaturePreview } from "./FeaturePreview";
 import { AboutAtriumSection } from "./AboutAtriumSection";
 import { LandingFooter } from "./LandingFooter";
-import { CommandPalette } from "./CommandPalette";
 
 export function LandingPage() {
   return (
@@ -17,7 +16,6 @@ export function LandingPage() {
         <AboutAtriumSection />
         <LandingFooter />
       </main>
-      <CommandPalette />
     </div>
   );
 }

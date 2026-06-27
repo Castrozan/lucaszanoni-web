@@ -1,6 +1,10 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { REPORTS_MOUNT_PATH } from "@platform/config";
-import { AppShell, ThemeProvider } from "@platform/design-system";
+import {
+  AppShell,
+  ThemeProvider,
+  CommandPalette,
+} from "@platform/design-system";
 import { ReportsHubPage } from "./components/ReportsHubPage";
 import { QualityPage } from "./components/QualityPage";
 import { BaselinePage } from "./components/BaselinePage";
@@ -20,6 +24,7 @@ export function ReportsRoot() {
           </Routes>
         </AppShell>
       </BrowserRouter>
+      <CommandPalette />
     </ThemeProvider>
   );
 }
