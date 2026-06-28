@@ -30,6 +30,9 @@ export function WorkspaceMachineRouter({
     machines,
     activeMachineKey,
   );
+  const createCompute = createComputeForMachine(activeMachine);
+  const sessionTerminalMachineEndpoint =
+    createCompute && activeMachine ? activeMachine.endpoint : null;
   return (
     <>
       <WorkspaceMachineSwitcher
@@ -40,7 +43,8 @@ export function WorkspaceMachineRouter({
       <WorkspacePage
         key={activeMachine?.key ?? "default"}
         storage={storage}
-        createCompute={createComputeForMachine(activeMachine)}
+        createCompute={createCompute}
+        sessionTerminalMachineEndpoint={sessionTerminalMachineEndpoint}
       />
     </>
   );

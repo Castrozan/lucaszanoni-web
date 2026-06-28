@@ -9,6 +9,7 @@ import {
   defaultCockpitAgentDriverKind,
   resolveAgentDriver,
 } from "./agent-driver";
+import { SessionTerminal } from "./SessionTerminal";
 
 export interface WorkspaceWindowPanelProps {
   windows: readonly CockpitWorkspaceWindow[];
@@ -16,6 +17,7 @@ export interface WorkspaceWindowPanelProps {
   onOpenAgent: (driver: CockpitAgentDriverKind) => void;
   onSelectWindow: (windowId: string) => void;
   onCloseWindow: (windowId: string) => void;
+  sessionTerminalEndpoint?: string | null;
 }
 
 export function WorkspaceWindowPanel({
@@ -24,6 +26,7 @@ export function WorkspaceWindowPanel({
   onOpenAgent,
   onSelectWindow,
   onCloseWindow,
+  sessionTerminalEndpoint = null,
 }: WorkspaceWindowPanelProps) {
   const [driver, setDriver] = useState<CockpitAgentDriverKind>(
     defaultCockpitAgentDriverKind,
@@ -102,6 +105,9 @@ export function WorkspaceWindowPanel({
           })}
         </ul>
       )}
+      {sessionTerminalEndpoint ? (
+        <SessionTerminal endpoint={sessionTerminalEndpoint} />
+      ) : null}
     </section>
   );
 }
