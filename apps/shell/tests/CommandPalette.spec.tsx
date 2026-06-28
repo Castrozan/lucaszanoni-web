@@ -8,11 +8,17 @@ import {
 } from "@testing-library/react";
 import {
   CommandPalette,
+  KeybindProvider,
   buildCommandPaletteDestinations,
 } from "@platform/design-system";
+import type { ReactNode } from "react";
 import { buildShellCommandPaletteDestinations } from "../src/landing/shellCommandPaletteDestinations";
 
 afterEach(cleanup);
+
+function renderPalette(ui: ReactNode) {
+  return render(<KeybindProvider>{ui}</KeybindProvider>);
+}
 
 function pressOpenShortcut() {
   act(() => {
@@ -24,14 +30,14 @@ function pressOpenShortcut() {
 
 describe("CommandPalette", () => {
   it("stays closed until the keyboard shortcut opens it", () => {
-    render(<CommandPalette navigate={() => {}} />);
+    renderPalette(<CommandPalette navigate={() => {}} />);
     expect(screen.queryByRole("dialog")).toBeNull();
     pressOpenShortcut();
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
   it("lists the shell sections, pages, and apps it is given", () => {
-    render(
+    renderPalette(
       <CommandPalette
         destinations={buildShellCommandPaletteDestinations()}
         navigate={() => {}}
@@ -51,7 +57,7 @@ describe("CommandPalette", () => {
   });
 
   it("filters destinations by the typed query", () => {
-    render(<CommandPalette navigate={() => {}} />);
+    renderPalette(<CommandPalette navigate={() => {}} />);
     pressOpenShortcut();
     fireEvent.change(screen.getByLabelText("Search sections"), {
       target: { value: "interfaces" },
@@ -66,7 +72,7 @@ describe("CommandPalette", () => {
       throw new Error("expected at least one palette destination");
     }
     const navigate = vi.fn();
-    render(<CommandPalette navigate={navigate} />);
+    renderPalette(<CommandPalette navigate={navigate} />);
     pressOpenShortcut();
     fireEvent.keyDown(screen.getByLabelText("Search sections"), {
       key: "Enter",
@@ -75,7 +81,7 @@ describe("CommandPalette", () => {
   });
 
   it("closes on escape", () => {
-    render(<CommandPalette navigate={() => {}} />);
+    renderPalette(<CommandPalette navigate={() => {}} />);
     pressOpenShortcut();
     fireEvent.keyDown(screen.getByLabelText("Search sections"), {
       key: "Escape",
@@ -85,7 +91,7 @@ describe("CommandPalette", () => {
 
   it("locks background scroll while open and restores it on close", () => {
     expect(document.body.style.overflow).toBe("");
-    render(<CommandPalette navigate={() => {}} />);
+    renderPalette(<CommandPalette navigate={() => {}} />);
     pressOpenShortcut();
     expect(document.body.style.overflow).toBe("hidden");
     fireEvent.keyDown(screen.getByLabelText("Search sections"), {
