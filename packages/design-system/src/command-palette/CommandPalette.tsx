@@ -9,6 +9,7 @@ import {
   navigateToHref,
   useBodyScrollLock,
 } from "./commandPaletteBehavior";
+import { CommandPaletteList } from "./CommandPaletteList";
 
 export { openCommandPalette } from "./commandPaletteBehavior";
 
@@ -27,7 +28,6 @@ export function CommandPalette({
   const [query, setQuery] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const inputReference = useRef<HTMLInputElement>(null);
-  const highlightedItemReference = useRef<HTMLLIElement>(null);
 
   const matchingDestinations = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -77,10 +77,6 @@ export function CommandPalette({
   }, [isOpen]);
 
   useBodyScrollLock(isOpen);
-
-  useEffect(() => {
-    highlightedItemReference.current?.scrollIntoView?.({ block: "nearest" });
-  }, [highlightedIndex]);
 
   useEffect(() => {
     setHighlightedIndex(0);
@@ -147,46 +143,12 @@ export function CommandPalette({
           aria-label="Search sections"
           className="w-full border-b border-border bg-transparent px-4 py-3 font-mono text-[14px] text-foreground outline-none placeholder:text-text-faint"
         />
-        <ul
-          role="listbox"
-          aria-label="Sections"
-          className="max-h-[50vh] overflow-y-auto overscroll-contain [scrollbar-color:var(--color-border)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5"
-        >
-          {matchingDestinations.length === 0 ? (
-            <li className="px-4 py-3 font-mono text-[13px] text-text-faint">
-              No matches
-            </li>
-          ) : (
-            matchingDestinations.map((destination, index) => (
-              <li
-                key={destination.id}
-                ref={
-                  index === highlightedIndex ? highlightedItemReference : null
-                }
-                role="option"
-                aria-selected={index === highlightedIndex}
-              >
-                <button
-                  type="button"
-                  onMouseEnter={() => setHighlightedIndex(index)}
-                  onClick={() => commitDestination(destination)}
-                  data-highlighted={
-                    index === highlightedIndex ? "true" : "false"
-                  }
-                  className={
-                    "flex w-full items-center justify-between px-4 py-3 text-left font-mono text-[13px] transition-colors " +
-                    (index === highlightedIndex
-                      ? "bg-surface-raised text-foreground"
-                      : "text-muted-foreground")
-                  }
-                >
-                  <span>{destination.label}</span>
-                  <span className="text-text-faint">{destination.href}</span>
-                </button>
-              </li>
-            ))
-          )}
-        </ul>
+        <CommandPaletteList
+          destinations={matchingDestinations}
+          highlightedIndex={highlightedIndex}
+          onHighlight={setHighlightedIndex}
+          onCommit={commitDestination}
+        />
       </div>
     </div>
   );
