@@ -38,6 +38,17 @@ describe("KeybindHelpOverlay", () => {
     expect(screen.getByText("Show keyboard shortcuts")).toBeTruthy();
   });
 
+  it("lists cross-app navigation actions registered through the engine", () => {
+    render(
+      <KeybindProvider>
+        <CommandPalette navigate={() => {}} />
+      </KeybindProvider>,
+    );
+    openOverlay();
+    expect(screen.getByText("Go to Cockpit")).toBeTruthy();
+    expect(screen.getByText("Go to Home")).toBeTruthy();
+  });
+
   it("rebinds an action via captured keys and persists it", () => {
     render(
       <KeybindProvider>
