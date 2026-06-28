@@ -45,4 +45,15 @@ describe("resolveCockpitAttachEndpoint derives the pty attach url from a machine
       "wss://kira.example/cockpit/jarvis-session/?sessionName=dotfiles",
     );
   });
+
+  it("swaps only the trailing lifecycle segment so an edge-rewritten machine prefix is preserved", () => {
+    expect(
+      resolveCockpitAttachEndpoint(
+        "wss://lucaszanoni.example/cockpit/kira-session/lifecycle",
+        "dotfiles",
+      ),
+    ).toBe(
+      "wss://lucaszanoni.example/cockpit/kira-session/jarvis-session/?sessionName=dotfiles",
+    );
+  });
 });
