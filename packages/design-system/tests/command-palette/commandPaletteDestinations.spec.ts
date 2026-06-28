@@ -2,29 +2,31 @@ import { describe, expect, it } from "vitest";
 import { buildCommandPaletteDestinations } from "../../src/command-palette/commandPaletteDestinations";
 
 describe("buildCommandPaletteDestinations", () => {
-  it("includes in-page sections, shell pages, and registry apps", () => {
+  it("includes the platform home, registry apps, and the source", () => {
     const hrefs = buildCommandPaletteDestinations().map(
       (destination) => destination.href,
     );
     expect(hrefs).toContain("/");
-    expect(hrefs).toContain("/#sections");
-    expect(hrefs).toContain("/about");
-    expect(hrefs).toContain("/catalog");
     expect(hrefs).toContain("/dynamic-ia-canvas/");
     expect(hrefs).toContain("/cockpit/");
+    expect(hrefs).toContain("https://github.com/Castrozan/lucaszanoni-web");
   });
 
-  it("deduplicates destinations by href", () => {
+  it("stays generic and omits shell-specific sections and pages", () => {
     const hrefs = buildCommandPaletteDestinations().map(
       (destination) => destination.href,
     );
-    expect(new Set(hrefs).size).toBe(hrefs.length);
+    expect(hrefs).not.toContain("/#sections");
+    expect(hrefs).not.toContain("/about");
+    expect(hrefs).not.toContain("/catalog");
   });
 
-  it("does not list the shell itself as an app", () => {
-    const ids = buildCommandPaletteDestinations().map(
-      (destination) => destination.id,
+  it("deduplicates destinations by href and excludes the shell as an app", () => {
+    const destinations = buildCommandPaletteDestinations();
+    const hrefs = destinations.map((destination) => destination.href);
+    expect(new Set(hrefs).size).toBe(hrefs.length);
+    expect(destinations.map((destination) => destination.id)).not.toContain(
+      "app-shell",
     );
-    expect(ids).not.toContain("app-shell");
   });
 });

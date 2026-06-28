@@ -8,16 +8,7 @@ export interface PaletteDestination {
 
 const REPOSITORY_URL = "https://github.com/Castrozan/lucaszanoni-web";
 
-const navigationDestinations: readonly PaletteDestination[] = [
-  { id: "home", label: "Home", href: "/" },
-  { id: "section-sections", label: "Sections", href: "/#sections" },
-  { id: "section-showcase", label: "Showcase", href: "/#showcase" },
-  { id: "section-about-atrium", label: "About Atrium", href: "/#about-atrium" },
-  { id: "page-about", label: "About page", href: "/about" },
-  { id: "page-catalog", label: "Catalog", href: "/catalog" },
-];
-
-function deduplicateByHref(
+export function deduplicateDestinationsByHref(
   destinations: readonly PaletteDestination[],
 ): PaletteDestination[] {
   const seenHrefs = new Set<string>();
@@ -38,8 +29,8 @@ export function buildCommandPaletteDestinations(): PaletteDestination[] {
     label: route.navigationLabel,
     href: route.mountPath,
   }));
-  return deduplicateByHref([
-    ...navigationDestinations,
+  return deduplicateDestinationsByHref([
+    { id: "home", label: "Home", href: "/" },
     ...appDestinations,
     { id: "source", label: "Source (GitHub)", href: REPOSITORY_URL },
   ]);

@@ -10,6 +10,7 @@ import {
   CommandPalette,
   buildCommandPaletteDestinations,
 } from "@platform/design-system";
+import { buildShellCommandPaletteDestinations } from "../src/landing/shellCommandPaletteDestinations";
 
 afterEach(cleanup);
 
@@ -29,8 +30,13 @@ describe("CommandPalette", () => {
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
-  it("lists in-page sections, shell pages, and apps when open", () => {
-    render(<CommandPalette navigate={() => {}} />);
+  it("lists the shell sections, pages, and apps it is given", () => {
+    render(
+      <CommandPalette
+        destinations={buildShellCommandPaletteDestinations()}
+        navigate={() => {}}
+      />,
+    );
     pressOpenShortcut();
     for (const label of [
       "Sections",
