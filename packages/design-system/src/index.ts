@@ -57,3 +57,8 @@ export {
   loadLeaderBinding,
   saveLeaderBinding,
 } from "./keybinds/keybindStore";
+export { BottomStatusBar } from "./status-bar/BottomStatusBar";
+export {
+  STATUS_BAR_HEIGHT,
+  STATUS_BAR_HEIGHT_CSS_VARIABLE,
+} from "./status-bar/statusBarLayout";
