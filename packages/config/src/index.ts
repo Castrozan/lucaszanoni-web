@@ -15,6 +15,18 @@ export {
   findMicroFrontendRoute,
 } from "./route-registry";
 export type {
+  PlatformWindow,
+  PlatformSession,
+  ActivePlatformLocation,
+} from "./platform-sessions";
+export {
+  buildPlatformSessions,
+  findActiveLocation,
+  nextWindowIndex,
+  previousWindowIndex,
+  windowIndexFromOneBasedNumber,
+} from "./platform-sessions";
+export type {
   AppLifecycleStatus,
   AppBuildProfile,
   AppExternalOriginPathRewrite,
