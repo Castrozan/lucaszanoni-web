@@ -38,9 +38,13 @@ function pendingMatchesBindingPrefix(
   if (pending.length > bindingChords.length) {
     return false;
   }
-  return pending.every((pendingChord, index) =>
-    eventChordMatchesBindingChord(pendingChord, bindingChords[index]),
-  );
+  return pending.every((pendingChord, index) => {
+    const bindingChord = bindingChords[index];
+    return (
+      bindingChord !== undefined &&
+      eventChordMatchesBindingChord(pendingChord, bindingChord)
+    );
+  });
 }
 
 export function matchPendingSequence(
