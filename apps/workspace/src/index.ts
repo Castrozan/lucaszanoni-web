@@ -1,0 +1,1 @@
+export { WorkspaceEmbeddedPage } from "./WorkspaceEmbeddedPage";

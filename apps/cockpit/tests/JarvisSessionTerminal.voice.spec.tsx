@@ -123,7 +123,7 @@ describe("JarvisSessionTerminal voice control", () => {
     ).toContain("deploy the build\r");
   });
 
-  it("speaks new settled session output through speech synthesis by default", () => {
+  it("does not speak session output by default because spoken output starts off", () => {
     vi.useFakeTimers();
     try {
       const { spoken, resolvers } = captureSpokenSynthesis();
@@ -149,13 +149,13 @@ describe("JarvisSessionTerminal voice control", () => {
       );
       act(() => vi.advanceTimersByTime(40));
 
-      expect(spoken).toContain("build succeeded");
+      expect(spoken).toEqual([]);
     } finally {
       vi.useRealTimers();
     }
   });
 
-  it("stops speaking session output once the owner mutes spoken output", () => {
+  it("speaks session output once the owner enables spoken output", () => {
     vi.useFakeTimers();
     try {
       const { spoken, resolvers } = captureSpokenSynthesis();
@@ -179,12 +179,12 @@ describe("JarvisSessionTerminal voice control", () => {
       );
       act(() =>
         socket.handlers?.onOutputBytes(
-          textEncoder.encode("\x1b[2Jhidden status\n"),
+          textEncoder.encode("\x1b[2Jbuild succeeded\n"),
         ),
       );
       act(() => vi.advanceTimersByTime(40));
 
-      expect(spoken).toEqual([]);
+      expect(spoken).toContain("build succeeded");
     } finally {
       vi.useRealTimers();
     }

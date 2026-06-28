@@ -33,7 +33,7 @@ test.describe("cockpit leader-key bindings", () => {
   test("leader then a navigates to the jarvis view", async ({ page }) => {
     await pressCockpitLeaderChord(page);
     await page.keyboard.press("a");
-    await expect(page).toHaveURL(/\/cockpit\/$/);
+    await expect(page).toHaveURL(/\/cockpit\/jarvis$/);
   });
 
   test("leader then s focuses the first quick-access bookmark", async ({
@@ -107,15 +107,15 @@ test.describe("command palette keyboard control", () => {
     page,
   }) => {
     await expect(selectedCommandOption(page)).toHaveAccessibleName(
-      /Go to Dashboard/,
+      /Go to Workspace/,
     );
     await page.keyboard.press("ArrowDown");
     await expect(selectedCommandOption(page)).toHaveAccessibleName(
-      /Go to Jarvis/,
+      /Go to Dashboard/,
     );
     await page.keyboard.press("ArrowUp");
     await expect(selectedCommandOption(page)).toHaveAccessibleName(
-      /Go to Dashboard/,
+      /Go to Workspace/,
     );
   });
 

@@ -16,6 +16,7 @@ describe("buildNavigationCommands", () => {
   it("titles each command after its destination view", () => {
     const commands = buildNavigationCommands(vi.fn());
     expect(commands.map((command) => command.title)).toEqual([
+      "Go to Workspace",
       "Go to Dashboard",
       "Go to Jarvis",
       "Go to User",
@@ -29,7 +30,7 @@ describe("buildNavigationCommands", () => {
       (command) => command.id === "view:jarvis",
     );
     jarvisCommand?.run();
-    expect(navigate).toHaveBeenCalledWith("/");
+    expect(navigate).toHaveBeenCalledWith("/jarvis");
   });
 });
 

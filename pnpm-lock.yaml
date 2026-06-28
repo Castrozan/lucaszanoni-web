@@ -32,6 +32,9 @@ importers:
       '@platform/usage-insights':
         specifier: workspace:*
         version: link:../../packages/usage-insights
+      '@platform/workspace':
+        specifier: workspace:*
+        version: link:../workspace
       '@tanstack/react-query':
         specifier: ^5.62.0
         version: 5.101.0(react@19.2.7)

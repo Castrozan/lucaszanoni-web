@@ -36,7 +36,7 @@ export const cockpitLeaderBindings: readonly LeaderBinding[] = [
   {
     key: "a",
     description: "Jump to Jarvis",
-    command: { kind: "navigate-view", path: "/" },
+    command: { kind: "navigate-view", path: "/jarvis" },
   },
   {
     key: "k",

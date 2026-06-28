@@ -18,7 +18,7 @@ describe("useLeaderKeyNavigation", () => {
     pressOnWindow({ key: "a" });
     expect(onCommand).toHaveBeenCalledWith({
       kind: "navigate-view",
-      path: "/",
+      path: "/jarvis",
     });
   });
 
