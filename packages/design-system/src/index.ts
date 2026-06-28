@@ -40,3 +40,17 @@ export {
   buildCommandPaletteDestinations,
   deduplicateDestinationsByHref,
 } from "./command-palette/commandPaletteDestinations";
+export type { KeybindProviderProps } from "./keybinds/KeybindProvider";
+export { KeybindProvider } from "./keybinds/KeybindProvider";
+export { useKeybind } from "./keybinds/useKeybind";
+export type {
+  KeybindRegistration,
+  KeybindContextValue,
+} from "./keybinds/keybindContext";
+export {
+  DEFAULT_LEADER_BINDING,
+  loadKeybindOverrides,
+  saveKeybindOverride,
+  loadLeaderBinding,
+  saveLeaderBinding,
+} from "./keybinds/keybindStore";

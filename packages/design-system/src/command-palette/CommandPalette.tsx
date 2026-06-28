@@ -10,6 +10,7 @@ import {
   useBodyScrollLock,
 } from "./commandPaletteBehavior";
 import { CommandPaletteList } from "./CommandPaletteList";
+import { useKeybind } from "../keybinds/useKeybind";
 
 export { openCommandPalette } from "./commandPaletteBehavior";
 
@@ -77,6 +78,13 @@ export function CommandPalette({
   }, [isOpen]);
 
   useBodyScrollLock(isOpen);
+
+  useKeybind({
+    id: "command-palette.open",
+    label: "Open command palette",
+    defaultBinding: "Leader p",
+    run: () => setIsOpen(true),
+  });
 
   useEffect(() => {
     setHighlightedIndex(0);
