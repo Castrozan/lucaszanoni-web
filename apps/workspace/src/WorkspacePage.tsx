@@ -6,15 +6,28 @@ import {
 } from "./workspace/use-workspace";
 import { WorkspaceSessionSwitcher } from "./workspace/WorkspaceSessionSwitcher";
 import { WorkspaceWindowPanel } from "./workspace/WorkspaceWindowPanel";
+import { resolveCockpitAttachEndpoint } from "./workspace/cockpit-attach-endpoint";
 
-export type WorkspacePageProps = UseWorkspaceOptions;
+export interface WorkspacePageProps extends UseWorkspaceOptions {
+  readonly sessionTerminalMachineEndpoint?: string | null;
+}
 
-export function WorkspacePage(props: WorkspacePageProps) {
-  const workspace = useWorkspace(props);
+export function WorkspacePage({
+  sessionTerminalMachineEndpoint = null,
+  ...workspaceOptions
+}: WorkspacePageProps) {
+  const workspace = useWorkspace(workspaceOptions);
   const [draftDomain, setDraftDomain] = useState("");
   const activeSession = workspace.state.sessions.find(
     (session) => session.key === workspace.state.activeSessionKey,
   );
+  const sessionTerminalEndpoint =
+    sessionTerminalMachineEndpoint && activeSession
+      ? resolveCockpitAttachEndpoint(
+          sessionTerminalMachineEndpoint,
+          activeSession.key,
+        )
+      : null;
 
   return (
     <div className="flex h-screen flex-col gap-4 p-4">
@@ -66,6 +79,7 @@ export function WorkspacePage(props: WorkspacePageProps) {
             onOpenAgent={workspace.openWindow}
             onSelectWindow={workspace.selectWindow}
             onCloseWindow={workspace.closeWindow}
+            sessionTerminalEndpoint={sessionTerminalEndpoint}
           />
         ) : (
           <div className="flex flex-1 items-center justify-center font-mono text-xs uppercase tracking-[2px] text-text-faint">

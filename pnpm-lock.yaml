@@ -479,6 +479,12 @@ importers:
       '@platform/design-system':
         specifier: workspace:*
         version: link:../../packages/design-system
+      '@xterm/addon-fit':
+        specifier: ^0.10.0
+        version: 0.10.0(@xterm/xterm@5.5.0)
+      '@xterm/xterm':
+        specifier: ^5.5.0
+        version: 5.5.0
       react:
         specifier: ^19.0.0
         version: 19.2.7
