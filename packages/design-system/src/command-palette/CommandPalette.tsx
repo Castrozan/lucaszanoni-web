@@ -5,7 +5,6 @@ import {
 } from "./commandPaletteDestinations";
 import {
   COMMAND_PALETTE_OPEN_EVENT,
-  activeElementAcceptsTextInput,
   navigateToHref,
   useBodyScrollLock,
 } from "./commandPaletteBehavior";
@@ -49,27 +48,14 @@ export function CommandPalette({
   }, []);
 
   useEffect(() => {
-    function handleGlobalKeyDown(event: KeyboardEvent) {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        setIsOpen((open) => !open);
-        return;
-      }
-      if (event.key === "/" && !isOpen && !activeElementAcceptsTextInput()) {
-        event.preventDefault();
-        setIsOpen(true);
-      }
-    }
     function handleOpenRequest() {
       setIsOpen(true);
     }
-    window.addEventListener("keydown", handleGlobalKeyDown);
     window.addEventListener(COMMAND_PALETTE_OPEN_EVENT, handleOpenRequest);
     return () => {
-      window.removeEventListener("keydown", handleGlobalKeyDown);
       window.removeEventListener(COMMAND_PALETTE_OPEN_EVENT, handleOpenRequest);
     };
-  }, [isOpen]);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -80,8 +66,21 @@ export function CommandPalette({
   useBodyScrollLock(isOpen);
 
   useKeybind({
+    id: "command-palette.toggle",
+    label: "Toggle command palette",
+    defaultBinding: "Mod+k",
+    allowInInput: true,
+    run: () => setIsOpen((open) => !open),
+  });
+  useKeybind({
     id: "command-palette.open",
     label: "Open command palette",
+    defaultBinding: "/",
+    run: () => setIsOpen(true),
+  });
+  useKeybind({
+    id: "command-palette.open-leader",
+    label: "Open command palette (leader)",
     defaultBinding: "Leader p",
     run: () => setIsOpen(true),
   });
