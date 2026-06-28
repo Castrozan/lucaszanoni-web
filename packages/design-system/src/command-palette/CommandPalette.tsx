@@ -3,30 +3,16 @@ import {
   buildCommandPaletteDestinations,
   type PaletteDestination,
 } from "./commandPaletteDestinations";
+import {
+  COMMAND_PALETTE_OPEN_EVENT,
+  activeElementAcceptsTextInput,
+  navigateToHref,
+  useBodyScrollLock,
+} from "./commandPaletteBehavior";
 
-const COMMAND_PALETTE_OPEN_EVENT = "atrium:command-palette";
+export { openCommandPalette } from "./commandPaletteBehavior";
 
 const DEFAULT_COMMAND_PALETTE_DESTINATIONS = buildCommandPaletteDestinations();
-
-export function openCommandPalette(): void {
-  window.dispatchEvent(new Event(COMMAND_PALETTE_OPEN_EVENT));
-}
-
-function navigateToHref(href: string): void {
-  window.location.assign(href);
-}
-
-function activeElementAcceptsTextInput(): boolean {
-  const activeElement = document.activeElement as HTMLElement | null;
-  if (!activeElement) {
-    return false;
-  }
-  return (
-    activeElement.tagName === "INPUT" ||
-    activeElement.tagName === "TEXTAREA" ||
-    activeElement.isContentEditable
-  );
-}
 
 export interface CommandPaletteProps {
   readonly destinations?: readonly PaletteDestination[];
@@ -41,6 +27,7 @@ export function CommandPalette({
   const [query, setQuery] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const inputReference = useRef<HTMLInputElement>(null);
+  const highlightedItemReference = useRef<HTMLLIElement>(null);
 
   const matchingDestinations = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -88,6 +75,12 @@ export function CommandPalette({
       inputReference.current?.focus();
     }
   }, [isOpen]);
+
+  useBodyScrollLock(isOpen);
+
+  useEffect(() => {
+    highlightedItemReference.current?.scrollIntoView?.({ block: "nearest" });
+  }, [highlightedIndex]);
 
   useEffect(() => {
     setHighlightedIndex(0);
@@ -157,7 +150,7 @@ export function CommandPalette({
         <ul
           role="listbox"
           aria-label="Sections"
-          className="max-h-[50vh] overflow-y-auto"
+          className="max-h-[50vh] overflow-y-auto overscroll-contain [scrollbar-color:var(--color-border)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5"
         >
           {matchingDestinations.length === 0 ? (
             <li className="px-4 py-3 font-mono text-[13px] text-text-faint">
@@ -167,6 +160,9 @@ export function CommandPalette({
             matchingDestinations.map((destination, index) => (
               <li
                 key={destination.id}
+                ref={
+                  index === highlightedIndex ? highlightedItemReference : null
+                }
                 role="option"
                 aria-selected={index === highlightedIndex}
               >
