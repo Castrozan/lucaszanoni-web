@@ -4,6 +4,7 @@ import {
   type KeybindPreferenceStorage,
   loadKeybindOverrides,
   loadLeaderBinding,
+  removeKeybindOverride,
   saveKeybindOverride,
   saveLeaderBinding,
 } from "../../src/keybinds/keybindStore";
@@ -26,6 +27,15 @@ describe("keybindStore", () => {
     expect(loadKeybindOverrides(storage)).toEqual({
       "command-palette.open": "Mod+p",
     });
+  });
+
+  it("removes a single override and leaves the rest", () => {
+    const storage = memoryStorage();
+    saveKeybindOverride(storage, "command-palette.open", "Mod+p");
+    saveKeybindOverride(storage, "help", "Mod+/");
+    const remaining = removeKeybindOverride(storage, "command-palette.open");
+    expect(remaining).toEqual({ help: "Mod+/" });
+    expect(loadKeybindOverrides(storage)).toEqual({ help: "Mod+/" });
   });
 
   it("ignores malformed override json", () => {

@@ -17,7 +17,11 @@ import {
   type KeybindPreferenceStorage,
   loadKeybindOverrides,
   loadLeaderBinding,
+  removeKeybindOverride,
+  saveKeybindOverride,
+  saveLeaderBinding,
 } from "./keybindStore";
+import { buildKeybindBindingViews } from "./keybindViews";
 import {
   KeybindContext,
   type KeybindContextValue,
@@ -49,10 +53,10 @@ export function KeybindProvider({ children, storage }: KeybindProviderProps) {
     (typeof window !== "undefined" ? window.localStorage : undefined);
   const registryReference = useRef(new Map<string, KeybindRegistration>());
   const [registryVersion, setRegistryVersion] = useState(0);
-  const [overrides] = useState<Record<string, string>>(() =>
+  const [overrides, setOverridesState] = useState<Record<string, string>>(() =>
     preferenceStorage ? loadKeybindOverrides(preferenceStorage) : {},
   );
-  const [leaderBinding] = useState<string>(() =>
+  const [leaderBinding, setLeaderState] = useState<string>(() =>
     preferenceStorage
       ? loadLeaderBinding(preferenceStorage)
       : DEFAULT_LEADER_BINDING,
@@ -66,6 +70,48 @@ export function KeybindProvider({ children, storage }: KeybindProviderProps) {
       setRegistryVersion((version) => version + 1);
     };
   }, []);
+
+  const setOverride = useCallback(
+    (actionId: string, binding: string) => {
+      if (preferenceStorage) {
+        saveKeybindOverride(preferenceStorage, actionId, binding);
+      }
+      setOverridesState((current) => ({ ...current, [actionId]: binding }));
+    },
+    [preferenceStorage],
+  );
+
+  const resetOverride = useCallback(
+    (actionId: string) => {
+      if (preferenceStorage) {
+        removeKeybindOverride(preferenceStorage, actionId);
+      }
+      setOverridesState((current) => {
+        const remaining = { ...current };
+        delete remaining[actionId];
+        return remaining;
+      });
+    },
+    [preferenceStorage],
+  );
+
+  const setLeader = useCallback(
+    (binding: string) => {
+      if (preferenceStorage) {
+        saveLeaderBinding(preferenceStorage, binding);
+      }
+      setLeaderState(binding);
+    },
+    [preferenceStorage],
+  );
+
+  const bindings = useMemo(() => {
+    void registryVersion;
+    return buildKeybindBindingViews(
+      Array.from(registryReference.current.values()),
+      overrides,
+    );
+  }, [registryVersion, overrides]);
 
   const resolvedBindings = useMemo<ResolvedKeybind[]>(() => {
     void registryVersion;
@@ -131,8 +177,15 @@ export function KeybindProvider({ children, storage }: KeybindProviderProps) {
   }, [resolvedBindings]);
 
   const contextValue = useMemo<KeybindContextValue>(
-    () => ({ register }),
-    [register],
+    () => ({
+      register,
+      bindings,
+      leader: leaderBinding,
+      setOverride,
+      resetOverride,
+      setLeader,
+    }),
+    [register, bindings, leaderBinding, setOverride, resetOverride, setLeader],
   );
 
   return (

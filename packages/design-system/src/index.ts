@@ -43,14 +43,17 @@ export {
 export type { KeybindProviderProps } from "./keybinds/KeybindProvider";
 export { KeybindProvider } from "./keybinds/KeybindProvider";
 export { useKeybind } from "./keybinds/useKeybind";
+export { useKeybindRegistry } from "./keybinds/useKeybindRegistry";
 export type {
   KeybindRegistration,
   KeybindContextValue,
 } from "./keybinds/keybindContext";
+export type { KeybindBindingView } from "./keybinds/keybindViews";
 export {
   DEFAULT_LEADER_BINDING,
   loadKeybindOverrides,
   saveKeybindOverride,
+  removeKeybindOverride,
   loadLeaderBinding,
   saveLeaderBinding,
 } from "./keybinds/keybindStore";
