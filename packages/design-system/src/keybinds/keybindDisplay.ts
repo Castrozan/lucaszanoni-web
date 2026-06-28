@@ -14,7 +14,7 @@ function formatChordToken(token: string): string {
   if (parts.length === 0) {
     return token;
   }
-  const key = parts[parts.length - 1];
+  const key = parts[parts.length - 1] ?? token;
   const formattedKey = key.length === 1 ? key.toUpperCase() : key;
   const modifiers = parts
     .slice(0, -1)
