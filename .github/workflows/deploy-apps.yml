@@ -119,6 +119,8 @@ jobs:
           COCKPIT_GITLAB_BASE_URL: ${{ secrets.COCKPIT_GITLAB_BASE_URL }}
           COCKPIT_GITLAB_PROJECT: ${{ secrets.COCKPIT_GITLAB_PROJECT }}
           COCKPIT_MACHINES: ${{ secrets.COCKPIT_MACHINES }}
+          COCKPIT_REAL_COMPUTE: ${{ secrets.COCKPIT_REAL_COMPUTE }}
+          COCKPIT_WORKSPACE_MACHINES: ${{ secrets.COCKPIT_WORKSPACE_MACHINES }}
         run: |
           case "${build_profile}" in
             static-spa) dockerfile_path="deploy/docker/Dockerfile" ;;
@@ -137,6 +139,8 @@ jobs:
             --build-arg VITE_COCKPIT_GITLAB_BASE_URL="${COCKPIT_GITLAB_BASE_URL}" \
             --build-arg VITE_COCKPIT_GITLAB_PROJECT="${COCKPIT_GITLAB_PROJECT}" \
             --build-arg VITE_COCKPIT_MACHINES="${COCKPIT_MACHINES}" \
+            --build-arg VITE_COCKPIT_REAL_COMPUTE="${COCKPIT_REAL_COMPUTE}" \
+            --build-arg VITE_COCKPIT_WORKSPACE_MACHINES="${COCKPIT_WORKSPACE_MACHINES}" \
             --tag "${image_repository}:${{ github.sha }}" \
             --tag "${image_repository}:latest" \
             .
