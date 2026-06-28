@@ -45,6 +45,8 @@ export function useWorkspace(
   const compute = computeRef.current;
   const [state, setState] = useState<WorkspaceRegistryState>(initialState);
   const stateRef = useRef<WorkspaceRegistryState>(initialState);
+  const storageRef = useRef<Storage | undefined>(storage);
+  storageRef.current = storage;
 
   useEffect(
     () => () => {
@@ -54,19 +56,31 @@ export function useWorkspace(
     [],
   );
 
-  const commit = useCallback(
-    (next: WorkspaceRegistryState) => {
-      stateRef.current = next;
-      savePersistedWorkspace(storage, next);
-      setState(next);
-    },
-    [storage],
-  );
+  const commit = useCallback((next: WorkspaceRegistryState) => {
+    stateRef.current = next;
+    savePersistedWorkspace(storageRef.current, next);
+    setState(next);
+  }, []);
 
   const syncExistence = useCallback(async () => {
     const live = await compute.listSessions();
     return reconcileWorkspace(stateRef.current, live);
   }, [compute]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const hydrated = await syncExistence();
+        if (!cancelled) {
+          commit(hydrated);
+        }
+      } catch {}
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [syncExistence, commit]);
 
   const openSession = useCallback(
     async (label: string) => {

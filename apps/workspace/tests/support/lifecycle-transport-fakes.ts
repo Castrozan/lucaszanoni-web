@@ -29,7 +29,11 @@ export function createScriptedLifecycleTransport(
 export function inventoryReply(
   sessions: readonly {
     sessionName: string;
-    windows: readonly { windowIdentifier: string; windowTitle: string }[];
+    windows: readonly {
+      windowIdentifier: string;
+      windowTitle: string;
+      agentDriver?: string | null;
+    }[];
   }[],
 ): CockpitLifecycleReply {
   return { operation: "list-sessions", sessions };
