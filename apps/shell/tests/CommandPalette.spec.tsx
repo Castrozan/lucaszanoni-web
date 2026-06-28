@@ -82,4 +82,15 @@ describe("CommandPalette", () => {
     });
     expect(screen.queryByRole("dialog")).toBeNull();
   });
+
+  it("locks background scroll while open and restores it on close", () => {
+    expect(document.body.style.overflow).toBe("");
+    render(<CommandPalette navigate={() => {}} />);
+    pressOpenShortcut();
+    expect(document.body.style.overflow).toBe("hidden");
+    fireEvent.keyDown(screen.getByLabelText("Search sections"), {
+      key: "Escape",
+    });
+    expect(document.body.style.overflow).toBe("");
+  });
 });
