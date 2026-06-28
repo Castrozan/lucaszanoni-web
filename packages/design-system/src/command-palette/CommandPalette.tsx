@@ -78,12 +78,6 @@ export function CommandPalette({
     defaultBinding: "/",
     run: () => setIsOpen(true),
   });
-  useKeybind({
-    id: "command-palette.open-leader",
-    label: "Open command palette (leader)",
-    defaultBinding: "Leader p",
-    run: () => setIsOpen(true),
-  });
 
   useEffect(() => {
     setHighlightedIndex(0);
