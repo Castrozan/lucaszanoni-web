@@ -104,7 +104,7 @@ export function useJarvisSessionTerminalView({
     speak,
   } = useJarvisSpeech(submitSpokenInput, speechResolvers);
 
-  const [spokenOutputMuted, setSpokenOutputMuted] = useState(false);
+  const [spokenOutputMuted, setSpokenOutputMuted] = useState(true);
   const toggleSpokenOutput = useCallback(
     () => setSpokenOutputMuted((muted) => !muted),
     [],

@@ -30,16 +30,29 @@ function renderAtPath(path: string) {
 }
 
 describe("CockpitRoutes", () => {
-  it("lands the cockpit index on the Jarvis terminal instead of the dashboard hub", () => {
+  it("lands the cockpit index on the workspace agent terminal instead of the Jarvis terminal", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() => new Promise(() => {})),
     );
     renderAtPath("/");
     expect(
+      screen.getByRole("heading", { name: "Agent terminal" }),
+    ).toBeDefined();
+    expect(
+      screen.queryByRole("region", { name: "Jarvis session terminal" }),
+    ).toBeNull();
+  });
+
+  it("keeps the Jarvis terminal reachable at /jarvis", () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => new Promise(() => {})),
+    );
+    renderAtPath("/jarvis");
+    expect(
       screen.getByRole("region", { name: "Jarvis session terminal" }),
     ).toBeDefined();
-    expect(screen.queryByRole("heading", { name: /Welcome back/ })).toBeNull();
   });
 
   it("keeps the dashboard hub reachable at /dashboard", () => {
@@ -51,14 +64,14 @@ describe("CockpitRoutes", () => {
     expect(screen.getByRole("heading", { name: /Welcome back/ })).toBeDefined();
   });
 
-  it("falls back unknown cockpit paths to the Jarvis terminal", () => {
+  it("falls back unknown cockpit paths to the workspace agent terminal", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() => new Promise(() => {})),
     );
     renderAtPath("/does-not-exist");
     expect(
-      screen.getByRole("region", { name: "Jarvis session terminal" }),
+      screen.getByRole("heading", { name: "Agent terminal" }),
     ).toBeDefined();
   });
 });

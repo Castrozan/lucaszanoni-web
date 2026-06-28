@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import { cockpitViews } from "../src/navigation/cockpit-views";
 
 describe("cockpitViews", () => {
-  it("registers the dashboard hub at /dashboard so the index stays the terminal", () => {
+  it("registers the workspace agent terminal at the cockpit index path", () => {
+    const workspaceView = cockpitViews.find((view) => view.id === "workspace");
+    expect(workspaceView?.path).toBe("/");
+  });
+
+  it("registers the dashboard hub at /dashboard", () => {
     const dashboardView = cockpitViews.find((view) => view.id === "dashboard");
     expect(dashboardView?.path).toBe("/dashboard");
   });
@@ -12,9 +17,9 @@ describe("cockpitViews", () => {
     expect(userView?.path).toBe("/user");
   });
 
-  it("registers the Jarvis terminal at the cockpit root path for the leader-a jump", () => {
+  it("moves the Jarvis terminal off the index to /jarvis", () => {
     const jarvisView = cockpitViews.find((view) => view.id === "jarvis");
-    expect(jarvisView?.path).toBe("/");
+    expect(jarvisView?.path).toBe("/jarvis");
   });
 
   it("keeps every view path unique so a leader-key switch is unambiguous", () => {

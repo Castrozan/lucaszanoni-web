@@ -15,6 +15,7 @@
     "@platform/config": "workspace:*",
     "@platform/design-system": "workspace:*",
     "@platform/usage-insights": "workspace:*",
+    "@platform/workspace": "workspace:*",
     "@tanstack/react-query": "^5.62.0",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
