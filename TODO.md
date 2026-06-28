@@ -14,18 +14,14 @@ which no persona needs to read; it belongs here next to the code.
 
 ## Keybinds
 
-The keybind engine (`packages/design-system/src/keybinds`) ships the registry, a configurable leader
-(default Ctrl+B) with full multi-key sequences, and localStorage overrides, mounted in every app via
-`KeybindProvider`. Remaining:
-
-- Migrate the command palette's own `Mod+K` / `/` listener onto the engine via `useKeybind` (currently
-  the palette keeps its own window listener; only the `Leader p` open binding goes through the engine).
-- Override-editing UI: a settings surface to rebind actions and the leader (storage API exists:
-  `saveKeybindOverride` / `saveLeaderBinding`); today overrides only apply if written to localStorage
-  directly.
-- Discoverable help overlay (`?`) listing the active bindings.
-- Register cross-app navigation and per-app actions through the engine so the registry is the full
-  source of truth.
+The keybind engine (`packages/design-system/src/keybinds`) is a full user-facing system, mounted in
+every app via `KeybindProvider`: the registry is the single source of truth, with a configurable leader
+(default Ctrl+B) and full multi-key sequences. The command palette runs entirely on the engine (`Mod+K`
+toggles, `/` opens, `Leader p` opens; no parallel window listener). A help overlay (`?`) lists every live
+binding, the leader, and conflicts; from its Edit mode any action and the leader rebind via key capture,
+reset to default, and persist to localStorage (applied live, surviving reload). Cross-app navigation is
+registered through the engine as leader-g sequences (`Leader g c` to Cockpit, etc.), so it is both
+discoverable in the overlay and rebindable.
 
 ## Infra
 
