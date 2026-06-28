@@ -27,6 +27,7 @@ import {
   type KeybindContextValue,
   type KeybindRegistration,
 } from "./keybindContext";
+import { KeybindHelpOverlay } from "./KeybindHelpOverlay";
 
 const SEQUENCE_RESET_MS = 1500;
 
@@ -191,6 +192,7 @@ export function KeybindProvider({ children, storage }: KeybindProviderProps) {
   return (
     <KeybindContext.Provider value={contextValue}>
       {children}
+      <KeybindHelpOverlay />
     </KeybindContext.Provider>
   );
 }
