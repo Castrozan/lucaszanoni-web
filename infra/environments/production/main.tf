@@ -125,10 +125,20 @@ module "edge" {
       object_key_prefix = "reports/coverage/"
     }
   } : {}
-  external_https_prefix_origins = local.external_https_prefix_origins
-  retired_prefixes              = local.retired_app_mount_prefixes
-  subdomain_apps                = local.subdomain_apps
-  edge_shared_secret_value      = var.edge_shared_secret_value
+  external_https_prefix_origins = merge(
+    local.external_https_prefix_origins,
+    var.enable_kira_session_tunnel ? {
+      "/cockpit/kira-session/" = {
+        origin_host         = one(module.kira_session_tunnel[*].origin_hostname)
+        path_rewrite        = "strip-mount-path"
+        forwarded_base_path = "/cockpit/"
+        trusted             = false
+      }
+    } : {}
+  )
+  retired_prefixes         = local.retired_app_mount_prefixes
+  subdomain_apps           = local.subdomain_apps
+  edge_shared_secret_value = var.edge_shared_secret_value
   alias_redirect = var.enable_dotcom_canonical ? {
     zone_name      = var.domain_name
     canonical_host = var.canonical_domain_name
