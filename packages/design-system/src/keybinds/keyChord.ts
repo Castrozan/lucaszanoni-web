@@ -26,7 +26,7 @@ export function chordFromKeyboardEvent(event: KeyboardEvent): KeyChord | null {
 
 export function parseChordToken(token: string): KeyChord {
   const parts = token.split("+").filter((part) => part.length > 0);
-  const rawKey = parts.length > 0 ? parts[parts.length - 1] : token;
+  const rawKey = parts[parts.length - 1] ?? token;
   const modifiers = parts.slice(0, -1).map((part) => part.toLowerCase());
   return {
     key: rawKey.toLowerCase(),
