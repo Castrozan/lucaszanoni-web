@@ -36,6 +36,16 @@ export function saveKeybindOverride(
   return overrides;
 }
 
+export function removeKeybindOverride(
+  storage: KeybindPreferenceStorage,
+  actionId: string,
+): Record<string, string> {
+  const remaining = { ...loadKeybindOverrides(storage) };
+  delete remaining[actionId];
+  storage.setItem(OVERRIDES_STORAGE_KEY, JSON.stringify(remaining));
+  return remaining;
+}
+
 export function loadLeaderBinding(storage: KeybindPreferenceStorage): string {
   const raw = storage.getItem(LEADER_STORAGE_KEY);
   return raw && raw.trim().length > 0 ? raw : DEFAULT_LEADER_BINDING;

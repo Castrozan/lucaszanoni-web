@@ -1,4 +1,5 @@
 import { createContext } from "react";
+import type { KeybindBindingView } from "./keybindViews";
 
 export interface KeybindRegistration {
   readonly id: string;
@@ -10,6 +11,11 @@ export interface KeybindRegistration {
 
 export interface KeybindContextValue {
   register(registration: KeybindRegistration): () => void;
+  readonly bindings: readonly KeybindBindingView[];
+  readonly leader: string;
+  setOverride(actionId: string, binding: string): void;
+  resetOverride(actionId: string): void;
+  setLeader(binding: string): void;
 }
 
 export const KeybindContext = createContext<KeybindContextValue | null>(null);
