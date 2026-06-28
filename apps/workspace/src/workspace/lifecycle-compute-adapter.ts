@@ -106,9 +106,13 @@ function mapSessionInventory(
   const windows = session.windows.map<CockpitWorkspaceWindow>((window) => ({
     id: window.windowIdentifier,
     title: window.windowTitle,
-    driver: isCockpitAgentDriverKind(window.windowTitle)
-      ? window.windowTitle
-      : defaultCockpitAgentDriverKind,
+    driver:
+      typeof window.agentDriver === "string" &&
+      isCockpitAgentDriverKind(window.agentDriver)
+        ? window.agentDriver
+        : isCockpitAgentDriverKind(window.windowTitle)
+          ? window.windowTitle
+          : defaultCockpitAgentDriverKind,
   }));
   return {
     key: session.sessionName,
