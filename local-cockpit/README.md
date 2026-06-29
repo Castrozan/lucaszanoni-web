@@ -19,8 +19,18 @@ python3 launcher.py
 
 Environment overrides: `LOCAL_COCKPIT_PORT` (default `7682`), `LOCAL_COCKPIT_TMUX` (default `tmux`), `LOCAL_COCKPIT_SESSION` (default `cockpit-local`). The launcher binds to `127.0.0.1` only and attaches-or-creates the one tmux session, so it never exposes anything off your machine.
 
-## Status
+## Distribution
 
-This is the proof that the localhost approach works: it renders a real tmux session in the browser over the same-origin local socket, which the deployed page cannot do. It is one session and a single dependency, not the finished feature.
+`build_single_file_launcher.py` inlines the bridge, the stdlib WebSocket server, the entry, and the vendored assets into one dependency-free `dist/local-cockpit.py`. That bundle is served by the deployed cockpit SPA as a static asset at `https://lucaszanoni.com/cockpit/local-cockpit.py`, so the install is a single:
 
-Next increments: make it dependency-free (a stdlib-only WebSocket server) so the install is a single `curl … | python3 -`; reuse the full cockpit SPA so it lists and switches between your sessions instead of attaching one; and add a "drive your own machine" call to action on `/cockpit/` that hands out the one-liner.
+```bash
+curl -fsSL https://lucaszanoni.com/cockpit/local-cockpit.py | python3 -
+```
+
+The served copy lives at `apps/cockpit/public/local-cockpit.py` and is committed, so it can go stale: it is a generated artifact, not a source of truth. Whenever the bridge scripts or any launcher module change, regenerate and restage it:
+
+```bash
+./regenerate-and-stage-served-bundle.sh
+```
+
+That rebuilds `dist/local-cockpit.py` and copies it over `apps/cockpit/public/local-cockpit.py` for you to commit.
