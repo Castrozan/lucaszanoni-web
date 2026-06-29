@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from "react";
+import { useEffect, useRef, type KeyboardEvent } from "react";
 import { cn } from "@platform/design-system";
 import type { CommandPaletteController } from "./use-command-palette";
 
@@ -7,6 +7,14 @@ export interface CommandPaletteProps {
 }
 
 export function CommandPalette({ controller }: CommandPaletteProps) {
+  const highlightedItemRef = useRef<HTMLLIElement>(null);
+  const pointerHighlightSuppressedRef = useRef(false);
+
+  useEffect(() => {
+    pointerHighlightSuppressedRef.current = true;
+    highlightedItemRef.current?.scrollIntoView?.({ block: "nearest" });
+  }, [controller.selectedIndex]);
+
   if (!controller.open) {
     return null;
   }
@@ -62,13 +70,24 @@ export function CommandPalette({ controller }: CommandPaletteProps) {
           <ul
             role="listbox"
             aria-label="Command results"
-            className="m-0 flex max-h-[50vh] list-none flex-col overflow-y-auto p-1"
+            onMouseMove={() => {
+              pointerHighlightSuppressedRef.current = false;
+            }}
+            className="m-0 flex max-h-[50vh] list-none flex-col overflow-y-auto overscroll-contain p-1 [scrollbar-color:var(--ls-color-border)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[var(--ls-color-border)] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5"
           >
             {controller.results.map((command, index) => (
               <li
                 key={command.id}
+                ref={
+                  index === controller.selectedIndex ? highlightedItemRef : null
+                }
                 role="option"
                 aria-selected={index === controller.selectedIndex}
+                onMouseEnter={() => {
+                  if (!pointerHighlightSuppressedRef.current) {
+                    controller.moveSelection(index - controller.selectedIndex);
+                  }
+                }}
                 onClick={() => controller.runCommand(command.id)}
                 className={cn(
                   "flex cursor-pointer items-center justify-between gap-4 rounded-md px-3 py-2 text-sm text-muted-foreground",

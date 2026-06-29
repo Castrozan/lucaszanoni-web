@@ -109,4 +109,28 @@ describe("CommandPalette", () => {
     expect(screen.queryByRole("option")).toBeNull();
     expect(screen.getByText("No matching commands")).toBeDefined();
   });
+
+  it("scrolls the highlighted option into view when the selection changes", () => {
+    const scrollIntoView = vi.fn();
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scrollIntoView;
+    render(
+      <CommandPalette controller={buildController({ selectedIndex: 1 })} />,
+    );
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
+    Element.prototype.scrollIntoView = original;
+  });
+
+  it("highlights an option on hover only after a real pointer move", () => {
+    const controller = buildController({ selectedIndex: 0 });
+    render(<CommandPalette controller={controller} />);
+    const jarvisOption = screen.getByRole("option", { name: "Go to Jarvis" });
+
+    fireEvent.mouseEnter(jarvisOption);
+    expect(controller.moveSelection).not.toHaveBeenCalled();
+
+    fireEvent.mouseMove(screen.getByRole("listbox"));
+    fireEvent.mouseEnter(jarvisOption);
+    expect(controller.moveSelection).toHaveBeenCalledWith(1);
+  });
 });
