@@ -36,7 +36,11 @@ function mountPathIsAncestorOf(
 }
 
 function pathnameIsWithin(coveringPath: string, pathname: string): boolean {
-  return pathname === coveringPath || pathname.startsWith(coveringPath);
+  const normalizedPathname = pathname.endsWith("/") ? pathname : `${pathname}/`;
+  return (
+    normalizedPathname === coveringPath ||
+    normalizedPathname.startsWith(coveringPath)
+  );
 }
 
 export function buildPlatformSessions(): PlatformSession[] {
@@ -79,6 +83,9 @@ export function findActiveLocation(
   sessions: readonly PlatformSession[],
   pathname: string,
 ): ActivePlatformLocation | null {
+  if (pathname.length === 0) {
+    return null;
+  }
   let activeSessionIndex = -1;
   sessions.forEach((session, index) => {
     if (!pathnameIsWithin(session.mountPath, pathname)) {

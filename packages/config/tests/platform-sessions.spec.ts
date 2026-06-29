@@ -49,6 +49,15 @@ describe("findActiveLocation", () => {
     expect(location?.window.id).toBe("jarvis-session");
   });
 
+  it("matches a session whose pathname is missing the trailing slash", () => {
+    expect(
+      findActiveLocation(sessions, "/dynamic-ia-interfaces")?.session.id,
+    ).toBe("dynamic-ia-interfaces");
+    expect(findActiveLocation(sessions, "/cockpit")?.session.id).toBe(
+      "cockpit",
+    );
+  });
+
   it("treats home as the catch-all session for paths under no other app", () => {
     expect(findActiveLocation(sessions, "/")?.session.id).toBe("shell");
     expect(findActiveLocation(sessions, "/random")?.session.id).toBe("shell");
