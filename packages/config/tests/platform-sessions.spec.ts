@@ -43,7 +43,7 @@ describe("buildPlatformSessions", () => {
   it("gives a session with no declarations or children a single self window", () => {
     const workspace = sessions.find((session) => session.id === "workspace");
     expect(workspace?.windows).toHaveLength(1);
-    expect(workspace?.windows[0].path).toBe("/workspace/");
+    expect(workspace?.windows[0]?.path).toBe("/workspace/");
   });
 });
 

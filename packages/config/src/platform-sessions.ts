@@ -125,34 +125,43 @@ export function findActiveLocation(
     return null;
   }
   let activeSessionIndex = -1;
+  let activeSession: PlatformSession | undefined;
   sessions.forEach((session, index) => {
     if (!pathnameIsWithin(session.mountPath, pathname)) {
       return;
     }
     if (
-      activeSessionIndex === -1 ||
-      session.mountPath.length > sessions[activeSessionIndex].mountPath.length
+      activeSession === undefined ||
+      session.mountPath.length > activeSession.mountPath.length
     ) {
       activeSessionIndex = index;
+      activeSession = session;
     }
   });
-  if (activeSessionIndex === -1) {
+  if (activeSession === undefined) {
     return null;
   }
-  const session = sessions[activeSessionIndex];
   let windowIndex = 0;
-  session.windows.forEach((platformWindow, index) => {
+  let activeWindow: PlatformWindow | undefined = activeSession.windows[0];
+  activeSession.windows.forEach((platformWindow, index) => {
     if (!pathnameIsWithin(platformWindow.path, pathname)) {
       return;
     }
-    if (platformWindow.path.length > session.windows[windowIndex].path.length) {
+    if (
+      activeWindow === undefined ||
+      platformWindow.path.length > activeWindow.path.length
+    ) {
       windowIndex = index;
+      activeWindow = platformWindow;
     }
   });
+  if (activeWindow === undefined) {
+    return null;
+  }
   return {
-    session,
+    session: activeSession,
     sessionIndex: activeSessionIndex,
-    window: session.windows[windowIndex],
+    window: activeWindow,
     windowIndex,
   };
 }
