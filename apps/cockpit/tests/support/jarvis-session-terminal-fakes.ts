@@ -43,7 +43,6 @@ export interface FakeEmulatorControl {
   factory: JarvisTerminalEmulatorFactory;
   writtenOutput: Uint8Array[];
   ownerInputHandler: ((bytes: Uint8Array) => void) | null;
-  hostKeyGuard: ((event: KeyboardEvent) => boolean) | null;
   windowSize: { columns: number; rows: number };
   disposed: boolean;
   focusCount: number;
@@ -53,7 +52,6 @@ export function createFakeEmulatorControl(): FakeEmulatorControl {
   const control: FakeEmulatorControl = {
     writtenOutput: [],
     ownerInputHandler: null,
-    hostKeyGuard: null,
     windowSize: { columns: 100, rows: 30 },
     disposed: false,
     focusCount: 0,
@@ -63,9 +61,6 @@ export function createFakeEmulatorControl(): FakeEmulatorControl {
         writeOutputBytes: (bytes) => control.writtenOutput.push(bytes),
         onOwnerInput: (handler) => {
           control.ownerInputHandler = handler;
-        },
-        setHostKeyGuard: (guard) => {
-          control.hostKeyGuard = guard;
         },
         fitToContainer: () => control.windowSize,
         focus: () => {

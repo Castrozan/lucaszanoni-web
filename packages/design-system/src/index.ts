@@ -44,7 +44,6 @@ export type { KeybindProviderProps } from "./keybinds/KeybindProvider";
 export { KeybindProvider } from "./keybinds/KeybindProvider";
 export { useKeybind } from "./keybinds/useKeybind";
 export { useKeybindRegistry } from "./keybinds/useKeybindRegistry";
-export { eventMatchesLeaderChord } from "./keybinds/keyChord";
 export type {
   KeybindRegistration,
   KeybindContextValue,
