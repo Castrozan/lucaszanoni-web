@@ -37,8 +37,13 @@ export function CockpitShell({ children }: CockpitShellProps) {
     },
   });
   return (
-    <div style={{ paddingBottom: "var(--app-status-bar-height, 2rem)" }}>
-      <main className="mx-auto max-w-[72rem] px-8 py-8">{children}</main>
+    <div
+      className="flex h-screen flex-col"
+      style={{ paddingBottom: "var(--app-status-bar-height, 2rem)" }}
+    >
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-6">
+        {children}
+      </main>
       <CommandPalette controller={commandPalette} />
     </div>
   );
