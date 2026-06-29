@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Button } from "@platform/design-system";
 import { resolveJarvisSessionEndpoint } from "./jarvis-session-config";
 import { type JarvisTerminalStatus } from "./jarvis-session-terminal-model";
@@ -46,6 +47,7 @@ export function JarvisSessionTerminal({
     connect,
     disconnect,
     terminalContainerRef,
+    focusTerminal,
     voice,
     selectSession,
     requestSessionList,
@@ -58,6 +60,26 @@ export function JarvisSessionTerminal({
     speechResolvers,
     speakDebounceMs,
   });
+
+  const [isTerminalFocused, setIsTerminalFocused] = useState(false);
+  useEffect(() => {
+    const container = terminalContainerRef.current;
+    if (!container) {
+      return;
+    }
+    function handleFocusIn() {
+      setIsTerminalFocused(true);
+    }
+    function handleFocusOut() {
+      setIsTerminalFocused(false);
+    }
+    container.addEventListener("focusin", handleFocusIn);
+    container.addEventListener("focusout", handleFocusOut);
+    return () => {
+      container.removeEventListener("focusin", handleFocusIn);
+      container.removeEventListener("focusout", handleFocusOut);
+    };
+  }, [terminalContainerRef]);
 
   if (!endpoint) {
     return (
@@ -125,12 +147,24 @@ export function JarvisSessionTerminal({
           </Button>
         )}
       </header>
-      <div
-        ref={terminalContainerRef}
-        role="log"
-        aria-label="Jarvis session output"
-        className="relative flex-1 overflow-hidden px-2 py-2"
-      />
+      <div className="relative flex-1 overflow-hidden">
+        <div
+          ref={terminalContainerRef}
+          role="log"
+          aria-label="Jarvis session output"
+          className="absolute inset-0 px-2 py-2"
+        />
+        {isOpen && !isTerminalFocused ? (
+          <button
+            type="button"
+            onClick={focusTerminal}
+            aria-label="Focus the terminal"
+            className="absolute inset-0 z-10 flex cursor-text items-center justify-center bg-background/40 font-mono text-[11px] uppercase tracking-[2px] text-text-faint backdrop-blur-[2px] transition-colors hover:text-foreground"
+          >
+            Click to focus terminal
+          </button>
+        ) : null}
+      </div>
     </section>
   );
 }

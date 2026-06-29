@@ -39,7 +39,6 @@ export const createBrowserTerminalEmulator: JarvisTerminalEmulatorFactory =
       attachTo(container) {
         terminal.open(container);
         fitAddon.fit();
-        terminal.focus();
         return currentWindowSize();
       },
       writeOutputBytes(bytes) {
