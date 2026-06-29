@@ -40,6 +40,10 @@ export {
   buildCommandPaletteDestinations,
   deduplicateDestinationsByHref,
 } from "./command-palette/commandPaletteDestinations";
+export {
+  PALETTE_SCROLLBAR_CLASSNAME,
+  usePaletteScrollIntoView,
+} from "./command-palette/paletteScrollBehavior";
 export type { KeybindProviderProps } from "./keybinds/KeybindProvider";
 export { KeybindProvider } from "./keybinds/KeybindProvider";
 export { useKeybind } from "./keybinds/useKeybind";

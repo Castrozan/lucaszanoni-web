@@ -1,5 +1,8 @@
-import { useEffect, useRef } from "react";
 import type { PaletteDestination } from "./commandPaletteDestinations";
+import {
+  PALETTE_SCROLLBAR_CLASSNAME,
+  usePaletteScrollIntoView,
+} from "./paletteScrollBehavior";
 
 export interface CommandPaletteListProps {
   readonly destinations: readonly PaletteDestination[];
@@ -14,22 +17,18 @@ export function CommandPaletteList({
   onHighlight,
   onCommit,
 }: CommandPaletteListProps) {
-  const highlightedItemReference = useRef<HTMLLIElement>(null);
-  const pointerHighlightSuppressedReference = useRef(false);
-
-  useEffect(() => {
-    pointerHighlightSuppressedReference.current = true;
-    highlightedItemReference.current?.scrollIntoView?.({ block: "nearest" });
-  }, [highlightedIndex]);
+  const {
+    highlightedItemRef,
+    allowPointerHighlight,
+    isPointerHighlightAllowed,
+  } = usePaletteScrollIntoView(highlightedIndex);
 
   return (
     <ul
       role="listbox"
       aria-label="Sections"
-      onMouseMove={() => {
-        pointerHighlightSuppressedReference.current = false;
-      }}
-      className="max-h-[50vh] overflow-y-auto overscroll-contain [scrollbar-color:var(--ls-color-border)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[var(--ls-color-border)] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5"
+      onMouseMove={allowPointerHighlight}
+      className={`max-h-[50vh] overflow-y-auto ${PALETTE_SCROLLBAR_CLASSNAME}`}
     >
       {destinations.length === 0 ? (
         <li className="px-4 py-3 font-mono text-[13px] text-text-faint">
@@ -39,14 +38,14 @@ export function CommandPaletteList({
         destinations.map((destination, index) => (
           <li
             key={destination.id}
-            ref={index === highlightedIndex ? highlightedItemReference : null}
+            ref={index === highlightedIndex ? highlightedItemRef : null}
             role="option"
             aria-selected={index === highlightedIndex}
           >
             <button
               type="button"
               onMouseEnter={() => {
-                if (!pointerHighlightSuppressedReference.current) {
+                if (isPointerHighlightAllowed()) {
                   onHighlight(index);
                 }
               }}

@@ -1,5 +1,9 @@
-import { useEffect, useRef, type KeyboardEvent } from "react";
-import { cn } from "@platform/design-system";
+import type { KeyboardEvent } from "react";
+import {
+  cn,
+  PALETTE_SCROLLBAR_CLASSNAME,
+  usePaletteScrollIntoView,
+} from "@platform/design-system";
 import type { CommandPaletteController } from "./use-command-palette";
 
 export interface CommandPaletteProps {
@@ -7,13 +11,11 @@ export interface CommandPaletteProps {
 }
 
 export function CommandPalette({ controller }: CommandPaletteProps) {
-  const highlightedItemRef = useRef<HTMLLIElement>(null);
-  const pointerHighlightSuppressedRef = useRef(false);
-
-  useEffect(() => {
-    pointerHighlightSuppressedRef.current = true;
-    highlightedItemRef.current?.scrollIntoView?.({ block: "nearest" });
-  }, [controller.selectedIndex]);
+  const {
+    highlightedItemRef,
+    allowPointerHighlight,
+    isPointerHighlightAllowed,
+  } = usePaletteScrollIntoView(controller.selectedIndex);
 
   if (!controller.open) {
     return null;
@@ -70,10 +72,11 @@ export function CommandPalette({ controller }: CommandPaletteProps) {
           <ul
             role="listbox"
             aria-label="Command results"
-            onMouseMove={() => {
-              pointerHighlightSuppressedRef.current = false;
-            }}
-            className="m-0 flex max-h-[50vh] list-none flex-col overflow-y-auto overscroll-contain p-1 [scrollbar-color:var(--ls-color-border)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[var(--ls-color-border)] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5"
+            onMouseMove={allowPointerHighlight}
+            className={cn(
+              "m-0 flex max-h-[50vh] list-none flex-col overflow-y-auto p-1",
+              PALETTE_SCROLLBAR_CLASSNAME,
+            )}
           >
             {controller.results.map((command, index) => (
               <li
@@ -84,7 +87,7 @@ export function CommandPalette({ controller }: CommandPaletteProps) {
                 role="option"
                 aria-selected={index === controller.selectedIndex}
                 onMouseEnter={() => {
-                  if (!pointerHighlightSuppressedRef.current) {
+                  if (isPointerHighlightAllowed()) {
                     controller.moveSelection(index - controller.selectedIndex);
                   }
                 }}
