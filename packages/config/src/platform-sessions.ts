@@ -2,10 +2,43 @@ import { MICRO_FRONTEND_ROUTES } from "./route-registry";
 import type { MicroFrontendId } from "./route-registry";
 
 export interface PlatformWindow {
-  readonly id: MicroFrontendId;
+  readonly id: string;
   readonly label: string;
   readonly path: string;
 }
+
+const SESSION_WINDOW_DECLARATIONS: Partial<
+  Record<MicroFrontendId, readonly PlatformWindow[]>
+> = {
+  cockpit: [
+    { id: "cockpit", label: "Cockpit", path: "/cockpit/" },
+    { id: "cockpit-dashboard", label: "Dashboard", path: "/cockpit/dashboard" },
+    { id: "cockpit-jarvis", label: "Jarvis", path: "/cockpit/jarvis" },
+    { id: "cockpit-user", label: "User", path: "/cockpit/user" },
+  ],
+  reports: [
+    {
+      id: "reports",
+      label: "Reports",
+      path: "/engineering/dotfiles/reports/",
+    },
+    {
+      id: "reports-quality",
+      label: "Quality",
+      path: "/engineering/dotfiles/reports/quality",
+    },
+    {
+      id: "reports-baseline",
+      label: "Baseline",
+      path: "/engineering/dotfiles/reports/baseline",
+    },
+    {
+      id: "reports-coverage",
+      label: "Coverage",
+      path: "/engineering/dotfiles/reports/coverage",
+    },
+  ],
+};
 
 export interface PlatformSession {
   readonly id: MicroFrontendId;
@@ -54,10 +87,22 @@ export function buildPlatformSessions(): PlatformSession[] {
       ),
   );
   return topLevelRoutes.map((sessionRoute) => {
+    const declaredWindows = SESSION_WINDOW_DECLARATIONS[sessionRoute.id];
+    const baseWindows: PlatformWindow[] = declaredWindows
+      ? declaredWindows.map((declaredWindow) => ({ ...declaredWindow }))
+      : [
+          {
+            id: sessionRoute.id,
+            label: sessionRoute.navigationLabel,
+            path: sessionRoute.mountPath,
+          },
+        ];
+    const baseWindowPaths = new Set(baseWindows.map((window) => window.path));
     const childWindows = candidateRoutes
       .filter((route) =>
         mountPathIsAncestorOf(sessionRoute.mountPath, route.mountPath),
       )
+      .filter((route) => !baseWindowPaths.has(route.mountPath))
       .map((route) => ({
         id: route.id,
         label: route.navigationLabel,
@@ -67,14 +112,7 @@ export function buildPlatformSessions(): PlatformSession[] {
       id: sessionRoute.id,
       label: sessionRoute.navigationLabel,
       mountPath: sessionRoute.mountPath,
-      windows: [
-        {
-          id: sessionRoute.id,
-          label: sessionRoute.navigationLabel,
-          path: sessionRoute.mountPath,
-        },
-        ...childWindows,
-      ],
+      windows: [...baseWindows, ...childWindows],
     };
   });
 }
