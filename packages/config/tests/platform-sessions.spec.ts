@@ -27,6 +27,8 @@ describe("buildPlatformSessions", () => {
       "cockpit-jarvis",
       "cockpit-user",
       "jarvis-session",
+      "kira-session",
+      "rin-session",
     ]);
   });
 

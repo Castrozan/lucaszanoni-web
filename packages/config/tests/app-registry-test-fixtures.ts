@@ -1,4 +1,9 @@
 import type { AppRegistryEntry } from "../src/app-registry-types";
+import {
+  jarvisSessionApp,
+  kiraSessionApp,
+  rinSessionApp,
+} from "./app-registry-session-fixtures";
 
 export const shellApp: AppRegistryEntry = {
   id: "shell",
@@ -94,27 +99,7 @@ export const cockpitApp: AppRegistryEntry = {
   },
 };
 
-export const jarvisSessionApp: AppRegistryEntry = {
-  id: "jarvis-session",
-  mountPath: "/cockpit/jarvis-session/",
-  navigationLabel: "Jarvis session",
-  description:
-    "Owner-only websocket bridge to the Jarvis session host, attached at the edge and gated by Cloudflare Access.",
-  showInCrossSectionNavigation: false,
-  status: "active",
-  accessModel: { environment: "private", audience: { kind: "owner" } },
-  accessApplicationProvisioning: {
-    kind: "inherited-from-parent-path",
-    parentMountPath: "/cockpit/",
-  },
-  origin: {
-    kind: "external-https",
-    originHost: "jarvis-session-origin.lucaszanoni.com",
-    pathRewrite: "preserve",
-    forwardedBasePath: "",
-    trusted: false,
-  },
-};
+export { jarvisSessionApp, kiraSessionApp, rinSessionApp };
 
 export const workspaceApp: AppRegistryEntry = {
   id: "workspace",
@@ -191,6 +176,8 @@ export const todaysApps: readonly AppRegistryEntry[] = [
   dbApp,
   cockpitApp,
   jarvisSessionApp,
+  kiraSessionApp,
+  rinSessionApp,
   workspaceApp,
   dynamicIaCanvasApp,
   dynamicIaInterfacesApp,
