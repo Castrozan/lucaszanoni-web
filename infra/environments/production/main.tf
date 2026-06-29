@@ -134,11 +134,19 @@ module "edge" {
         forwarded_base_path = ""
         trusted             = false
       }
-    }
+    },
+    var.enable_kira_session_tunnel ? {
+      "/cockpit/kira-session/" = {
+        origin_host         = one(module.kira_session_tunnel[*].origin_hostname)
+        path_rewrite        = "strip-mount-path"
+        forwarded_base_path = "/cockpit/"
+        trusted             = false
+      }
+    } : {}
   )
-  retired_prefixes = local.retired_app_mount_prefixes
-  subdomain_apps                = local.subdomain_apps
-  edge_shared_secret_value      = var.edge_shared_secret_value
+  retired_prefixes         = local.retired_app_mount_prefixes
+  subdomain_apps           = local.subdomain_apps
+  edge_shared_secret_value = var.edge_shared_secret_value
   alias_redirect = var.enable_dotcom_canonical ? {
     zone_name      = var.domain_name
     canonical_host = var.canonical_domain_name
@@ -167,4 +175,15 @@ module "jarvis_session_tunnel" {
   zone_name             = local.edge_serving_domain
   origin_hostname       = "jarvis-session-origin.${local.edge_serving_domain}"
   tunnel_secret         = var.jarvis_session_tunnel_secret
+}
+
+module "kira_session_tunnel" {
+  source = "../../modules/cloudflare-jarvis-tunnel"
+  count  = var.enable_kira_session_tunnel ? 1 : 0
+
+  cloudflare_account_id = var.cloudflare_account_id
+  zone_name             = local.edge_serving_domain
+  tunnel_name           = "lucaszanoni-kira-session"
+  origin_hostname       = "kira-session-origin.${local.edge_serving_domain}"
+  tunnel_secret         = var.kira_session_tunnel_secret
 }
