@@ -2,6 +2,7 @@ import { LandingHeader } from "./LandingHeader";
 import { HeroSection } from "./HeroSection";
 import { SectionsGrid } from "./SectionsGrid";
 import { FeaturePreview } from "./FeaturePreview";
+import { RunYourOwnCockpitSection } from "./RunYourOwnCockpitSection";
 import { AboutAtriumSection } from "./AboutAtriumSection";
 import { LandingFooter } from "./LandingFooter";
 
@@ -13,6 +14,7 @@ export function LandingPage() {
         <HeroSection />
         <SectionsGrid />
         <FeaturePreview />
+        <RunYourOwnCockpitSection />
         <AboutAtriumSection />
         <LandingFooter />
       </main>
