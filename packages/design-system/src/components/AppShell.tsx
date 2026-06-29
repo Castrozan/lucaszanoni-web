@@ -5,6 +5,7 @@ import { useTheme } from "../theme/theme-context";
 import { buildBreadcrumbTrail } from "../navigation/breadcrumb-trail";
 import { cn } from "../lib/utils";
 import { Button } from "./ui/button";
+import { BottomStatusBar } from "../status-bar/BottomStatusBar";
 
 export interface AppShellProps {
   readonly activeRouteId: MicroFrontendId;
@@ -24,7 +25,7 @@ export function AppShell({ activeRouteId, children }: AppShellProps) {
   const { themeName, toggleTheme } = useTheme();
   const breadcrumbTrail = buildBreadcrumbTrail(activeRouteId);
   return (
-    <div>
+    <div style={{ paddingBottom: "var(--app-status-bar-height)" }}>
       <header className="sticky top-0 flex items-center justify-between gap-6 border-b border-border bg-surface-translucent px-6 py-4 backdrop-blur-[8px]">
         <nav aria-label="Primary">
           <ul className="m-0 flex list-none items-center gap-5 p-0">
@@ -66,6 +67,7 @@ export function AppShell({ activeRouteId, children }: AppShellProps) {
         ))}
       </nav>
       <main className="mx-auto max-w-[72rem] p-6">{children}</main>
+      <BottomStatusBar />
     </div>
   );
 }
