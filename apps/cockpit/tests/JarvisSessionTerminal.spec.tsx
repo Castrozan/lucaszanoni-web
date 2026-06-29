@@ -51,6 +51,24 @@ describe("JarvisSessionTerminal", () => {
     expect(screen.getByRole("button", { name: "Disconnect" })).toBeDefined();
   });
 
+  it("does not steal focus on open and focuses only when the overlay is clicked", () => {
+    const socket = createFakeSocketControl();
+    const emulator = createFakeEmulatorControl();
+    render(
+      <JarvisSessionTerminal
+        endpoint="ws://localhost:9999/session"
+        createSocket={socket.factory}
+        createEmulator={emulator.factory}
+      />,
+    );
+
+    act(() => socket.handlers?.onOpen());
+    expect(emulator.focusCount).toBe(0);
+
+    fireEvent.click(screen.getByRole("button", { name: "Focus the terminal" }));
+    expect(emulator.focusCount).toBe(1);
+  });
+
   it("writes raw session output bytes into the terminal emulator", () => {
     const socket = createFakeSocketControl();
     const emulator = createFakeEmulatorControl();

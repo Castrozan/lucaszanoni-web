@@ -45,6 +45,7 @@ export interface FakeEmulatorControl {
   ownerInputHandler: ((bytes: Uint8Array) => void) | null;
   windowSize: { columns: number; rows: number };
   disposed: boolean;
+  focusCount: number;
 }
 
 export function createFakeEmulatorControl(): FakeEmulatorControl {
@@ -53,6 +54,7 @@ export function createFakeEmulatorControl(): FakeEmulatorControl {
     ownerInputHandler: null,
     windowSize: { columns: 100, rows: 30 },
     disposed: false,
+    focusCount: 0,
     factory: () => {
       const emulator: JarvisTerminalEmulator = {
         attachTo: () => control.windowSize,
@@ -61,7 +63,9 @@ export function createFakeEmulatorControl(): FakeEmulatorControl {
           control.ownerInputHandler = handler;
         },
         fitToContainer: () => control.windowSize,
-        focus: () => {},
+        focus: () => {
+          control.focusCount += 1;
+        },
         dispose: () => {
           control.disposed = true;
         },

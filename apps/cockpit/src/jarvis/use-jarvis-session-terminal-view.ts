@@ -161,8 +161,10 @@ export function useJarvisSessionTerminalView({
       return;
     }
     sendWindowSize(emulator.fitToContainer());
-    emulator.focus();
   }, [status, sendWindowSize]);
+  const focusTerminal = useCallback(() => {
+    emulatorRef.current?.focus();
+  }, []);
 
   const selectSession = useCallback(
     (key: string) => {
@@ -183,6 +185,7 @@ export function useJarvisSessionTerminalView({
     connect,
     disconnect,
     terminalContainerRef,
+    focusTerminal,
     voice: {
       isListening,
       recognitionSupported,
