@@ -19,15 +19,28 @@ describe("buildPlatformSessions", () => {
     expect(ids).not.toContain("jarvis-session");
   });
 
-  it("nests a mountPath child as a window of its parent session", () => {
+  it("lists declared windows plus mountPath children for a session", () => {
     const cockpit = sessions.find((session) => session.id === "cockpit");
     expect(cockpit?.windows.map((window) => window.id)).toEqual([
       "cockpit",
+      "cockpit-dashboard",
+      "cockpit-jarvis",
+      "cockpit-user",
       "jarvis-session",
     ]);
   });
 
-  it("gives a session with no children a single self window", () => {
+  it("lists declared windows for reports", () => {
+    const reports = sessions.find((session) => session.id === "reports");
+    expect(reports?.windows.map((window) => window.label)).toEqual([
+      "Reports",
+      "Quality",
+      "Baseline",
+      "Coverage",
+    ]);
+  });
+
+  it("gives a session with no declarations or children a single self window", () => {
     const workspace = sessions.find((session) => session.id === "workspace");
     expect(workspace?.windows).toHaveLength(1);
     expect(workspace?.windows[0].path).toBe("/workspace/");
@@ -47,6 +60,17 @@ describe("findActiveLocation", () => {
     const location = findActiveLocation(sessions, "/cockpit/jarvis-session/x");
     expect(location?.session.id).toBe("cockpit");
     expect(location?.window.id).toBe("jarvis-session");
+  });
+
+  it("matches a declared window subpage", () => {
+    const cockpitDashboard = findActiveLocation(sessions, "/cockpit/dashboard");
+    expect(cockpitDashboard?.window.id).toBe("cockpit-dashboard");
+    const reportsQuality = findActiveLocation(
+      sessions,
+      "/engineering/dotfiles/reports/quality",
+    );
+    expect(reportsQuality?.session.id).toBe("reports");
+    expect(reportsQuality?.window.id).toBe("reports-quality");
   });
 
   it("matches a session whose pathname is missing the trailing slash", () => {
