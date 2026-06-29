@@ -37,7 +37,10 @@ export default function DynamicInterfacesHomePage() {
   }
 
   return (
-    <div className="flex h-screen flex-col">
+    <div
+      className="flex flex-col"
+      style={{ height: "calc(100vh - var(--app-status-bar-height, 2rem))" }}
+    >
       <header className="flex items-center justify-between border-b border-border px-6 py-3">
         <div>
           <h1 className="text-sm font-semibold text-foreground">

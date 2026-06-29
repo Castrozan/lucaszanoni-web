@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BottomStatusBar } from "@platform/design-system/status-bar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,8 +15,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="h-screen w-screen overflow-hidden bg-neutral-950 text-neutral-100">
+      <body
+        className="w-screen overflow-hidden bg-neutral-950 text-neutral-100"
+        style={{ height: "calc(100vh - var(--app-status-bar-height, 2rem))" }}
+      >
         {children}
+        <BottomStatusBar registerNavigationKeybinds={false} />
       </body>
     </html>
   );

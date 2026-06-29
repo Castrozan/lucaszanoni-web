@@ -102,6 +102,12 @@ importers:
       '@ai-sdk/react':
         specifier: ^3.0.136
         version: 3.0.213(react@19.2.7)(zod@3.25.76)
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@platform/design-system':
+        specifier: workspace:*
+        version: link:../../packages/design-system
       '@xyflow/react':
         specifier: ^12.0.0
         version: 12.11.1(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -202,6 +208,12 @@ importers:
       '@assistant-ui/react-ai-sdk':
         specifier: ^0.8.0
         version: 0.8.1(@assistant-ui/react@0.8.20(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))(@types/react@19.2.17)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7))
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@platform/design-system':
+        specifier: workspace:*
+        version: link:../../packages/design-system
       '@radix-ui/react-dialog':
         specifier: ^1.1.0
         version: 1.1.17(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
