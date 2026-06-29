@@ -18,6 +18,8 @@
   "dependencies": {
     "@ai-sdk/google": "^3.0.85",
     "@ai-sdk/react": "^3.0.136",
+    "@platform/config": "workspace:*",
+    "@platform/design-system": "workspace:*",
     "@xyflow/react": "^12.0.0",
     "ai": "^6.0.0",
     "clsx": "^2.1.0",

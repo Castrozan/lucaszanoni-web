@@ -1,4 +1,5 @@
 const nextConfig = {
+  transpilePackages: ["@platform/design-system", "@platform/config"],
   basePath: "/dynamic-ia-canvas",
   assetPrefix: "/dynamic-ia-canvas",
   trailingSlash: true,

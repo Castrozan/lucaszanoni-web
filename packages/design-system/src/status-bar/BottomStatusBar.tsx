@@ -1,6 +1,11 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import { useEffect, useState, type CSSProperties } from "react";
 import { buildPlatformSessions, findActiveLocation } from "@platform/config";
-import { loadLeaderBinding } from "../keybinds/keybindStore";
+import {
+  DEFAULT_LEADER_BINDING,
+  loadLeaderBinding,
+} from "../keybinds/keybindStore";
 import { formatBindingForDisplay } from "../keybinds/keybindDisplay";
 import {
   STATUS_BAR_HEIGHT,
@@ -8,8 +13,65 @@ import {
 } from "./statusBarLayout";
 import { StatusBarKeybinds } from "./StatusBarKeybinds";
 
-function readPathname(): string {
-  return typeof window === "undefined" ? "/" : window.location.pathname;
+const surfaceColor = "var(--ls-color-surface, #111111)";
+const borderColor = "var(--ls-color-border, #2A2A2A)";
+const mutedColor = "var(--ls-color-text-muted, #888888)";
+const primaryColor = "var(--ls-color-text-primary, #F5F5F0)";
+const faintColor = "var(--ls-color-text-faint, #757575)";
+const accentColor = "var(--ls-color-accent, #FFD600)";
+const backgroundColor = "var(--ls-color-background, #0A0A0A)";
+const monospaceFontFamily =
+  'var(--font-mono, "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace)';
+
+const barStyle: CSSProperties = {
+  position: "fixed",
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: 60,
+  height: STATUS_BAR_HEIGHT,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: "1rem",
+  padding: "0 0.75rem",
+  borderTop: `1px solid ${borderColor}`,
+  background: surfaceColor,
+  color: mutedColor,
+  fontFamily: monospaceFontFamily,
+  fontSize: "12px",
+};
+
+const sessionLabelStyle: CSSProperties = {
+  flexShrink: 0,
+  background: accentColor,
+  color: backgroundColor,
+  fontWeight: 700,
+  padding: "0.125rem 0.5rem",
+};
+
+const windowsNavStyle: CSSProperties = {
+  display: "flex",
+  minWidth: 0,
+  flex: 1,
+  alignItems: "center",
+  gap: "0.75rem",
+  overflowX: "auto",
+};
+
+const hintStyle: CSSProperties = {
+  flexShrink: 0,
+  textTransform: "uppercase",
+  letterSpacing: "1.5px",
+  color: faintColor,
+};
+
+function windowLinkStyle(isActive: boolean): CSSProperties {
+  return {
+    flexShrink: 0,
+    textDecoration: "none",
+    color: isActive ? primaryColor : mutedColor,
+  };
 }
 
 export interface BottomStatusBarProps {
@@ -19,9 +81,12 @@ export interface BottomStatusBarProps {
 export function BottomStatusBar({
   registerNavigationKeybinds = true,
 }: BottomStatusBarProps = {}) {
-  const [pathname, setPathname] = useState(readPathname);
+  const [pathname, setPathname] = useState("/");
+  const [leaderBinding, setLeaderBinding] = useState(DEFAULT_LEADER_BINDING);
 
   useEffect(() => {
+    setPathname(window.location.pathname);
+    setLeaderBinding(loadLeaderBinding(window.localStorage));
     document.documentElement.style.setProperty(
       STATUS_BAR_HEIGHT_CSS_VARIABLE,
       STATUS_BAR_HEIGHT,
@@ -40,10 +105,7 @@ export function BottomStatusBar({
 
   const sessions = buildPlatformSessions();
   const active = findActiveLocation(sessions, pathname);
-  const leaderDisplay = formatBindingForDisplay(
-    "Leader",
-    loadLeaderBinding(window.localStorage),
-  );
+  const leaderDisplay = formatBindingForDisplay("Leader", leaderBinding);
 
   return (
     <>
@@ -52,36 +114,23 @@ export function BottomStatusBar({
           windowCount={active ? active.session.windows.length : 0}
         />
       ) : null}
-      <footer
-        aria-label="Status bar"
-        className="fixed inset-x-0 bottom-0 z-[60] flex items-center justify-between gap-4 border-t border-border bg-surface px-3 font-mono text-[12px] text-muted-foreground"
-        style={{ height: STATUS_BAR_HEIGHT }}
-      >
-        <span className="shrink-0 bg-accent px-2 py-0.5 font-bold text-background">
+      <footer aria-label="Status bar" style={barStyle}>
+        <span style={sessionLabelStyle}>
           {active ? active.session.label : "Home"}
         </span>
-        <nav
-          aria-label="Windows"
-          className="flex min-w-0 flex-1 items-center gap-3 overflow-x-auto [scrollbar-width:none]"
-        >
+        <nav aria-label="Windows" style={windowsNavStyle}>
           {active?.session.windows.map((platformWindow, index) => (
             <a
               key={platformWindow.id}
               href={platformWindow.path}
               aria-current={index === active.windowIndex ? "page" : undefined}
-              className={
-                index === active.windowIndex
-                  ? "shrink-0 text-foreground"
-                  : "shrink-0 text-muted-foreground transition-colors hover:text-foreground"
-              }
+              style={windowLinkStyle(index === active.windowIndex)}
             >
               {index + 1}:{platformWindow.label}
             </a>
           ))}
         </nav>
-        <span className="shrink-0 uppercase tracking-[1.5px] text-text-faint">
-          {leaderDisplay} · ? help
-        </span>
+        <span style={hintStyle}>{leaderDisplay} · ? help</span>
       </footer>
     </>
   );

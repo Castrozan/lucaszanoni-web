@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.85",
+    "@platform/config": "workspace:*",
+    "@platform/design-system": "workspace:*",
     "@ai-sdk/react": "^3.0.136",
     "@assistant-ui/react": "^0.8.0",
     "@assistant-ui/react-ai-sdk": "^0.8.0",

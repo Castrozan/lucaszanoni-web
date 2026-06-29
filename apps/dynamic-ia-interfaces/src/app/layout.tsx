@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BottomStatusBar } from "@platform/design-system/status-bar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-background text-foreground antialiased">
         {children}
+        <BottomStatusBar registerNavigationKeybinds={false} />
       </body>
     </html>
   );
