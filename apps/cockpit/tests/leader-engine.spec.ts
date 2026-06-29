@@ -31,14 +31,6 @@ describe("reduceLeaderEngine", () => {
     expect(result.state.status).toBe("idle");
   });
 
-  it("maps leader s to focusing the quick-access bookmarks", () => {
-    const result = reduceLeaderEngine(cockpitLeaderBindings, armed(), {
-      kind: "key",
-      key: "s",
-    });
-    expect(result.command).toEqual({ kind: "focus-quick-access" });
-  });
-
   it("ignores a key pressed while idle so the leader is required", () => {
     const result = reduceLeaderEngine(
       cockpitLeaderBindings,

@@ -29,33 +29,12 @@ function renderShell(initialEntries: readonly string[] = ["/"]) {
 }
 
 describe("CockpitShell", () => {
-  it("renders a left rail carrying the cockpit views and the owner bookmarks", () => {
+  it("renders the routed content without the legacy left-rail navigation", () => {
     renderShell();
-    expect(
-      screen.getByRole("navigation", { name: "Cockpit navigation" }),
-    ).toBeDefined();
-    expect(screen.getByRole("link", { name: "User" })).toBeDefined();
-    expect(screen.getByText("Claude usage")).toBeDefined();
     expect(screen.getByText("main content")).toBeDefined();
-  });
-
-  it("marks the active view with aria-current for keyboard switching", () => {
-    renderShell(["/user"]);
     expect(
-      screen.getByRole("link", { name: "User" }).getAttribute("aria-current"),
-    ).toBe("page");
-  });
-
-  it("navigates to Jarvis on the leader-then-a sequence", () => {
-    renderShell(["/dashboard"]);
-    expect(
-      screen.getByRole("link", { name: "Jarvis" }).getAttribute("aria-current"),
+      screen.queryByRole("navigation", { name: "Cockpit navigation" }),
     ).toBeNull();
-    fireEvent.keyDown(document.body, { key: "b", ctrlKey: true });
-    fireEvent.keyDown(document.body, { key: "a" });
-    expect(
-      screen.getByRole("link", { name: "Jarvis" }).getAttribute("aria-current"),
-    ).toBe("page");
   });
 
   it("opens the command palette on the leader-then-k sequence", () => {
