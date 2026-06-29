@@ -3,12 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useLeaderKeyNavigation } from "../navigation/use-leader-key-navigation";
 import { buildCockpitLeaderBindings } from "../navigation/leader-keymap";
 import { dispatchCockpitLeaderCommand } from "../navigation/cockpit-leader-dispatch";
+import { CommandPalette, useCommandPalette } from "@platform/design-system";
 import {
   buildNavigationCommands,
   buildSessionCommands,
 } from "../command-palette/cockpit-commands";
-import { useCommandPalette } from "../command-palette/use-command-palette";
-import { CommandPalette } from "../command-palette/CommandPalette";
 import { useCockpitSessionsContext } from "../sessions/cockpit-sessions-context";
 import { useCockpitWorkspace } from "../tmux-mirror/cockpit-workspace-context";
 import {

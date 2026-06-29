@@ -59,7 +59,7 @@ describe("CommandPalette", () => {
   it("filters destinations by the typed query", () => {
     renderPalette(<CommandPalette navigate={() => {}} />);
     pressOpenShortcut();
-    fireEvent.change(screen.getByLabelText("Search sections"), {
+    fireEvent.change(screen.getByLabelText("Search commands"), {
       target: { value: "interfaces" },
     });
     expect(screen.getByText("Dynamic IA Interfaces")).toBeTruthy();
@@ -74,7 +74,7 @@ describe("CommandPalette", () => {
     const navigate = vi.fn();
     renderPalette(<CommandPalette navigate={navigate} />);
     pressOpenShortcut();
-    fireEvent.keyDown(screen.getByLabelText("Search sections"), {
+    fireEvent.keyDown(screen.getByLabelText("Search commands"), {
       key: "Enter",
     });
     expect(navigate).toHaveBeenCalledWith(firstDestination.href);
@@ -83,7 +83,7 @@ describe("CommandPalette", () => {
   it("closes on escape", () => {
     renderPalette(<CommandPalette navigate={() => {}} />);
     pressOpenShortcut();
-    fireEvent.keyDown(screen.getByLabelText("Search sections"), {
+    fireEvent.keyDown(screen.getByLabelText("Search commands"), {
       key: "Escape",
     });
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -94,7 +94,7 @@ describe("CommandPalette", () => {
     renderPalette(<CommandPalette navigate={() => {}} />);
     pressOpenShortcut();
     expect(document.body.style.overflow).toBe("hidden");
-    fireEvent.keyDown(screen.getByLabelText("Search sections"), {
+    fireEvent.keyDown(screen.getByLabelText("Search commands"), {
       key: "Escape",
     });
     expect(document.body.style.overflow).toBe("");

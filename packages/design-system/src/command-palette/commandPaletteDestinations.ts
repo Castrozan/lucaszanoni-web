@@ -1,9 +1,22 @@
 import { MICRO_FRONTEND_ROUTES } from "@platform/config";
+import type { PaletteCommand } from "./useCommandPalette";
 
 export interface PaletteDestination {
   readonly id: string;
   readonly label: string;
   readonly href: string;
+}
+
+export function destinationsToCommands(
+  destinations: readonly PaletteDestination[],
+  navigate: (href: string) => void,
+): PaletteCommand[] {
+  return destinations.map((destination) => ({
+    id: destination.id,
+    title: destination.label,
+    hint: destination.href,
+    run: () => navigate(destination.href),
+  }));
 }
 
 const REPOSITORY_URL = "https://github.com/Castrozan/lucaszanoni-web";
