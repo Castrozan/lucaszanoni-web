@@ -10,10 +10,10 @@ import {
   type JarvisSessionSocketFactory,
 } from "./use-jarvis-session-terminal";
 import {
+  createBrowserTerminalEmulator,
   type JarvisTerminalEmulator,
   type JarvisTerminalEmulatorFactory,
 } from "./browser-terminal-emulator";
-import { useJarvisTerminalEmulatorLifecycle } from "./use-jarvis-terminal-emulator-lifecycle";
 import {
   useJarvisSpeech,
   type JarvisSpeechResolvers,
@@ -30,7 +30,6 @@ export interface JarvisSessionTerminalViewOptions {
   endpoint: string | null;
   createSocket?: JarvisSessionSocketFactory;
   createEmulator?: JarvisTerminalEmulatorFactory;
-  shouldYieldKeyToHost?: (event: KeyboardEvent) => boolean;
   onSelectSession?: (key: string) => void;
   onListSessions?: () => void;
   speechResolvers?: JarvisSpeechResolvers;
@@ -60,13 +59,13 @@ export interface JarvisSessionTerminalView {
 export function useJarvisSessionTerminalView({
   endpoint,
   createSocket,
-  createEmulator,
-  shouldYieldKeyToHost,
+  createEmulator = createBrowserTerminalEmulator,
   onSelectSession,
   onListSessions,
   speechResolvers,
   speakDebounceMs,
 }: JarvisSessionTerminalViewOptions): JarvisSessionTerminalView {
+  const terminalContainerRef = useRef<HTMLDivElement | null>(null);
   const emulatorRef = useRef<JarvisTerminalEmulator | null>(null);
   const ingestOutputBytesRef = useRef<((bytes: Uint8Array) => void) | null>(
     null,
@@ -130,14 +129,42 @@ export function useJarvisSessionTerminalView({
     connect();
   }, [endpoint, createSocket, connect]);
 
-  const terminalContainerRef = useJarvisTerminalEmulatorLifecycle({
-    status,
-    createEmulator,
-    shouldYieldKeyToHost,
-    emulatorRef,
-    sendOwnerKeystrokes,
-    sendWindowSize,
-  });
+  useEffect(() => {
+    const container = terminalContainerRef.current;
+    if (!container) {
+      return;
+    }
+    const emulator = createEmulator();
+    emulator.attachTo(container);
+    emulator.onOwnerInput((bytes) => sendOwnerKeystrokes(bytes));
+    emulatorRef.current = emulator;
+
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => sendWindowSize(emulator.fitToContainer()))
+        : null;
+    resizeObserver?.observe(container);
+
+    return () => {
+      resizeObserver?.disconnect();
+      emulator.dispose();
+      emulatorRef.current = null;
+    };
+  }, [createEmulator, sendOwnerKeystrokes, sendWindowSize]);
+
+  useEffect(() => {
+    if (status !== "open") {
+      return;
+    }
+    const emulator = emulatorRef.current;
+    if (!emulator) {
+      return;
+    }
+    sendWindowSize(emulator.fitToContainer());
+  }, [status, sendWindowSize]);
+  const focusTerminal = useCallback(() => {
+    emulatorRef.current?.focus();
+  }, []);
 
   const selectSession = useCallback(
     (key: string) => {
@@ -158,6 +185,7 @@ export function useJarvisSessionTerminalView({
     connect,
     disconnect,
     terminalContainerRef,
+    focusTerminal,
     voice: {
       isListening,
       recognitionSupported,
