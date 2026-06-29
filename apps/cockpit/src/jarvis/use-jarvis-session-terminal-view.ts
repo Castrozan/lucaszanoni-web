@@ -1,60 +1,26 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type RefObject,
-} from "react";
-import {
-  useJarvisSessionTerminal,
-  type JarvisSessionSocketFactory,
-} from "./use-jarvis-session-terminal";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useJarvisSessionTerminal } from "./use-jarvis-session-terminal";
 import {
   createBrowserTerminalEmulator,
   type JarvisTerminalEmulator,
-  type JarvisTerminalEmulatorFactory,
 } from "./browser-terminal-emulator";
-import {
-  useJarvisSpeech,
-  type JarvisSpeechResolvers,
-} from "./use-jarvis-speech";
+import { useJarvisSpeech } from "./use-jarvis-speech";
 import { useSpokenSessionOutput } from "./use-spoken-session-output";
 import { encodeSpokenSessionInput } from "./spoken-session-input";
 import {
   encodeSessionListCommand,
   encodeSessionSwitchCommand,
 } from "../sessions/session-commands";
-import { type JarvisTerminalStatus } from "./jarvis-session-terminal-model";
+import {
+  type JarvisSessionTerminalView,
+  type JarvisSessionTerminalViewOptions,
+} from "./jarvis-session-terminal-view-types";
 
-export interface JarvisSessionTerminalViewOptions {
-  endpoint: string | null;
-  createSocket?: JarvisSessionSocketFactory;
-  createEmulator?: JarvisTerminalEmulatorFactory;
-  onSelectSession?: (key: string) => void;
-  onListSessions?: () => void;
-  speechResolvers?: JarvisSpeechResolvers;
-  speakDebounceMs?: number;
-}
-
-export interface JarvisSessionVoiceView {
-  isListening: boolean;
-  recognitionSupported: boolean;
-  synthesisSupported: boolean;
-  toggleListening: () => void;
-  spokenOutputMuted: boolean;
-  toggleSpokenOutput: () => void;
-}
-
-export interface JarvisSessionTerminalView {
-  status: JarvisTerminalStatus;
-  detail: string;
-  connect: () => void;
-  disconnect: () => void;
-  terminalContainerRef: RefObject<HTMLDivElement | null>;
-  voice: JarvisSessionVoiceView;
-  selectSession: (key: string) => void;
-  requestSessionList: () => void;
-}
+export type {
+  JarvisSessionTerminalView,
+  JarvisSessionTerminalViewOptions,
+  JarvisSessionVoiceView,
+} from "./jarvis-session-terminal-view-types";
 
 export function useJarvisSessionTerminalView({
   endpoint,
