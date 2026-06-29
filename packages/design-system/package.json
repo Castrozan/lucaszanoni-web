@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./status-bar": "./src/status-bar/BottomStatusBar.tsx"
+    "./status-bar": "./src/status-bar/BottomStatusBar.tsx",
+    "./terminal-font.css": "./src/fonts/terminal-icons.css"
   },
   "scripts": {
     "test": "vitest run",
