@@ -39,7 +39,20 @@ export type { PaletteDestination } from "./command-palette/commandPaletteDestina
 export {
   buildCommandPaletteDestinations,
   deduplicateDestinationsByHref,
+  destinationsToCommands,
 } from "./command-palette/commandPaletteDestinations";
+export {
+  useCommandPalette,
+  type PaletteCommand,
+  type CommandPaletteController,
+} from "./command-palette/useCommandPalette";
+export { rankByFuzzy, fuzzyMatch } from "./command-palette/commandPaletteFuzzy";
+export {
+  reduceCommandPalette,
+  closedCommandPalette,
+  type CommandPaletteState,
+  type CommandPaletteEvent,
+} from "./command-palette/commandPaletteModel";
 export {
   PALETTE_SCROLLBAR_CLASSNAME,
   usePaletteScrollIntoView,

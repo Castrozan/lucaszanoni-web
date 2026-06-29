@@ -1,10 +1,10 @@
+import type { PaletteCommand } from "@platform/design-system";
 import { cockpitViews } from "../navigation/cockpit-views";
 import type { CockpitSession } from "../sessions/session-registry";
-import type { CockpitCommand } from "./use-command-palette";
 
 export function buildNavigationCommands(
   navigate: (path: string) => void,
-): CockpitCommand[] {
+): PaletteCommand[] {
   return cockpitViews.map((view) => ({
     id: `view:${view.id}`,
     title: `Go to ${view.label}`,
@@ -16,7 +16,7 @@ export function buildNavigationCommands(
 export function buildSessionCommands(
   sessions: readonly CockpitSession[],
   selectSession: (key: string) => void,
-): CockpitCommand[] {
+): PaletteCommand[] {
   return sessions.map((session) => ({
     id: `session:${session.key}`,
     title: `Switch to ${session.label}`,

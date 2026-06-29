@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { fuzzyMatch, rankByFuzzy } from "../src/command-palette/fuzzy-match";
+import {
+  fuzzyMatch,
+  rankByFuzzy,
+} from "../../src/command-palette/commandPaletteFuzzy";
 
 describe("fuzzyMatch", () => {
   it("matches an in-order subsequence case-insensitively", () => {

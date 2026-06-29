@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   closedCommandPalette,
   reduceCommandPalette,
-} from "../src/command-palette/command-palette-model";
+} from "../../src/command-palette/commandPaletteModel";
 
 describe("reduceCommandPalette", () => {
   it("opens with an empty query and the first item selected", () => {

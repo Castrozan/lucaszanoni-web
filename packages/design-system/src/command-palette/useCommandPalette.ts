@@ -2,10 +2,10 @@ import { useCallback, useMemo, useReducer } from "react";
 import {
   closedCommandPalette,
   reduceCommandPalette,
-} from "./command-palette-model";
-import { rankByFuzzy } from "./fuzzy-match";
+} from "./commandPaletteModel";
+import { rankByFuzzy } from "./commandPaletteFuzzy";
 
-export interface CockpitCommand {
+export interface PaletteCommand {
   readonly id: string;
   readonly title: string;
   readonly hint?: string;
@@ -16,7 +16,7 @@ export interface CommandPaletteController {
   readonly open: boolean;
   readonly query: string;
   readonly selectedIndex: number;
-  readonly results: readonly CockpitCommand[];
+  readonly results: readonly PaletteCommand[];
   readonly openPalette: () => void;
   readonly closePalette: () => void;
   readonly setQuery: (query: string) => void;
@@ -26,7 +26,7 @@ export interface CommandPaletteController {
 }
 
 export function useCommandPalette(
-  commands: readonly CockpitCommand[],
+  commands: readonly PaletteCommand[],
 ): CommandPaletteController {
   const [state, dispatch] = useReducer(
     reduceCommandPalette,

@@ -1,130 +1,119 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, type KeyboardEvent } from "react";
+import { cn } from "../lib/utils";
+import type { PaletteDestination } from "./commandPaletteDestinations";
 import {
   buildCommandPaletteDestinations,
-  type PaletteDestination,
+  destinationsToCommands,
 } from "./commandPaletteDestinations";
 import {
   COMMAND_PALETTE_OPEN_EVENT,
   navigateToHref,
   useBodyScrollLock,
 } from "./commandPaletteBehavior";
-import { CommandPaletteList } from "./CommandPaletteList";
+import {
+  PALETTE_SCROLLBAR_CLASSNAME,
+  usePaletteScrollIntoView,
+} from "./paletteScrollBehavior";
+import {
+  useCommandPalette,
+  type CommandPaletteController,
+  type PaletteCommand,
+} from "./useCommandPalette";
 import { useKeybind } from "../keybinds/useKeybind";
 
 export { openCommandPalette } from "./commandPaletteBehavior";
 
-const DEFAULT_COMMAND_PALETTE_DESTINATIONS = buildCommandPaletteDestinations();
-
 export interface CommandPaletteProps {
+  readonly controller?: CommandPaletteController;
+  readonly commands?: readonly PaletteCommand[];
   readonly destinations?: readonly PaletteDestination[];
   readonly navigate?: (href: string) => void;
 }
 
 export function CommandPalette({
-  destinations = DEFAULT_COMMAND_PALETTE_DESTINATIONS,
+  controller: externalController,
+  commands,
+  destinations,
   navigate = navigateToHref,
 }: CommandPaletteProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [highlightedIndex, setHighlightedIndex] = useState(0);
-  const inputReference = useRef<HTMLInputElement>(null);
-
-  const matchingDestinations = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) {
-      return destinations;
-    }
-    return destinations.filter((destination) =>
-      `${destination.label} ${destination.href}`
-        .toLowerCase()
-        .includes(normalizedQuery),
-    );
-  }, [destinations, query]);
-
-  const closePalette = useCallback(() => {
-    setIsOpen(false);
-    setQuery("");
-    setHighlightedIndex(0);
-  }, []);
-
-  useEffect(() => {
-    function handleOpenRequest() {
-      setIsOpen(true);
-    }
-    window.addEventListener(COMMAND_PALETTE_OPEN_EVENT, handleOpenRequest);
-    return () => {
-      window.removeEventListener(COMMAND_PALETTE_OPEN_EVENT, handleOpenRequest);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isOpen) {
-      inputReference.current?.focus();
-    }
-  }, [isOpen]);
-
-  useBodyScrollLock(isOpen);
+  const resolvedCommands = useMemo(
+    () =>
+      externalController
+        ? []
+        : (commands ??
+          destinationsToCommands(
+            destinations ?? buildCommandPaletteDestinations(),
+            navigate,
+          )),
+    [externalController, commands, destinations, navigate],
+  );
+  const selfController = useCommandPalette(resolvedCommands);
+  const controller = externalController ?? selfController;
 
   useKeybind({
     id: "command-palette.toggle",
     label: "Toggle command palette",
     defaultBinding: "Mod+k",
     allowInInput: true,
-    run: () => setIsOpen((open) => !open),
+    run: () =>
+      controller.open ? controller.closePalette() : controller.openPalette(),
   });
   useKeybind({
     id: "command-palette.open",
     label: "Open command palette",
     defaultBinding: "/",
-    run: () => setIsOpen(true),
+    run: () => controller.openPalette(),
   });
 
   useEffect(() => {
-    setHighlightedIndex(0);
-  }, [query]);
+    function handleOpenRequest() {
+      controller.openPalette();
+    }
+    window.addEventListener(COMMAND_PALETTE_OPEN_EVENT, handleOpenRequest);
+    return () => {
+      window.removeEventListener(COMMAND_PALETTE_OPEN_EVENT, handleOpenRequest);
+    };
+  }, [controller]);
 
-  if (!isOpen) {
+  const {
+    highlightedItemRef,
+    allowPointerHighlight,
+    isPointerHighlightAllowed,
+  } = usePaletteScrollIntoView(controller.selectedIndex);
+
+  useBodyScrollLock(controller.open);
+
+  if (!controller.open) {
     return null;
   }
 
-  function commitDestination(destination: PaletteDestination) {
-    closePalette();
-    navigate(destination.href);
-  }
-
-  function handleInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      closePalette();
-      return;
+  const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    switch (event.key) {
+      case "ArrowDown":
+        event.preventDefault();
+        controller.moveSelection(1);
+        return;
+      case "ArrowUp":
+        event.preventDefault();
+        controller.moveSelection(-1);
+        return;
+      case "Enter":
+        event.preventDefault();
+        controller.runSelected();
+        return;
+      case "Escape":
+        event.preventDefault();
+        controller.closePalette();
+        return;
     }
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      setHighlightedIndex((index) =>
-        Math.min(index + 1, Math.max(matchingDestinations.length - 1, 0)),
-      );
-      return;
-    }
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-      setHighlightedIndex((index) => Math.max(index - 1, 0));
-      return;
-    }
-    if (event.key === "Enter") {
-      event.preventDefault();
-      const destination = matchingDestinations[highlightedIndex];
-      if (destination) {
-        commitDestination(destination);
-      }
-    }
-  }
+  };
 
   return (
     <div
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
-          closePalette();
+          controller.closePalette();
         }
       }}
       className="fixed inset-0 z-[60] flex items-start justify-center bg-background/80 p-4 pt-[18vh]"
@@ -133,23 +122,62 @@ export function CommandPalette({
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"
-        className="w-full max-w-[40rem] border border-border bg-surface"
+        className="flex w-full max-w-[40rem] flex-col overflow-hidden border border-border bg-surface"
       >
         <input
-          ref={inputReference}
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          onKeyDown={handleInputKeyDown}
-          placeholder="Jump to a section, page, or app…"
-          aria-label="Search sections"
-          className="w-full border-b border-border bg-transparent px-4 py-3 font-mono text-[14px] text-foreground outline-none placeholder:text-text-faint"
+          type="text"
+          aria-label="Search commands"
+          autoFocus
+          value={controller.query}
+          placeholder="Type a command…"
+          onChange={(event) => controller.setQuery(event.target.value)}
+          onKeyDown={onInputKeyDown}
+          className="border-b border-border bg-transparent px-4 py-3 font-mono text-sm text-foreground outline-none placeholder:text-text-faint"
         />
-        <CommandPaletteList
-          destinations={matchingDestinations}
-          highlightedIndex={highlightedIndex}
-          onHighlight={setHighlightedIndex}
-          onCommit={commitDestination}
-        />
+        {controller.results.length === 0 ? (
+          <p className="m-0 px-4 py-6 text-center font-mono text-xs uppercase tracking-[2px] text-text-faint">
+            No matching commands
+          </p>
+        ) : (
+          <ul
+            role="listbox"
+            aria-label="Command results"
+            onMouseMove={allowPointerHighlight}
+            className={cn(
+              "m-0 flex max-h-[50vh] list-none flex-col overflow-y-auto p-1",
+              PALETTE_SCROLLBAR_CLASSNAME,
+            )}
+          >
+            {controller.results.map((command, index) => (
+              <li
+                key={command.id}
+                ref={
+                  index === controller.selectedIndex ? highlightedItemRef : null
+                }
+                role="option"
+                aria-selected={index === controller.selectedIndex}
+                onMouseEnter={() => {
+                  if (isPointerHighlightAllowed()) {
+                    controller.moveSelection(index - controller.selectedIndex);
+                  }
+                }}
+                onClick={() => controller.runCommand(command.id)}
+                className={cn(
+                  "flex cursor-pointer items-center justify-between gap-4 rounded-md px-3 py-2 text-sm text-muted-foreground",
+                  index === controller.selectedIndex &&
+                    "bg-surface-raised text-primary",
+                )}
+              >
+                <span className="font-mono">{command.title}</span>
+                {command.hint ? (
+                  <span className="font-mono text-[11px] text-text-faint">
+                    {command.hint}
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

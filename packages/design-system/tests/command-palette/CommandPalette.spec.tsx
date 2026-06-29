@@ -1,14 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { CommandPalette } from "../src/command-palette/CommandPalette";
+import { CommandPalette } from "../../src/command-palette/CommandPalette";
 import type {
-  CockpitCommand,
   CommandPaletteController,
-} from "../src/command-palette/use-command-palette";
+  PaletteCommand,
+} from "../../src/command-palette/useCommandPalette";
+import { KeybindProvider } from "../../src/keybinds/KeybindProvider";
 
 afterEach(cleanup);
 
-const sampleResults: CockpitCommand[] = [
+const sampleResults: PaletteCommand[] = [
   { id: "view:dashboard", title: "Go to Dashboard", run: vi.fn() },
   { id: "view:jarvis", title: "Go to Jarvis", run: vi.fn() },
 ];
@@ -31,15 +32,22 @@ function buildController(
   };
 }
 
+function renderPalette(controller: CommandPaletteController) {
+  return render(
+    <KeybindProvider>
+      <CommandPalette controller={controller} />
+    </KeybindProvider>,
+  );
+}
+
 describe("CommandPalette", () => {
   it("renders nothing while the palette is closed", () => {
-    const controller = buildController({ open: false });
-    render(<CommandPalette controller={controller} />);
+    renderPalette(buildController({ open: false }));
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   it("renders the search input and one option per result when open", () => {
-    render(<CommandPalette controller={buildController()} />);
+    renderPalette(buildController());
     expect(
       screen.getByRole("dialog", { name: "Command palette" }),
     ).toBeDefined();
@@ -49,7 +57,7 @@ describe("CommandPalette", () => {
 
   it("forwards typed text to setQuery", () => {
     const controller = buildController();
-    render(<CommandPalette controller={controller} />);
+    renderPalette(controller);
     fireEvent.change(screen.getByRole("textbox", { name: "Search commands" }), {
       target: { value: "jar" },
     });
@@ -58,7 +66,7 @@ describe("CommandPalette", () => {
 
   it("moves the selection on the arrow keys", () => {
     const controller = buildController();
-    render(<CommandPalette controller={controller} />);
+    renderPalette(controller);
     const input = screen.getByRole("textbox", { name: "Search commands" });
     fireEvent.keyDown(input, { key: "ArrowDown" });
     expect(controller.moveSelection).toHaveBeenCalledWith(1);
@@ -68,7 +76,7 @@ describe("CommandPalette", () => {
 
   it("runs the selected command on Enter", () => {
     const controller = buildController();
-    render(<CommandPalette controller={controller} />);
+    renderPalette(controller);
     fireEvent.keyDown(
       screen.getByRole("textbox", { name: "Search commands" }),
       { key: "Enter" },
@@ -78,7 +86,7 @@ describe("CommandPalette", () => {
 
   it("closes on Escape", () => {
     const controller = buildController();
-    render(<CommandPalette controller={controller} />);
+    renderPalette(controller);
     fireEvent.keyDown(
       screen.getByRole("textbox", { name: "Search commands" }),
       { key: "Escape" },
@@ -87,8 +95,7 @@ describe("CommandPalette", () => {
   });
 
   it("marks the selected option for assistive technology", () => {
-    const controller = buildController({ selectedIndex: 1 });
-    render(<CommandPalette controller={controller} />);
+    renderPalette(buildController({ selectedIndex: 1 }));
     expect(
       screen
         .getByRole("option", { name: "Go to Jarvis" })
@@ -98,14 +105,13 @@ describe("CommandPalette", () => {
 
   it("runs a command when its option is clicked", () => {
     const controller = buildController();
-    render(<CommandPalette controller={controller} />);
+    renderPalette(controller);
     fireEvent.click(screen.getByRole("option", { name: "Go to Jarvis" }));
     expect(controller.runCommand).toHaveBeenCalledWith("view:jarvis");
   });
 
   it("shows an empty-state message when no command matches", () => {
-    const controller = buildController({ results: [], query: "zzz" });
-    render(<CommandPalette controller={controller} />);
+    renderPalette(buildController({ results: [], query: "zzz" }));
     expect(screen.queryByRole("option")).toBeNull();
     expect(screen.getByText("No matching commands")).toBeDefined();
   });
@@ -114,16 +120,14 @@ describe("CommandPalette", () => {
     const scrollIntoView = vi.fn();
     const original = Element.prototype.scrollIntoView;
     Element.prototype.scrollIntoView = scrollIntoView;
-    render(
-      <CommandPalette controller={buildController({ selectedIndex: 1 })} />,
-    );
+    renderPalette(buildController({ selectedIndex: 1 }));
     expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
     Element.prototype.scrollIntoView = original;
   });
 
   it("highlights an option on hover only after a real pointer move", () => {
     const controller = buildController({ selectedIndex: 0 });
-    render(<CommandPalette controller={controller} />);
+    renderPalette(controller);
     const jarvisOption = screen.getByRole("option", { name: "Go to Jarvis" });
 
     fireEvent.mouseEnter(jarvisOption);
@@ -132,5 +136,17 @@ describe("CommandPalette", () => {
     fireEvent.mouseMove(screen.getByRole("listbox"));
     fireEvent.mouseEnter(jarvisOption);
     expect(controller.moveSelection).toHaveBeenCalledWith(1);
+  });
+
+  it("self-manages from a commands list and opens on the open event", () => {
+    const run = vi.fn();
+    render(
+      <KeybindProvider>
+        <CommandPalette commands={[{ id: "go", title: "Go somewhere", run }]} />
+      </KeybindProvider>,
+    );
+    expect(screen.queryByRole("dialog")).toBeNull();
+    fireEvent(window, new Event("atrium:command-palette"));
+    expect(screen.getByRole("option", { name: "Go somewhere" })).toBeDefined();
   });
 });

@@ -2,11 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import { act, renderHook } from "@testing-library/react";
 import {
   useCommandPalette,
-  type CockpitCommand,
-} from "../src/command-palette/use-command-palette";
+  type PaletteCommand,
+} from "../../src/command-palette/useCommandPalette";
 
 function buildCommands(): {
-  commands: CockpitCommand[];
+  commands: PaletteCommand[];
   runs: Record<string, ReturnType<typeof vi.fn>>;
 } {
   const runs = {
@@ -14,7 +14,7 @@ function buildCommands(): {
     jarvis: vi.fn(),
     user: vi.fn(),
   };
-  const commands: CockpitCommand[] = [
+  const commands: PaletteCommand[] = [
     { id: "dash", title: "Go to Dashboard", run: runs.dash },
     { id: "jarvis", title: "Jump to Jarvis", run: runs.jarvis },
     { id: "user", title: "Open User profile", run: runs.user },
