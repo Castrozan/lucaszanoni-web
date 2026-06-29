@@ -46,7 +46,10 @@ export function CockpitShell({ children }: CockpitShellProps) {
     },
   });
   return (
-    <div className="flex min-h-screen">
+    <div
+      className="flex min-h-screen"
+      style={{ paddingBottom: "var(--app-status-bar-height)" }}
+    >
       <nav
         aria-label="Cockpit navigation"
         className="flex w-60 shrink-0 flex-col gap-1 border-r border-border bg-surface px-4 py-6"

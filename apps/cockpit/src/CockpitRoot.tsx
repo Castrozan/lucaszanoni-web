@@ -4,6 +4,7 @@ import {
   ThemeProvider,
   CommandPalette,
   KeybindProvider,
+  BottomStatusBar,
 } from "@platform/design-system";
 import { COCKPIT_MOUNT_PATH } from "@platform/config";
 import { CockpitShell } from "./layout/CockpitShell";
@@ -25,6 +26,7 @@ export function CockpitRoot() {
             </BrowserRouter>
           </CockpitSessionsProvider>
           <CommandPalette />
+          <BottomStatusBar registerNavigationKeybinds={false} />
         </KeybindProvider>
       </ThemeProvider>
     </QueryClientProvider>

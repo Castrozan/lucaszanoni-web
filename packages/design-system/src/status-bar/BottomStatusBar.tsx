@@ -12,7 +12,13 @@ function readPathname(): string {
   return typeof window === "undefined" ? "/" : window.location.pathname;
 }
 
-export function BottomStatusBar() {
+export interface BottomStatusBarProps {
+  readonly registerNavigationKeybinds?: boolean;
+}
+
+export function BottomStatusBar({
+  registerNavigationKeybinds = true,
+}: BottomStatusBarProps = {}) {
   const [pathname, setPathname] = useState(readPathname);
 
   useEffect(() => {
@@ -41,9 +47,11 @@ export function BottomStatusBar() {
 
   return (
     <>
-      <StatusBarKeybinds
-        windowCount={active ? active.session.windows.length : 0}
-      />
+      {registerNavigationKeybinds ? (
+        <StatusBarKeybinds
+          windowCount={active ? active.session.windows.length : 0}
+        />
+      ) : null}
       <footer
         aria-label="Status bar"
         className="fixed inset-x-0 bottom-0 z-[60] flex items-center justify-between gap-4 border-t border-border bg-surface px-3 font-mono text-[12px] text-muted-foreground"
