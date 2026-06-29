@@ -30,7 +30,7 @@ export function WorkspacePage({
       : null;
 
   return (
-    <div className="flex h-[calc(100vh-var(--app-status-bar-height,2rem))] flex-col gap-4 p-4">
+    <div className="flex h-[calc(100vh-var(--app-status-bar-height,2rem))] min-h-0 flex-col gap-4 p-4">
       <header className="flex items-center justify-between">
         <div className="flex flex-col">
           <span className="font-mono text-[11px] uppercase tracking-[2px] text-text-faint">
