@@ -49,7 +49,7 @@ export function CockpitJarvisPage() {
   );
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col gap-4">
+    <div className="flex h-full min-h-0 flex-1 flex-col gap-4">
       <header className="flex items-center justify-between">
         <div className="flex flex-col">
           <span className="font-mono text-[11px] uppercase tracking-[2px] text-text-faint">
