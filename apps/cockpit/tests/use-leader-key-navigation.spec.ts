@@ -22,14 +22,6 @@ describe("useLeaderKeyNavigation", () => {
     });
   });
 
-  it("dispatches the focus-quick-access command for leader-then-s", () => {
-    const onCommand = vi.fn();
-    renderHook(() => useLeaderKeyNavigation({ onCommand }));
-    pressOnWindow({ key: "b", ctrlKey: true });
-    pressOnWindow({ key: "s" });
-    expect(onCommand).toHaveBeenCalledWith({ kind: "focus-quick-access" });
-  });
-
   it("does not fire a command for a bare key without the leader", () => {
     const onCommand = vi.fn();
     renderHook(() => useLeaderKeyNavigation({ onCommand }));

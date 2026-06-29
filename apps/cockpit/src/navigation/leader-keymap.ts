@@ -1,5 +1,4 @@
 export type LeaderCommand =
-  | { readonly kind: "focus-quick-access" }
   | { readonly kind: "navigate-view"; readonly path: string }
   | { readonly kind: "open-command-palette" };
 
@@ -28,11 +27,6 @@ export function isCockpitLeaderChord(event: LeaderChordEvent): boolean {
 }
 
 export const cockpitLeaderBindings: readonly LeaderBinding[] = [
-  {
-    key: "s",
-    description: "Switch quick-access bookmarks",
-    command: { kind: "focus-quick-access" },
-  },
   {
     key: "a",
     description: "Jump to Jarvis",

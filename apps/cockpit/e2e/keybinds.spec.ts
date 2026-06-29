@@ -11,7 +11,7 @@ const selectedCommandOption = (page: Page) =>
 async function gotoCockpit(page: Page, path: string) {
   await page.goto(path);
   await expect(
-    page.getByRole("navigation", { name: "Cockpit navigation" }),
+    page.getByRole("contentinfo", { name: "Status bar" }),
   ).toBeVisible();
 }
 
@@ -34,18 +34,6 @@ test.describe("cockpit leader-key bindings", () => {
     await pressCockpitLeaderChord(page);
     await page.keyboard.press("a");
     await expect(page).toHaveURL(/\/cockpit\/jarvis$/);
-  });
-
-  test("leader then s focuses the first quick-access bookmark", async ({
-    page,
-  }) => {
-    await pressCockpitLeaderChord(page);
-    await page.keyboard.press("s");
-    await expect(
-      page
-        .getByRole("navigation", { name: "Cockpit navigation" })
-        .getByRole("link", { name: "Claude usage", exact: true }),
-    ).toBeFocused();
   });
 
   test("leader then k opens the command palette", async ({ page }) => {
