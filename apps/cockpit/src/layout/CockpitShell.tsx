@@ -11,6 +11,7 @@ import { useCommandPalette } from "../command-palette/use-command-palette";
 import { CommandPalette } from "../command-palette/CommandPalette";
 import { useCockpitSessionsContext } from "../sessions/cockpit-sessions-context";
 import { useCockpitWorkspace } from "../tmux-mirror/cockpit-workspace-context";
+import { buildCockpitMirrorSessionCommands } from "../tmux-mirror/cockpit-mirror-palette-commands";
 
 export interface CockpitShellProps {
   readonly children: ReactNode;
@@ -21,11 +22,17 @@ export function CockpitShell({ children }: CockpitShellProps) {
   const { sessions, selectSession } = useCockpitSessionsContext();
   const cockpitWorkspace = useCockpitWorkspace();
   const paletteCommands = useMemo(
-    () => [
-      ...buildNavigationCommands(navigate),
-      ...buildSessionCommands(sessions, selectSession),
-    ],
-    [navigate, sessions, selectSession],
+    () =>
+      cockpitWorkspace
+        ? [
+            ...buildNavigationCommands(navigate),
+            ...buildCockpitMirrorSessionCommands(cockpitWorkspace.controller),
+          ]
+        : [
+            ...buildNavigationCommands(navigate),
+            ...buildSessionCommands(sessions, selectSession),
+          ],
+    [navigate, sessions, selectSession, cockpitWorkspace],
   );
   const commandPalette = useCommandPalette(paletteCommands);
   const leaderBindings = useMemo(

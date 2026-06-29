@@ -20,6 +20,7 @@ export {
   type WorkspaceComputeFactoryResolver,
 } from "./workspace/resolve-workspace-compute";
 export { resolveCockpitAttachEndpoint } from "./workspace/cockpit-attach-endpoint";
+export { SessionTerminal } from "./workspace/SessionTerminal";
 export { createInMemoryComputeAdapter } from "./workspace/in-memory-compute-adapter";
 export type {
   CockpitComputePort,
