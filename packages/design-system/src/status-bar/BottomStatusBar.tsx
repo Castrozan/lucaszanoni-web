@@ -7,6 +7,7 @@ import {
   loadLeaderBinding,
 } from "../keybinds/keybindStore";
 import { formatBindingForDisplay } from "../keybinds/keybindDisplay";
+import { useKeybindRegistry } from "../keybinds/useKeybindRegistry";
 import {
   STATUS_BAR_HEIGHT,
   STATUS_BAR_HEIGHT_CSS_VARIABLE,
@@ -48,6 +49,13 @@ const sessionLabelStyle: CSSProperties = {
   color: backgroundColor,
   fontWeight: 700,
   padding: "0.125rem 0.5rem",
+};
+
+const sessionLabelArmedStyle: CSSProperties = {
+  ...sessionLabelStyle,
+  background: backgroundColor,
+  color: accentColor,
+  boxShadow: `inset 0 0 0 1px ${accentColor}`,
 };
 
 const windowsNavStyle: CSSProperties = {
@@ -105,6 +113,8 @@ export function BottomStatusBar({
     };
   }, []);
 
+  const registry = useKeybindRegistry();
+  const isLeaderArmed = registry?.isSequencePending ?? false;
   const sessions = buildPlatformSessions();
   const active = findActiveLocation(sessions, pathname);
   const leaderDisplay = formatBindingForDisplay("Leader", leaderBinding);
@@ -118,7 +128,9 @@ export function BottomStatusBar({
         />
       ) : null}
       <footer aria-label="Status bar" style={barStyle}>
-        <span style={sessionLabelStyle}>
+        <span
+          style={isLeaderArmed ? sessionLabelArmedStyle : sessionLabelStyle}
+        >
           {active ? active.session.label : "Home"}
         </span>
         <nav aria-label="Windows" style={windowsNavStyle}>
