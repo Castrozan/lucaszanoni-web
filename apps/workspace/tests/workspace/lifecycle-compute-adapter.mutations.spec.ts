@@ -158,4 +158,17 @@ describe("real lifecycle adapter mutates live tmux sessions and windows", () => 
       { operation: "close-window", windowIdentifier: "@2" },
     ]);
   });
+
+  it("selects a window by its identifier so the attached client follows", async () => {
+    const transport = createScriptedLifecycleTransport(
+      () => successfulMutation,
+    );
+    const compute = createLifecycleComputeAdapter(transport);
+
+    await compute.selectWindow("platform", "@2");
+
+    expect(transport.sentRequests).toEqual([
+      { operation: "select-window", windowIdentifier: "@2" },
+    ]);
+  });
 });
