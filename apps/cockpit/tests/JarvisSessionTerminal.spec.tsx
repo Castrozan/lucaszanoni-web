@@ -51,7 +51,7 @@ describe("JarvisSessionTerminal", () => {
     expect(screen.getByRole("button", { name: "Disconnect" })).toBeDefined();
   });
 
-  it("does not steal focus on open and focuses only when the overlay is clicked", () => {
+  it("auto-focuses the terminal on open so keyboard input flows immediately", () => {
     const socket = createFakeSocketControl();
     const emulator = createFakeEmulatorControl();
     render(
@@ -63,10 +63,31 @@ describe("JarvisSessionTerminal", () => {
     );
 
     act(() => socket.handlers?.onOpen());
-    expect(emulator.focusCount).toBe(0);
-
-    fireEvent.click(screen.getByRole("button", { name: "Focus the terminal" }));
     expect(emulator.focusCount).toBe(1);
+    expect(
+      screen.queryByRole("button", { name: "Focus the terminal" }),
+    ).toBeNull();
+  });
+
+  it("yields the leader chord to the host so the prefix always escapes the terminal", () => {
+    const socket = createFakeSocketControl();
+    const emulator = createFakeEmulatorControl();
+    render(
+      <JarvisSessionTerminal
+        endpoint="ws://localhost:9999/session"
+        createSocket={socket.factory}
+        createEmulator={emulator.factory}
+      />,
+    );
+
+    act(() => socket.handlers?.onOpen());
+    const leaderChord = new KeyboardEvent("keydown", {
+      key: "b",
+      ctrlKey: true,
+    });
+    expect(emulator.hostKeyGuard?.(leaderChord)).toBe(true);
+    const plainKey = new KeyboardEvent("keydown", { key: "l" });
+    expect(emulator.hostKeyGuard?.(plainKey)).toBe(false);
   });
 
   it("writes raw session output bytes into the terminal emulator", () => {

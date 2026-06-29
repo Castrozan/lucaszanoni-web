@@ -75,6 +75,28 @@ test.describe("cockpit leader-key bindings", () => {
   });
 });
 
+test.describe("status-bar leader navigation across cockpit and the terminal", () => {
+  test("bare cockpit: the leader then a window number jumps windows", async ({
+    page,
+  }) => {
+    await gotoCockpit(page, cockpitDashboardPath);
+    await pressCockpitLeaderChord(page);
+    await page.keyboard.press("4");
+    await expect(page).toHaveURL(/\/cockpit\/user$/);
+  });
+
+  test("jarvis: the leader escapes the focused terminal to jump windows", async ({
+    page,
+  }) => {
+    await gotoCockpit(page, cockpitJarvisPath);
+    await expect(page.locator(".xterm")).toBeVisible();
+    await page.locator("textarea.xterm-helper-textarea").focus();
+    await pressCockpitLeaderChord(page);
+    await page.keyboard.press("4");
+    await expect(page).toHaveURL(/\/cockpit\/user$/);
+  });
+});
+
 test.describe("command palette keyboard control", () => {
   test.beforeEach(async ({ page }) => {
     await gotoCockpit(page, cockpitDashboardPath);

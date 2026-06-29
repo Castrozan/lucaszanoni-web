@@ -38,12 +38,14 @@ export function StatusBarKeybinds({
     id: "tmux.window.next",
     label: "Next window",
     defaultBinding: "Leader n",
+    allowInInput: true,
     run: () => cycleWindow(nextWindowIndex),
   });
   useKeybind({
     id: "tmux.window.previous",
     label: "Previous window",
     defaultBinding: "Leader p",
+    allowInInput: true,
     run: () => cycleWindow(previousWindowIndex),
   });
   return (

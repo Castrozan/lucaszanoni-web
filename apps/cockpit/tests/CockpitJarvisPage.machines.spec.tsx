@@ -9,6 +9,7 @@ vi.mock("../src/jarvis/browser-terminal-emulator", () => ({
     attachTo: () => ({ columns: 80, rows: 24 }),
     writeOutputBytes: () => {},
     onOwnerInput: () => {},
+    setHostKeyGuard: () => {},
     fitToContainer: () => ({ columns: 80, rows: 24 }),
     focus: () => {},
     dispose: () => {},

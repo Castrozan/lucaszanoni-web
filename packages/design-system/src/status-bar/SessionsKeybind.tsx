@@ -6,6 +6,7 @@ export function SessionsKeybind() {
     id: "tmux.sessions",
     label: "List sessions",
     defaultBinding: "Leader s",
+    allowInInput: true,
     run: () => openCommandPalette(),
   });
   return null;
