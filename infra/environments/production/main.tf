@@ -125,8 +125,18 @@ module "edge" {
       object_key_prefix = "reports/coverage/"
     }
   } : {}
-  external_https_prefix_origins = local.external_https_prefix_origins
-  retired_prefixes              = local.retired_app_mount_prefixes
+  external_https_prefix_origins = merge(
+    local.external_https_prefix_origins,
+    {
+      "/cockpit/lifecycle" = {
+        origin_host         = "jarvis-session-origin.${local.edge_serving_domain}"
+        path_rewrite        = "preserve"
+        forwarded_base_path = ""
+        trusted             = false
+      }
+    }
+  )
+  retired_prefixes = local.retired_app_mount_prefixes
   subdomain_apps                = local.subdomain_apps
   edge_shared_secret_value      = var.edge_shared_secret_value
   alias_redirect = var.enable_dotcom_canonical ? {
