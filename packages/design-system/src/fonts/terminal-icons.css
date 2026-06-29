@@ -5,3 +5,12 @@
   font-style: normal;
   font-display: swap;
 }
+
+.xterm .xterm-viewport {
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.xterm .xterm-viewport::-webkit-scrollbar {
+  display: none;
+}
