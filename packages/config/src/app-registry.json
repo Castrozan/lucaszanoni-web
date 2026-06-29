@@ -123,6 +123,29 @@
     }
   },
   {
+    "id": "cockpit-lifecycle",
+    "mountPath": "/cockpit/lifecycle",
+    "navigationLabel": "Cockpit lifecycle",
+    "description": "Owner-only websocket lifecycle channel the workspace uses to list and drive the session host's real tmux sessions, attached at the edge to the same session-bridge origin as the Jarvis terminal and gated by Cloudflare Access.",
+    "showInCrossSectionNavigation": false,
+    "status": "active",
+    "accessModel": {
+      "environment": "private",
+      "audience": { "kind": "owner" }
+    },
+    "accessApplicationProvisioning": {
+      "kind": "inherited-from-parent-path",
+      "parentMountPath": "/cockpit/"
+    },
+    "origin": {
+      "kind": "external-https",
+      "originHost": "jarvis-session-origin.lucaszanoni.com",
+      "pathRewrite": "preserve",
+      "forwardedBasePath": "",
+      "trusted": false
+    }
+  },
+  {
     "id": "workspace",
     "mountPath": "/workspace/",
     "navigationLabel": "Workspace",
