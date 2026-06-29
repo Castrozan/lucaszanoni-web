@@ -4,12 +4,13 @@ import {
   ThemeProvider,
   CommandPalette,
   KeybindProvider,
-  BottomStatusBar,
 } from "@platform/design-system";
 import { COCKPIT_MOUNT_PATH } from "@platform/config";
 import { CockpitShell } from "./layout/CockpitShell";
 import { CockpitSessionsProvider } from "./sessions/cockpit-sessions-context";
 import { CockpitRoutes } from "./CockpitRoutes";
+import { CockpitWorkspaceProvider } from "./tmux-mirror/cockpit-workspace-context";
+import { CockpitStatusBar } from "./tmux-mirror/CockpitStatusBar";
 
 const cockpitQueryClient = new QueryClient();
 
@@ -18,15 +19,17 @@ export function CockpitRoot() {
     <QueryClientProvider client={cockpitQueryClient}>
       <ThemeProvider>
         <KeybindProvider>
-          <CockpitSessionsProvider>
-            <BrowserRouter basename={COCKPIT_MOUNT_PATH}>
-              <CockpitShell>
-                <CockpitRoutes />
-              </CockpitShell>
-            </BrowserRouter>
-          </CockpitSessionsProvider>
-          <CommandPalette />
-          <BottomStatusBar />
+          <CockpitWorkspaceProvider>
+            <CockpitSessionsProvider>
+              <BrowserRouter basename={COCKPIT_MOUNT_PATH}>
+                <CockpitShell>
+                  <CockpitRoutes />
+                </CockpitShell>
+              </BrowserRouter>
+            </CockpitSessionsProvider>
+            <CommandPalette />
+            <CockpitStatusBar />
+          </CockpitWorkspaceProvider>
         </KeybindProvider>
       </ThemeProvider>
     </QueryClientProvider>
