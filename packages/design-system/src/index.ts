@@ -44,6 +44,10 @@ export type { KeybindProviderProps } from "./keybinds/KeybindProvider";
 export { KeybindProvider } from "./keybinds/KeybindProvider";
 export { useKeybind } from "./keybinds/useKeybind";
 export { useKeybindRegistry } from "./keybinds/useKeybindRegistry";
+export {
+  TERMINAL_ICON_FONT_FAMILY,
+  whenTerminalIconFontLoaded,
+} from "./fonts/terminal-icon-font";
 export type {
   KeybindRegistration,
   KeybindContextValue,
