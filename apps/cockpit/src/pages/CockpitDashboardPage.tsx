@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@platform/design-system";
 import { DailyTokensChart, useUsageViewModel } from "@platform/usage-insights";
+import { DriveYourOwnMachineCallToAction } from "../distribution/DriveYourOwnMachineCallToAction";
 import { useOwnerAccessIdentity } from "../identity/use-owner-access-identity";
 import { cockpitQuickAccessBookmarks } from "../layout/cockpit-quick-access-bookmarks";
 
@@ -77,6 +78,10 @@ export function CockpitDashboardPage() {
             )}
           </CardContent>
         </Card>
+      </section>
+
+      <section aria-label="Drive your own machine">
+        <DriveYourOwnMachineCallToAction />
       </section>
     </div>
   );

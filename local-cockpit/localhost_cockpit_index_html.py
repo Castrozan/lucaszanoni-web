@@ -1,0 +1,13 @@
+from localhost_cockpit_index_page_behavior_script import (
+    LOCALHOST_COCKPIT_INDEX_PAGE_SCRIPT,
+)
+from localhost_cockpit_index_page_layout import (
+    LOCALHOST_COCKPIT_INDEX_PAGE_BODY,
+    LOCALHOST_COCKPIT_INDEX_PAGE_HEAD,
+)
+
+LOCALHOST_COCKPIT_INDEX_HTML = (
+    LOCALHOST_COCKPIT_INDEX_PAGE_HEAD
+    + LOCALHOST_COCKPIT_INDEX_PAGE_BODY
+    + LOCALHOST_COCKPIT_INDEX_PAGE_SCRIPT
+)
