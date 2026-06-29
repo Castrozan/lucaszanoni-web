@@ -10,7 +10,7 @@ export const initialLeaderEngineState: LeaderEngineState = { status: "idle" };
 
 export type LeaderEngineEvent =
   | { readonly kind: "leader-armed" }
-  | { readonly kind: "key"; readonly key: string }
+  | { readonly kind: "key"; readonly key: string; readonly shiftKey?: boolean }
   | { readonly kind: "cancel" };
 
 export interface LeaderEngineResult {
@@ -32,7 +32,11 @@ export function reduceLeaderEngine(
   if (state.status !== "armed") {
     return { state, command: null };
   }
-  const matchedBinding = bindings.find((binding) => binding.key === event.key);
+  const matchedBinding = bindings.find(
+    (binding) =>
+      binding.key === event.key &&
+      Boolean(binding.shiftKey) === Boolean(event.shiftKey),
+  );
   return {
     state: { status: "idle" },
     command: matchedBinding ? matchedBinding.command : null,

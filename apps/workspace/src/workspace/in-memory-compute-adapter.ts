@@ -81,6 +81,13 @@ export function createInMemoryComputeAdapter(
         windowId,
       });
     },
+    async selectWindow(sessionKey, windowId) {
+      state = reduceWorkspaceRegistry(state, {
+        type: "windowSelected",
+        sessionKey,
+        windowId,
+      });
+    },
     dispose() {},
   };
 }

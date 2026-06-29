@@ -45,7 +45,8 @@ export type CockpitLifecycleRequest =
       readonly windowTitle: string;
       readonly agentLaunchCommand: string;
     }
-  | { readonly operation: "close-window"; readonly windowIdentifier: string };
+  | { readonly operation: "close-window"; readonly windowIdentifier: string }
+  | { readonly operation: "select-window"; readonly windowIdentifier: string };
 
 export interface CockpitLifecycleTransport {
   request(request: CockpitLifecycleRequest): Promise<CockpitLifecycleReply>;

@@ -94,6 +94,12 @@ export function createLifecycleComputeAdapter(
         windowIdentifier: windowId,
       });
     },
+    async selectWindow(_sessionKey, windowId) {
+      await requireSuccessfulMutation(transport, {
+        operation: "select-window",
+        windowIdentifier: windowId,
+      });
+    },
     dispose() {
       transport.close();
     },
