@@ -1,4 +1,5 @@
 import "@xterm/xterm/css/xterm.css";
+import "@platform/design-system/terminal-font.css";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import type { SessionTerminalWindowSize } from "./session-terminal-socket";
@@ -23,7 +24,7 @@ export const createBrowserSessionTerminalEmulator: SessionTerminalEmulatorFactor
       cursorBlink: true,
       allowTransparency: true,
       fontFamily:
-        'ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo, monospace',
+        'ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo, "Symbols Nerd Font Mono", monospace',
       fontSize: 12,
       theme: { background: "#00000000" },
     });
