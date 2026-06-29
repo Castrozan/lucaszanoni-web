@@ -1,6 +1,8 @@
 import asyncio
+import json
 import os
 
+from cockpit_lifecycle_websocket import COCKPIT_LIFECYCLE_CONTROL_PATH
 from local_cockpit_assets import XTERM_CSS_BYTES, XTERM_JS_BYTES
 from localhost_cockpit_index_html import LOCALHOST_COCKPIT_INDEX_HTML
 from server import handle_bridge_websocket_connection
@@ -10,6 +12,12 @@ from stdlib_websocket_server import Response, serve
 LISTEN_ADDRESS = "127.0.0.1"
 LISTEN_PORT = int(os.environ.get("LOCAL_COCKPIT_PORT", "7682"))
 LOCAL_TMUX_EXECUTABLE_PATH = os.environ.get("LOCAL_COCKPIT_TMUX", "tmux")
+LOCAL_TMUX_ENUMERATION_SOCKET_NAME = os.environ.get(
+    "LOCAL_COCKPIT_ENUMERATION_SOCKET", ""
+)
+LOCAL_TMUX_MUTATION_SOCKET_NAME = os.environ.get(
+    "LOCAL_COCKPIT_MUTATION_SOCKET", "cockpit"
+)
 
 LOCALHOST_COCKPIT_SETTINGS = CockpitSessionBridgeSettings(
     listen_address=LISTEN_ADDRESS,
@@ -18,8 +26,8 @@ LOCALHOST_COCKPIT_SETTINGS = CockpitSessionBridgeSettings(
     allowed_request_origin="",
     terminal_type="xterm-256color",
     cockpit_tmux_executable_path=LOCAL_TMUX_EXECUTABLE_PATH,
-    cockpit_tmux_enumeration_socket_name="",
-    cockpit_tmux_mutation_socket_name="cockpit",
+    cockpit_tmux_enumeration_socket_name=LOCAL_TMUX_ENUMERATION_SOCKET_NAME,
+    cockpit_tmux_mutation_socket_name=LOCAL_TMUX_MUTATION_SOCKET_NAME,
     cockpit_tmux_remote_ssh_host="",
 )
 
@@ -29,6 +37,9 @@ ALLOWED_LOOPBACK_ORIGINS = {
 }
 
 INDEX_HTML_BYTES = LOCALHOST_COCKPIT_INDEX_HTML.encode("utf-8")
+LIFECYCLE_CONFIG_JSON_BYTES = json.dumps(
+    {"lifecycleControlPath": COCKPIT_LIFECYCLE_CONTROL_PATH}
+).encode("utf-8")
 
 
 async def attach_or_reject_loopback_websocket_connection(websocket_connection):
@@ -44,6 +55,13 @@ async def attach_or_reject_loopback_websocket_connection(websocket_connection):
 def serve_vendor_asset_or_index_or_upgrade(websocket_connection, handshake_request):
     if handshake_request.headers.get("Upgrade", "").lower() == "websocket":
         return None
+    if handshake_request.path == "/config":
+        return Response(
+            200,
+            "OK",
+            [("Content-Type", "application/json; charset=utf-8")],
+            LIFECYCLE_CONFIG_JSON_BYTES,
+        )
     if handshake_request.path == "/xterm.css":
         return Response(
             200,
