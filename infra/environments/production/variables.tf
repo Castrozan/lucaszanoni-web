@@ -155,3 +155,16 @@ variable "kira_session_tunnel_secret" {
   default     = ""
   description = "Base64-encoded 32-byte secret that authenticates kira's cloudflared connector to the named kira tunnel. Supplied at apply time via TF_VAR_kira_session_tunnel_secret from a CI secret and never committed; the same value is marshalled into the connector credentials JSON for the agenix handoff. Ignored while enable_kira_session_tunnel is off."
 }
+
+variable "enable_rin_session_tunnel" {
+  type        = bool
+  default     = false
+  description = "Whether to provision the locally-managed Cloudflare Tunnel that publishes rin's own cockpit session bridge (serving its own tmux sessions directly) to the edge, so the workspace connects to rin without the chise SSH relay. Defaults off so a push applies no public origin; flipped on together with rin_session_tunnel_secret once the connector credentials are minted into rin's agenix store."
+}
+
+variable "rin_session_tunnel_secret" {
+  type        = string
+  sensitive   = true
+  default     = ""
+  description = "Base64-encoded 32-byte secret that authenticates rin's cloudflared connector to the named rin tunnel. Supplied at apply time via TF_VAR_rin_session_tunnel_secret from a CI secret and never committed; the same value is marshalled into the connector credentials JSON for the agenix handoff. Ignored while enable_rin_session_tunnel is off."
+}
