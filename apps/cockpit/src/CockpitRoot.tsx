@@ -26,7 +26,7 @@ export function CockpitRoot() {
             </BrowserRouter>
           </CockpitSessionsProvider>
           <CommandPalette />
-          <BottomStatusBar registerNavigationKeybinds={false} />
+          <BottomStatusBar registerSessionKeybind={false} />
         </KeybindProvider>
       </ThemeProvider>
     </QueryClientProvider>

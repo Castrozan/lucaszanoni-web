@@ -76,10 +76,12 @@ function windowLinkStyle(isActive: boolean): CSSProperties {
 
 export interface BottomStatusBarProps {
   readonly registerNavigationKeybinds?: boolean;
+  readonly registerSessionKeybind?: boolean;
 }
 
 export function BottomStatusBar({
   registerNavigationKeybinds = true,
+  registerSessionKeybind = true,
 }: BottomStatusBarProps = {}) {
   const [pathname, setPathname] = useState("/");
   const [leaderBinding, setLeaderBinding] = useState(DEFAULT_LEADER_BINDING);
@@ -112,6 +114,7 @@ export function BottomStatusBar({
       {registerNavigationKeybinds ? (
         <StatusBarKeybinds
           windowCount={active ? active.session.windows.length : 0}
+          registerSessionKeybind={registerSessionKeybind}
         />
       ) : null}
       <footer aria-label="Status bar" style={barStyle}>

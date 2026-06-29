@@ -45,6 +45,19 @@ describe("status bar keybinds", () => {
     }
   });
 
+  it("registers window keybinds but gates the session keybind when the host owns the leader", () => {
+    render(
+      <KeybindProvider>
+        <CommandPalette navigate={() => {}} />
+        <BottomStatusBar registerSessionKeybind={false} />
+      </KeybindProvider>,
+    );
+    fireKey({ key: "?" });
+    expect(screen.getByText("Next window")).toBeTruthy();
+    expect(screen.getByText("Window 1")).toBeTruthy();
+    expect(screen.queryByText("List sessions")).toBeNull();
+  });
+
   it("frees Leader p so it no longer opens the command palette", () => {
     renderShellSurfaces();
     fireKey({ key: "b", ctrlKey: true });
