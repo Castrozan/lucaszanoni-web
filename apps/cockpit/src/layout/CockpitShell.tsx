@@ -11,7 +11,10 @@ import { useCommandPalette } from "../command-palette/use-command-palette";
 import { CommandPalette } from "../command-palette/CommandPalette";
 import { useCockpitSessionsContext } from "../sessions/cockpit-sessions-context";
 import { useCockpitWorkspace } from "../tmux-mirror/cockpit-workspace-context";
-import { buildCockpitMirrorSessionCommands } from "../tmux-mirror/cockpit-mirror-palette-commands";
+import {
+  buildCockpitMirrorMachineCommands,
+  buildCockpitMirrorSessionCommands,
+} from "../tmux-mirror/cockpit-mirror-palette-commands";
 
 export interface CockpitShellProps {
   readonly children: ReactNode;
@@ -27,6 +30,11 @@ export function CockpitShell({ children }: CockpitShellProps) {
         ? [
             ...buildNavigationCommands(navigate),
             ...buildCockpitMirrorSessionCommands(cockpitWorkspace.controller),
+            ...buildCockpitMirrorMachineCommands(
+              cockpitWorkspace.machines,
+              cockpitWorkspace.activeMachine?.key ?? null,
+              cockpitWorkspace.selectMachine,
+            ),
           ]
         : [
             ...buildNavigationCommands(navigate),
