@@ -3,6 +3,7 @@ import {
   COCKPIT_LEADER_ARM_TIMEOUT_MS,
   cockpitLeaderBindings,
   isCockpitLeaderChord,
+  type LeaderBinding,
   type LeaderCommand,
 } from "./leader-keymap";
 import {
@@ -13,6 +14,7 @@ import {
 
 export interface LeaderKeyNavigationHandlers {
   readonly onCommand: (command: LeaderCommand) => void;
+  readonly bindings?: readonly LeaderBinding[];
 }
 
 const MODIFIER_KEYS = new Set(["Shift", "Control", "Alt", "Meta"]);
@@ -37,6 +39,8 @@ export function useLeaderKeyNavigation(
   useEffect(() => {
     let engineState: LeaderEngineState = initialLeaderEngineState;
     let armTimeoutId: number | undefined;
+    const activeBindings = () =>
+      handlersRef.current.bindings ?? cockpitLeaderBindings;
     const clearArmTimeout = () => {
       if (armTimeoutId !== undefined) {
         window.clearTimeout(armTimeoutId);
@@ -44,7 +48,7 @@ export function useLeaderKeyNavigation(
       }
     };
     const disarm = () => {
-      engineState = reduceLeaderEngine(cockpitLeaderBindings, engineState, {
+      engineState = reduceLeaderEngine(activeBindings(), engineState, {
         kind: "cancel",
       }).state;
       clearArmTimeout();
@@ -59,9 +63,10 @@ export function useLeaderKeyNavigation(
           disarm();
           return;
         }
-        const result = reduceLeaderEngine(cockpitLeaderBindings, engineState, {
+        const result = reduceLeaderEngine(activeBindings(), engineState, {
           kind: "key",
           key: event.key.toLowerCase(),
+          shiftKey: event.shiftKey,
         });
         engineState = result.state;
         clearArmTimeout();
@@ -76,7 +81,7 @@ export function useLeaderKeyNavigation(
       }
       if (isCockpitLeaderChord(event)) {
         event.preventDefault();
-        engineState = reduceLeaderEngine(cockpitLeaderBindings, engineState, {
+        engineState = reduceLeaderEngine(activeBindings(), engineState, {
           kind: "leader-armed",
         }).state;
         clearArmTimeout();
