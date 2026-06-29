@@ -5,12 +5,13 @@ import {
   previousWindowIndex,
 } from "@platform/config";
 import { useKeybind } from "../keybinds/useKeybind";
-import { openCommandPalette } from "../command-palette/CommandPalette";
 import { WindowNumberKeybind } from "./WindowNumberKeybind";
+import { SessionsKeybind } from "./SessionsKeybind";
 import { navigateToWindowPath } from "./statusBarNavigation";
 
 export interface StatusBarKeybindsProps {
   readonly windowCount: number;
+  readonly registerSessionKeybind?: boolean;
 }
 
 function cycleWindow(
@@ -29,13 +30,10 @@ function cycleWindow(
   );
 }
 
-export function StatusBarKeybinds({ windowCount }: StatusBarKeybindsProps) {
-  useKeybind({
-    id: "tmux.sessions",
-    label: "List sessions",
-    defaultBinding: "Leader s",
-    run: () => openCommandPalette(),
-  });
+export function StatusBarKeybinds({
+  windowCount,
+  registerSessionKeybind = true,
+}: StatusBarKeybindsProps) {
   useKeybind({
     id: "tmux.window.next",
     label: "Next window",
@@ -50,6 +48,7 @@ export function StatusBarKeybinds({ windowCount }: StatusBarKeybindsProps) {
   });
   return (
     <>
+      {registerSessionKeybind ? <SessionsKeybind /> : null}
       {Array.from(
         { length: Math.min(Math.max(windowCount, 0), 9) },
         (_, index) => (
