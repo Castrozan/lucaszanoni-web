@@ -26,3 +26,19 @@ discoverable in the overlay and rebindable.
 ## Infra
 
 - Static-spa provenance SHA is wired via the `ATRIUM_BUILD_SHA` docker build-arg; keep it flowing.
+
+## Cockpit: bring-your-own local tmux (multi-user, no per-machine tunnel)
+
+The cockpit today reaches a real machine through a Cloudflare tunnel per host (owner-only). A deployed
+public page cannot reach a visitor's own machine directly, so this is the constraint we work around:
+
+```
+ BLOCKED:  Brave ──✗──► ws://127.0.0.1:8787 (kira localhost)
+           Private Network Access: a public HTTPS page can't reach localhost
+```
+
+Workaround to build: let any visitor drive their OWN local tmux from the cockpit by running a one-liner
+install script that launches a localhost cockpit against their local processes, the same way our cockpit
+already works. Verbatim:
+
+> the set up we have now require a cloudflare tunnel, but i want anyone to access the website and then be able to use our cockpit feature on their own local tmux (not my personal, their's local) this can be achieved by accessing the cockpti and then to connect the users are required to run a small one liner script like those to install apps on linux that would just launch a localhost version of the cockpit running the local processies like our own cockpit works
