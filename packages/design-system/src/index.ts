@@ -62,6 +62,10 @@ export {
   saveLeaderBinding,
 } from "./keybinds/keybindStore";
 export { BottomStatusBar } from "./status-bar/BottomStatusBar";
+export type {
+  StatusBarModel,
+  StatusBarWindowModel,
+} from "./status-bar/statusBarModel";
 export {
   STATUS_BAR_HEIGHT,
   STATUS_BAR_HEIGHT_CSS_VARIABLE,

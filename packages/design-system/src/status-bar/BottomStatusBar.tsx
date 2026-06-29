@@ -13,6 +13,7 @@ import {
   STATUS_BAR_HEIGHT_CSS_VARIABLE,
 } from "./statusBarLayout";
 import { StatusBarKeybinds } from "./StatusBarKeybinds";
+import type { StatusBarModel } from "./statusBarModel";
 
 const surfaceColor = "var(--ls-color-surface, #111111)";
 const borderColor = "var(--ls-color-border, #2A2A2A)";
@@ -82,14 +83,27 @@ function windowLinkStyle(isActive: boolean): CSSProperties {
   };
 }
 
+const windowButtonStyle = (isActive: boolean): CSSProperties => ({
+  ...windowLinkStyle(isActive),
+  appearance: "none",
+  border: 0,
+  margin: 0,
+  padding: 0,
+  background: "transparent",
+  font: "inherit",
+  cursor: "pointer",
+});
+
 export interface BottomStatusBarProps {
   readonly registerNavigationKeybinds?: boolean;
   readonly registerSessionKeybind?: boolean;
+  readonly model?: StatusBarModel;
 }
 
 export function BottomStatusBar({
   registerNavigationKeybinds = true,
   registerSessionKeybind = true,
+  model,
 }: BottomStatusBarProps = {}) {
   const [pathname, setPathname] = useState("/");
   const [leaderBinding, setLeaderBinding] = useState(DEFAULT_LEADER_BINDING);
@@ -115,15 +129,26 @@ export function BottomStatusBar({
 
   const registry = useKeybindRegistry();
   const isLeaderArmed = registry?.isSequencePending ?? false;
-  const sessions = buildPlatformSessions();
-  const active = findActiveLocation(sessions, pathname);
+  const platformActive = model
+    ? null
+    : findActiveLocation(buildPlatformSessions(), pathname);
+  const sessionLabel = model
+    ? model.sessionLabel
+    : platformActive
+      ? platformActive.session.label
+      : "Home";
+  const navWindowCount = model
+    ? model.windows.length
+    : platformActive
+      ? platformActive.session.windows.length
+      : 0;
   const leaderDisplay = formatBindingForDisplay("Leader", leaderBinding);
 
   return (
     <>
       {registerNavigationKeybinds ? (
         <StatusBarKeybinds
-          windowCount={active ? active.session.windows.length : 0}
+          windowCount={navWindowCount}
           registerSessionKeybind={registerSessionKeybind}
         />
       ) : null}
@@ -131,19 +156,33 @@ export function BottomStatusBar({
         <span
           style={isLeaderArmed ? sessionLabelArmedStyle : sessionLabelStyle}
         >
-          {active ? active.session.label : "Home"}
+          {sessionLabel}
         </span>
         <nav aria-label="Windows" style={windowsNavStyle}>
-          {active?.session.windows.map((platformWindow, index) => (
-            <a
-              key={platformWindow.id}
-              href={platformWindow.path}
-              aria-current={index === active.windowIndex ? "page" : undefined}
-              style={windowLinkStyle(index === active.windowIndex)}
-            >
-              {index + 1}:{platformWindow.label}
-            </a>
-          ))}
+          {model
+            ? model.windows.map((windowModel, index) => (
+                <button
+                  key={windowModel.id}
+                  type="button"
+                  onClick={windowModel.onSelect}
+                  aria-current={windowModel.isActive ? "page" : undefined}
+                  style={windowButtonStyle(windowModel.isActive)}
+                >
+                  {index + 1}:{windowModel.label}
+                </button>
+              ))
+            : platformActive?.session.windows.map((platformWindow, index) => (
+                <a
+                  key={platformWindow.id}
+                  href={platformWindow.path}
+                  aria-current={
+                    index === platformActive.windowIndex ? "page" : undefined
+                  }
+                  style={windowLinkStyle(index === platformActive.windowIndex)}
+                >
+                  {index + 1}:{platformWindow.label}
+                </a>
+              ))}
         </nav>
         <span style={hintStyle}>{leaderDisplay} · ? help</span>
       </footer>
