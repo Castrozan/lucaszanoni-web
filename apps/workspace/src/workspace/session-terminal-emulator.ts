@@ -1,5 +1,6 @@
 import "@xterm/xterm/css/xterm.css";
 import "@platform/design-system/terminal-font.css";
+import { whenTerminalIconFontLoaded } from "@platform/design-system";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import type { SessionTerminalWindowSize } from "./session-terminal-socket";
@@ -41,6 +42,9 @@ export const createBrowserSessionTerminalEmulator: SessionTerminalEmulatorFactor
         terminal.open(container);
         fitAddon.fit();
         terminal.focus();
+        whenTerminalIconFontLoaded(() =>
+          terminal.refresh(0, Math.max(terminal.rows - 1, 0)),
+        );
         return currentWindowSize();
       },
       writeOutputBytes(bytes) {
