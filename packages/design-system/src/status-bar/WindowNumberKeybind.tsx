@@ -17,6 +17,7 @@ export function WindowNumberKeybind({
     id: `tmux.window.jump.${oneBasedNumber}`,
     label: `Window ${oneBasedNumber}`,
     defaultBinding: `Leader ${oneBasedNumber}`,
+    allowInInput: true,
     run: () => {
       const active = findActiveLocation(
         buildPlatformSessions(),

@@ -38,6 +38,17 @@ export function parseChordToken(token: string): KeyChord {
   };
 }
 
+export function eventMatchesLeaderChord(
+  event: KeyboardEvent,
+  leader: string,
+): boolean {
+  const eventChord = chordFromKeyboardEvent(event);
+  if (!eventChord) {
+    return false;
+  }
+  return eventChordMatchesBindingChord(eventChord, parseChordToken(leader));
+}
+
 export function eventChordMatchesBindingChord(
   eventChord: KeyChord,
   bindingChord: KeyChord,

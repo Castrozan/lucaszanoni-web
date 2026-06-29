@@ -7,6 +7,7 @@ export interface JarvisTerminalEmulator {
   attachTo(container: HTMLElement): JarvisTerminalWindowSize;
   writeOutputBytes(bytes: Uint8Array): void;
   onOwnerInput(handler: (bytes: Uint8Array) => void): void;
+  setHostKeyGuard(shouldYieldToHost: (event: KeyboardEvent) => boolean): void;
   fitToContainer(): JarvisTerminalWindowSize;
   focus(): void;
   dispose(): void;
@@ -46,6 +47,14 @@ export const createBrowserTerminalEmulator: JarvisTerminalEmulatorFactory =
       },
       onOwnerInput(handler) {
         terminal.onData((data) => handler(ownerKeystrokeEncoder.encode(data)));
+      },
+      setHostKeyGuard(shouldYieldToHost) {
+        terminal.attachCustomKeyEventHandler((event) => {
+          if (event.type !== "keydown") {
+            return true;
+          }
+          return !shouldYieldToHost(event);
+        });
       },
       fitToContainer() {
         fitAddon.fit();
