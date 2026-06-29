@@ -4,9 +4,9 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  DriveYourOwnMachineCallToAction,
 } from "@platform/design-system";
 import { DailyTokensChart, useUsageViewModel } from "@platform/usage-insights";
-import { DriveYourOwnMachineCallToAction } from "../distribution/DriveYourOwnMachineCallToAction";
 import { useOwnerAccessIdentity } from "../identity/use-owner-access-identity";
 import { cockpitQuickAccessBookmarks } from "../layout/cockpit-quick-access-bookmarks";
 
