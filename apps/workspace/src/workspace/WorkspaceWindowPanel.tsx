@@ -34,7 +34,7 @@ export function WorkspaceWindowPanel({
   return (
     <section
       aria-label="Agents"
-      className="flex flex-1 flex-col gap-3 overflow-hidden p-4"
+      className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-4"
     >
       <div className="flex items-center gap-2">
         <label className="font-mono text-[11px] uppercase tracking-[2px] text-text-faint">
