@@ -59,6 +59,8 @@ jobs:
           TF_VAR_enable_dotcom_canonical: ${{ vars.ENABLE_DOTCOM_CANONICAL || 'false' }}
           TF_VAR_enable_jarvis_session_tunnel: ${{ vars.ENABLE_JARVIS_SESSION_TUNNEL || 'false' }}
           TF_VAR_jarvis_session_tunnel_secret: ${{ secrets.JARVIS_SESSION_TUNNEL_SECRET }}
+          TF_VAR_enable_kira_session_tunnel: ${{ vars.ENABLE_KIRA_SESSION_TUNNEL || 'false' }}
+          TF_VAR_kira_session_tunnel_secret: ${{ secrets.KIRA_SESSION_TUNNEL_SECRET }}
           TF_VAR_owner_account_email: ${{ secrets.OWNER_ACCOUNT_EMAIL }}
           TF_VAR_shared_access_audience_email_allowlists: ${{ secrets.SHARED_ACCESS_AUDIENCE_EMAIL_ALLOWLISTS || '{}' }}
           TF_VAR_google_sso_client_id: ${{ secrets.GOOGLE_SSO_CLIENT_ID }}
@@ -77,6 +79,8 @@ jobs:
           TF_VAR_enable_dotcom_canonical: ${{ vars.ENABLE_DOTCOM_CANONICAL || 'false' }}
           TF_VAR_enable_jarvis_session_tunnel: ${{ vars.ENABLE_JARVIS_SESSION_TUNNEL || 'false' }}
           TF_VAR_jarvis_session_tunnel_secret: ${{ secrets.JARVIS_SESSION_TUNNEL_SECRET }}
+          TF_VAR_enable_kira_session_tunnel: ${{ vars.ENABLE_KIRA_SESSION_TUNNEL || 'false' }}
+          TF_VAR_kira_session_tunnel_secret: ${{ secrets.KIRA_SESSION_TUNNEL_SECRET }}
           TF_VAR_owner_account_email: ${{ secrets.OWNER_ACCOUNT_EMAIL }}
           TF_VAR_shared_access_audience_email_allowlists: ${{ secrets.SHARED_ACCESS_AUDIENCE_EMAIL_ALLOWLISTS || '{}' }}
           TF_VAR_google_sso_client_id: ${{ secrets.GOOGLE_SSO_CLIENT_ID }}

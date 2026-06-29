@@ -39,3 +39,19 @@ output "jarvis_session_connector_credentials_json" {
   sensitive   = true
   description = "Connector credentials JSON chise's cloudflared authenticates with, marshalled for the agenix handoff. Null until enable_jarvis_session_tunnel is set; read out-of-band at activation, never committed."
 }
+
+output "kira_session_tunnel_id" {
+  value       = one(module.kira_session_tunnel[*].tunnel_id)
+  description = "Id of the locally-managed Cloudflare Tunnel fronting kira's own session bridge. Null until enable_kira_session_tunnel is set; feeds kira's cloudflared connector tunnelId."
+}
+
+output "kira_session_tunnel_origin_hostname" {
+  value       = one(module.kira_session_tunnel[*].origin_hostname)
+  description = "Cloudflare-proxied origin hostname the edge route targets for kira's session bridge. Null until enable_kira_session_tunnel is set."
+}
+
+output "kira_session_connector_credentials_json" {
+  value       = one(module.kira_session_tunnel[*].connector_credentials_json)
+  sensitive   = true
+  description = "Connector credentials JSON kira's cloudflared authenticates with, marshalled for the agenix handoff. Null until enable_kira_session_tunnel is set; read out-of-band at activation, never committed."
+}
