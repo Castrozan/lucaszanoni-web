@@ -10,3 +10,8 @@ output "google_sso_login_enabled" {
   value       = nonsensitive(local.google_sso_enabled)
   description = "Whether a Google identity provider is provisioned and bound to the managed Access applications as the login method. False keeps Cloudflare's default email one-time-pin login."
 }
+
+output "google_identity_provider_id" {
+  value       = one(cloudflare_zero_trust_access_identity_provider.google[*].id)
+  description = "Id of the provisioned Google identity provider, or null while Google SSO is disabled. Lets a standalone Access application in the environment bind the same Google login the managed applications use."
+}
