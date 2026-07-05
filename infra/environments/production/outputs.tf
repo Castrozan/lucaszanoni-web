@@ -71,3 +71,19 @@ output "rin_session_connector_credentials_json" {
   sensitive   = true
   description = "Connector credentials JSON rin's cloudflared authenticates with, marshalled for the agenix handoff. Null until enable_rin_session_tunnel is set; read out-of-band at activation, never committed."
 }
+
+output "jellyseerr_media_tunnel_id" {
+  value       = one(module.jellyseerr_media_tunnel[*].tunnel_id)
+  description = "Id of the locally-managed Cloudflare Tunnel fronting chise's Jellyseerr media request portal. Null until enable_jellyseerr_media_tunnel is set; feeds chise's cloudflared connector tunnelId."
+}
+
+output "jellyseerr_media_tunnel_origin_hostname" {
+  value       = one(module.jellyseerr_media_tunnel[*].origin_hostname)
+  description = "Cloudflare-proxied public hostname the Access-gated Jellyseerr request portal answers on. Null until enable_jellyseerr_media_tunnel is set."
+}
+
+output "jellyseerr_media_connector_credentials_json" {
+  value       = one(module.jellyseerr_media_tunnel[*].connector_credentials_json)
+  sensitive   = true
+  description = "Connector credentials JSON chise's cloudflared authenticates with, marshalled for the agenix handoff. Null until enable_jellyseerr_media_tunnel is set; read out-of-band at activation, never committed."
+}
