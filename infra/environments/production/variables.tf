@@ -168,16 +168,3 @@ variable "rin_session_tunnel_secret" {
   default     = ""
   description = "Base64-encoded 32-byte secret that authenticates rin's cloudflared connector to the named rin tunnel. Supplied at apply time via TF_VAR_rin_session_tunnel_secret from a CI secret and never committed; the same value is marshalled into the connector credentials JSON for the agenix handoff. Ignored while enable_rin_session_tunnel is off."
 }
-
-variable "enable_jellyseerr_media_tunnel" {
-  type        = bool
-  default     = false
-  description = "Whether to provision the locally-managed Cloudflare Tunnel that publishes chise's Jellyseerr media request portal at requests.<zone> behind a Google-SSO Cloudflare Access gate. Defaults off so a push applies no public origin; flipped on together with jellyseerr_media_tunnel_secret and the media-friends allowlist once the connector credentials are minted into chise's agenix store, which is the single irreversible step that exposes the Access-gated request portal."
-}
-
-variable "jellyseerr_media_tunnel_secret" {
-  type        = string
-  sensitive   = true
-  default     = ""
-  description = "Base64-encoded 32-byte secret that authenticates chise's cloudflared connector to the named Jellyseerr media tunnel. Supplied at apply time via TF_VAR_jellyseerr_media_tunnel_secret from a CI secret and never committed; the same value is marshalled into the connector credentials JSON output for the agenix handoff. Ignored while enable_jellyseerr_media_tunnel is off."
-}
