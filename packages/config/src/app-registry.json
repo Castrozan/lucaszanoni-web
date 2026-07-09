@@ -232,5 +232,26 @@
         "GOOGLE_GENERATIVE_AI_API_KEY": "dynamic-ia-gemini-api-key"
       }
     }
+  },
+  {
+    "id": "stack-launcher",
+    "mountPath": "/stack/",
+    "navigationLabel": "Stack",
+    "description": "Owner-only launcher for the self-hosted arr-stack apps.",
+    "showInCrossSectionNavigation": false,
+    "status": "active",
+    "accessModel": {
+      "environment": "private",
+      "audience": { "kind": "owner" }
+    },
+    "origin": {
+      "kind": "in-repo-cloud-run",
+      "cloudRunServiceName": "lucaszanoni-stack-launcher",
+      "appPackageName": "@platform/stack-launcher",
+      "appDirectoryName": "stack-launcher",
+      "buildProfile": "static-spa",
+      "nonSecretEnvironment": {},
+      "secretEnvironmentReferences": {}
+    }
   }
 ]

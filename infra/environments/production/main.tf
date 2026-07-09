@@ -15,6 +15,7 @@ locals {
     workspace               = var.workspace_container_image
     "dynamic-ia-canvas"     = var.dynamic_ia_canvas_container_image
     "dynamic-ia-interfaces" = var.dynamic_ia_interfaces_container_image
+    "stack-launcher"        = var.stack_launcher_container_image
   }
 
   root_app_id = one([

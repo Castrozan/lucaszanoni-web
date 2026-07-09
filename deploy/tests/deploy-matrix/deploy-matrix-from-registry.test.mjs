@@ -66,6 +66,13 @@ const expectedDeployMatrixFromCommittedRegistry = {
       app_mount_path: "/dynamic-ia-interfaces/",
       build_profile: "dynamic-service",
     },
+    {
+      service_name: "lucaszanoni-stack-launcher",
+      app_package_name: "@platform/stack-launcher",
+      app_directory_name: "stack-launcher",
+      app_mount_path: "/stack/",
+      build_profile: "static-spa",
+    },
   ],
 };
 

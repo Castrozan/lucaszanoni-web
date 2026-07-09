@@ -169,6 +169,25 @@ export const dynamicIaInterfacesApp: AppRegistryEntry = {
   },
 };
 
+export const stackLauncherApp: AppRegistryEntry = {
+  id: "stack-launcher",
+  mountPath: "/stack/",
+  navigationLabel: "Stack",
+  description: "Owner-only launcher for the self-hosted arr-stack apps.",
+  showInCrossSectionNavigation: false,
+  status: "active",
+  accessModel: { environment: "private", audience: { kind: "owner" } },
+  origin: {
+    kind: "in-repo-cloud-run",
+    cloudRunServiceName: "lucaszanoni-stack-launcher",
+    appPackageName: "@platform/stack-launcher",
+    appDirectoryName: "stack-launcher",
+    buildProfile: "static-spa",
+    nonSecretEnvironment: {},
+    secretEnvironmentReferences: {},
+  },
+};
+
 export const todaysApps: readonly AppRegistryEntry[] = [
   shellApp,
   usageDashboardApp,
@@ -181,4 +200,5 @@ export const todaysApps: readonly AppRegistryEntry[] = [
   workspaceApp,
   dynamicIaCanvasApp,
   dynamicIaInterfacesApp,
+  stackLauncherApp,
 ];
