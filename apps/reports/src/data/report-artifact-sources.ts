@@ -6,3 +6,5 @@ export const reportArtifactBucketBaseUrl = `https://storage.googleapis.com/${REP
 export const baselineArtifactUrl = `${reportArtifactBucketBaseUrl}baseline/index.html`;
 
 export const coverageArtifactUrl = `${reportArtifactBucketBaseUrl}coverage/index.html`;
+
+export const qualityMetricsUrl = `${reportArtifactBucketBaseUrl}quality/metrics.json`;

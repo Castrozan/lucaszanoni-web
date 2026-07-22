@@ -8,7 +8,9 @@ import {
 export function WhatChangedSection() {
   return (
     <>
-      <h2 className={qualitySectionHeadingClassName}>What changed</h2>
+      <h2 className={qualitySectionHeadingClassName}>
+        What the investigation changed
+      </h2>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card className="gap-2 rounded-lg px-5 py-4">
           <b>New</b>
@@ -24,11 +26,14 @@ export function WhatChangedSection() {
             <li>A/B test runner for instruction-loading configs.</li>
             <li>
               PostCompact reinforcement hook, re-injects the 10 most-violated
-              rules.
+              rules. It has since been replaced by a recovery hook that restores
+              durable state off disk instead of re-injecting rule text.
             </li>
             <li>
-              Pre-push eval baseline enforcement, local gate, 3-day max age (was
-              7, CI-only).
+              Pre-push eval baseline enforcement with a 3-day max age. Both were
+              dropped later: the suite is too slow and too flaky to gate a push
+              on, so CI now guards an absolute pass-rate floor and the baseline
+              is re-recorded deliberately rather than on a clock.
             </li>
           </ul>
         </Card>

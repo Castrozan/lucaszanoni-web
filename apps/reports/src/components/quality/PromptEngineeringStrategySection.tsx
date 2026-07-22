@@ -1,11 +1,21 @@
 import { Card } from "@platform/design-system";
+import type { QualityMetrics } from "../../data/quality-metrics";
 import {
   qualityListClassName,
   qualityPanelClassName,
   qualitySectionHeadingClassName,
 } from "./quality-report-content";
 
-export function PromptEngineeringStrategySection() {
+export interface PromptEngineeringStrategySectionProps {
+  readonly metrics: QualityMetrics;
+}
+
+export function PromptEngineeringStrategySection({
+  metrics,
+}: PromptEngineeringStrategySectionProps) {
+  const averageLinesPerRuleBlock = Math.round(
+    metrics.coreRules.lineCount / metrics.coreRules.ruleBlockCount,
+  );
   return (
     <>
       <h2 className={qualitySectionHeadingClassName}>
@@ -26,12 +36,16 @@ export function PromptEngineeringStrategySection() {
             establishes custom over default.
           </li>
           <li>
-            <b>Density</b>, 125 lines / 25 rules, about 5 lines each. Dense
-            prose, no tutorials.
+            <b>Density</b>, {metrics.coreRules.lineCount} lines /{" "}
+            {metrics.coreRules.ruleBlockCount} rule blocks, about{" "}
+            {averageLinesPerRuleBlock} lines each. Dense prose, no tutorials.
           </li>
           <li>
-            <b>Reinforcement</b>, a PostCompact hook re-injects the top 10 rules
-            after context compaction.
+            <b>Reinforcement</b>, {metrics.hooks.entryPointCount} hooks across{" "}
+            {metrics.hooks.wiredEvents.length} events carry what prose cannot: a
+            session-start recovery hook rebuilds durable state after compaction,
+            and an end-of-turn guard bounces replies that break the format
+            contract.
           </li>
           <li>
             <b>Loading</b>, @reference (83) over inline (76) over system-prompt

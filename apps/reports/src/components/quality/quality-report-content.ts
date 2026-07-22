@@ -1,4 +1,5 @@
 import { REPORTS_MOUNT_PATH } from "@platform/config";
+import type { CoreRulesMetrics } from "../../data/quality-metrics";
 
 export const qualitySectionHeadingClassName =
   "mt-9 mb-3 border-b border-border pb-1.5 text-lg font-semibold";
@@ -12,10 +13,16 @@ export const baselineDashboardHref = `${REPORTS_MOUNT_PATH}baseline/`;
 export const qualityIssueHref =
   "https://github.com/Castrozan/.dotfiles/issues/70";
 
-export const instructionLoadingDiagram = `~/.claude/CLAUDE.md  →  @AGENTS.md (alwaysApply: true)
+export function buildInstructionLoadingDiagram(
+  coreRules: CoreRulesMetrics,
+): string {
+  return `agents/core_rules/core.md  (${coreRules.lineCount} lines, ${coreRules.ruleBlockCount} rule blocks)
                               │
-                        core.md (125 lines, 25 sections)
+              rendered into the harness by nix, at every session start
                               │
         ┌─────────────────────┼──────────────────────┐
-   Session Start          PostCompact             Subagents
-   (natural load)   (hook re-injects top 10)   (CLAUDE.md in workspace)`;
+   Interactive           After compaction          Subagents
+   (+ reply-shape      (recovery hook re-reads   (CLAUDE.md picked up
+   preferences file)    HEARTBEAT / deep-work     in the workspace)
+                        state back off disk)`;
+}

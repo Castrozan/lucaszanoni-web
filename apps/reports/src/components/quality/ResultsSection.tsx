@@ -6,6 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@platform/design-system";
+import type { QualityMetrics } from "../../data/quality-metrics";
 import {
   baselineDashboardHref,
   qualityContentLinkClassName,
@@ -13,12 +14,21 @@ import {
   qualitySectionHeadingClassName,
 } from "./quality-report-content";
 
-export function ResultsSection() {
+export interface ResultsSectionProps {
+  readonly metrics: QualityMetrics;
+}
+
+export function ResultsSection({ metrics }: ResultsSectionProps) {
+  const currentPassRatePercent = (metrics.staticEvals.passRate * 100).toFixed(
+    1,
+  );
   return (
     <>
       <h2 className={qualitySectionHeadingClassName}>Results</h2>
       <p className={qualityLedeClassName}>
-        End-to-end runs in real tmux sessions, scored 0-100 (NPS):
+        End-to-end runs in real tmux sessions, scored 0-100 (NPS). These are the
+        original investigation numbers, over the six scenarios that existed at
+        the time:
       </p>
       <Table>
         <TableHeader>
@@ -93,11 +103,14 @@ export function ResultsSection() {
         </TableBody>
       </Table>
       <p className={qualityLedeClassName}>
-        Static evals at the time: 96.7% (177/183), up from 92.2% (118/128). The{" "}
+        Static evals at the time: 96.7% (177/183), up from 92.2% (118/128).
+        Today the suite sits at {currentPassRatePercent}% (
+        {metrics.staticEvals.passedTests}/{metrics.staticEvals.totalTests}), and
+        the{" "}
         <a className={qualityContentLinkClassName} href={baselineDashboardHref}>
           baseline dashboard
         </a>{" "}
-        tracks this number live.
+        plots every recorded run.
       </p>
     </>
   );
