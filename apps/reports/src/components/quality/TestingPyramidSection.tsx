@@ -1,3 +1,4 @@
+import type { QualityMetrics } from "../../data/quality-metrics";
 import {
   baselineDashboardHref,
   qualityContentLinkClassName,
@@ -11,7 +12,11 @@ const tierTitleClassName = "font-semibold text-primary";
 const tierDescriptionClassName = "mt-0.5 text-sm text-muted-foreground";
 const tierMetaClassName = "mt-1.5 text-xs text-muted-foreground";
 
-export function TestingPyramidSection() {
+export interface TestingPyramidSectionProps {
+  readonly metrics: QualityMetrics;
+}
+
+export function TestingPyramidSection({ metrics }: TestingPyramidSectionProps) {
   return (
     <>
       <h2 className={qualitySectionHeadingClassName}>The testing pyramid</h2>
@@ -23,7 +28,8 @@ export function TestingPyramidSection() {
             Dual-signal assertions: terminal output plus workspace artifacts.
           </div>
           <div className={tierMetaClassName}>
-            6 scenarios · NPS 0-100 with penalties · tests/run.sh --e2e
+            {metrics.endToEndScenarioCount} scenarios · NPS 0-100 with penalties
+            · tests/run.sh --e2e
           </div>
         </div>
         <div className={`${tierBaseClassName} max-w-[72%]`}>
@@ -33,7 +39,8 @@ export function TestingPyramidSection() {
             workspace file checks.
           </div>
           <div className={tierMetaClassName}>
-            7 scenarios · NPS 0-100 · tests/run.sh --integration
+            {metrics.integrationScenarioCount} scenarios · NPS 0-100 ·
+            tests/run.sh --integration
           </div>
         </div>
         <div className={`${tierBaseClassName} max-w-[86%] border-primary`}>
@@ -47,10 +54,13 @@ export function TestingPyramidSection() {
             >
               live baseline
             </a>
-            , gated in CI and pre-push.
+            , gated in CI against a fixed pass-rate floor. The pre-push hook
+            runs the lint and quick tiers, not the evals.
           </div>
           <div className={tierMetaClassName}>
-            183 tests / 14 categories · 3-day max age · tests/run.sh --evals
+            {metrics.staticEvals.totalTests} tests /{" "}
+            {metrics.staticEvals.suiteCount} suites · absolute pass-rate floors
+            · tests/run.sh --evals
           </div>
         </div>
         <div className={`${tierBaseClassName} max-w-full`}>

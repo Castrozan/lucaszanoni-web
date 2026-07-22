@@ -1,4 +1,8 @@
 import {
+  formatMetricsGeneratedDate,
+  useQualityMetrics,
+} from "../data/quality-metrics";
+import {
   qualityContentLinkClassName,
   qualityIssueHref,
   qualityLedeClassName,
@@ -12,6 +16,7 @@ import { WhatChangedSection } from "./quality/WhatChangedSection";
 import { QualityReportFooter } from "./quality/QualityReportFooter";
 
 export function QualityPage() {
+  const metrics = useQualityMetrics();
   return (
     <div>
       <h1 className="mt-2 mb-1 text-2xl font-semibold">
@@ -25,13 +30,16 @@ export function QualityPage() {
         <a className={qualityContentLinkClassName} href={qualityIssueHref}>
           issue #70
         </a>
-        .
+        . The prose is written by hand; every count in it is read from the repo
+        on each deploy, measured at commit{" "}
+        <code>{metrics.generatedCommit}</code> on{" "}
+        {formatMetricsGeneratedDate(metrics.generatedAt)}.
       </p>
       <WhyItExistsSection />
-      <InstructionLoadingSection />
-      <TestingPyramidSection />
-      <ResultsSection />
-      <PromptEngineeringStrategySection />
+      <InstructionLoadingSection coreRules={metrics.coreRules} />
+      <TestingPyramidSection metrics={metrics} />
+      <ResultsSection metrics={metrics} />
+      <PromptEngineeringStrategySection metrics={metrics} />
       <WhatChangedSection />
       <QualityReportFooter />
     </div>
