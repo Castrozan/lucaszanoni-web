@@ -48,6 +48,22 @@ assert_redirect_location_is_relative() {
 	esac
 }
 
+assert_cache_control_contains() {
+	expected_substring="$1"
+	description="$2"
+	shift 2
+	observed_cache_control=$(curl -s -o /dev/null -D - "$@" | tr -d '\r' | awk 'tolower($1) == "cache-control:" { sub(/^[^:]*:[[:space:]]*/, ""); print }')
+	case "$observed_cache_control" in
+	*"$expected_substring"*)
+		echo "PASS: $description carried Cache-Control '$observed_cache_control'"
+		;;
+	*)
+		echo "FAIL: $description expected Cache-Control to contain '$expected_substring' but observed '$observed_cache_control'" >&2
+		exit 1
+		;;
+	esac
+}
+
 run_serving_contract_for_mount_path() {
 	application_mount_path="$1"
 	listen_port="$2"
@@ -113,6 +129,9 @@ NGINX_CONFIGURATION
 	assert_http_status 404 "[$application_mount_path] missing hashed asset returns a real not-found instead of the cacheable index fallback" -H "X-Edge-Auth: $correct_edge_secret" "$missing_asset"
 	assert_http_status 403 "[$application_mount_path] missing hashed asset still requires the edge header" "$missing_asset"
 	assert_redirect_location_is_relative "[$application_mount_path] bare assets directory redirect does not leak the internal scheme or port" -H "X-Edge-Auth: $correct_edge_secret" "$bare_assets_directory"
+	assert_cache_control_contains "no-cache" "[$application_mount_path] index document revalidates so a rotated-out bundle reference cannot 404 a returning visitor" -H "X-Edge-Auth: $correct_edge_secret" "$root_request"
+	assert_cache_control_contains "no-cache" "[$application_mount_path] deep single-page fallback revalidates instead of pinning a stale index" -H "X-Edge-Auth: $correct_edge_secret" "$deep_route"
+	assert_cache_control_contains "immutable" "[$application_mount_path] hashed asset is served immutably so the origin owns its cache lifetime" -H "X-Edge-Auth: $correct_edge_secret" "$existing_asset"
 
 	served_index_body=$(curl -s -H "X-Edge-Auth: $correct_edge_secret" "$deep_route")
 	if [ "$served_index_body" != "$index_marker" ]; then
