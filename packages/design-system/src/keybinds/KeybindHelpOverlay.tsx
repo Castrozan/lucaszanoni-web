@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useKeybind } from "./useKeybind";
 import { useKeybindRegistry } from "./useKeybindRegistry";
 import { formatBindingForDisplay } from "./keybindDisplay";
 import { KeybindCaptureInput } from "./KeybindCaptureInput";
 import { KeybindHelpRow } from "./KeybindHelpRow";
+import { useDismissOnEscapeKey } from "../lib/useDismissOnEscapeKey";
 
 export function KeybindHelpOverlay() {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,20 +18,18 @@ export function KeybindHelpOverlay() {
     run: () => setIsOpen((open) => !open),
   });
 
+  useDismissOnEscapeKey(
+    isOpen,
+    useCallback(() => setIsOpen(false), []),
+  );
+
   useEffect(() => {
     if (!isOpen) {
       return;
     }
     const previousBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = previousBodyOverflow;
     };
   }, [isOpen]);

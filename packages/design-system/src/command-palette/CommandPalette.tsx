@@ -20,6 +20,7 @@ import {
   type PaletteCommand,
 } from "./useCommandPalette";
 import { useKeybind } from "../keybinds/useKeybind";
+import { useDismissOnEscapeKey } from "../lib/useDismissOnEscapeKey";
 
 export { openCommandPalette } from "./commandPaletteBehavior";
 
@@ -82,6 +83,7 @@ export function CommandPalette({
   } = usePaletteScrollIntoView(controller.selectedIndex);
 
   useBodyScrollLock(controller.open);
+  useDismissOnEscapeKey(controller.open, controller.closePalette);
 
   if (!controller.open) {
     return null;
@@ -100,10 +102,6 @@ export function CommandPalette({
       case "Enter":
         event.preventDefault();
         controller.runSelected();
-        return;
-      case "Escape":
-        event.preventDefault();
-        controller.closePalette();
         return;
     }
   };
