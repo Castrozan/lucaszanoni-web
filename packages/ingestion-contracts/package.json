@@ -1,0 +1,19 @@
+{
+  "name": "@platform/ingestion-contracts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@platform/tsconfig": "workspace:*",
+    "ajv": "^8.17.1",
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.9"
+  }
+}
