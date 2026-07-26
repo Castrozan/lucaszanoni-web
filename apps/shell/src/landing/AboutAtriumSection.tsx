@@ -1,15 +1,13 @@
 import { Link } from "react-router-dom";
 import { heroContent, platformFeatures } from "./landingContent";
-import { buildPlatformStats } from "./platformStats";
-import { EdgeSignalLine } from "./EdgeSignalLine";
+import { ABOUT_SECTION_ID } from "./landingSections";
 import { getBuildProvenance, formatBuildDate } from "./buildProvenance";
 
 export function AboutAtriumSection() {
-  const platformStats = buildPlatformStats();
   const buildProvenance = getBuildProvenance();
   const buildDate = formatBuildDate(buildProvenance.timestamp);
   return (
-    <section id="about-atrium" className="border-t border-border py-20">
+    <section id={ABOUT_SECTION_ID} className="border-t border-border py-20">
       <div className="mb-8 flex items-end justify-between gap-6">
         <h2 className="m-0 font-grotesk text-[clamp(28px,6vw,64px)] font-bold tracking-[-0.5px] text-foreground">
           ABOUT ATRIUM
@@ -51,21 +49,6 @@ export function AboutAtriumSection() {
           </div>
         ))}
       </div>
-      <div className="mt-16">
-        <EdgeSignalLine />
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {platformStats.map((stat) => (
-            <div key={stat.label} className="flex flex-col gap-2">
-              <span className="font-grotesk text-[clamp(36px,5vw,56px)] font-bold leading-none tracking-[-1px] text-primary">
-                {stat.value}
-              </span>
-              <span className="font-mono text-[11px] uppercase tracking-[2px] text-text-faint">
-                {stat.label}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
       <p className="mt-12 font-mono text-[11px] uppercase tracking-[2px] text-muted-foreground">
         {heroContent.deploymentTagline}
         {buildProvenance.isAvailable
@@ -79,7 +62,7 @@ export function AboutAtriumSection() {
           to="/about"
           className="border border-border px-5 py-2.5 font-mono text-[12px] uppercase tracking-[1.5px] text-foreground no-underline transition-colors hover:border-primary hover:text-primary"
         >
-          More about the platform &rarr;
+          More about the ATRIUM &rarr;
         </Link>
       </div>
     </section>

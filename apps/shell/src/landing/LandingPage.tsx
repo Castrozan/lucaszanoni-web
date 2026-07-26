@@ -1,8 +1,8 @@
 import { LandingHeader } from "./LandingHeader";
 import { HeroSection } from "./HeroSection";
-import { SectionsGrid } from "./SectionsGrid";
+import { KeyboardNavigationSection } from "./KeyboardNavigationSection";
+import { CockpitSection } from "./CockpitSection";
 import { FeaturePreview } from "./FeaturePreview";
-import { RunYourOwnCockpitSection } from "./RunYourOwnCockpitSection";
 import { AboutAtriumSection } from "./AboutAtriumSection";
 import { LandingFooter } from "./LandingFooter";
 
@@ -12,12 +12,12 @@ export function LandingPage() {
       <LandingHeader />
       <main className="mx-auto max-w-[1400px] px-6 md:px-12">
         <HeroSection />
-        <SectionsGrid />
+        <KeyboardNavigationSection />
+        <CockpitSection />
         <FeaturePreview />
-        <RunYourOwnCockpitSection />
         <AboutAtriumSection />
-        <LandingFooter />
       </main>
+      <LandingFooter />
     </div>
   );
 }

@@ -3,10 +3,10 @@ import {
   ThemeProvider,
   CommandPalette,
   KeybindProvider,
-  BottomStatusBar,
 } from "@platform/design-system";
 import { SHELL_MOUNT_PATH } from "@platform/config";
 import { ShellRoutes } from "./ShellRoutes";
+import { ShellStatusBar } from "./ShellStatusBar";
 import { buildShellCommandPaletteDestinations } from "./landing/shellCommandPaletteDestinations";
 
 export function ShellApp() {
@@ -20,7 +20,7 @@ export function ShellApp() {
           <CommandPalette
             destinations={buildShellCommandPaletteDestinations()}
           />
-          <BottomStatusBar />
+          <ShellStatusBar />
         </BrowserRouter>
       </KeybindProvider>
     </ThemeProvider>

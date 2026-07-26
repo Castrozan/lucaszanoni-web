@@ -35,7 +35,7 @@ export const heroContent: HeroContent = {
   staticHeadlineLine: "ONE EDGE.",
   dynamicHeadlineLine: "MANY APPS.",
   subhead:
-    "I'm Lucas, a software engineer. Atrium is my platform: one Cloudflare edge fronting every app and experiment I ship, each deployed on its own and all driven by a single registry. It's my portfolio and engineering playground, built so the next idea ships without touching the last.",
+    "I'm Lucas, a software engineer. Atrium is my platform: fronting every app and experiment I ship, each deployed on its own and all driven by a single registry. It's my portfolio and engineering playground, built so the next idea ships without touching the last.",
   primaryCallToAction: { label: "ABOUT ATRIUM", href: "/about" },
   secondaryCallToAction: {
     label: "VIEW SOURCE >",
