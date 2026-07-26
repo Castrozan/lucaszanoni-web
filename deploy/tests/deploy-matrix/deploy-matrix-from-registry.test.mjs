@@ -73,6 +73,13 @@ const expectedDeployMatrixFromCommittedRegistry = {
       app_mount_path: "/stack/",
       build_profile: "static-spa",
     },
+    {
+      service_name: "lucaszanoni-ingest",
+      app_package_name: "@platform/ingest",
+      app_directory_name: "ingest",
+      app_mount_path: "/ingest/",
+      build_profile: "dynamic-service",
+    },
   ],
 };
 

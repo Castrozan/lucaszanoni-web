@@ -14,7 +14,7 @@ if (!snapshotBucketName) {
 }
 
 const handleIngestRequest = createIngestRequestHandler({
-  mountPath: process.env["INGEST_MOUNT_PATH"] ?? "/ingest/",
+  mountPath: process.env["APP_MOUNT_PATH"] ?? "/ingest/",
   configuredProducerSecret: process.env["INGEST_PRODUCER_SECRET"],
   snapshotObjectWriter: createGoogleCloudStorageSnapshotObjectWriter(
     snapshotBucketName,
