@@ -336,6 +336,9 @@ importers:
       '@platform/design-system':
         specifier: workspace:*
         version: link:../../packages/design-system
+      '@platform/ingestion-contracts':
+        specifier: workspace:*
+        version: link:../../packages/ingestion-contracts
       react:
         specifier: ^19.0.0
         version: 19.2.7

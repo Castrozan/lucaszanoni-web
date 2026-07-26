@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 export interface ArtifactIframePageProps {
   readonly heading: string;
   readonly description: string;
   readonly artifactUrl: string;
   readonly iframeTitle: string;
+  readonly summary?: ReactNode;
 }
 
 type ArtifactLoadState = "loading" | "loaded" | "error";
@@ -14,6 +15,7 @@ export function ArtifactIframePage({
   description,
   artifactUrl,
   iframeTitle,
+  summary,
 }: ArtifactIframePageProps) {
   const [loadState, setLoadState] = useState<ArtifactLoadState>("loading");
   useEffect(() => {
@@ -38,6 +40,7 @@ export function ArtifactIframePage({
     <div className="flex h-full min-h-[80vh] flex-col">
       <h1 className="mt-2 mb-1 text-2xl font-semibold">{heading}</h1>
       <p className="mb-4 max-w-[74ch] text-muted-foreground">{description}</p>
+      {summary}
       <div className="relative flex-1 overflow-hidden rounded-lg border border-border bg-surface">
         {loadState === "loading" && (
           <div className="absolute inset-0 grid place-items-center px-6 text-center text-sm text-muted-foreground">
