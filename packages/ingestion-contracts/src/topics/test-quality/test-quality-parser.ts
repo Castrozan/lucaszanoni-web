@@ -1,10 +1,12 @@
+import { requireNonNegativeInteger } from "../../field-parsers/number-field-parsers";
 import {
   asObjectRecord,
   rejectUnknownKeys,
-  requireNonNegativeInteger,
+} from "../../field-parsers/record-shape-field-parsers";
+import {
   requireString,
   requireTimestamp,
-} from "../../ingestion-field-parsers";
+} from "../../field-parsers/text-field-parsers";
 import {
   parseCoreRuleSummary,
   parseHookSummary,

@@ -1,14 +1,18 @@
+import { requireBoolean } from "../../field-parsers/boolean-field-parsers";
+import {
+  requireNonNegativeInteger,
+  requirePositiveInteger,
+  requireUnitInterval,
+} from "../../field-parsers/number-field-parsers";
 import {
   asObjectRecord,
   rejectUnknownKeys,
-  requireBoolean,
   requireNonEmptyArray,
-  requireNonNegativeInteger,
-  requirePositiveInteger,
+} from "../../field-parsers/record-shape-field-parsers";
+import {
   requireString,
   requireTimestamp,
-  requireUnitInterval,
-} from "../../ingestion-field-parsers";
+} from "../../field-parsers/text-field-parsers";
 import { IngestionContractViolationError } from "../../ingestion-types";
 import type {
   TestBaselineCategoryResult,

@@ -1,14 +1,18 @@
 import {
-  URL_SAFE_LABEL_PATTERN,
+  requireNonNegativeInteger,
+  requirePositiveInteger,
+  requireUnitInterval,
+} from "../../field-parsers/number-field-parsers";
+import {
   asObjectRecord,
   rejectUnknownKeys,
   requireNonEmptyArray,
-  requireNonNegativeInteger,
-  requirePositiveInteger,
+} from "../../field-parsers/record-shape-field-parsers";
+import {
+  URL_SAFE_LABEL_PATTERN,
   requireString,
   requireTimestamp,
-  requireUnitInterval,
-} from "../../ingestion-field-parsers";
+} from "../../field-parsers/text-field-parsers";
 import { IngestionContractViolationError } from "../../ingestion-types";
 import type {
   TestQualityCoreRuleSummary,

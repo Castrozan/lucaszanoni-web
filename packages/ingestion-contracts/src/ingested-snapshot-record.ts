@@ -1,8 +1,8 @@
 import {
   asObjectRecord,
   rejectUnknownKeys,
-  requireTimestamp,
-} from "./ingestion-field-parsers";
+} from "./field-parsers/record-shape-field-parsers";
+import { requireTimestamp } from "./field-parsers/text-field-parsers";
 import {
   parseIngestionEvent,
   parseIngestionEventForTopic,

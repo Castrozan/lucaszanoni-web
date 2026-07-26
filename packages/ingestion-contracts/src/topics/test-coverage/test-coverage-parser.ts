@@ -1,104 +1,28 @@
 import {
+  requireNonNegativeInteger,
+  requirePositiveInteger,
+  requireUnitInterval,
+} from "../../field-parsers/number-field-parsers";
+import {
   asObjectRecord,
   rejectUnknownKeys,
   requireNonEmptyArray,
-  requireNonNegativeInteger,
-  requirePositiveInteger,
+} from "../../field-parsers/record-shape-field-parsers";
+import {
   requireString,
   requireTimestamp,
-  requireUnitInterval,
-} from "../../ingestion-field-parsers";
+} from "../../field-parsers/text-field-parsers";
 import { IngestionContractViolationError } from "../../ingestion-types";
+import {
+  assertCoverageRateMatchesLineCounts,
+  parseTestCoverageFileResult,
+} from "./test-coverage-file-parser";
 import type {
   TestCoverageFileResult,
   TestCoveragePayload,
 } from "./test-coverage-types";
 
 const PAYLOAD_CONTEXT = "dotfiles-test-coverage payload";
-
-const REPOSITORY_RELATIVE_PATH_PATTERN =
-  /^[A-Za-z0-9._-]+(\/[A-Za-z0-9._-]+)*$/;
-
-const COVERAGE_RATE_ROUNDING_TOLERANCE = 0.00005 + 1e-9;
-
-function requireRepositoryRelativePath(
-  record: Record<string, unknown>,
-  context: string,
-): string {
-  const path = requireString(record, "path", context);
-  if (
-    !REPOSITORY_RELATIVE_PATH_PATTERN.test(path) ||
-    path.split("/").includes("..")
-  ) {
-    throw new IngestionContractViolationError(
-      `${context} field path must be a repository relative path that does not escape the repository`,
-    );
-  }
-  return path;
-}
-
-function assertRateMatchesLineCounts(
-  lineCoverageRate: number,
-  coveredLines: number,
-  measurableLines: number,
-  context: string,
-): void {
-  if (
-    Math.abs(lineCoverageRate - coveredLines / measurableLines) >
-    COVERAGE_RATE_ROUNDING_TOLERANCE
-  ) {
-    throw new IngestionContractViolationError(
-      `${context} field lineCoverageRate does not match the ratio of coveredLines to measurableLines`,
-    );
-  }
-}
-
-function parseFileResult(
-  value: unknown,
-  index: number,
-): TestCoverageFileResult {
-  const record = asObjectRecord(value, `${PAYLOAD_CONTEXT} file ${index}`);
-  const path = requireRepositoryRelativePath(
-    record,
-    `${PAYLOAD_CONTEXT} file ${index}`,
-  );
-  const context = `${PAYLOAD_CONTEXT} file ${path}`;
-  rejectUnknownKeys(
-    record,
-    ["path", "coveredLines", "measurableLines", "lineCoverageRate"],
-    context,
-  );
-  const measurableLines = requirePositiveInteger(
-    record,
-    "measurableLines",
-    context,
-  );
-  const coveredLines = requireNonNegativeInteger(
-    record,
-    "coveredLines",
-    context,
-  );
-  const lineCoverageRate = requireUnitInterval(
-    record,
-    "lineCoverageRate",
-    context,
-  );
-
-  if (coveredLines > measurableLines) {
-    throw new IngestionContractViolationError(
-      `${context} reports ${coveredLines} coveredLines out of ${measurableLines} measurable lines`,
-    );
-  }
-
-  assertRateMatchesLineCounts(
-    lineCoverageRate,
-    coveredLines,
-    measurableLines,
-    context,
-  );
-
-  return { path, coveredLines, measurableLines, lineCoverageRate };
-}
 
 function assertFilesAreDistinct(
   files: readonly TestCoverageFileResult[],
@@ -173,7 +97,7 @@ export function parseTestCoveragePayload(value: unknown): TestCoveragePayload {
     );
   }
 
-  assertRateMatchesLineCounts(
+  assertCoverageRateMatchesLineCounts(
     lineCoverageRate,
     coveredLines,
     measurableLines,
@@ -181,7 +105,8 @@ export function parseTestCoveragePayload(value: unknown): TestCoveragePayload {
   );
 
   const files = requireNonEmptyArray(record, "files", PAYLOAD_CONTEXT).map(
-    parseFileResult,
+    (entry, index) =>
+      parseTestCoverageFileResult(entry, index, PAYLOAD_CONTEXT),
   );
 
   assertFilesAreDistinct(files);

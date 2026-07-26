@@ -1,7 +1,7 @@
 import {
   TIMESTAMP_WITH_TIMEZONE_PATTERN,
   URL_SAFE_LABEL_PATTERN,
-} from "./ingestion-field-parsers";
+} from "./field-parsers/text-field-parsers";
 import { IngestionContractViolationError } from "./ingestion-types";
 
 export const SNAPSHOT_OBJECT_KEY_ROOT = "snapshots";

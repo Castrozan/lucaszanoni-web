@@ -1,12 +1,14 @@
+import { requirePositiveInteger } from "./field-parsers/number-field-parsers";
 import {
   asObjectRecord,
+  rejectUnknownKeys,
+} from "./field-parsers/record-shape-field-parsers";
+import {
   optionalHttpsUrl,
   optionalString,
-  rejectUnknownKeys,
-  requirePositiveInteger,
   requireTimestamp,
   requireUrlSafeLabel,
-} from "./ingestion-field-parsers";
+} from "./field-parsers/text-field-parsers";
 import { requireIngestionTopicContract } from "./ingestion-topic-registry";
 import {
   IngestionContractViolationError,
