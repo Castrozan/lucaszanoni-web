@@ -12,6 +12,7 @@ export {
 export {
   buildIngestedSnapshotRecord,
   parseIngestedSnapshotRecord,
+  parseIngestedSnapshotRecordForTopic,
   type IngestedSnapshotRecord,
 } from "./ingested-snapshot-record";
 export {

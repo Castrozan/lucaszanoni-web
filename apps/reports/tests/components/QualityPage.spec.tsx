@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { QualityPage } from "../../src/components/QualityPage";
 import { qualityMetricsFallbackSnapshot } from "../../src/data/quality-metrics";
+import { testQualitySnapshotUrl } from "../../src/data/test-quality-snapshot";
 
 const PUBLISHED_METRICS = {
   ...qualityMetricsFallbackSnapshot,
@@ -122,5 +123,61 @@ describe("QualityPage counts read from the published metrics artifact", () => {
       );
     });
     expect(container.textContent).not.toContain("undefined");
+  });
+});
+
+const INGESTED_QUALITY_RECORD = {
+  receivedAt: "2026-07-24T21:09:05.000Z",
+  event: {
+    topic: "dotfiles-test-quality",
+    schemaVersion: 1,
+    producedAt: "2026-07-24T21:08:55.400Z",
+    producer: "dotfiles-github-actions",
+    payload: {
+      recordedAt: "2026-10-02T08:00:00+00:00",
+      commit: "0ffe1ded",
+      staticEvals: {
+        totalTests: 163,
+        passedTests: 152,
+        passRate: 0.9325,
+        suiteCount: 15,
+        categoryCount: 23,
+        recordedAt: "2026-07-24T03:26:24.774576+00:00",
+        recordedCommit: "5667c9f6",
+      },
+      integrationScenarioCount: 7,
+      endToEndScenarioCount: 34,
+      coreRules: { lineCount: 165, ruleBlockCount: 18 },
+      hooks: {
+        wiredEvents: ["post-tool-use", "pre-tool-use", "session-start"],
+        entryPointCount: 18,
+      },
+    },
+  },
+};
+
+describe("QualityPage counts read from the ingested contracted snapshot", () => {
+  it("prefers the ingested snapshot over the raw published artifact", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((requestedUrl: string) =>
+        Promise.resolve({
+          ok: true,
+          json: async () =>
+            requestedUrl === testQualitySnapshotUrl
+              ? INGESTED_QUALITY_RECORD
+              : PUBLISHED_METRICS,
+        }),
+      ),
+    );
+    const { container } = render(<QualityPage />);
+
+    await waitFor(() => {
+      expect(container.textContent).toContain("34 scenarios");
+    });
+    expect(container.textContent).toContain("163 tests / 15 suites");
+    expect(container.textContent).toContain("0ffe1ded");
+    expect(container.textContent).toContain("2026-10-02");
+    expect(container.textContent).not.toContain("feedface");
   });
 });

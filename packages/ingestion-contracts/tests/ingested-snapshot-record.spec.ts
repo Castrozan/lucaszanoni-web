@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   buildIngestedSnapshotRecord,
   parseIngestedSnapshotRecord,
+  parseIngestedSnapshotRecordForTopic,
 } from "../src/ingested-snapshot-record";
 import { parseIngestionEvent } from "../src/ingestion-event-parser";
+import { testBaselineContract } from "../src/topics/test-baseline/test-baseline-contract";
+import { testCoverageContract } from "../src/topics/test-coverage/test-coverage-contract";
 import { IngestionContractViolationError } from "../src/ingestion-types";
 import { testBaselineEventFixture } from "./ingestion-test-fixtures";
 
@@ -67,5 +70,40 @@ describe("the ingested snapshot record", () => {
   it("refuses a stored record with no event at all", () => {
     const { event: _omitted, ...withoutEvent } = buildReferenceRecord();
     expect(() => parseIngestedSnapshotRecord(withoutEvent)).toThrow(/event/);
+  });
+});
+
+describe("reading a stored record against one expected topic contract", () => {
+  it("accepts the record a reader of that topic asked for", () => {
+    const record = parseIngestedSnapshotRecordForTopic(
+      testBaselineContract,
+      buildReferenceRecord(),
+    );
+    expect(record.receivedAt).toBe(receivedAt);
+    expect(record.event.payload.passRate).toBe(
+      testBaselineEventFixture.payload.passRate,
+    );
+  });
+
+  it("refuses a record stored under a topic the reader did not ask for", () => {
+    expect(() =>
+      parseIngestedSnapshotRecordForTopic(
+        testCoverageContract,
+        buildReferenceRecord(),
+      ),
+    ).toThrow(IngestionContractViolationError);
+  });
+
+  it("refuses a record whose payload the expected contract rejects", () => {
+    const record = buildReferenceRecord();
+    expect(() =>
+      parseIngestedSnapshotRecordForTopic(testBaselineContract, {
+        ...record,
+        event: {
+          ...record.event,
+          payload: { ...testBaselineEventFixture.payload, passedTests: 4 },
+        },
+      }),
+    ).toThrow(IngestionContractViolationError);
   });
 });

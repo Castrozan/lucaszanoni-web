@@ -7,16 +7,10 @@ import {
   TableRow,
 } from "@platform/design-system";
 import type { IngestedTestBaselineSnapshot } from "../../data/test-baseline-snapshot";
+import { formatIngestionStamp } from "../ingested/ingestion-stamp-format";
 
 export interface IngestedBaselineSummaryProps {
   readonly snapshot: IngestedTestBaselineSnapshot;
-}
-
-function formatIngestionDate(stampedAt: string): string {
-  const stampedDate = new Date(stampedAt);
-  return Number.isNaN(stampedDate.valueOf())
-    ? "an unknown date"
-    : stampedDate.toISOString().slice(0, 16).replace("T", " ");
 }
 
 export function IngestedBaselineSummary({
@@ -37,7 +31,7 @@ export function IngestedBaselineSummary({
         </span>
         <code className="text-muted-foreground">{payload.commit}</code>
         <span className="text-sm text-muted-foreground">
-          ingested {formatIngestionDate(snapshot.receivedAt)} UTC
+          ingested {formatIngestionStamp(snapshot.receivedAt)} UTC
         </span>
       </div>
       <Table>

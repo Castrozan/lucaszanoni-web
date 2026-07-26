@@ -3,8 +3,11 @@ import {
   rejectUnknownKeys,
   requireTimestamp,
 } from "./ingestion-field-parsers";
-import { parseIngestionEvent } from "./ingestion-event-parser";
-import type { IngestionEvent } from "./ingestion-types";
+import {
+  parseIngestionEvent,
+  parseIngestionEventForTopic,
+} from "./ingestion-event-parser";
+import type { IngestionEvent, IngestionTopicContract } from "./ingestion-types";
 
 const RECORD_CONTEXT = "ingested snapshot record";
 
@@ -20,13 +23,29 @@ export function buildIngestedSnapshotRecord<Payload>(
   return { receivedAt, event };
 }
 
-export function parseIngestedSnapshotRecord(
-  value: unknown,
-): IngestedSnapshotRecord<unknown> {
+function readSnapshotRecordEnvelope(value: unknown) {
   const record = asObjectRecord(value, RECORD_CONTEXT);
   rejectUnknownKeys(record, ["receivedAt", "event"], RECORD_CONTEXT);
   return {
     receivedAt: requireTimestamp(record, "receivedAt", RECORD_CONTEXT),
-    event: parseIngestionEvent(record["event"]),
+    storedEvent: record["event"],
+  };
+}
+
+export function parseIngestedSnapshotRecord(
+  value: unknown,
+): IngestedSnapshotRecord<unknown> {
+  const { receivedAt, storedEvent } = readSnapshotRecordEnvelope(value);
+  return { receivedAt, event: parseIngestionEvent(storedEvent) };
+}
+
+export function parseIngestedSnapshotRecordForTopic<Payload>(
+  contract: IngestionTopicContract<Payload>,
+  value: unknown,
+): IngestedSnapshotRecord<Payload> {
+  const { receivedAt, storedEvent } = readSnapshotRecordEnvelope(value);
+  return {
+    receivedAt,
+    event: parseIngestionEventForTopic(contract, storedEvent),
   };
 }

@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { qualityMetricsUrl } from "./report-artifact-sources";
+import {
+  useIngestedTestQualitySnapshot,
+  type IngestedTestQualitySnapshot,
+} from "./test-quality-snapshot";
 
 export interface StaticEvalMetrics {
   readonly totalTests: number;
@@ -87,7 +91,22 @@ export function formatMetricsGeneratedDate(generatedAt: string): string {
     : generatedDate.toISOString().slice(0, 10);
 }
 
-export function useQualityMetrics(): QualityMetrics {
+export function readQualityMetricsFromIngestedSnapshot(
+  snapshot: IngestedTestQualitySnapshot,
+): QualityMetrics {
+  const { payload } = snapshot;
+  return {
+    generatedAt: payload.recordedAt,
+    generatedCommit: payload.commit,
+    staticEvals: payload.staticEvals,
+    integrationScenarioCount: payload.integrationScenarioCount,
+    endToEndScenarioCount: payload.endToEndScenarioCount,
+    coreRules: payload.coreRules,
+    hooks: payload.hooks,
+  };
+}
+
+function usePublishedQualityMetrics(): QualityMetrics {
   const [metrics, setMetrics] = useState<QualityMetrics>(
     qualityMetricsFallbackSnapshot,
   );
@@ -106,4 +125,12 @@ export function useQualityMetrics(): QualityMetrics {
     };
   }, []);
   return metrics;
+}
+
+export function useQualityMetrics(): QualityMetrics {
+  const ingestedSnapshot = useIngestedTestQualitySnapshot();
+  const publishedMetrics = usePublishedQualityMetrics();
+  return ingestedSnapshot
+    ? readQualityMetricsFromIngestedSnapshot(ingestedSnapshot)
+    : publishedMetrics;
 }
