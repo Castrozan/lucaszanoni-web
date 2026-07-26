@@ -2,12 +2,18 @@ import {
   IngestionContractViolationError,
   type IngestionTopicContract,
 } from "./ingestion-types";
+import { claudeUsageContract } from "./topics/claude-usage/claude-usage-contract";
 import { testBaselineContract } from "./topics/test-baseline/test-baseline-contract";
 import { testCoverageContract } from "./topics/test-coverage/test-coverage-contract";
 import { testQualityContract } from "./topics/test-quality/test-quality-contract";
 
 export const INGESTION_TOPIC_CONTRACTS: readonly IngestionTopicContract<unknown>[] =
-  [testBaselineContract, testCoverageContract, testQualityContract];
+  [
+    claudeUsageContract,
+    testBaselineContract,
+    testCoverageContract,
+    testQualityContract,
+  ];
 
 export function findIngestionTopicContract(
   topic: string,

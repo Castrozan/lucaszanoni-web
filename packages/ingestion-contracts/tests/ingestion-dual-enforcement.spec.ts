@@ -4,6 +4,7 @@ import ingestionEventSchema from "../src/ingestion-event.schema.json";
 import { parseIngestionEvent } from "../src/ingestion-event-parser";
 import { INGESTION_TOPIC_CONTRACTS } from "../src/ingestion-topic-registry";
 import {
+  claudeUsageEventFixture,
   testBaselineEventFixture,
   testCoverageEventFixture,
   testQualityEventFixture,
@@ -87,6 +88,7 @@ const referenceEvents: readonly {
   { label: "dotfiles-test-baseline", event: testBaselineEventFixture },
   { label: "dotfiles-test-coverage", event: testCoverageEventFixture },
   { label: "dotfiles-test-quality", event: testQualityEventFixture },
+  { label: "claude-usage", event: claudeUsageEventFixture },
 ];
 
 const crossFieldViolations: readonly {
@@ -125,6 +127,13 @@ const crossFieldViolations: readonly {
       },
     },
     rejection: /passedTests/,
+  },
+  {
+    label: "a usage spend the per model costs do not account for",
+    topic: claudeUsageEventFixture.topic,
+    event: claudeUsageEventFixture,
+    payload: { ...claudeUsageEventFixture.payload, totalCostUsd: 400 },
+    rejection: /totalCostUsd/,
   },
 ];
 

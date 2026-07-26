@@ -125,3 +125,42 @@ export const testQualityEventFixture = {
 } as const;
 
 export const testQualityPayloadFixture = testQualityEventFixture.payload;
+
+export const claudeUsageEventFixture = {
+  topic: "claude-usage",
+  schemaVersion: 1,
+  producedAt: "2026-07-26T02:40:11.220Z",
+  producer: "dotfiles-usage-exporter",
+  payload: {
+    recordedAt: "2026-07-26T02:40:11.204817+00:00",
+    accountLabel: "2c9c0c7cb164",
+    machineLabel: "71fc83e765e0",
+    models: [
+      {
+        model: "claude-opus-4-8",
+        inputTokens: 1204,
+        outputTokens: 88301,
+        cacheReadInputTokens: 41938226,
+        cacheCreationInputTokens: 2210447,
+        costUsd: 132.5,
+      },
+      {
+        model: "gpt-5.6-sol",
+        inputTokens: 9,
+        outputTokens: 1633,
+        cacheReadInputTokens: 0,
+        cacheCreationInputTokens: 0,
+        costUsd: 0.25,
+      },
+    ],
+    totalCostUsd: 132.75,
+    activity: {
+      activeDayCount: 53,
+      messageCount: 18422,
+      sessionCount: 1104,
+      toolCallCount: 62319,
+    },
+  },
+} as const;
+
+export const claudeUsagePayloadFixture = claudeUsageEventFixture.payload;

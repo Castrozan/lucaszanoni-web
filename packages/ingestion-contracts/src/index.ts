@@ -26,6 +26,15 @@ export {
   buildSnapshotEventObjectKey,
   buildTopicSnapshotPrefix,
 } from "./ingestion-snapshot-object-keys";
+export { claudeUsageContract } from "./topics/claude-usage/claude-usage-contract";
+export { parseClaudeUsagePayload } from "./topics/claude-usage/claude-usage-parser";
+export {
+  CLAUDE_USAGE_SCHEMA_VERSION,
+  CLAUDE_USAGE_TOPIC,
+  type ClaudeUsageActivitySummary,
+  type ClaudeUsageModelTotals,
+  type ClaudeUsagePayload,
+} from "./topics/claude-usage/claude-usage-types";
 export { testBaselineContract } from "./topics/test-baseline/test-baseline-contract";
 export { parseTestBaselinePayload } from "./topics/test-baseline/test-baseline-parser";
 export {
