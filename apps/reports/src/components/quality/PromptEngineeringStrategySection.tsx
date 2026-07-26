@@ -48,8 +48,9 @@ export function PromptEngineeringStrategySection({
             contract.
           </li>
           <li>
-            <b>Loading</b>, @reference (83) over inline (76) over system-prompt
-            (67).
+            <b>Loading</b>, the rules are referenced into the harness at session
+            start rather than pushed through a system prompt, and the paired
+            experiment below measures what that loading is worth.
           </li>
         </ul>
       </Card>

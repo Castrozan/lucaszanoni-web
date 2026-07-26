@@ -12,7 +12,7 @@ COPY apps ./apps
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter "${APP_PACKAGE_NAME}" build
 RUN pnpm --filter "${APP_PACKAGE_NAME}" --prod --legacy deploy /standalone-service
-RUN cp -r "apps/${APP_DIRECTORY_NAME}/.next" /standalone-service/.next
+RUN if [ -d "apps/${APP_DIRECTORY_NAME}/.next" ]; then cp -r "apps/${APP_DIRECTORY_NAME}/.next" /standalone-service/.next; fi
 RUN if [ -d "apps/${APP_DIRECTORY_NAME}/public" ]; then cp -r "apps/${APP_DIRECTORY_NAME}/public" /standalone-service/public; fi
 
 FROM ${NODE_RUNTIME_IMAGE} AS runtime

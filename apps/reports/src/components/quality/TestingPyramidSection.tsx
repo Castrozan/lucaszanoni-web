@@ -28,8 +28,8 @@ export function TestingPyramidSection({ metrics }: TestingPyramidSectionProps) {
             Dual-signal assertions: terminal output plus workspace artifacts.
           </div>
           <div className={tierMetaClassName}>
-            {metrics.endToEndScenarioCount} scenarios · NPS 0-100 with penalties
-            · tests/run.sh --e2e
+            {metrics.endToEndScenarioCount} scenarios · terminal output plus
+            workspace artifacts · __tests__/run.sh --e2e
           </div>
         </div>
         <div className={`${tierBaseClassName} max-w-[72%]`}>
@@ -39,8 +39,8 @@ export function TestingPyramidSection({ metrics }: TestingPyramidSectionProps) {
             workspace file checks.
           </div>
           <div className={tierMetaClassName}>
-            {metrics.integrationScenarioCount} scenarios · NPS 0-100 ·
-            tests/run.sh --integration
+            {metrics.integrationScenarioCount} scenarios · asserted tool calls ·
+            __tests__/run.sh --integration
           </div>
         </div>
         <div className={`${tierBaseClassName} max-w-[86%] border-primary`}>
@@ -54,13 +54,15 @@ export function TestingPyramidSection({ metrics }: TestingPyramidSectionProps) {
             >
               live baseline
             </a>
-            , gated in CI against a fixed pass-rate floor. The pre-push hook
-            runs the lint and quick tiers, not the evals.
+            , gated in CI against an absolute pass-rate floor, a regression gate
+            measured against the previous committed baseline, and a staleness
+            gate on the baseline itself. The pre-push hook runs the lint and
+            quick tiers, not the evals.
           </div>
           <div className={tierMetaClassName}>
             {metrics.staticEvals.totalTests} tests /{" "}
-            {metrics.staticEvals.suiteCount} suites · absolute pass-rate floors
-            · tests/run.sh --evals
+            {metrics.staticEvals.suiteCount} suites · floor, regression and
+            freshness gates · __tests__/run.sh --evals
           </div>
         </div>
         <div className={`${tierBaseClassName} max-w-full`}>
@@ -69,7 +71,7 @@ export function TestingPyramidSection({ metrics }: TestingPyramidSectionProps) {
             bats, pytest, QML, frontmatter. No model calls.
           </div>
           <div className={tierMetaClassName}>
-            runs in under 10s · tests/run.sh --quick
+            runs in under 10s · __tests__/run.sh --quick
           </div>
         </div>
       </div>

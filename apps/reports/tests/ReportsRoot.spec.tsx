@@ -32,6 +32,12 @@ describe("ReportsRoot routing", () => {
     expect(screen.queryByText("dotfiles reports")).toBeNull();
   });
 
+  it("renders the ingestion topics hub, not the reports hub, at the topics route", () => {
+    renderReportsRootAt("/engineering/dotfiles/reports/topics/");
+    expect(screen.getByText("ingestion topics")).toBeTruthy();
+    expect(screen.queryByText("dotfiles reports")).toBeNull();
+  });
+
   it("still renders the hub at the reports root", () => {
     renderReportsRootAt("/engineering/dotfiles/reports/");
     expect(screen.getByText("dotfiles reports")).toBeTruthy();

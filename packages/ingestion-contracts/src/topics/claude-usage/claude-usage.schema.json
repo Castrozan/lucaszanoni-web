@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lucaszanoni.com/schemas/topics/claude-usage.schema.json",
+  "title": "Claude usage snapshot payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "recordedAt",
+    "accountLabel",
+    "machineLabel",
+    "models",
+    "totalCostUsd",
+    "activity"
+  ],
+  "properties": {
+    "recordedAt": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "accountLabel": {
+      "type": "string",
+      "pattern": "^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$"
+    },
+    "machineLabel": {
+      "type": "string",
+      "pattern": "^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$"
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/modelTotals"
+      }
+    },
+    "totalCostUsd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "activity": {
+      "$ref": "#/definitions/activitySummary"
+    }
+  },
+  "definitions": {
+    "modelTotals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model",
+        "inputTokens",
+        "outputTokens",
+        "cacheReadInputTokens",
+        "cacheCreationInputTokens",
+        "costUsd"
+      ],
+      "properties": {
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "outputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cacheReadInputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cacheCreationInputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "costUsd": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "activitySummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "activeDayCount",
+        "messageCount",
+        "sessionCount",
+        "toolCallCount"
+      ],
+      "properties": {
+        "activeDayCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "messageCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sessionCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "toolCallCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

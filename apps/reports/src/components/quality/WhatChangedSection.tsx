@@ -16,12 +16,12 @@ export function WhatChangedSection() {
           <b>New</b>
           <ul className={qualityListClassName}>
             <li>
-              E2E tmux test framework (<code>agents/evals/e2e/</code>), real
-              sessions, terminal parser, dual-signal assertions, NPS scoring.
+              E2E test framework (<code>agents/evals/e2e/</code>), real
+              sessions, terminal parser, dual-signal assertions.
             </li>
             <li>
               Integration framework (<code>agents/evals/integration/</code>),
-              stream-json parsing, 7 scenarios.
+              stream-json tool-call parsing.
             </li>
             <li>A/B test runner for instruction-loading configs.</li>
             <li>
@@ -47,7 +47,8 @@ export function WhatChangedSection() {
             <li>Stale hooks.yaml referenced deleted hooks.</li>
             <li>A hardcoded absolute path in nix-rebuild-trigger.py.</li>
             <li>
-              NPS scoring was bonus-only and inflated scores, penalties added.
+              Scenario scoring was bonus-only and inflated results, so it was
+              replaced by pass or fail on asserted behaviour.
             </li>
             <li>
               Integration tests used --system-prompt, the worst loading method.
@@ -59,10 +60,11 @@ export function WhatChangedSection() {
       <Card className={qualityPanelClassName}>
         <b>Key finding</b>
         <p>
-          Opus scored NPS 100 on the workflow scenario, which proves the
-          instructions work when the model has enough thinking time. The
-          failures were model-capacity gaps from the adaptive-thinking
-          regression, not instruction gaps.
+          The instructions were not the weak link. Every scenario the agent
+          failed was a model-capacity gap from the adaptive-thinking regression,
+          which is why the answer was continuous measurement rather than more
+          rules. The paired experiment in Results now carries that claim as a
+          measured delta instead of an anecdote.
         </p>
       </Card>
     </>
