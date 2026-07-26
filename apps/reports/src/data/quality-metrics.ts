@@ -1,4 +1,7 @@
-import type { TestQualityGoldStandardPractice } from "@platform/ingestion-contracts";
+import type {
+  TestQualityGoldStandardPractice,
+  TestQualityInstructionLoadingExperiment,
+} from "@platform/ingestion-contracts";
 import {
   useIngestedTestQualitySnapshot,
   type IngestedTestQualitySnapshot,
@@ -33,6 +36,7 @@ export interface QualityMetrics {
   readonly coreRules: CoreRulesMetrics;
   readonly hooks: HookMetrics;
   readonly goldStandardPractices: readonly TestQualityGoldStandardPractice[];
+  readonly instructionLoadingExperiment: TestQualityInstructionLoadingExperiment;
 }
 
 export function formatMetricsGeneratedDate(generatedAt: string): string {
@@ -55,6 +59,7 @@ export function readQualityMetricsFromIngestedSnapshot(
     coreRules: payload.coreRules,
     hooks: payload.hooks,
     goldStandardPractices: payload.goldStandardPractices,
+    instructionLoadingExperiment: payload.instructionLoadingExperiment,
   };
 }
 

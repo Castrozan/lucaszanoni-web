@@ -13,6 +13,11 @@ export const baselineDashboardHref = `${REPORTS_MOUNT_PATH}baseline/`;
 export const qualityIssueHref =
   "https://github.com/Castrozan/.dotfiles/issues/70";
 
+export function formatKebabLabelAsSentenceTitle(kebabLabel: string): string {
+  const spaced = kebabLabel.replaceAll("-", " ");
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+}
+
 export function buildInstructionLoadingDiagram(
   coreRules: CoreRulesMetrics,
 ): string {

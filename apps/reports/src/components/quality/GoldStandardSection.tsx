@@ -1,6 +1,7 @@
 import type { TestQualityGoldStandardPractice } from "@platform/ingestion-contracts";
 import type { QualityMetrics } from "../../data/quality-metrics";
 import {
+  formatKebabLabelAsSentenceTitle,
   qualityLedeClassName,
   qualitySectionHeadingClassName,
 } from "./quality-report-content";
@@ -17,11 +18,6 @@ const gapVerdictClassName =
 
 export interface GoldStandardSectionProps {
   readonly metrics: QualityMetrics;
-}
-
-function readPracticeTitle(practice: string): string {
-  const spaced = practice.replaceAll("-", " ");
-  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
 function formatMeasurement(practice: TestQualityGoldStandardPractice): string {
@@ -57,7 +53,7 @@ export function GoldStandardSection({ metrics }: GoldStandardSectionProps) {
             key={practice.practice}
           >
             <div className={practiceTitleClassName}>
-              {readPracticeTitle(practice.practice)}
+              {formatKebabLabelAsSentenceTitle(practice.practice)}
               <span
                 className={
                   practice.adopted

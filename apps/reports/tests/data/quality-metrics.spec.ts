@@ -35,6 +35,24 @@ const ingestedSnapshot = {
         evidence: "A suite drives injection attempts at the guard hooks.",
       },
     ],
+    instructionLoadingExperiment: {
+      recordedAt: "2026-07-23T22:35:02+00:00",
+      recordedCommit: "7659f816",
+      significanceAlpha: 0.05,
+      categories: [
+        {
+          category: "workflow-compliance",
+          pairedTests: 8,
+          passRateWithInstructions: 1,
+          passRateWithoutInstructions: 0.625,
+          delta: 0.375,
+          instructionsOnlyWins: 3,
+          controlOnlyWins: 0,
+          exactPValue: 0.25,
+          significant: false,
+        },
+      ],
+    },
   },
 };
 
@@ -74,5 +92,18 @@ describe("readQualityMetricsFromIngestedSnapshot", () => {
     expect(
       metrics.goldStandardPractices.map((practice) => practice.practice),
     ).toEqual(["adversarial-testing"]);
+  });
+
+  it("carries the paired instruction-loading experiment the page tabulates", () => {
+    const metrics = readQualityMetricsFromIngestedSnapshot(ingestedSnapshot);
+
+    expect(metrics.instructionLoadingExperiment.recordedCommit).toBe(
+      "7659f816",
+    );
+    expect(
+      metrics.instructionLoadingExperiment.categories.map(
+        (category) => category.delta,
+      ),
+    ).toEqual([0.375]);
   });
 });
