@@ -58,6 +58,7 @@ export {
   DOTFILES_TEST_QUALITY_SCHEMA_VERSION,
   DOTFILES_TEST_QUALITY_TOPIC,
   type TestQualityCoreRuleSummary,
+  type TestQualityGoldStandardPractice,
   type TestQualityHookSummary,
   type TestQualityPayload,
   type TestQualityStaticEvalSummary,

@@ -22,6 +22,14 @@ export interface TestQualityHookSummary {
   readonly entryPointCount: number;
 }
 
+export interface TestQualityGoldStandardPractice {
+  readonly practice: string;
+  readonly adopted: boolean;
+  readonly measurement: number;
+  readonly measurementUnit: string;
+  readonly evidence: string;
+}
+
 export interface TestQualityPayload {
   readonly recordedAt: string;
   readonly commit: string;
@@ -30,4 +38,5 @@ export interface TestQualityPayload {
   readonly endToEndScenarioCount: number;
   readonly coreRules: TestQualityCoreRuleSummary;
   readonly hooks: TestQualityHookSummary;
+  readonly goldStandardPractices: readonly TestQualityGoldStandardPractice[];
 }

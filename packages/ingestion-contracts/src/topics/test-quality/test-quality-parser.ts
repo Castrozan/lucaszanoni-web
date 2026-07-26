@@ -7,6 +7,7 @@ import {
   requireString,
   requireTimestamp,
 } from "../../field-parsers/text-field-parsers";
+import { parseGoldStandardPractices } from "./test-quality-gold-standard-parsers";
 import {
   parseCoreRuleSummary,
   parseHookSummary,
@@ -28,6 +29,7 @@ export function parseTestQualityPayload(value: unknown): TestQualityPayload {
       "endToEndScenarioCount",
       "coreRules",
       "hooks",
+      "goldStandardPractices",
     ],
     PAYLOAD_CONTEXT,
   );
@@ -53,6 +55,10 @@ export function parseTestQualityPayload(value: unknown): TestQualityPayload {
     `${PAYLOAD_CONTEXT} core rules`,
   );
   const hooks = parseHookSummary(record.hooks, `${PAYLOAD_CONTEXT} hooks`);
+  const goldStandardPractices = parseGoldStandardPractices(
+    record,
+    `${PAYLOAD_CONTEXT} gold standard practices`,
+  );
 
   return {
     recordedAt,
@@ -62,5 +68,6 @@ export function parseTestQualityPayload(value: unknown): TestQualityPayload {
     endToEndScenarioCount,
     coreRules,
     hooks,
+    goldStandardPractices,
   };
 }

@@ -1,3 +1,5 @@
+import { goldStandardPracticesFixture } from "./test-quality-gold-standard-fixture";
+
 export const testBaselineEventFixture = {
   topic: "dotfiles-test-baseline",
   schemaVersion: 1,
@@ -121,6 +123,7 @@ export const testQualityEventFixture = {
       ],
       entryPointCount: 18,
     },
+    goldStandardPractices: goldStandardPracticesFixture,
   },
 } as const;
 

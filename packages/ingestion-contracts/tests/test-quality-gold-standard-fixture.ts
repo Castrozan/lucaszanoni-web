@@ -1,0 +1,51 @@
+export const goldStandardPracticesFixture = [
+  {
+    practice: "rubric-graded-judging",
+    adopted: true,
+    measurement: 19,
+    measurementUnit: "of 25 eval suites",
+    evidence: "Responses are graded against a written rubric by a judge model.",
+  },
+  {
+    practice: "judge-calibration",
+    adopted: true,
+    measurement: 0.833,
+    measurementUnit: "Cohen's kappa over 24 labelled cases",
+    evidence: "The judge is scored against a maintainer-labelled corpus.",
+  },
+  {
+    practice: "adversarial-testing",
+    adopted: true,
+    measurement: 5,
+    measurementUnit: "prompt-injection cases",
+    evidence: "A suite drives injection attempts at the instruction surface.",
+  },
+  {
+    practice: "repeated-sampling",
+    adopted: false,
+    measurement: 1,
+    measurementUnit: "sampling epochs behind the committed baseline",
+    evidence: "Rerunning across epochs turns one pass rate into a mean.",
+  },
+  {
+    practice: "paired-significance",
+    adopted: true,
+    measurement: 20,
+    measurementUnit: "paired tests behind an exact McNemar test",
+    evidence: "The instruction surface is measured against a stripped control.",
+  },
+  {
+    practice: "regression-gating",
+    adopted: true,
+    measurement: 5,
+    measurementUnit: "percentage points of pass-rate drop before CI fails",
+    evidence: "CI fails on a drop against the previous committed baseline.",
+  },
+  {
+    practice: "baseline-freshness-gating",
+    adopted: true,
+    measurement: 30,
+    measurementUnit: "days before the committed baseline is refused as stale",
+    evidence: "A baseline older than the window fails CI as stale.",
+  },
+] as const;
