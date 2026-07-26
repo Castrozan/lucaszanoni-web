@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { AboutAtriumSection } from "../src/landing/AboutAtriumSection";
+import { ABOUT_SECTION_ID } from "../src/landing/landingSections";
 
 afterEach(cleanup);
 
@@ -20,17 +21,23 @@ describe("AboutAtriumSection", () => {
     expect(screen.getByText("SINGLE EDGE")).toBeTruthy();
   });
 
-  it("shows the registry-derived platform stats", () => {
+  it("anchors itself on the id the status bar jumps to", () => {
+    const { container } = renderSection();
+    expect(container.querySelector(`#${ABOUT_SECTION_ID}`)).toBeTruthy();
+  });
+
+  it("no longer counts the registry at the reader", () => {
     renderSection();
-    expect(screen.getByText("MICRO-FRONTENDS")).toBeTruthy();
-    expect(screen.getByText("AI-POWERED")).toBeTruthy();
+    expect(screen.queryByText("MICRO-FRONTENDS")).toBeNull();
+    expect(screen.queryByText("AI-POWERED")).toBeNull();
+    expect(screen.queryByText(/served from cloudflare edge/i)).toBeNull();
   });
 
   it("links to the about page via the more button", () => {
     renderSection();
     expect(
       screen
-        .getByRole("link", { name: /more about the platform/i })
+        .getByRole("link", { name: /more about the atrium/i })
         .getAttribute("href"),
     ).toBe("/about");
   });

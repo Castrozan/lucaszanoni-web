@@ -20,4 +20,24 @@ describe("LandingFooter", () => {
     expect(linkHrefs).toContain(OWNER_SIGN_IN_ENTRY_ROUTE.mountPath);
     expect(linkHrefs).toContain("https://github.com/Castrozan/lucaszanoni-web");
   });
+
+  it("centres its own inner container so it lines up on every page", () => {
+    const { container } = render(<LandingFooter />);
+    const innerContainer = container.querySelector("footer > div");
+    if (!innerContainer) {
+      throw new Error("expected the footer to have an inner container");
+    }
+    expect(innerContainer.classList.contains("mx-auto")).toBe(true);
+    expect(innerContainer.classList.contains("max-w-[1400px]")).toBe(true);
+  });
+
+  it("links each in-page item to its landing section anchor", () => {
+    render(<LandingFooter />);
+    const linkHrefs = screen
+      .getAllByRole("link")
+      .map((element) => element.getAttribute("href"));
+    expect(linkHrefs).toContain("/#cockpit");
+    expect(linkHrefs).toContain("/#showcase");
+    expect(linkHrefs).toContain("/#about");
+  });
 });

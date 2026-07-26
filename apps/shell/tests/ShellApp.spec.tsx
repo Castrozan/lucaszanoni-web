@@ -5,6 +5,7 @@ import {
   OWNER_SIGN_IN_ENTRY_ROUTE,
 } from "@platform/config";
 import { ShellApp } from "../src/ShellApp";
+import { LANDING_SECTIONS } from "../src/landing/landingSections";
 
 afterEach(cleanup);
 
@@ -37,21 +38,19 @@ describe("ShellApp", () => {
     );
   });
 
-  it("teases opted-in private apps as locked tiles and keeps public apps live", () => {
+  it("numbers every landing section in the status bar", () => {
     render(<ShellApp />);
-    const tiles = screen
-      .getAllByRole("link")
-      .filter((element) => element.hasAttribute("data-locked"));
-    const lockedHrefs = tiles
-      .filter((element) => element.getAttribute("data-locked") === "true")
-      .map((element) => element.getAttribute("href"));
-    const liveHrefs = tiles
-      .filter((element) => element.getAttribute("data-locked") === "false")
-      .map((element) => element.getAttribute("href"));
-    expect(lockedHrefs).toContain("/engineering/dotfiles/claude/usage/");
-    expect(lockedHrefs).toContain("/engineering/dotfiles/reports/");
-    expect(liveHrefs).toContain("/dynamic-ia-canvas/");
-    expect(liveHrefs).toContain("/dynamic-ia-interfaces/");
+    const windowLabels = screen
+      .getAllByRole("button")
+      .map((element) => element.textContent);
+    for (const [index, section] of LANDING_SECTIONS.entries()) {
+      expect(windowLabels).toContain(`${index + 1}:${section.label}`);
+    }
+  });
+
+  it("leaves the top header free of in-page section links", () => {
+    render(<ShellApp />);
+    expect(screen.queryByRole("navigation", { name: "Primary" })).toBeNull();
   });
 
   it("exposes the command palette trigger", () => {
