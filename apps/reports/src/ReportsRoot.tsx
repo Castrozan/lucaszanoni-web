@@ -10,6 +10,7 @@ import { ReportsHubPage } from "./components/ReportsHubPage";
 import { QualityPage } from "./components/QualityPage";
 import { BaselinePage } from "./components/BaselinePage";
 import { CoveragePage } from "./components/CoveragePage";
+import { TopicsPage } from "./components/TopicsPage";
 
 export function ReportsRoot() {
   return (
@@ -22,6 +23,7 @@ export function ReportsRoot() {
               <Route path="quality" element={<QualityPage />} />
               <Route path="baseline" element={<BaselinePage />} />
               <Route path="coverage" element={<CoveragePage />} />
+              <Route path="topics" element={<TopicsPage />} />
               <Route path="*" element={<ReportsHubPage />} />
             </Routes>
           </AppShell>
