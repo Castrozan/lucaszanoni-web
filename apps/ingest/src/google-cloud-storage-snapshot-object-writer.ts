@@ -6,19 +6,23 @@ const MULTIPART_BOUNDARY = "ingest-snapshot-part-0f2d1c8a4b6e";
 
 const SNAPSHOT_CACHE_CONTROL = "no-store, max-age=0";
 
+const METADATA_PART_CONTENT_TYPE = "application/json; charset=UTF-8";
+
+const SNAPSHOT_OBJECT_CONTENT_TYPE = "application/json";
+
 function buildMultipartUploadBody(objectKey: string, objectBody: string) {
   const objectMetadata = JSON.stringify({
     name: objectKey,
-    contentType: "application/json",
+    contentType: SNAPSHOT_OBJECT_CONTENT_TYPE,
     cacheControl: SNAPSHOT_CACHE_CONTROL,
   });
   return [
     `--${MULTIPART_BOUNDARY}`,
-    "content-type: application/json; charset=UTF-8",
+    `content-type: ${METADATA_PART_CONTENT_TYPE}`,
     "",
     objectMetadata,
     `--${MULTIPART_BOUNDARY}`,
-    "content-type: application/json; charset=UTF-8",
+    `content-type: ${SNAPSHOT_OBJECT_CONTENT_TYPE}`,
     "",
     objectBody,
     `--${MULTIPART_BOUNDARY}--`,
@@ -44,7 +48,7 @@ export function createGoogleCloudStorageSnapshotObjectWriter(
       });
       if (!response.ok) {
         throw new Error(
-          `bucket ${bucketName} refused object ${objectKey} with status ${response.status}`,
+          `bucket ${bucketName} refused object ${objectKey} with status ${response.status}: ${await response.text()}`,
         );
       }
     },
