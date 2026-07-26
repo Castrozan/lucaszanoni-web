@@ -50,6 +50,20 @@ export function requireNonNegativeNumber(
   return candidate;
 }
 
+export function requireFiniteNumber(
+  record: Record<string, unknown>,
+  key: string,
+  context: string,
+): number {
+  const candidate = record[key];
+  if (typeof candidate !== "number" || !Number.isFinite(candidate)) {
+    throw new IngestionContractViolationError(
+      `${context} field ${key} must be a finite number`,
+    );
+  }
+  return candidate;
+}
+
 export function requireUnitInterval(
   record: Record<string, unknown>,
   key: string,

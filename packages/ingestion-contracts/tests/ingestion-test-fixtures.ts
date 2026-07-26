@@ -1,4 +1,5 @@
 import { goldStandardPracticesFixture } from "./test-quality-gold-standard-fixture";
+import { instructionLoadingExperimentFixture } from "./test-quality-instruction-loading-fixture";
 
 export const testBaselineEventFixture = {
   topic: "dotfiles-test-baseline",
@@ -124,6 +125,7 @@ export const testQualityEventFixture = {
       entryPointCount: 18,
     },
     goldStandardPractices: goldStandardPracticesFixture,
+    instructionLoadingExperiment: instructionLoadingExperimentFixture,
   },
 } as const;
 

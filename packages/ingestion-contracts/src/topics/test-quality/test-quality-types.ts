@@ -30,6 +30,25 @@ export interface TestQualityGoldStandardPractice {
   readonly evidence: string;
 }
 
+export interface TestQualityInstructionLoadingCategory {
+  readonly category: string;
+  readonly pairedTests: number;
+  readonly passRateWithInstructions: number;
+  readonly passRateWithoutInstructions: number;
+  readonly delta: number;
+  readonly instructionsOnlyWins: number;
+  readonly controlOnlyWins: number;
+  readonly exactPValue: number;
+  readonly significant: boolean;
+}
+
+export interface TestQualityInstructionLoadingExperiment {
+  readonly recordedAt: string;
+  readonly recordedCommit: string;
+  readonly significanceAlpha: number;
+  readonly categories: readonly TestQualityInstructionLoadingCategory[];
+}
+
 export interface TestQualityPayload {
   readonly recordedAt: string;
   readonly commit: string;
@@ -39,4 +58,5 @@ export interface TestQualityPayload {
   readonly coreRules: TestQualityCoreRuleSummary;
   readonly hooks: TestQualityHookSummary;
   readonly goldStandardPractices: readonly TestQualityGoldStandardPractice[];
+  readonly instructionLoadingExperiment: TestQualityInstructionLoadingExperiment;
 }

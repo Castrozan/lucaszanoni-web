@@ -60,6 +60,8 @@ export {
   type TestQualityCoreRuleSummary,
   type TestQualityGoldStandardPractice,
   type TestQualityHookSummary,
+  type TestQualityInstructionLoadingCategory,
+  type TestQualityInstructionLoadingExperiment,
   type TestQualityPayload,
   type TestQualityStaticEvalSummary,
 } from "./topics/test-quality/test-quality-types";
