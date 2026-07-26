@@ -39,7 +39,10 @@ describe("buildCockpitStatusBarModel", () => {
     const model = buildCockpitStatusBarModel(liveState, onSelectWindow);
 
     const codexWindow = model.windows.find((w) => w.id === "@2");
-    codexWindow?.onSelect();
+    if (codexWindow?.kind !== "action") {
+      throw new Error("cockpit windows must be selectable actions");
+    }
+    codexWindow.onSelect();
 
     expect(onSelectWindow).toHaveBeenCalledWith("@2");
   });

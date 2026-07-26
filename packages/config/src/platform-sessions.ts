@@ -181,13 +181,3 @@ export function previousWindowIndex(
     ? -1
     : (currentIndex - 1 + windowCount) % windowCount;
 }
-
-export function windowIndexFromOneBasedNumber(
-  windowCount: number,
-  oneBasedNumber: number,
-): number {
-  const zeroBasedIndex = oneBasedNumber - 1;
-  return zeroBasedIndex >= 0 && zeroBasedIndex < windowCount
-    ? zeroBasedIndex
-    : -1;
-}
