@@ -28,8 +28,8 @@ export function TestingPyramidSection({ metrics }: TestingPyramidSectionProps) {
             Dual-signal assertions: terminal output plus workspace artifacts.
           </div>
           <div className={tierMetaClassName}>
-            {metrics.endToEndScenarioCount} scenarios · NPS 0-100 with penalties
-            · __tests__/run.sh --e2e
+            {metrics.endToEndScenarioCount} scenarios · terminal output plus
+            workspace artifacts · __tests__/run.sh --e2e
           </div>
         </div>
         <div className={`${tierBaseClassName} max-w-[72%]`}>
@@ -39,7 +39,7 @@ export function TestingPyramidSection({ metrics }: TestingPyramidSectionProps) {
             workspace file checks.
           </div>
           <div className={tierMetaClassName}>
-            {metrics.integrationScenarioCount} scenarios · NPS 0-100 ·
+            {metrics.integrationScenarioCount} scenarios · asserted tool calls ·
             __tests__/run.sh --integration
           </div>
         </div>

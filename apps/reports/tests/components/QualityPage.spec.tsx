@@ -101,6 +101,26 @@ describe("QualityPage without an ingested snapshot", () => {
     expect(container.textContent).not.toContain("NaN");
   });
 
+  it("claims no score from the retired NPS scoreboard anywhere on the page", async () => {
+    const container = await renderWithIngestedSnapshot();
+    expect(container.textContent).not.toContain("NPS");
+  });
+
+  it("quotes no instruction-loading score the suite never recorded", async () => {
+    const container = await renderWithIngestedSnapshot();
+    expect(container.textContent).not.toContain("@reference (83)");
+    expect(container.textContent).not.toContain("system-prompt (67)");
+  });
+
+  it("takes the integration scenario count from the payload, never from prose", async () => {
+    const container = await renderWithIngestedSnapshot();
+    const payload = ingestedQualityRecordFixture.event.payload;
+    expect(container.textContent).toContain(
+      `${payload.integrationScenarioCount} scenarios`,
+    );
+    expect(container.textContent).not.toContain("stream-json parsing, 7");
+  });
+
   it("refuses a snapshot the contract rejects rather than rendering it", async () => {
     stubSnapshotFetch({
       ...ingestedQualityRecordFixture,
