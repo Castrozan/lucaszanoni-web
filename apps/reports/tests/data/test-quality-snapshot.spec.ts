@@ -30,6 +30,22 @@ const ingestedRecord = {
         wiredEvents: ["post-tool-use", "pre-tool-use", "session-start"],
         entryPointCount: 18,
       },
+      goldStandardPractices: [
+        {
+          practice: "rubric-graded-judging",
+          adopted: true,
+          measurement: 19,
+          measurementUnit: "of 25 eval suites",
+          evidence: "Responses are graded against a written rubric.",
+        },
+        {
+          practice: "repeated-sampling",
+          adopted: false,
+          measurement: 1,
+          measurementUnit: "sampling epochs behind the committed baseline",
+          evidence: "Rerunning across epochs turns one pass rate into a mean.",
+        },
+      ],
     },
   },
 };
@@ -56,6 +72,41 @@ describe("the ingested test quality snapshot source", () => {
     expect(snapshot?.payload.endToEndScenarioCount).toBe(34);
     expect(snapshot?.payload.coreRules.ruleBlockCount).toBe(18);
     expect(snapshot?.payload.hooks.wiredEvents).toHaveLength(3);
+  });
+
+  it("carries the measured gold standard verdicts the quality page scores itself with", () => {
+    const snapshot = readIngestedTestQualitySnapshot(ingestedRecord);
+
+    expect(
+      snapshot?.payload.goldStandardPractices.map(
+        (practice) => practice.practice,
+      ),
+    ).toEqual(["rubric-graded-judging", "repeated-sampling"]);
+    expect(
+      snapshot?.payload.goldStandardPractices.map(
+        (practice) => practice.adopted,
+      ),
+    ).toEqual([true, false]);
+  });
+
+  it("refuses a record claiming a practice is adopted with nothing measured", () => {
+    const unevidencedClaim = recordWithEventOverrides({
+      payload: {
+        ...ingestedRecord.event.payload,
+        goldStandardPractices: [
+          {
+            practice: "repeated-sampling",
+            adopted: true,
+            measurement: 0,
+            measurementUnit: "sampling epochs behind the committed baseline",
+            evidence:
+              "Rerunning across epochs turns one pass rate into a mean.",
+          },
+        ],
+      },
+    });
+
+    expect(readIngestedTestQualitySnapshot(unevidencedClaim)).toBeNull();
   });
 
   it("refuses a record claiming more passing evals than the suite ran", () => {
