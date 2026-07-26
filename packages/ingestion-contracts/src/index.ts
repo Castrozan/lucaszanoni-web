@@ -10,6 +10,11 @@ export {
   parseIngestionEventForTopic,
 } from "./ingestion-event-parser";
 export {
+  buildIngestedSnapshotRecord,
+  parseIngestedSnapshotRecord,
+  type IngestedSnapshotRecord,
+} from "./ingested-snapshot-record";
+export {
   INGESTION_TOPIC_CONTRACTS,
   findIngestionTopicContract,
   requireIngestionTopicContract,
