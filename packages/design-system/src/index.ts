@@ -79,12 +79,23 @@ export {
   loadLeaderBinding,
   saveLeaderBinding,
 } from "./keybinds/keybindStore";
-export { BottomStatusBar } from "./status-bar/BottomStatusBar";
-export type {
-  StatusBarModel,
-  StatusBarWindowModel,
-} from "./status-bar/statusBarModel";
+export { formatBindingForDisplay } from "./keybinds/keybindDisplay";
 export {
+  AppAboutPanel,
+  AppStatusBar,
+  BottomStatusBar,
   STATUS_BAR_HEIGHT,
   STATUS_BAR_HEIGHT_CSS_VARIABLE,
-} from "./status-bar/statusBarLayout";
+  activateStatusBarWindow,
+  activateStatusBarWindowAtIndex,
+  buildPlatformStatusBarModel,
+} from "./status-bar";
+export type {
+  AppAboutPanelProps,
+  AppStatusBarProps,
+  BottomStatusBarProps,
+  StatusBarActionWindowModel,
+  StatusBarLinkWindowModel,
+  StatusBarModel,
+  StatusBarWindowModel,
+} from "./status-bar";
