@@ -3,7 +3,11 @@ import { describe, expect, it } from "vitest";
 import ingestionEventSchema from "../src/ingestion-event.schema.json";
 import { parseIngestionEvent } from "../src/ingestion-event-parser";
 import { INGESTION_TOPIC_CONTRACTS } from "../src/ingestion-topic-registry";
-import { testBaselineEventFixture } from "./ingestion-test-fixtures";
+import {
+  testBaselineEventFixture,
+  testCoverageEventFixture,
+  testQualityEventFixture,
+} from "./ingestion-test-fixtures";
 
 const ajv = new Ajv({ allErrors: true });
 const validateEnvelope = ajv.compile(ingestionEventSchema);
@@ -76,17 +80,63 @@ const structurallyInvalidPayloads: readonly {
   },
 ];
 
+const referenceEvents: readonly {
+  readonly label: string;
+  readonly event: { readonly topic: string; readonly payload: unknown };
+}[] = [
+  { label: "dotfiles-test-baseline", event: testBaselineEventFixture },
+  { label: "dotfiles-test-coverage", event: testCoverageEventFixture },
+  { label: "dotfiles-test-quality", event: testQualityEventFixture },
+];
+
+const crossFieldViolations: readonly {
+  readonly label: string;
+  readonly topic: string;
+  readonly event: Record<string, unknown>;
+  readonly payload: Record<string, unknown>;
+  readonly rejection: RegExp;
+}[] = [
+  {
+    label: "an eval total that contradicts its categories",
+    topic: testBaselineEventFixture.topic,
+    event: testBaselineEventFixture,
+    payload: { ...testBaselineEventFixture.payload, totalTests: 7 },
+    rejection: /totalTests/,
+  },
+  {
+    label: "measured files that do not account for the run totals",
+    topic: testCoverageEventFixture.topic,
+    event: testCoverageEventFixture,
+    payload: {
+      ...testCoverageEventFixture.payload,
+      files: testCoverageEventFixture.payload.files.slice(1),
+    },
+    rejection: /account for/,
+  },
+  {
+    label: "more passing evals than the suite ran",
+    topic: testQualityEventFixture.topic,
+    event: testQualityEventFixture,
+    payload: {
+      ...testQualityEventFixture.payload,
+      staticEvals: {
+        ...testQualityEventFixture.payload.staticEvals,
+        passedTests: 200,
+      },
+    },
+    rejection: /passedTests/,
+  },
+];
+
 describe("dual enforcement of the ingestion contracts", () => {
-  it("accepts the reference event on both the schema and the parser", () => {
-    expect(validateEnvelope(testBaselineEventFixture)).toBe(true);
-    expect(
-      validatePayload(
-        testBaselineEventFixture.topic,
-        testBaselineEventFixture.payload,
-      ),
-    ).toBe(true);
-    expect(() => parseIngestionEvent(testBaselineEventFixture)).not.toThrow();
-  });
+  it.each(referenceEvents)(
+    "accepts the $label reference event on both the schema and the parser",
+    ({ event }) => {
+      expect(validateEnvelope(event)).toBe(true);
+      expect(validatePayload(event.topic, event.payload)).toBe(true);
+      expect(() => parseIngestionEvent(event)).not.toThrow();
+    },
+  );
 
   it.each(structurallyInvalidEvents)(
     "rejects $label on both the schema and the parser",
@@ -108,21 +158,15 @@ describe("dual enforcement of the ingestion contracts", () => {
     },
   );
 
-  it("relies on the parser alone for cross field invariants json schema cannot express", () => {
-    const contradictoryTotals = {
-      ...testBaselineEventFixture.payload,
-      totalTests: 7,
-    };
-    expect(
-      validatePayload(testBaselineEventFixture.topic, contradictoryTotals),
-    ).toBe(true);
-    expect(() =>
-      parseIngestionEvent({
-        ...testBaselineEventFixture,
-        payload: contradictoryTotals,
-      }),
-    ).toThrow(/totalTests/);
-  });
+  it.each(crossFieldViolations)(
+    "relies on the parser alone to reject $label",
+    ({ topic, event, payload, rejection }) => {
+      expect(validatePayload(topic, payload)).toBe(true);
+      expect(() => parseIngestionEvent({ ...event, payload })).toThrow(
+        rejection,
+      );
+    },
+  );
 
   it("compiles the payload schema of every registered topic", () => {
     for (const contract of INGESTION_TOPIC_CONTRACTS) {

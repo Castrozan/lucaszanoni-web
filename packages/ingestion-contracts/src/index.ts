@@ -34,3 +34,21 @@ export {
   type TestBaselinePayload,
   type TestBaselineTestResult,
 } from "./topics/test-baseline/test-baseline-types";
+export { testCoverageContract } from "./topics/test-coverage/test-coverage-contract";
+export { parseTestCoveragePayload } from "./topics/test-coverage/test-coverage-parser";
+export {
+  DOTFILES_TEST_COVERAGE_SCHEMA_VERSION,
+  DOTFILES_TEST_COVERAGE_TOPIC,
+  type TestCoverageFileResult,
+  type TestCoveragePayload,
+} from "./topics/test-coverage/test-coverage-types";
+export { testQualityContract } from "./topics/test-quality/test-quality-contract";
+export { parseTestQualityPayload } from "./topics/test-quality/test-quality-parser";
+export {
+  DOTFILES_TEST_QUALITY_SCHEMA_VERSION,
+  DOTFILES_TEST_QUALITY_TOPIC,
+  type TestQualityCoreRuleSummary,
+  type TestQualityHookSummary,
+  type TestQualityPayload,
+  type TestQualityStaticEvalSummary,
+} from "./topics/test-quality/test-quality-types";

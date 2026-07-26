@@ -3,9 +3,11 @@ import {
   type IngestionTopicContract,
 } from "./ingestion-types";
 import { testBaselineContract } from "./topics/test-baseline/test-baseline-contract";
+import { testCoverageContract } from "./topics/test-coverage/test-coverage-contract";
+import { testQualityContract } from "./topics/test-quality/test-quality-contract";
 
 export const INGESTION_TOPIC_CONTRACTS: readonly IngestionTopicContract<unknown>[] =
-  [testBaselineContract];
+  [testBaselineContract, testCoverageContract, testQualityContract];
 
 export function findIngestionTopicContract(
   topic: string,
