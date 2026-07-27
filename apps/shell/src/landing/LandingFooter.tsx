@@ -5,6 +5,7 @@ import {
 import {
   ABOUT_SECTION_ID,
   COCKPIT_SECTION_ID,
+  KEYBOARD_SECTION_ID,
   SHOWCASE_SECTION_ID,
 } from "./landingSections";
 
@@ -29,6 +30,7 @@ export function buildRouteSitemapLinks(): FooterLink[] {
 }
 
 const inPageLinks: readonly FooterLink[] = [
+  { label: "Keyboard", href: `/#${KEYBOARD_SECTION_ID}` },
   { label: "Cockpit", href: `/#${COCKPIT_SECTION_ID}` },
   { label: "Showcase", href: `/#${SHOWCASE_SECTION_ID}` },
   { label: "About Atrium", href: `/#${ABOUT_SECTION_ID}` },

@@ -3,7 +3,7 @@ import {
   formatBindingForDisplay,
   useKeybindRegistry,
 } from "@platform/design-system";
-import { LANDING_SECTIONS } from "./landingSections";
+import { KEYBOARD_SECTION_ID, LANDING_SECTIONS } from "./landingSections";
 
 interface KeyboardMove {
   readonly binding: string;
@@ -32,7 +32,7 @@ const keyboardMoves: readonly KeyboardMove[] = [
 export function KeyboardNavigationSection() {
   const leaderBinding = useKeybindRegistry()?.leader ?? DEFAULT_LEADER_BINDING;
   return (
-    <section className="border-t border-border py-20">
+    <section id={KEYBOARD_SECTION_ID} className="border-t border-border py-20">
       <div className="mb-10 flex items-end justify-between gap-6">
         <div className="flex flex-col gap-3">
           <h2 className="m-0 font-grotesk text-[clamp(28px,6vw,64px)] font-bold tracking-[-0.5px] text-foreground">
@@ -67,6 +67,12 @@ export function KeyboardNavigationSection() {
           </div>
         ))}
       </div>
+      <p className="mt-6 mb-0 max-w-[60rem] border border-border/60 bg-surface px-5 py-4 font-mono text-[12px] leading-[1.7] tracking-[0.5px] text-text-faint">
+        These chords reach the page only if nothing upstream swallows them. For
+        the intended experience, turn off browser shortcuts and keyboard
+        extensions such as Vimium on this site, or open the keymap with ? and
+        rebind whatever collides.
+      </p>
     </section>
   );
 }
