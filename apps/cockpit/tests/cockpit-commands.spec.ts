@@ -1,8 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  buildNavigationCommands,
-  buildSessionCommands,
-} from "../src/command-palette/cockpit-commands";
+import { buildNavigationCommands } from "../src/command-palette/cockpit-commands";
 import { cockpitViews } from "../src/navigation/cockpit-views";
 
 describe("buildNavigationCommands", () => {
@@ -32,30 +29,11 @@ describe("buildNavigationCommands", () => {
     jarvisCommand?.run();
     expect(navigate).toHaveBeenCalledWith("/jarvis");
   });
-});
 
-describe("buildSessionCommands", () => {
-  const sessions = [
-    { key: "alpha", label: "Alpha" },
-    { key: "beta", label: "Beta" },
-  ];
-
-  it("builds one switch command per session", () => {
-    const commands = buildSessionCommands(sessions, vi.fn());
-    expect(commands.map((command) => command.id)).toEqual([
-      "session:alpha",
-      "session:beta",
-    ]);
-    expect(commands.map((command) => command.title)).toEqual([
-      "Switch to Alpha",
-      "Switch to Beta",
-    ]);
-  });
-
-  it("selects the session key when a command runs", () => {
-    const selectSession = vi.fn();
-    const commands = buildSessionCommands(sessions, selectSession);
-    commands[1]?.run();
-    expect(selectSession).toHaveBeenCalledWith("beta");
+  it("offers no session-switch command because the cockpit owns no session registry", () => {
+    const commands = buildNavigationCommands(vi.fn());
+    expect(
+      commands.some((command) => command.title.startsWith("Switch to ")),
+    ).toBe(false);
   });
 });

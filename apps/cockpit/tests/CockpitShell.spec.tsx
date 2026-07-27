@@ -3,8 +3,6 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ThemeProvider } from "@platform/design-system";
 import { CockpitShell } from "../src/layout/CockpitShell";
-import { CockpitSessionsProvider } from "../src/sessions/cockpit-sessions-context";
-import { createFakeStorage } from "./support/fake-web-storage";
 
 afterEach(() => {
   cleanup();
@@ -14,18 +12,24 @@ afterEach(() => {
 function renderShell(initialEntries: readonly string[] = ["/"]) {
   render(
     <ThemeProvider>
-      <CockpitSessionsProvider
-        initialSessions={[{ key: "global", label: "Jarvis" }]}
-        storage={createFakeStorage()}
-      >
-        <MemoryRouter initialEntries={[...initialEntries]}>
-          <CockpitShell>
-            <div>main content</div>
-          </CockpitShell>
-        </MemoryRouter>
-      </CockpitSessionsProvider>
+      <MemoryRouter initialEntries={[...initialEntries]}>
+        <CockpitShell>
+          <div>main content</div>
+        </CockpitShell>
+      </MemoryRouter>
     </ThemeProvider>,
   );
+}
+
+function openCommandPalette() {
+  fireEvent.keyDown(document.body, { key: "b", ctrlKey: true });
+  fireEvent.keyDown(document.body, { key: "k" });
+}
+
+function searchPalette(query: string) {
+  fireEvent.change(screen.getByRole("textbox", { name: "Search commands" }), {
+    target: { value: query },
+  });
 }
 
 describe("CockpitShell", () => {
@@ -42,22 +46,23 @@ describe("CockpitShell", () => {
     expect(
       screen.queryByRole("dialog", { name: "Command palette" }),
     ).toBeNull();
-    fireEvent.keyDown(document.body, { key: "b", ctrlKey: true });
-    fireEvent.keyDown(document.body, { key: "k" });
+    openCommandPalette();
     expect(
       screen.getByRole("dialog", { name: "Command palette" }),
     ).toBeDefined();
   });
 
-  it("exposes session-switch commands in the palette for fuzzy search", () => {
+  it("exposes route navigation in the palette for fuzzy search", () => {
     renderShell();
-    fireEvent.keyDown(document.body, { key: "b", ctrlKey: true });
-    fireEvent.keyDown(document.body, { key: "k" });
-    fireEvent.change(screen.getByRole("textbox", { name: "Search commands" }), {
-      target: { value: "switch" },
-    });
-    expect(
-      screen.getByRole("option", { name: "Switch to Jarvis" }),
-    ).toBeDefined();
+    openCommandPalette();
+    searchPalette("jarvis");
+    expect(screen.getByRole("option", { name: /Go to Jarvis/ })).toBeDefined();
+  });
+
+  it("offers no session-switch command while no live workspace is attached", () => {
+    renderShell();
+    openCommandPalette();
+    searchPalette("switch");
+    expect(screen.queryByRole("option", { name: /^Switch to / })).toBeNull();
   });
 });

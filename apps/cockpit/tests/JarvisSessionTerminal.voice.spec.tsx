@@ -19,8 +19,6 @@ import type {
 const textDecoder = new TextDecoder();
 const textEncoder = new TextEncoder();
 
-const sessions = [{ key: "global", label: "Jarvis" }];
-
 function captureSpokenSynthesis() {
   const spoken: string[] = [];
   return {
@@ -85,8 +83,6 @@ describe("JarvisSessionTerminal voice control", () => {
         endpoint="ws://localhost:9999/session"
         createSocket={socket.factory}
         createEmulator={emulator.factory}
-        sessions={sessions}
-        activeSessionKey="global"
       />,
     );
 
@@ -108,8 +104,6 @@ describe("JarvisSessionTerminal voice control", () => {
         endpoint="ws://localhost:9999/session"
         createSocket={socket.factory}
         createEmulator={emulator.factory}
-        sessions={sessions}
-        activeSessionKey="global"
       />,
     );
 
@@ -134,8 +128,6 @@ describe("JarvisSessionTerminal voice control", () => {
           endpoint="ws://localhost:9999/session"
           createSocket={socket.factory}
           createEmulator={emulator.factory}
-          sessions={sessions}
-          activeSessionKey="global"
           speakDebounceMs={20}
           speechResolvers={resolvers}
         />,
@@ -166,8 +158,6 @@ describe("JarvisSessionTerminal voice control", () => {
           endpoint="ws://localhost:9999/session"
           createSocket={socket.factory}
           createEmulator={emulator.factory}
-          sessions={sessions}
-          activeSessionKey="global"
           speakDebounceMs={20}
           speechResolvers={resolvers}
         />,

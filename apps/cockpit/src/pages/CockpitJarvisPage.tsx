@@ -7,7 +7,6 @@ import {
   type JarvisUtterance,
 } from "../jarvis/jarvis-dialogue";
 import { useJarvisSpeech } from "../jarvis/use-jarvis-speech";
-import { useCockpitSessionsContext } from "../sessions/cockpit-sessions-context";
 import { SessionReviewPairing } from "../review/SessionReviewPairing";
 import {
   MachineSwitcher,
@@ -19,7 +18,6 @@ type JarvisView = "terminal" | "conversation";
 
 export function CockpitJarvisPage() {
   const [activeView, setActiveView] = useState<JarvisView>("terminal");
-  const cockpitSessions = useCockpitSessionsContext();
   const [draftMessage, setDraftMessage] = useState("");
   const [transcript, setTranscript] = useState<readonly JarvisUtterance[]>([]);
   const [activeMachineKey, setActiveMachineKey] = useState<string | null>(null);
@@ -172,9 +170,6 @@ export function CockpitJarvisPage() {
           <JarvisSessionTerminal
             key={activeMachine?.key ?? "default"}
             endpoint={activeMachine?.endpoint}
-            sessions={cockpitSessions.sessions}
-            activeSessionKey={cockpitSessions.activeKey}
-            onSelectSession={cockpitSessions.selectSession}
           />
         </div>
       )}

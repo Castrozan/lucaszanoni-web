@@ -5,10 +5,8 @@ import { type JarvisTerminalStatus } from "./jarvis-session-terminal-model";
 import { type JarvisSessionSocketFactory } from "./use-jarvis-session-terminal";
 import { type JarvisTerminalEmulatorFactory } from "./browser-terminal-emulator";
 import { type JarvisSpeechResolvers } from "./use-jarvis-speech";
-import { SessionSwitcher } from "../sessions/SessionSwitcher";
 import { SessionVoiceControl } from "./SessionVoiceControl";
 import { useJarvisSessionTerminalView } from "./use-jarvis-session-terminal-view";
-import type { CockpitSession } from "../sessions/session-registry";
 
 const STATUS_DOT_CLASS: Record<JarvisTerminalStatus, string> = {
   idle: "bg-text-faint",
@@ -22,10 +20,6 @@ export interface JarvisSessionTerminalProps {
   endpoint?: string | null;
   createSocket?: JarvisSessionSocketFactory;
   createEmulator?: JarvisTerminalEmulatorFactory;
-  sessions?: readonly CockpitSession[];
-  activeSessionKey?: string | null;
-  onSelectSession?: (key: string) => void;
-  onListSessions?: () => void;
   speechResolvers?: JarvisSpeechResolvers;
   speakDebounceMs?: number;
 }
@@ -34,10 +28,6 @@ export function JarvisSessionTerminal({
   endpoint = resolveJarvisSessionEndpoint(),
   createSocket,
   createEmulator,
-  sessions = [],
-  activeSessionKey = null,
-  onSelectSession,
-  onListSessions,
   speechResolvers,
   speakDebounceMs,
 }: JarvisSessionTerminalProps) {
@@ -49,14 +39,10 @@ export function JarvisSessionTerminal({
     terminalContainerRef,
     focusTerminal,
     voice,
-    selectSession,
-    requestSessionList,
   } = useJarvisSessionTerminalView({
     endpoint: endpoint ?? null,
     createSocket,
     createEmulator,
-    onSelectSession,
-    onListSessions,
     speechResolvers,
     speakDebounceMs,
   });
@@ -105,12 +91,6 @@ export function JarvisSessionTerminal({
       aria-label="Jarvis session terminal"
       className="flex flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background"
     >
-      <SessionSwitcher
-        sessions={sessions}
-        activeKey={activeSessionKey}
-        onSelect={selectSession}
-        onListSessions={requestSessionList}
-      />
       <SessionVoiceControl
         isListening={voice.isListening}
         recognitionSupported={voice.recognitionSupported}
