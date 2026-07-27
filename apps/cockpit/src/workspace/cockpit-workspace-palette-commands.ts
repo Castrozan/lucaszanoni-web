@@ -4,23 +4,23 @@ import type {
   WorkspaceController,
 } from "@platform/workspace";
 
-export function buildCockpitMirrorSessionCommands(
+export function buildCockpitWorkspaceSessionCommands(
   controller: WorkspaceController,
 ): PaletteCommand[] {
   return controller.state.sessions.map((session) => ({
-    id: `mirror-session:${session.key}`,
+    id: `workspace-session:${session.key}`,
     title: `Session: ${session.label}`,
     run: () => controller.selectSession(session.key),
   }));
 }
 
-export function buildCockpitMirrorMachineCommands(
+export function buildCockpitWorkspaceMachineCommands(
   machines: readonly CockpitWorkspaceMachine[],
   activeMachineKey: string | null,
   selectMachine: (machineKey: string) => void,
 ): PaletteCommand[] {
   return machines.map((machine) => ({
-    id: `mirror-machine:${machine.key}`,
+    id: `workspace-machine:${machine.key}`,
     title: `Machine: ${machine.label}${
       machine.key === activeMachineKey ? " (active)" : ""
     }`,

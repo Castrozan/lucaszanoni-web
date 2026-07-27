@@ -4,7 +4,7 @@ import {
 } from "@platform/workspace";
 import { useCockpitWorkspace } from "./cockpit-workspace-context";
 
-export function CockpitTmuxMirrorPage() {
+export function CockpitTerminalPage() {
   const cockpitWorkspace = useCockpitWorkspace();
   if (!cockpitWorkspace) {
     return null;

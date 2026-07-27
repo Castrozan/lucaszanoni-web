@@ -6,8 +6,8 @@ import {
   type CockpitComputePort,
   type CockpitWorkspaceSession,
 } from "@platform/workspace";
-import { CockpitWorkspaceProvider } from "../src/tmux-mirror/cockpit-workspace-context";
-import { CockpitTmuxMirrorPage } from "../src/tmux-mirror/CockpitTmuxMirrorPage";
+import { CockpitWorkspaceProvider } from "../src/workspace/cockpit-workspace-context";
+import { CockpitTerminalPage } from "../src/workspace/CockpitTerminalPage";
 
 afterEach(cleanup);
 
@@ -33,16 +33,15 @@ function seededCompute(): CockpitComputePort {
   };
 }
 
-describe("CockpitTmuxMirrorPage is a pure tmux surface with no launcher chrome", () => {
+describe("CockpitTerminalPage is a pure terminal surface with no launcher chrome", () => {
   it("renders the attached session terminal and none of the workspace launcher chrome", async () => {
     render(
       <ThemeProvider>
         <CockpitWorkspaceProvider
-          enabled
           machines={machinesWithEndpoint}
           createComputeForMachine={() => () => seededCompute()}
         >
-          <CockpitTmuxMirrorPage />
+          <CockpitTerminalPage />
         </CockpitWorkspaceProvider>
       </ThemeProvider>,
     );
