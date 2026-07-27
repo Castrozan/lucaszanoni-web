@@ -73,6 +73,3 @@ export const CROSS_SECTION_NAVIGATION_ROUTES: readonly MicroFrontendRoute[] =
   MICRO_FRONTEND_ROUTES.filter((route) =>
     publiclyVisibleNavigationIds.has(route.id),
   );
-
-export const NAVIGATION_TEASE_ROUTES: readonly MicroFrontendRoute[] =
-  MICRO_FRONTEND_ROUTES.filter((route) => route.showInCrossSectionNavigation);

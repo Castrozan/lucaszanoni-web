@@ -4,6 +4,7 @@ import { useCharacterDecode } from "./useCharacterDecode";
 import { BlockCursor } from "./BlockCursor";
 import { HeroTerminalPanel } from "./HeroTerminalPanel";
 import { heroContent } from "./landingContent";
+import { HERO_SECTION_ID } from "./landingSections";
 
 export function HeroSection() {
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -12,7 +13,10 @@ export function HeroSection() {
     prefersReducedMotion,
   );
   return (
-    <section className="grid items-center gap-12 pt-40 pb-24 lg:grid-cols-[1.05fr_0.95fr]">
+    <section
+      id={HERO_SECTION_ID}
+      className="grid items-center gap-12 pt-40 pb-24 lg:grid-cols-[1.05fr_0.95fr]"
+    >
       <div className="flex flex-col gap-7">
         <span className="flex w-fit items-center gap-2.5 border-2 border-primary bg-surface-raised px-3 py-1.5">
           <span className="h-[8px] w-[8px] bg-primary" />

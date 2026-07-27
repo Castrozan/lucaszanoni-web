@@ -1,6 +1,5 @@
 import {
   MICRO_FRONTEND_ROUTES,
-  NAVIGATION_TEASE_ROUTES,
   belongsToPrivateEnvironment,
 } from "@platform/config";
 import type {
@@ -49,10 +48,6 @@ function mapRouteToCard(route: MicroFrontendRoute): HomeSectionCard {
     isAiPowered: route.isAiPowered,
     status: route.status,
   };
-}
-
-export function buildHomeSectionCards(): HomeSectionCard[] {
-  return NAVIGATION_TEASE_ROUTES.map(mapRouteToCard);
 }
 
 export function buildCatalogCards(): HomeSectionCard[] {

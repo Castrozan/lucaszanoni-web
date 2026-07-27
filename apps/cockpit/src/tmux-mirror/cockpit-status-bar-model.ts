@@ -11,6 +11,7 @@ export function buildCockpitStatusBarModel(
   return {
     sessionLabel: activeSession?.label ?? "Cockpit",
     windows: (activeSession?.windows ?? []).map((window) => ({
+      kind: "action",
       id: window.id,
       label: window.title,
       isActive: window.id === activeSession?.activeWindowId,

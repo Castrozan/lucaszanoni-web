@@ -2,6 +2,12 @@ import {
   CROSS_SECTION_NAVIGATION_ROUTES,
   OWNER_SIGN_IN_ENTRY_ROUTE,
 } from "@platform/config";
+import {
+  ABOUT_SECTION_ID,
+  COCKPIT_SECTION_ID,
+  KEYBOARD_SECTION_ID,
+  SHOWCASE_SECTION_ID,
+} from "./landingSections";
 
 const trafficLightColors = ["#FF5F57", "#FEBC2E", "#4ADE80"];
 
@@ -24,8 +30,10 @@ export function buildRouteSitemapLinks(): FooterLink[] {
 }
 
 const inPageLinks: readonly FooterLink[] = [
-  { label: "Sections", href: "#sections" },
-  { label: "Built for the terminal", href: "#platform" },
+  { label: "Keyboard", href: `/#${KEYBOARD_SECTION_ID}` },
+  { label: "Cockpit", href: `/#${COCKPIT_SECTION_ID}` },
+  { label: "Showcase", href: `/#${SHOWCASE_SECTION_ID}` },
+  { label: "About Atrium", href: `/#${ABOUT_SECTION_ID}` },
 ];
 
 const sourceLink: FooterLink = {
@@ -60,8 +68,8 @@ function FooterLinkColumn({
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-border py-14">
-      <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
+    <footer className="border-t border-border">
+      <div className="mx-auto flex max-w-[1400px] flex-col gap-10 px-6 py-14 md:flex-row md:items-start md:justify-between md:px-12">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <span className="h-[10px] w-[10px] bg-primary" />

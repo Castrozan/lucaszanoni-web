@@ -4,7 +4,6 @@ import {
   findActiveLocation,
   nextWindowIndex,
   previousWindowIndex,
-  windowIndexFromOneBasedNumber,
 } from "../src/platform-sessions";
 
 describe("buildPlatformSessions", () => {
@@ -104,12 +103,5 @@ describe("window index helpers", () => {
     expect(previousWindowIndex(3, 0)).toBe(2);
     expect(nextWindowIndex(0, 0)).toBe(-1);
     expect(previousWindowIndex(0, 0)).toBe(-1);
-  });
-
-  it("maps one-based numbers to indices within range", () => {
-    expect(windowIndexFromOneBasedNumber(2, 1)).toBe(0);
-    expect(windowIndexFromOneBasedNumber(2, 2)).toBe(1);
-    expect(windowIndexFromOneBasedNumber(2, 3)).toBe(-1);
-    expect(windowIndexFromOneBasedNumber(2, 0)).toBe(-1);
   });
 });

@@ -10,7 +10,6 @@ export type { MicroFrontendId, MicroFrontendRoute } from "./route-registry";
 export {
   MICRO_FRONTEND_ROUTES,
   CROSS_SECTION_NAVIGATION_ROUTES,
-  NAVIGATION_TEASE_ROUTES,
   OWNER_SIGN_IN_ENTRY_ROUTE,
   findMicroFrontendRoute,
 } from "./route-registry";
@@ -24,7 +23,6 @@ export {
   findActiveLocation,
   nextWindowIndex,
   previousWindowIndex,
-  windowIndexFromOneBasedNumber,
 } from "./platform-sessions";
 export type {
   AppLifecycleStatus,

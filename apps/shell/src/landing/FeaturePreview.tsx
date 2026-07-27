@@ -4,6 +4,7 @@ import { MICRO_FRONTEND_ROUTES } from "@platform/config";
 import type { MicroFrontendRoute } from "@platform/config";
 import { featurePreviews } from "./landingContent";
 import type { FeaturePreview as FeaturePreviewContent } from "./landingContent";
+import { SHOWCASE_SECTION_ID } from "./landingSections";
 
 const MAX_SHOWCASE_CARDS = 4;
 
@@ -84,7 +85,7 @@ export function FeaturePreview() {
     return null;
   }
   return (
-    <section id="showcase" className="border-t border-border py-20">
+    <section id={SHOWCASE_SECTION_ID} className="border-t border-border py-20">
       <div className="mb-10 flex items-end justify-between gap-6">
         <div className="flex flex-col gap-3">
           <h2 className="m-0 font-grotesk text-[clamp(28px,6vw,64px)] font-bold tracking-[-0.5px] text-foreground">

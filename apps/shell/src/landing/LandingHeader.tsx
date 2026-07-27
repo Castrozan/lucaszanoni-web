@@ -3,12 +3,6 @@ import { Button, openCommandPalette } from "@platform/design-system";
 import { OWNER_SIGN_IN_ENTRY_ROUTE } from "@platform/config";
 import { useScrolledPastThreshold } from "./useScrolledPastThreshold";
 
-const headerNavigationLinks = [
-  { label: "SECTIONS", href: "#sections" },
-  { label: "SHOWCASE", href: "#showcase" },
-  { label: "ABOUT", href: "#about-atrium" },
-] as const;
-
 export function LandingHeader() {
   const hasScrolled = useScrolledPastThreshold(24);
   return (
@@ -39,21 +33,6 @@ export function LandingHeader() {
             </Link>
           </span>
         </div>
-        <nav aria-label="Primary" className="hidden md:block">
-          <ul className="m-0 flex list-none items-center gap-7 p-0">
-            {headerNavigationLinks.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  className="group relative font-mono text-[10px] uppercase tracking-[1.5px] text-text-faint no-underline transition-colors hover:text-foreground"
-                >
-                  {link.label}
-                  <span className="absolute -bottom-1 left-0 h-[1px] w-0 bg-primary transition-[width] duration-200 group-hover:w-full" />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
         <div className="flex items-center gap-3">
           <button
             type="button"

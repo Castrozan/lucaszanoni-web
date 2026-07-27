@@ -1,15 +1,24 @@
-import type { ActivePlatformLocation } from "@platform/config";
+import type { StatusBarWindowModel } from "./statusBarModel";
 
-export function navigateToWindowPath(
-  active: ActivePlatformLocation,
-  targetWindowIndex: number,
+export function activateStatusBarWindow(
+  statusBarWindow: StatusBarWindowModel,
 ): void {
-  if (targetWindowIndex < 0) {
+  if (statusBarWindow.kind === "action") {
+    statusBarWindow.onSelect();
     return;
   }
-  const target = active.session.windows[targetWindowIndex];
-  if (!target || target.path === active.window.path) {
+  if (statusBarWindow.isActive) {
     return;
   }
-  window.location.assign(target.path);
+  window.location.assign(statusBarWindow.href);
+}
+
+export function activateStatusBarWindowAtIndex(
+  windows: readonly StatusBarWindowModel[],
+  targetIndex: number,
+): void {
+  const target = windows[targetIndex];
+  if (target) {
+    activateStatusBarWindow(target);
+  }
 }

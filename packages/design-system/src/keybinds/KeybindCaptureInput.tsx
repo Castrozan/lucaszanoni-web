@@ -9,13 +9,17 @@ import { formatBindingForDisplay } from "./keybindDisplay";
 export interface KeybindCaptureInputProps {
   readonly leader: string;
   readonly onCapture: (binding: string) => void;
+  readonly startCapturing?: boolean;
+  readonly onCaptureEnd?: () => void;
 }
 
 export function KeybindCaptureInput({
   leader,
   onCapture,
+  startCapturing = false,
+  onCaptureEnd,
 }: KeybindCaptureInputProps) {
-  const [isCapturing, setIsCapturing] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(startCapturing);
   const [capturedTokens, setCapturedTokens] = useState<string[]>([]);
   const capturedTokensReference = useRef<string[]>([]);
   capturedTokensReference.current = capturedTokens;
@@ -30,6 +34,7 @@ export function KeybindCaptureInput({
       if (event.key === "Escape") {
         setIsCapturing(false);
         setCapturedTokens([]);
+        onCaptureEnd?.();
         return;
       }
       if (event.key === "Enter") {
@@ -41,6 +46,7 @@ export function KeybindCaptureInput({
         if (binding.length > 0) {
           onCapture(binding);
         }
+        onCaptureEnd?.();
         return;
       }
       const token = buildBindingTokenFromEvent(event);
@@ -50,7 +56,7 @@ export function KeybindCaptureInput({
     }
     window.addEventListener("keydown", handleKeyDown, true);
     return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [isCapturing, onCapture]);
+  }, [isCapturing, onCapture, onCaptureEnd]);
 
   if (isCapturing) {
     const preview = capturedTokensToBinding(capturedTokens);
@@ -60,6 +66,7 @@ export function KeybindCaptureInput({
         onClick={() => {
           setIsCapturing(false);
           setCapturedTokens([]);
+          onCaptureEnd?.();
         }}
         className="border border-primary px-2 py-0.5 font-mono text-[11px] text-primary"
       >

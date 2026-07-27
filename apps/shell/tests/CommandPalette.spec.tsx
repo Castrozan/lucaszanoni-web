@@ -45,8 +45,8 @@ describe("CommandPalette", () => {
     );
     pressOpenShortcut();
     for (const label of [
-      "Sections",
-      "Showcase",
+      "Cockpit section",
+      "Showcase section",
       "About page",
       "Catalog",
       "Dynamic IA Canvas",

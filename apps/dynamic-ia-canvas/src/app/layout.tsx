@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BottomStatusBar } from "@platform/design-system/status-bar";
+import { AppStatusBar } from "@platform/design-system/status-bar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,7 +20,7 @@ export default function RootLayout({
         style={{ height: "calc(100vh - var(--app-status-bar-height, 2rem))" }}
       >
         {children}
-        <BottomStatusBar registerNavigationKeybinds={false} />
+        <AppStatusBar appId="dynamic-ia-canvas" />
       </body>
     </html>
   );

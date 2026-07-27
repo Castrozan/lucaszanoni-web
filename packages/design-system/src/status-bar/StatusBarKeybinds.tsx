@@ -1,39 +1,32 @@
-import {
-  buildPlatformSessions,
-  findActiveLocation,
-  nextWindowIndex,
-  previousWindowIndex,
-} from "@platform/config";
+import { nextWindowIndex, previousWindowIndex } from "@platform/config";
 import { useKeybind } from "../keybinds/useKeybind";
 import { WindowNumberKeybind } from "./WindowNumberKeybind";
 import { SessionsKeybind } from "./SessionsKeybind";
-import { navigateToWindowPath } from "./statusBarNavigation";
+import { activateStatusBarWindowAtIndex } from "./statusBarNavigation";
+import type { StatusBarWindowModel } from "./statusBarModel";
+
+const HIGHEST_NUMBERED_WINDOW = 9;
 
 export interface StatusBarKeybindsProps {
-  readonly windowCount: number;
+  readonly windows: readonly StatusBarWindowModel[];
   readonly registerSessionKeybind?: boolean;
 }
 
-function cycleWindow(
-  resolveIndex: (windowCount: number, currentIndex: number) => number,
-) {
-  const active = findActiveLocation(
-    buildPlatformSessions(),
-    window.location.pathname,
-  );
-  if (!active) {
-    return;
-  }
-  navigateToWindowPath(
-    active,
-    resolveIndex(active.session.windows.length, active.windowIndex),
-  );
-}
-
 export function StatusBarKeybinds({
-  windowCount,
+  windows,
   registerSessionKeybind = true,
 }: StatusBarKeybindsProps) {
+  const activeIndex = windows.findIndex(
+    (statusBarWindow) => statusBarWindow.isActive,
+  );
+  function cycleWindow(
+    resolveIndex: (windowCount: number, currentIndex: number) => number,
+  ) {
+    activateStatusBarWindowAtIndex(
+      windows,
+      resolveIndex(windows.length, activeIndex),
+    );
+  }
   useKeybind({
     id: "tmux.window.next",
     label: "Next window",
@@ -49,12 +42,13 @@ export function StatusBarKeybinds({
   return (
     <>
       {registerSessionKeybind ? <SessionsKeybind /> : null}
-      {Array.from(
-        { length: Math.min(Math.max(windowCount, 0), 9) },
-        (_, index) => (
-          <WindowNumberKeybind key={index} oneBasedNumber={index + 1} />
-        ),
-      )}
+      {windows.slice(0, HIGHEST_NUMBERED_WINDOW).map((_, index) => (
+        <WindowNumberKeybind
+          key={index}
+          oneBasedNumber={index + 1}
+          activate={() => activateStatusBarWindowAtIndex(windows, index)}
+        />
+      ))}
     </>
   );
 }

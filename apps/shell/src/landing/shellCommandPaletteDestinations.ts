@@ -3,19 +3,25 @@ import {
   deduplicateDestinationsByHref,
   type PaletteDestination,
 } from "@platform/design-system";
+import { LANDING_SECTIONS } from "./landingSections";
 
-const shellNavigationDestinations: readonly PaletteDestination[] = [
+const shellPageDestinations: readonly PaletteDestination[] = [
   { id: "home", label: "Home", href: "/" },
-  { id: "section-sections", label: "Sections", href: "/#sections" },
-  { id: "section-showcase", label: "Showcase", href: "/#showcase" },
-  { id: "section-about-atrium", label: "About Atrium", href: "/#about-atrium" },
   { id: "page-about", label: "About page", href: "/about" },
   { id: "page-catalog", label: "Catalog", href: "/catalog" },
 ];
 
+const landingSectionDestinations: readonly PaletteDestination[] =
+  LANDING_SECTIONS.map((section) => ({
+    id: `section-${section.id}`,
+    label: `${section.label} section`,
+    href: `/#${section.id}`,
+  }));
+
 export function buildShellCommandPaletteDestinations(): PaletteDestination[] {
   return deduplicateDestinationsByHref([
-    ...shellNavigationDestinations,
+    ...shellPageDestinations,
+    ...landingSectionDestinations,
     ...buildCommandPaletteDestinations(),
   ]);
 }
