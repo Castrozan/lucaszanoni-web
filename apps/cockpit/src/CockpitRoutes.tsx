@@ -3,16 +3,12 @@ import { WorkspaceEmbeddedPage } from "@platform/workspace";
 import { CockpitDashboardPage } from "./pages/CockpitDashboardPage";
 import { CockpitJarvisPage } from "./pages/CockpitJarvisPage";
 import { CockpitUserPage } from "./pages/CockpitUserPage";
-import { useCockpitWorkspace } from "./tmux-mirror/cockpit-workspace-context";
-import { CockpitTmuxMirrorPage } from "./tmux-mirror/CockpitTmuxMirrorPage";
+import { useCockpitWorkspace } from "./workspace/cockpit-workspace-context";
+import { CockpitTerminalPage } from "./workspace/CockpitTerminalPage";
 
 function CockpitTerminalRoute() {
   const cockpitWorkspace = useCockpitWorkspace();
-  return cockpitWorkspace ? (
-    <CockpitTmuxMirrorPage />
-  ) : (
-    <WorkspaceEmbeddedPage />
-  );
+  return cockpitWorkspace ? <CockpitTerminalPage /> : <WorkspaceEmbeddedPage />;
 }
 
 export function CockpitRoutes() {

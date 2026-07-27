@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { CockpitKeybinds } from "../navigation/CockpitKeybinds";
 import { CommandPalette, useCommandPalette } from "@platform/design-system";
 import { buildNavigationCommands } from "../command-palette/cockpit-commands";
-import { useCockpitWorkspace } from "../tmux-mirror/cockpit-workspace-context";
+import { useCockpitWorkspace } from "../workspace/cockpit-workspace-context";
 import {
-  buildCockpitMirrorMachineCommands,
-  buildCockpitMirrorSessionCommands,
-} from "../tmux-mirror/cockpit-mirror-palette-commands";
+  buildCockpitWorkspaceMachineCommands,
+  buildCockpitWorkspaceSessionCommands,
+} from "../workspace/cockpit-workspace-palette-commands";
 
 export interface CockpitShellProps {
   readonly children: ReactNode;
@@ -21,8 +21,10 @@ export function CockpitShell({ children }: CockpitShellProps) {
       cockpitWorkspace
         ? [
             ...buildNavigationCommands(navigate),
-            ...buildCockpitMirrorSessionCommands(cockpitWorkspace.controller),
-            ...buildCockpitMirrorMachineCommands(
+            ...buildCockpitWorkspaceSessionCommands(
+              cockpitWorkspace.controller,
+            ),
+            ...buildCockpitWorkspaceMachineCommands(
               cockpitWorkspace.machines,
               cockpitWorkspace.activeMachine?.key ?? null,
               cockpitWorkspace.selectMachine,

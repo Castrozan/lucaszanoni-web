@@ -12,8 +12,8 @@ import {
   type CockpitComputePort,
   type CockpitWorkspaceSession,
 } from "@platform/workspace";
-import { CockpitWorkspaceProvider } from "../src/tmux-mirror/cockpit-workspace-context";
-import { CockpitStatusBar } from "../src/tmux-mirror/CockpitStatusBar";
+import { CockpitWorkspaceProvider } from "../src/workspace/cockpit-workspace-context";
+import { CockpitStatusBar } from "../src/workspace/CockpitStatusBar";
 
 afterEach(cleanup);
 
@@ -48,7 +48,6 @@ function renderCockpitStatusBar(selectCalls: Array<[string, string]>) {
     <ThemeProvider>
       <KeybindProvider>
         <CockpitWorkspaceProvider
-          enabled
           createComputeForMachine={() => seededCompute(selectCalls)}
         >
           <CockpitStatusBar />
@@ -58,7 +57,7 @@ function renderCockpitStatusBar(selectCalls: Array<[string, string]>) {
   );
 }
 
-describe("CockpitStatusBar reflects the live tmux session inventory", () => {
+describe("CockpitStatusBar reflects the live herdr workspace inventory", () => {
   it("shows the active session label and its windows from the bridge", async () => {
     renderCockpitStatusBar([]);
 
@@ -69,7 +68,7 @@ describe("CockpitStatusBar reflects the live tmux session inventory", () => {
     expect(screen.getByRole("button", { name: "2:codex" })).toBeTruthy();
   });
 
-  it("selects a tmux window on the bridge when its tab is clicked", async () => {
+  it("selects a herdr window on the bridge when its tab is clicked", async () => {
     const selectCalls: Array<[string, string]> = [];
     renderCockpitStatusBar(selectCalls);
 

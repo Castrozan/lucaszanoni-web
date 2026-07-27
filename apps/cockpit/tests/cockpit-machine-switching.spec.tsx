@@ -15,7 +15,7 @@ import {
 import {
   CockpitWorkspaceProvider,
   useCockpitWorkspace,
-} from "../src/tmux-mirror/cockpit-workspace-context";
+} from "../src/workspace/cockpit-workspace-context";
 
 afterEach(cleanup);
 
@@ -74,7 +74,6 @@ describe("cockpit machine switching re-points the live controller", () => {
   it("loads the chosen machine's sessions when the machine changes", async () => {
     render(
       <CockpitWorkspaceProvider
-        enabled
         machines={machines}
         createComputeForMachine={computeForMachine}
       >

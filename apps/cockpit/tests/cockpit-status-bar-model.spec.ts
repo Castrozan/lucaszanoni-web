@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { buildCockpitStatusBarModel } from "../src/tmux-mirror/cockpit-status-bar-model";
+import { buildCockpitStatusBarModel } from "../src/workspace/cockpit-status-bar-model";
 import type { WorkspaceRegistryState } from "@platform/workspace";
 
 const liveState: WorkspaceRegistryState = {

@@ -4,8 +4,8 @@ import { ThemeProvider, KeybindProvider } from "@platform/design-system";
 import { COCKPIT_MOUNT_PATH } from "@platform/config";
 import { CockpitShell } from "./layout/CockpitShell";
 import { CockpitRoutes } from "./CockpitRoutes";
-import { CockpitWorkspaceProvider } from "./tmux-mirror/cockpit-workspace-context";
-import { CockpitStatusBar } from "./tmux-mirror/CockpitStatusBar";
+import { CockpitWorkspaceProvider } from "./workspace/cockpit-workspace-context";
+import { CockpitStatusBar } from "./workspace/CockpitStatusBar";
 
 const cockpitQueryClient = new QueryClient();
 

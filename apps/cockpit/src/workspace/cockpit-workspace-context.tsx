@@ -13,7 +13,6 @@ import {
   type CockpitWorkspaceMachine,
   type WorkspaceController,
 } from "@platform/workspace";
-import { isCockpitTmuxMirrorEnabled } from "./cockpit-tmux-mirror-flag";
 
 export interface CockpitWorkspaceValue {
   readonly controller: WorkspaceController;
@@ -33,7 +32,6 @@ export function useCockpitWorkspace(): CockpitWorkspaceValue | null {
 
 export interface CockpitWorkspaceProviderProps {
   readonly children: ReactNode;
-  readonly enabled?: boolean;
   readonly storage?: Storage;
   readonly machines?: readonly CockpitWorkspaceMachine[];
   readonly createComputeForMachine?: typeof resolveWorkspaceComputeForMachine;
@@ -41,34 +39,10 @@ export interface CockpitWorkspaceProviderProps {
 
 export function CockpitWorkspaceProvider({
   children,
-  enabled = isCockpitTmuxMirrorEnabled(),
-  ...liveOptions
-}: CockpitWorkspaceProviderProps) {
-  if (!enabled) {
-    return (
-      <CockpitWorkspaceContext.Provider value={null}>
-        {children}
-      </CockpitWorkspaceContext.Provider>
-    );
-  }
-  return (
-    <CockpitWorkspaceLiveProvider {...liveOptions}>
-      {children}
-    </CockpitWorkspaceLiveProvider>
-  );
-}
-
-type CockpitWorkspaceLiveProviderProps = Omit<
-  CockpitWorkspaceProviderProps,
-  "enabled"
->;
-
-function CockpitWorkspaceLiveProvider({
-  children,
   storage,
   machines = resolveCockpitWorkspaceMachines(),
   createComputeForMachine = resolveWorkspaceComputeForMachine,
-}: CockpitWorkspaceLiveProviderProps) {
+}: CockpitWorkspaceProviderProps) {
   const [activeMachineKey, setActiveMachineKey] = useState<string | null>(null);
   const activeMachine = resolveActiveCockpitWorkspaceMachine(
     machines,
