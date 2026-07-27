@@ -9,6 +9,7 @@ import {
 import { DailyTokensChart, useUsageViewModel } from "@platform/usage-insights";
 import { useOwnerAccessIdentity } from "../identity/use-owner-access-identity";
 import { cockpitQuickAccessBookmarks } from "../layout/cockpit-quick-access-bookmarks";
+import { CockpitQuickAccessTile } from "../layout/CockpitQuickAccessTile";
 
 export function CockpitDashboardPage() {
   const ownerAccessIdentity = useOwnerAccessIdentity();
@@ -27,7 +28,6 @@ export function CockpitDashboardPage() {
         </h1>
         <p className="m-0 max-w-[60ch] font-mono text-[13px] leading-[1.6] text-muted-foreground">
           One edge, your apps. Quick access below, then live usage and data.
-          Leader 2 for the terminal.
         </p>
       </header>
 
@@ -36,21 +36,7 @@ export function CockpitDashboardPage() {
         className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))]"
       >
         {cockpitQuickAccessBookmarks.map((bookmark) => (
-          <a
-            key={bookmark.id}
-            href={bookmark.href}
-            {...(bookmark.opensInNewTab
-              ? { target: "_blank", rel: "noreferrer" }
-              : {})}
-            className="block rounded-lg border border-border bg-surface px-5 py-4 text-inherit no-underline transition-colors hover:border-primary"
-          >
-            <div className="text-[1.05rem] font-semibold text-primary">
-              {bookmark.label}
-            </div>
-            <div className="mt-1.5 text-sm text-muted-foreground">
-              {bookmark.description}
-            </div>
-          </a>
+          <CockpitQuickAccessTile key={bookmark.id} bookmark={bookmark} />
         ))}
       </section>
 
