@@ -13,13 +13,14 @@ describe("buildShellCommandPaletteDestinations", () => {
     expect(hrefs).toContain("/cockpit/");
   });
 
-  it("offers every landing section the status bar numbers", () => {
+  it("offers paths only, leaving the landing sections to the status bar numbers", () => {
     const hrefs = buildShellCommandPaletteDestinations().map(
       (destination) => destination.href,
     );
     for (const section of LANDING_SECTIONS) {
-      expect(hrefs).toContain(`/#${section.id}`);
+      expect(hrefs).not.toContain(`/#${section.id}`);
     }
+    expect(hrefs.filter((href) => href.includes("#"))).toEqual([]);
   });
 
   it("keeps a single home entry after merging with the universal set", () => {
