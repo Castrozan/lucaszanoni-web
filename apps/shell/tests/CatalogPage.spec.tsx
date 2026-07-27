@@ -34,4 +34,11 @@ describe("CatalogPage", () => {
     expect(liveHrefs).toContain("/dynamic-ia-canvas/");
     expect(liveHrefs).toContain("/dynamic-ia-interfaces/");
   });
+
+  it("renders exactly one status bar", () => {
+    renderCatalog();
+    expect(
+      screen.getAllByRole("contentinfo", { name: "Status bar" }),
+    ).toHaveLength(1);
+  });
 });

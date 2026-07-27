@@ -27,6 +27,11 @@ describe("buildLandingStatusBarModel", () => {
     }
   });
 
+  it("builds exactly one window per entry in LANDING_SECTIONS", () => {
+    const model = buildLandingStatusBarModel(HERO_SECTION_ID);
+    expect(model.windows).toHaveLength(LANDING_SECTIONS.length);
+  });
+
   it("flags exactly the window matching the active section id as active", () => {
     const model = buildLandingStatusBarModel(COCKPIT_SECTION_ID);
     const activeWindows = model.windows.filter(
