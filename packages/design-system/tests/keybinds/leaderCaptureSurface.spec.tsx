@@ -22,6 +22,13 @@ interface SurfaceHandles {
   readonly runBareKey: () => void;
 }
 
+function swallowEveryKeyDown(element: HTMLTextAreaElement | null) {
+  element?.addEventListener("keydown", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+}
+
 function TerminalSurface({ runLeaderSequence, runBareKey }: SurfaceHandles) {
   useKeybind({
     id: "test.leader.sequence",
@@ -37,7 +44,7 @@ function TerminalSurface({ runLeaderSequence, runBareKey }: SurfaceHandles) {
   });
   return (
     <div {...{ [LEADER_CAPTURE_SURFACE_ATTRIBUTE]: "" }}>
-      <textarea aria-label="Terminal input" />
+      <textarea aria-label="Terminal input" ref={swallowEveryKeyDown} />
     </div>
   );
 }
@@ -58,10 +65,14 @@ function PlainInputSurface({ runLeaderSequence, runBareKey }: SurfaceHandles) {
   return <textarea aria-label="Message input" />;
 }
 
+function pressOnFocusedElement(key: string, ctrlKey = false) {
+  fireEvent.keyDown(document.activeElement ?? window, { key, ctrlKey });
+}
+
 function pressLeaderGoToJarvis() {
-  fireEvent.keyDown(window, { key: "b", ctrlKey: true });
-  fireEvent.keyDown(window, { key: "g" });
-  fireEvent.keyDown(window, { key: "j" });
+  pressOnFocusedElement("b", true);
+  pressOnFocusedElement("g");
+  pressOnFocusedElement("j");
 }
 
 function renderSurface(
@@ -90,7 +101,7 @@ describe("a leader-capturing surface", () => {
 
   it("leaves a bare key to the terminal", () => {
     const handles = renderSurface(TerminalSurface, "Terminal input");
-    fireEvent.keyDown(window, { key: "/" });
+    pressOnFocusedElement("/");
     expect(handles.runBareKey).not.toHaveBeenCalled();
   });
 

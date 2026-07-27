@@ -13,6 +13,11 @@ import type { KeybindRegistration } from "./keybindContext";
 
 const SEQUENCE_RESET_MS = 1500;
 
+function claimEvent(event: KeyboardEvent): void {
+  event.preventDefault();
+  event.stopPropagation();
+}
+
 function bindingSurvivesTextInput(binding: ResolvedKeybind): boolean {
   if (binding.allowInInput) {
     return true;
@@ -53,13 +58,13 @@ export function useKeybindSequenceListener(
         result = matchPendingSequence(candidate, candidateBindings);
       }
       if (result.type === "exact") {
-        event.preventDefault();
+        claimEvent(event);
         clearPending();
         registryReference.current.get(result.id)?.run();
         return;
       }
       if (result.type === "prefix") {
-        event.preventDefault();
+        claimEvent(event);
         if (pending.length > 0 && sameChordSequence(candidate, pending)) {
           clearPending();
           return;
@@ -74,9 +79,9 @@ export function useKeybindSequenceListener(
       }
       clearPending();
     }
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown, true);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown, true);
       clearPending();
     };
   }, [resolvedBindings]);

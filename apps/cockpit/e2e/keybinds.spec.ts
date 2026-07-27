@@ -57,18 +57,17 @@ test.describe("cockpit leader-key bindings", () => {
     await expect(commandPalette(page)).toBeVisible();
   });
 
-  test("the terminal view is escapable by keyboard while the terminal holds focus", async ({
+  test("a leader sequence escapes a terminal that holds focus", async ({
     page,
   }) => {
-    await pressCockpitLeaderChord(page);
-    await pressGoToViewKeys(page, "t");
-    await expect(page).toHaveURL(/\/cockpit\/terminal$/);
+    await gotoCockpit(page, cockpitJarvisPath);
+    await page.getByRole("textbox", { name: "Terminal input" }).focus();
     await expect(
       page.getByRole("textbox", { name: "Terminal input" }),
     ).toBeFocused();
     await pressCockpitLeaderChord(page);
-    await pressGoToViewKeys(page, "j");
-    await expect(page).toHaveURL(/\/cockpit\/jarvis$/);
+    await pressGoToViewKeys(page, "d");
+    await expect(page).toHaveURL(/\/cockpit\/$/);
   });
 
   test("escape while armed cancels the pending leader chord", async ({

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { act, cleanup, render } from "@testing-library/react";
+import { LEADER_CAPTURE_SURFACE_ATTRIBUTE } from "@platform/design-system";
 import { SessionTerminal } from "../../src/workspace/SessionTerminal";
 import type {
   SessionTerminalSocket,
@@ -155,6 +156,24 @@ describe("SessionTerminal drives a live cockpit session over the attach websocke
     expect(socket.controlMessages).toContain(
       '{"type":"resize","columns":120,"rows":32}',
     );
+  });
+
+  it("marks its surface as capturing leader sequences", () => {
+    const socket = createFakeSocketControl();
+    const terminal = createFakeTerminalControl();
+    const { getByLabelText } = render(
+      <SessionTerminal
+        endpoint={attachEndpoint}
+        createSocket={socket.factory}
+        createTerminal={terminal.factory}
+      />,
+    );
+
+    expect(
+      getByLabelText("Session terminal").hasAttribute(
+        LEADER_CAPTURE_SURFACE_ATTRIBUTE,
+      ),
+    ).toBe(true);
   });
 
   it("closes the socket and disposes the terminal on unmount", () => {
