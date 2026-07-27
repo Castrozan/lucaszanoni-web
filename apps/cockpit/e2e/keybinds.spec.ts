@@ -25,15 +25,30 @@ async function openCommandPaletteWithLeader(page: Page) {
   await expect(commandPalette(page)).toBeVisible();
 }
 
+async function pressGoToViewKeys(page: Page, viewLeaderKey: string) {
+  await page.keyboard.press("g");
+  await page.keyboard.press(viewLeaderKey);
+}
+
 test.describe("cockpit leader-key bindings", () => {
   test.beforeEach(async ({ page }) => {
     await gotoCockpit(page, cockpitDashboardPath);
   });
 
-  test("leader then a navigates to the jarvis view", async ({ page }) => {
+  test("leader then g then j navigates to the jarvis view", async ({
+    page,
+  }) => {
     await pressCockpitLeaderChord(page);
-    await page.keyboard.press("a");
+    await pressGoToViewKeys(page, "j");
     await expect(page).toHaveURL(/\/cockpit\/jarvis$/);
+  });
+
+  test("leader then g then t navigates to the terminal view", async ({
+    page,
+  }) => {
+    await pressCockpitLeaderChord(page);
+    await pressGoToViewKeys(page, "t");
+    await expect(page).toHaveURL(/\/cockpit\/terminal$/);
   });
 
   test("leader then k opens the command palette", async ({ page }) => {
@@ -47,7 +62,7 @@ test.describe("cockpit leader-key bindings", () => {
   }) => {
     await pressCockpitLeaderChord(page);
     await page.keyboard.press("Escape");
-    await page.keyboard.press("a");
+    await pressGoToViewKeys(page, "j");
     await expect(page).toHaveURL(/\/cockpit\/$/);
   });
 
@@ -56,7 +71,7 @@ test.describe("cockpit leader-key bindings", () => {
   }) => {
     await pressCockpitLeaderChord(page);
     await page.waitForTimeout(1700);
-    await page.keyboard.press("a");
+    await pressGoToViewKeys(page, "j");
     await expect(page).toHaveURL(/\/cockpit\/$/);
   });
 

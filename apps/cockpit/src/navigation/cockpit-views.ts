@@ -3,13 +3,38 @@ export interface CockpitView {
   readonly label: string;
   readonly path: string;
   readonly fillsViewport: boolean;
+  readonly leaderKey: string;
 }
 
 export const cockpitViews: readonly CockpitView[] = [
-  { id: "dashboard", label: "Dashboard", path: "/", fillsViewport: false },
-  { id: "terminal", label: "Terminal", path: "/terminal", fillsViewport: true },
-  { id: "jarvis", label: "Jarvis", path: "/jarvis", fillsViewport: false },
-  { id: "user", label: "User", path: "/user", fillsViewport: false },
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    path: "/",
+    fillsViewport: false,
+    leaderKey: "d",
+  },
+  {
+    id: "terminal",
+    label: "Terminal",
+    path: "/terminal",
+    fillsViewport: true,
+    leaderKey: "t",
+  },
+  {
+    id: "jarvis",
+    label: "Jarvis",
+    path: "/jarvis",
+    fillsViewport: false,
+    leaderKey: "j",
+  },
+  {
+    id: "user",
+    label: "User",
+    path: "/user",
+    fillsViewport: false,
+    leaderKey: "o",
+  },
 ];
 
 export function findCockpitViewByPath(path: string): CockpitView | null {

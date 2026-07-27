@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { buildKeybindNavigationActions } from "@platform/design-system";
 import {
   cockpitViews,
   findCockpitViewByPath,
@@ -44,5 +45,20 @@ describe("cockpitViews", () => {
   it("resolves a view from the path the router reports", () => {
     expect(findCockpitViewByPath("/terminal")?.id).toBe("terminal");
     expect(findCockpitViewByPath("/does-not-exist")).toBeNull();
+  });
+
+  it("gives every view its own go-to key", () => {
+    const leaderKeys = cockpitViews.map((view) => view.leaderKey);
+    expect(new Set(leaderKeys).size).toBe(leaderKeys.length);
+  });
+
+  it("takes no go-to key the platform navigation already claims", () => {
+    const platformGoToKeys = buildKeybindNavigationActions().map((action) =>
+      action.defaultBinding.replace("Leader g ", ""),
+    );
+    const collisions = cockpitViews
+      .map((view) => view.leaderKey)
+      .filter((leaderKey) => platformGoToKeys.includes(leaderKey));
+    expect(collisions).toEqual([]);
   });
 });
