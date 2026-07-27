@@ -11,6 +11,10 @@ import { AppStatusBar } from "../../src/status-bar/AppStatusBar";
 
 afterEach(cleanup);
 
+afterEach(() => {
+  window.history.pushState({}, "", "/");
+});
+
 function getAboutButton() {
   const windowsNav = screen.getByRole("navigation", { name: "Windows" });
   return within(windowsNav).getByRole("button", { name: /:About$/ });
@@ -57,5 +61,34 @@ describe("AppStatusBar", () => {
     expect(
       screen.queryByRole("region", { name: "About Dynamic IA Canvas" }),
     ).toBeNull();
+  });
+
+  it("renders the current app's own window as a button and closes the about panel when it is clicked", () => {
+    window.history.pushState(
+      {},
+      "",
+      findMicroFrontendRoute("dynamic-ia-canvas").mountPath,
+    );
+    render(<AppStatusBar appId="dynamic-ia-canvas" />);
+    fireEvent.click(getAboutButton());
+    expect(
+      screen.getByRole("region", { name: "About Dynamic IA Canvas" }),
+    ).toBeDefined();
+
+    const windowsNav = screen.getByRole("navigation", { name: "Windows" });
+    const currentAppWindowButton = within(windowsNav).getByRole("button", {
+      name: /:Dynamic IA Canvas$/,
+    });
+    expect(currentAppWindowButton.tagName).toBe("BUTTON");
+
+    fireEvent.click(currentAppWindowButton);
+    expect(
+      screen.queryByRole("region", { name: "About Dynamic IA Canvas" }),
+    ).toBeNull();
+  });
+
+  it("renders no keybind hint text since navigation keybinds are not registered and no KeybindProvider is in scope", () => {
+    render(<AppStatusBar appId="dynamic-ia-canvas" />);
+    expect(screen.queryByText(/help/i)).toBeNull();
   });
 });
