@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@platform/design-system";
 import { CockpitDashboardPage } from "../src/pages/CockpitDashboardPage";
@@ -17,7 +18,9 @@ function renderDashboard() {
   return render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <CockpitDashboardPage />
+        <MemoryRouter>
+          <CockpitDashboardPage />
+        </MemoryRouter>
       </ThemeProvider>
     </QueryClientProvider>,
   );
@@ -34,6 +37,17 @@ describe("CockpitDashboardPage", () => {
     renderDashboard();
     expect(screen.getByText("Claude usage")).toBeDefined();
     expect(screen.getByText("Reports")).toBeDefined();
+  });
+
+  it("keeps the agent terminal one click away now that it lost the index route", () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => new Promise(() => {})),
+    );
+    renderDashboard();
+    expect(
+      screen.getByRole("link", { name: /Terminal/ }).getAttribute("href"),
+    ).toBe("/terminal");
   });
 
   it("shows a neutral welcome and renders no owner email before identity resolves", () => {
