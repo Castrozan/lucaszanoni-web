@@ -31,4 +31,5 @@ export interface JarvisSessionTerminalView {
   terminalContainerRef: RefObject<HTMLDivElement | null>;
   voice: JarvisSessionVoiceView;
   focusTerminal: () => void;
+  sendOwnerKeystrokes: (bytes: Uint8Array) => void;
 }

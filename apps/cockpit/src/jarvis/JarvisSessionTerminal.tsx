@@ -6,6 +6,7 @@ import {
 import { resolveJarvisSessionEndpoint } from "./jarvis-session-config";
 import { type JarvisTerminalStatus } from "./jarvis-session-terminal-model";
 import {
+  useLiteralLeaderPrefixKeybind,
   type SessionTerminalEmulatorFactory,
   type SessionTerminalSocketFactory,
 } from "@platform/workspace";
@@ -43,6 +44,7 @@ export function JarvisSessionTerminal({
     disconnect,
     terminalContainerRef,
     focusTerminal,
+    sendOwnerKeystrokes,
     voice,
   } = useJarvisSessionTerminalView({
     endpoint: endpoint ?? null,
@@ -51,6 +53,8 @@ export function JarvisSessionTerminal({
     speechResolvers,
     speakDebounceMs,
   });
+
+  useLiteralLeaderPrefixKeybind(sendOwnerKeystrokes);
 
   const [isTerminalFocused, setIsTerminalFocused] = useState(false);
   useEffect(() => {
