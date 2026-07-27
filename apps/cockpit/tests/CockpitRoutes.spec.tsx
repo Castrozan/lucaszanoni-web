@@ -53,15 +53,15 @@ describe("CockpitRoutes", () => {
     ).toBeDefined();
   });
 
-  it("keeps the agent terminal reachable at /terminal", () => {
+  it("never falls the terminal route back to the workspace launcher", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() => new Promise(() => {})),
     );
     renderAtPath("/terminal");
     expect(
-      screen.getByRole("heading", { name: "Agent terminal" }),
-    ).toBeDefined();
+      screen.queryByRole("heading", { name: "Agent terminal" }),
+    ).toBeNull();
   });
 
   it("falls back unknown cockpit paths to the owner dashboard", () => {
