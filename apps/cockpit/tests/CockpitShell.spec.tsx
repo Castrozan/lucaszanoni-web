@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { ThemeProvider } from "@platform/design-system";
+import { KeybindProvider, ThemeProvider } from "@platform/design-system";
 import { CockpitShell } from "../src/layout/CockpitShell";
 
 afterEach(() => {
@@ -12,11 +12,13 @@ afterEach(() => {
 function renderShell(initialEntries: readonly string[] = ["/"]) {
   render(
     <ThemeProvider>
-      <MemoryRouter initialEntries={[...initialEntries]}>
-        <CockpitShell>
-          <div>main content</div>
-        </CockpitShell>
-      </MemoryRouter>
+      <KeybindProvider>
+        <MemoryRouter initialEntries={[...initialEntries]}>
+          <CockpitShell>
+            <div>main content</div>
+          </CockpitShell>
+        </MemoryRouter>
+      </KeybindProvider>
     </ThemeProvider>,
   );
 }

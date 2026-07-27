@@ -9,6 +9,10 @@ export interface KeyChord {
 
 const MODIFIER_EVENT_KEYS = new Set(["control", "shift", "alt", "meta"]);
 
+function shiftSelectsADifferentCharacter(key: string): boolean {
+  return !/^[a-z]$/.test(key);
+}
+
 export function chordFromKeyboardEvent(event: KeyboardEvent): KeyChord | null {
   const key = event.key.toLowerCase();
   if (MODIFIER_EVENT_KEYS.has(key)) {
@@ -58,7 +62,11 @@ export function eventChordMatchesBindingChord(
       return false;
     }
   }
-  if (bindingChord.shift && !eventChord.shift) {
+  if (shiftSelectsADifferentCharacter(bindingChord.key)) {
+    if (bindingChord.shift && !eventChord.shift) {
+      return false;
+    }
+  } else if (bindingChord.shift !== eventChord.shift) {
     return false;
   }
   if (bindingChord.alt !== eventChord.alt) {
