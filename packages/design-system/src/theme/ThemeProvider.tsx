@@ -5,6 +5,7 @@ import type { ThemeContextValue } from "./theme-context";
 import { THEME_PALETTES } from "./theme-tokens";
 import type { ThemeName } from "./theme-tokens";
 import { paletteToCssVariables } from "./theme-css-variables";
+import { useApplyThemeToDocumentRoot } from "./useApplyThemeToDocumentRoot";
 
 export interface ThemeProviderProps {
   readonly initialThemeName?: ThemeName;
@@ -23,6 +24,7 @@ export function ThemeProvider({
     () => ({ themeName, toggleTheme }),
     [themeName, toggleTheme],
   );
+  useApplyThemeToDocumentRoot(themeName);
   const rootStyle = {
     ...paletteToCssVariables(THEME_PALETTES[themeName]),
     background: "var(--ls-color-background)",

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@platform/design-system/selection-highlight.css";
 
 @theme {
   --color-background: #09090b;

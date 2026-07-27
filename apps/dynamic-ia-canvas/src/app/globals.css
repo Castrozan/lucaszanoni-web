@@ -1,1 +1,7 @@
 @import "tailwindcss";
+@import "@platform/design-system/selection-highlight.css";
+
+@theme {
+  --color-primary: var(--color-neutral-100);
+  --color-primary-foreground: var(--color-neutral-950);
+}
