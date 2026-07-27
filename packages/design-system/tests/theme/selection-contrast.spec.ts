@@ -5,6 +5,7 @@ import type { ThemeName } from "../../src/theme/theme-tokens";
 
 const MINIMUM_READABLE_CONTRAST_RATIO = 4.5;
 
+const selectionHighlightCss = inject("selectionHighlightCss");
 const tokenBridgeCss = inject("tokenBridgeCss");
 
 function parseDeclarationBlock(block: string): Map<string, string> {
@@ -41,7 +42,7 @@ interface SelectionTokens {
 function readSelectionTokens(css: string): SelectionTokens {
   const rule = /::selection\s*\{([^}]*)\}/.exec(css);
   if (rule === null || rule[1] === undefined) {
-    throw new Error("the token bridge declares no ::selection rule");
+    throw new Error("the design system declares no ::selection rule");
   }
   const declarations = parseDeclarationBlock(rule[1]);
   if (declarations.has("background")) {
@@ -55,6 +56,37 @@ function readSelectionTokens(css: string): SelectionTokens {
     ),
     colorToken: readCustomPropertyReference(declarations.get("color")),
   };
+}
+
+function readThemeTokenAliases(css: string): Map<string, string> {
+  const themeBlock = /@theme inline\s*\{([^}]*)\}/.exec(css);
+  if (themeBlock === null || themeBlock[1] === undefined) {
+    throw new Error("the token bridge declares no @theme inline block");
+  }
+  const aliases = new Map<string, string>();
+  for (const [token, value] of parseDeclarationBlock(themeBlock[1])) {
+    const alias = /^var\((--ls-[\w-]+)\)$/.exec(value);
+    if (alias !== null && alias[1] !== undefined) {
+      aliases.set(token, alias[1]);
+    }
+  }
+  return aliases;
+}
+
+function resolveTokenToPaletteColor(
+  token: string,
+  aliases: Map<string, string>,
+  paletteVariables: Record<string, string>,
+): string {
+  const paletteVariable = aliases.get(token);
+  if (paletteVariable === undefined) {
+    throw new Error(`the token bridge maps no palette colour onto ${token}`);
+  }
+  const color = paletteVariables[paletteVariable];
+  if (color === undefined) {
+    throw new Error(`the palette defines no ${paletteVariable}`);
+  }
+  return color;
 }
 
 function channelLuminance(hexColor: string, offset: number): number {
@@ -82,22 +114,30 @@ function contrastRatio(foreground: string, background: string): number {
 
 describe("selection highlight", () => {
   it("paints selected text with theme tokens instead of the system highlight", () => {
-    const selection = readSelectionTokens(tokenBridgeCss);
-    expect(selection.backgroundToken.startsWith("--ls-color-")).toBe(true);
-    expect(selection.colorToken.startsWith("--ls-color-")).toBe(true);
+    const selection = readSelectionTokens(selectionHighlightCss);
+    expect(selection.backgroundToken).toBe("--color-primary");
+    expect(selection.colorToken).toBe("--color-primary-foreground");
+  });
+
+  it("reaches every app that imports the token bridge", () => {
+    expect(tokenBridgeCss).toContain('@import "./selection-highlight.css"');
   });
 
   for (const themeName of Object.keys(THEME_PALETTES) as ThemeName[]) {
     it(`keeps selected text readable in the ${themeName} theme`, () => {
-      const selection = readSelectionTokens(tokenBridgeCss);
-      const variables = paletteToCssVariables(THEME_PALETTES[themeName]);
-      const background = variables[selection.backgroundToken];
-      const color = variables[selection.colorToken];
-      if (background === undefined || color === undefined) {
-        throw new Error(
-          `the ${themeName} palette defines no ${selection.backgroundToken} or ${selection.colorToken}`,
-        );
-      }
+      const selection = readSelectionTokens(selectionHighlightCss);
+      const aliases = readThemeTokenAliases(tokenBridgeCss);
+      const paletteVariables = paletteToCssVariables(THEME_PALETTES[themeName]);
+      const background = resolveTokenToPaletteColor(
+        selection.backgroundToken,
+        aliases,
+        paletteVariables,
+      );
+      const color = resolveTokenToPaletteColor(
+        selection.colorToken,
+        aliases,
+        paletteVariables,
+      );
       expect(contrastRatio(color, background)).toBeGreaterThanOrEqual(
         MINIMUM_READABLE_CONTRAST_RATIO,
       );

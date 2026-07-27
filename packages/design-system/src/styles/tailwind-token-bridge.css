@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./selection-highlight.css";
 
 @source "../";
 
@@ -47,10 +48,6 @@
 @layer base {
   * {
     border-color: var(--ls-color-border);
-  }
-  ::selection {
-    background-color: var(--ls-color-accent);
-    color: var(--ls-color-background);
   }
   code {
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;

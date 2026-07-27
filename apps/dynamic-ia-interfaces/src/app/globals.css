@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@platform/design-system/selection-highlight.css";
 
 @theme {
   --color-background: #09090b;
@@ -17,11 +18,4 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
-}
-
-@layer base {
-  ::selection {
-    background-color: var(--color-primary);
-    color: var(--color-primary-foreground);
-  }
 }
