@@ -1,18 +1,18 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { act, cleanup, renderHook } from "@testing-library/react";
-import {
-  useJarvisSessionTerminal,
-  type JarvisSessionSocket,
-  type JarvisSessionSocketFactory,
-  type JarvisSessionSocketHandlers,
-} from "../src/jarvis/use-jarvis-session-terminal";
+import type {
+  SessionTerminalSocket,
+  SessionTerminalSocketFactory,
+  SessionTerminalSocketHandlers,
+} from "@platform/workspace";
+import { useJarvisSessionTerminal } from "../src/jarvis/use-jarvis-session-terminal";
 
 afterEach(cleanup);
 
 interface FakeSocketControl {
-  factory: JarvisSessionSocketFactory;
+  factory: SessionTerminalSocketFactory;
   constructions: number;
-  handlers: JarvisSessionSocketHandlers | null;
+  handlers: SessionTerminalSocketHandlers | null;
   ownerKeystrokeFrames: Uint8Array[];
   controlMessages: string[];
   closeCount: number;
@@ -28,7 +28,7 @@ function createFakeSocketControl(): FakeSocketControl {
     factory: (_endpoint, handlers) => {
       control.constructions += 1;
       control.handlers = handlers;
-      const socket: JarvisSessionSocket = {
+      const socket: SessionTerminalSocket = {
         sendOwnerKeystrokes: (bytes) =>
           control.ownerKeystrokeFrames.push(bytes),
         sendControlMessage: (message) => control.controlMessages.push(message),

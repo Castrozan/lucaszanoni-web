@@ -1,16 +1,14 @@
 import type {
-  JarvisSessionSocket,
-  JarvisSessionSocketFactory,
-  JarvisSessionSocketHandlers,
-} from "../../src/jarvis/use-jarvis-session-terminal";
-import type {
-  JarvisTerminalEmulator,
-  JarvisTerminalEmulatorFactory,
-} from "../../src/jarvis/browser-terminal-emulator";
+  SessionTerminalEmulator,
+  SessionTerminalEmulatorFactory,
+  SessionTerminalSocket,
+  SessionTerminalSocketFactory,
+  SessionTerminalSocketHandlers,
+} from "@platform/workspace";
 
 export interface FakeSocketControl {
-  factory: JarvisSessionSocketFactory;
-  handlers: JarvisSessionSocketHandlers | null;
+  factory: SessionTerminalSocketFactory;
+  handlers: SessionTerminalSocketHandlers | null;
   ownerKeystrokeFrames: Uint8Array[];
   controlMessages: string[];
   closed: boolean;
@@ -24,13 +22,13 @@ export function createFakeSocketControl(): FakeSocketControl {
     closed: false,
     factory: (_endpoint, handlers) => {
       control.handlers = handlers;
-      const socket: JarvisSessionSocket = {
+      const socket: SessionTerminalSocket = {
         sendOwnerKeystrokes: (bytes) =>
           control.ownerKeystrokeFrames.push(bytes),
         sendControlMessage: (message) => control.controlMessages.push(message),
         close: () => {
           control.closed = true;
-          handlers.onClose("closed by client");
+          handlers.onClose?.("closed by client");
         },
       };
       return socket;
@@ -40,7 +38,7 @@ export function createFakeSocketControl(): FakeSocketControl {
 }
 
 export interface FakeEmulatorControl {
-  factory: JarvisTerminalEmulatorFactory;
+  factory: SessionTerminalEmulatorFactory;
   writtenOutput: Uint8Array[];
   ownerInputHandler: ((bytes: Uint8Array) => void) | null;
   windowSize: { columns: number; rows: number };
@@ -56,7 +54,7 @@ export function createFakeEmulatorControl(): FakeEmulatorControl {
     disposed: false,
     focusCount: 0,
     factory: () => {
-      const emulator: JarvisTerminalEmulator = {
+      const emulator: SessionTerminalEmulator = {
         attachTo: () => control.windowSize,
         writeOutputBytes: (bytes) => control.writtenOutput.push(bytes),
         onOwnerInput: (handler) => {

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useJarvisSessionTerminal } from "./use-jarvis-session-terminal";
 import {
-  createBrowserTerminalEmulator,
-  type JarvisTerminalEmulator,
-} from "./browser-terminal-emulator";
+  createBrowserSessionTerminalEmulator,
+  type SessionTerminalEmulator,
+} from "@platform/workspace";
 import { useJarvisSpeech } from "./use-jarvis-speech";
 import { useSpokenSessionOutput } from "./use-spoken-session-output";
 import { encodeSpokenSessionInput } from "./spoken-session-input";
@@ -21,12 +21,12 @@ export type {
 export function useJarvisSessionTerminalView({
   endpoint,
   createSocket,
-  createEmulator = createBrowserTerminalEmulator,
+  createEmulator = createBrowserSessionTerminalEmulator,
   speechResolvers,
   speakDebounceMs,
 }: JarvisSessionTerminalViewOptions): JarvisSessionTerminalView {
   const terminalContainerRef = useRef<HTMLDivElement | null>(null);
-  const emulatorRef = useRef<JarvisTerminalEmulator | null>(null);
+  const emulatorRef = useRef<SessionTerminalEmulator | null>(null);
   const ingestOutputBytesRef = useRef<((bytes: Uint8Array) => void) | null>(
     null,
   );

@@ -2,8 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { CockpitJarvisPage } from "../src/pages/CockpitJarvisPage";
 
-vi.mock("../src/jarvis/browser-terminal-emulator", () => ({
-  createBrowserTerminalEmulator: () => ({
+vi.mock("@platform/workspace", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@platform/workspace")>()),
+  createBrowserSessionTerminalEmulator: () => ({
     attachTo: () => ({ columns: 80, rows: 24 }),
     writeOutputBytes: () => {},
     onOwnerInput: () => {},

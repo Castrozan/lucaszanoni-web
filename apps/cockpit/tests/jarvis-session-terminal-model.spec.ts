@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  encodeResizeControlMessage,
   initialJarvisTerminalState,
   reduceJarvisTerminal,
 } from "../src/jarvis/jarvis-session-terminal-model";
@@ -32,20 +31,5 @@ describe("reduceJarvisTerminal", () => {
     });
     expect(errored.status).toBe("error");
     expect(errored.detail).toBe("error: connection error");
-  });
-});
-
-describe("encodeResizeControlMessage", () => {
-  it("encodes the window size as the bridge resize control frame", () => {
-    expect(encodeResizeControlMessage({ columns: 180, rows: 48 })).toBe(
-      '{"type":"resize","columns":180,"rows":48}',
-    );
-  });
-
-  it("round-trips back to the columns and rows the backend parses", () => {
-    const parsed = JSON.parse(
-      encodeResizeControlMessage({ columns: 100, rows: 30 }),
-    );
-    expect(parsed).toEqual({ type: "resize", columns: 100, rows: 30 });
   });
 });

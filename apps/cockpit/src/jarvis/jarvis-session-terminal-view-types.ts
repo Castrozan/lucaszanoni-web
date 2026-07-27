@@ -1,13 +1,15 @@
 import { type RefObject } from "react";
-import { type JarvisSessionSocketFactory } from "./use-jarvis-session-terminal";
-import { type JarvisTerminalEmulatorFactory } from "./browser-terminal-emulator";
+import {
+  type SessionTerminalEmulatorFactory,
+  type SessionTerminalSocketFactory,
+} from "@platform/workspace";
 import { type JarvisSpeechResolvers } from "./use-jarvis-speech";
 import { type JarvisTerminalStatus } from "./jarvis-session-terminal-model";
 
 export interface JarvisSessionTerminalViewOptions {
   endpoint: string | null;
-  createSocket?: JarvisSessionSocketFactory;
-  createEmulator?: JarvisTerminalEmulatorFactory;
+  createSocket?: SessionTerminalSocketFactory;
+  createEmulator?: SessionTerminalEmulatorFactory;
   speechResolvers?: JarvisSpeechResolvers;
   speakDebounceMs?: number;
 }

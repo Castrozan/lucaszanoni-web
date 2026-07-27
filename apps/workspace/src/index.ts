@@ -30,3 +30,16 @@ export {
   MachineSwitcher,
   type MachineSwitcherProps,
 } from "./workspace/MachineSwitcher";
+export {
+  connectSessionTerminalWebSocket,
+  encodeSessionTerminalResize,
+  type SessionTerminalSocket,
+  type SessionTerminalSocketFactory,
+  type SessionTerminalSocketHandlers,
+  type SessionTerminalWindowSize,
+} from "./workspace/session-terminal-socket";
+export {
+  createBrowserSessionTerminalEmulator,
+  type SessionTerminalEmulator,
+  type SessionTerminalEmulatorFactory,
+} from "./workspace/session-terminal-emulator";
