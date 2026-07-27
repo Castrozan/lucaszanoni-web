@@ -36,7 +36,7 @@ describe("CommandPalette", () => {
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
-  it("lists the shell sections, pages, and apps it is given", () => {
+  it("lists the shell pages and apps it is given", () => {
     renderPalette(
       <CommandPalette
         destinations={buildShellCommandPaletteDestinations()}
@@ -45,8 +45,7 @@ describe("CommandPalette", () => {
     );
     pressOpenShortcut();
     for (const label of [
-      "Cockpit section",
-      "Showcase section",
+      "Home",
       "About page",
       "Catalog",
       "Dynamic IA Canvas",
