@@ -4,7 +4,6 @@ import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@platform/design-system";
 import { CockpitRoutes } from "../src/CockpitRoutes";
-import { CockpitSessionsProvider } from "../src/sessions/cockpit-sessions-context";
 
 afterEach(() => {
   cleanup();
@@ -19,11 +18,9 @@ function renderAtPath(path: string) {
   return render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <CockpitSessionsProvider>
-          <MemoryRouter initialEntries={[path]}>
-            <CockpitRoutes />
-          </MemoryRouter>
-        </CockpitSessionsProvider>
+        <MemoryRouter initialEntries={[path]}>
+          <CockpitRoutes />
+        </MemoryRouter>
       </ThemeProvider>
     </QueryClientProvider>,
   );

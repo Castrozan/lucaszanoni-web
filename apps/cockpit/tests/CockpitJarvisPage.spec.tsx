@@ -1,8 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { CockpitJarvisPage } from "../src/pages/CockpitJarvisPage";
-import { CockpitSessionsProvider } from "../src/sessions/cockpit-sessions-context";
-import { createFakeStorage } from "./support/fake-web-storage";
 
 vi.mock("../src/jarvis/browser-terminal-emulator", () => ({
   createBrowserTerminalEmulator: () => ({
@@ -18,14 +16,7 @@ vi.mock("../src/jarvis/browser-terminal-emulator", () => ({
 afterEach(cleanup);
 
 function renderJarvisPage() {
-  render(
-    <CockpitSessionsProvider
-      initialSessions={[{ key: "global", label: "Jarvis" }]}
-      storage={createFakeStorage()}
-    >
-      <CockpitJarvisPage />
-    </CockpitSessionsProvider>,
-  );
+  render(<CockpitJarvisPage />);
 }
 
 describe("CockpitJarvisPage", () => {
@@ -34,6 +25,13 @@ describe("CockpitJarvisPage", () => {
     expect(
       screen.getByRole("region", { name: "Jarvis session terminal" }),
     ).toBeDefined();
+  });
+
+  it("renders without a cockpit session registry around it", () => {
+    renderJarvisPage();
+    expect(
+      screen.queryByRole("navigation", { name: "Cockpit sessions" }),
+    ).toBeNull();
   });
 
   it("switches to the conversation view with a message input for talking to Jarvis", () => {

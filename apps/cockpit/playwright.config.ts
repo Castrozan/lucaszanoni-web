@@ -25,8 +25,5 @@ export default defineConfig({
     url: `${cockpitBaseUrl}/cockpit/`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
-    env: {
-      VITE_COCKPIT_SESSIONS: "global:Jarvis,build:Build",
-    },
   },
 });

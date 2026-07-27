@@ -3,7 +3,6 @@ import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider, KeybindProvider } from "@platform/design-system";
 import { COCKPIT_MOUNT_PATH } from "@platform/config";
 import { CockpitShell } from "./layout/CockpitShell";
-import { CockpitSessionsProvider } from "./sessions/cockpit-sessions-context";
 import { CockpitRoutes } from "./CockpitRoutes";
 import { CockpitWorkspaceProvider } from "./tmux-mirror/cockpit-workspace-context";
 import { CockpitStatusBar } from "./tmux-mirror/CockpitStatusBar";
@@ -16,13 +15,11 @@ export function CockpitRoot() {
       <ThemeProvider>
         <KeybindProvider>
           <CockpitWorkspaceProvider>
-            <CockpitSessionsProvider>
-              <BrowserRouter basename={COCKPIT_MOUNT_PATH}>
-                <CockpitShell>
-                  <CockpitRoutes />
-                </CockpitShell>
-              </BrowserRouter>
-            </CockpitSessionsProvider>
+            <BrowserRouter basename={COCKPIT_MOUNT_PATH}>
+              <CockpitShell>
+                <CockpitRoutes />
+              </CockpitShell>
+            </BrowserRouter>
             <CockpitStatusBar />
           </CockpitWorkspaceProvider>
         </KeybindProvider>

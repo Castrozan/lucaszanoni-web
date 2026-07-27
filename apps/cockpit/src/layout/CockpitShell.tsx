@@ -4,11 +4,7 @@ import { useLeaderKeyNavigation } from "../navigation/use-leader-key-navigation"
 import { buildCockpitLeaderBindings } from "../navigation/leader-keymap";
 import { dispatchCockpitLeaderCommand } from "../navigation/cockpit-leader-dispatch";
 import { CommandPalette, useCommandPalette } from "@platform/design-system";
-import {
-  buildNavigationCommands,
-  buildSessionCommands,
-} from "../command-palette/cockpit-commands";
-import { useCockpitSessionsContext } from "../sessions/cockpit-sessions-context";
+import { buildNavigationCommands } from "../command-palette/cockpit-commands";
 import { useCockpitWorkspace } from "../tmux-mirror/cockpit-workspace-context";
 import {
   buildCockpitMirrorMachineCommands,
@@ -21,7 +17,6 @@ export interface CockpitShellProps {
 
 export function CockpitShell({ children }: CockpitShellProps) {
   const navigate = useNavigate();
-  const { sessions, selectSession } = useCockpitSessionsContext();
   const cockpitWorkspace = useCockpitWorkspace();
   const paletteCommands = useMemo(
     () =>
@@ -35,11 +30,8 @@ export function CockpitShell({ children }: CockpitShellProps) {
               cockpitWorkspace.selectMachine,
             ),
           ]
-        : [
-            ...buildNavigationCommands(navigate),
-            ...buildSessionCommands(sessions, selectSession),
-          ],
-    [navigate, sessions, selectSession, cockpitWorkspace],
+        : buildNavigationCommands(navigate),
+    [navigate, cockpitWorkspace],
   );
   const commandPalette = useCommandPalette(paletteCommands);
   const leaderBindings = useMemo(

@@ -8,8 +8,6 @@ export interface JarvisSessionTerminalViewOptions {
   endpoint: string | null;
   createSocket?: JarvisSessionSocketFactory;
   createEmulator?: JarvisTerminalEmulatorFactory;
-  onSelectSession?: (key: string) => void;
-  onListSessions?: () => void;
   speechResolvers?: JarvisSpeechResolvers;
   speakDebounceMs?: number;
 }
@@ -30,7 +28,5 @@ export interface JarvisSessionTerminalView {
   disconnect: () => void;
   terminalContainerRef: RefObject<HTMLDivElement | null>;
   voice: JarvisSessionVoiceView;
-  selectSession: (key: string) => void;
-  requestSessionList: () => void;
   focusTerminal: () => void;
 }

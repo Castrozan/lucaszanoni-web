@@ -8,10 +8,6 @@ import { useJarvisSpeech } from "./use-jarvis-speech";
 import { useSpokenSessionOutput } from "./use-spoken-session-output";
 import { encodeSpokenSessionInput } from "./spoken-session-input";
 import {
-  encodeSessionListCommand,
-  encodeSessionSwitchCommand,
-} from "../sessions/session-commands";
-import {
   type JarvisSessionTerminalView,
   type JarvisSessionTerminalViewOptions,
 } from "./jarvis-session-terminal-view-types";
@@ -26,8 +22,6 @@ export function useJarvisSessionTerminalView({
   endpoint,
   createSocket,
   createEmulator = createBrowserTerminalEmulator,
-  onSelectSession,
-  onListSessions,
   speechResolvers,
   speakDebounceMs,
 }: JarvisSessionTerminalViewOptions): JarvisSessionTerminalView {
@@ -132,19 +126,6 @@ export function useJarvisSessionTerminalView({
     emulatorRef.current?.focus();
   }, []);
 
-  const selectSession = useCallback(
-    (key: string) => {
-      sendOwnerKeystrokes(encodeSessionSwitchCommand(key));
-      onSelectSession?.(key);
-    },
-    [sendOwnerKeystrokes, onSelectSession],
-  );
-
-  const requestSessionList = useCallback(() => {
-    sendOwnerKeystrokes(encodeSessionListCommand());
-    onListSessions?.();
-  }, [sendOwnerKeystrokes, onListSessions]);
-
   return {
     status,
     detail,
@@ -160,7 +141,5 @@ export function useJarvisSessionTerminalView({
       spokenOutputMuted,
       toggleSpokenOutput,
     },
-    selectSession,
-    requestSessionList,
   };
 }
