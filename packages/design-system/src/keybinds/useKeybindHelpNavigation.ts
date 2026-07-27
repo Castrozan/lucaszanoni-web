@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 export interface KeybindHelpNavigation {
-  readonly query: string;
   readonly highlightedIndex: number;
-  readonly setQuery: (query: string) => void;
   readonly moveHighlight: (delta: number) => void;
   readonly highlightFirst: () => void;
   readonly highlightLast: () => void;
@@ -23,17 +21,11 @@ export function wrapHighlightIndex(
 export function useKeybindHelpNavigation(
   rowCount: number,
 ): KeybindHelpNavigation {
-  const [query, setQueryValue] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(0);
 
   useEffect(() => {
     setHighlightedIndex((current) => (current < rowCount ? current : 0));
   }, [rowCount]);
-
-  const setQuery = useCallback((nextQuery: string) => {
-    setQueryValue(nextQuery);
-    setHighlightedIndex(0);
-  }, []);
 
   const moveHighlight = useCallback(
     (delta: number) => {
@@ -52,9 +44,7 @@ export function useKeybindHelpNavigation(
   );
 
   return {
-    query,
     highlightedIndex,
-    setQuery,
     moveHighlight,
     highlightFirst,
     highlightLast,

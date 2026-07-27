@@ -23,9 +23,10 @@ export function KeybindHelpDialog({ registry }: KeybindHelpDialogProps) {
   const [rebindingActionId, setRebindingActionId] = useState<string | null>(
     null,
   );
+  const [query, setQuery] = useState("");
   const collisionsByBinding = countBindingCollisions(registry.bindings);
-  const navigation = useKeybindHelpNavigation(registry.bindings.length);
-  const rows = filterAndSortBindings(registry.bindings, navigation.query);
+  const rows = filterAndSortBindings(registry.bindings, query);
+  const navigation = useKeybindHelpNavigation(rows.length);
   const {
     highlightedItemRef,
     allowPointerHighlight,
@@ -84,9 +85,12 @@ export function KeybindHelpDialog({ registry }: KeybindHelpDialogProps) {
         type="text"
         aria-label="Search shortcuts"
         autoFocus
-        value={navigation.query}
+        value={query}
         placeholder="Filter shortcuts…"
-        onChange={(event) => navigation.setQuery(event.target.value)}
+        onChange={(event) => {
+          setQuery(event.target.value);
+          navigation.highlightFirst();
+        }}
         onKeyDown={handleSearchKeyDown}
         className="border-b border-border bg-transparent px-5 py-3 font-mono text-[13px] text-foreground outline-none placeholder:text-text-faint"
       />
