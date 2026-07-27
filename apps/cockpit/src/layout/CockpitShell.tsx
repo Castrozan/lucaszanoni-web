@@ -1,8 +1,6 @@
 import { useMemo, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLeaderKeyNavigation } from "../navigation/use-leader-key-navigation";
-import { buildCockpitLeaderBindings } from "../navigation/leader-keymap";
-import { dispatchCockpitLeaderCommand } from "../navigation/cockpit-leader-dispatch";
+import { CockpitKeybinds } from "../navigation/CockpitKeybinds";
 import { CommandPalette, useCommandPalette } from "@platform/design-system";
 import { buildNavigationCommands } from "../command-palette/cockpit-commands";
 import { useCockpitWorkspace } from "../tmux-mirror/cockpit-workspace-context";
@@ -34,28 +32,16 @@ export function CockpitShell({ children }: CockpitShellProps) {
     [navigate, cockpitWorkspace],
   );
   const commandPalette = useCommandPalette(paletteCommands);
-  const leaderBindings = useMemo(
-    () => buildCockpitLeaderBindings(cockpitWorkspace !== null),
-    [cockpitWorkspace],
-  );
-  useLeaderKeyNavigation({
-    bindings: leaderBindings,
-    onCommand: (command) =>
-      dispatchCockpitLeaderCommand(command, {
-        navigate,
-        openPalette: commandPalette.openPalette,
-        controller: cockpitWorkspace?.controller ?? null,
-        promptForSessionName: () =>
-          typeof window === "undefined"
-            ? null
-            : window.prompt("New session name"),
-      }),
-  });
   return (
     <div
       className="flex h-screen flex-col"
       style={{ paddingBottom: "var(--app-status-bar-height, 2rem)" }}
     >
+      <CockpitKeybinds
+        navigate={navigate}
+        openPalette={commandPalette.openPalette}
+        controller={cockpitWorkspace?.controller ?? null}
+      />
       <main className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-6">
         {children}
       </main>

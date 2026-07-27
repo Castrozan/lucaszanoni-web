@@ -13,5 +13,5 @@ export function CockpitStatusBar() {
       void cockpitWorkspace.controller.selectWindowOnHost(windowId);
     },
   );
-  return <BottomStatusBar model={model} registerNavigationKeybinds={false} />;
+  return <BottomStatusBar model={model} />;
 }

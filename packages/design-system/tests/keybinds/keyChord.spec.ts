@@ -65,4 +65,28 @@ describe("eventChordMatchesBindingChord", () => {
       eventChordMatchesBindingChord(eventChord({ key: "b" }), binding),
     ).toBe(false);
   });
+
+  it("keeps an unshifted letter binding off a shifted letter so Shift+s stays its own chord", () => {
+    expect(
+      eventChordMatchesBindingChord(
+        eventChord({ key: "s", shift: true }),
+        parseChordToken("s"),
+      ),
+    ).toBe(false);
+    expect(
+      eventChordMatchesBindingChord(
+        eventChord({ key: "s", shift: true }),
+        parseChordToken("Shift+s"),
+      ),
+    ).toBe(true);
+  });
+
+  it("still matches a symbol binding the keyboard only reaches with shift", () => {
+    expect(
+      eventChordMatchesBindingChord(
+        eventChord({ key: "?", shift: true }),
+        parseChordToken("?"),
+      ),
+    ).toBe(true);
+  });
 });
