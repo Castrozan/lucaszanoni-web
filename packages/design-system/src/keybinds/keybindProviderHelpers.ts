@@ -1,5 +1,7 @@
 import type { KeyChord } from "./keyChord";
 
+export const LEADER_CAPTURE_SURFACE_ATTRIBUTE = "data-keybind-leader-capture";
+
 export function activeElementAcceptsTextInput(): boolean {
   const element = document.activeElement as HTMLElement | null;
   if (!element) {
@@ -10,6 +12,11 @@ export function activeElementAcceptsTextInput(): boolean {
     element.tagName === "TEXTAREA" ||
     element.isContentEditable
   );
+}
+
+export function activeElementCapturesLeaderSequences(): boolean {
+  const element = document.activeElement as HTMLElement | null;
+  return Boolean(element?.closest(`[${LEADER_CAPTURE_SURFACE_ATTRIBUTE}]`));
 }
 
 export function sameChordSequence(

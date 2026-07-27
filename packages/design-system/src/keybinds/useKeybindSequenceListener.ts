@@ -6,11 +6,19 @@ import {
 } from "./keybindResolution";
 import {
   activeElementAcceptsTextInput,
+  activeElementCapturesLeaderSequences,
   sameChordSequence,
 } from "./keybindProviderHelpers";
 import type { KeybindRegistration } from "./keybindContext";
 
 const SEQUENCE_RESET_MS = 1500;
+
+function bindingSurvivesTextInput(binding: ResolvedKeybind): boolean {
+  if (binding.allowInInput) {
+    return true;
+  }
+  return binding.chords.length > 1 && activeElementCapturesLeaderSequences();
+}
 
 export function useKeybindSequenceListener(
   resolvedBindings: ResolvedKeybind[],
@@ -34,7 +42,9 @@ export function useKeybindSequenceListener(
         return;
       }
       const candidateBindings = activeElementAcceptsTextInput()
-        ? resolvedBindings.filter((binding) => binding.allowInInput)
+        ? resolvedBindings.filter((binding) =>
+            bindingSurvivesTextInput(binding),
+          )
         : resolvedBindings;
       let candidate = [...pending, chord];
       let result = matchPendingSequence(candidate, candidateBindings);
