@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+const SERVER_RENDERED_PATHNAME = "/";
+
+function subscribeToHistoryNavigation(onNavigate: () => void): () => void {
+  window.addEventListener("popstate", onNavigate);
+  return () => {
+    window.removeEventListener("popstate", onNavigate);
+  };
+}
 
 export function useCurrentPathname(): string {
-  const [pathname, setPathname] = useState("/");
-  useEffect(() => {
-    function syncPathname() {
-      setPathname(window.location.pathname);
-    }
-    syncPathname();
-    window.addEventListener("popstate", syncPathname);
-    return () => {
-      window.removeEventListener("popstate", syncPathname);
-    };
-  }, []);
-  return pathname;
+  return useSyncExternalStore(
+    subscribeToHistoryNavigation,
+    () => window.location.pathname,
+    () => SERVER_RENDERED_PATHNAME,
+  );
 }

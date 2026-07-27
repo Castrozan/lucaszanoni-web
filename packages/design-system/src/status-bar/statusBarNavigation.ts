@@ -3,14 +3,14 @@ import type { StatusBarWindowModel } from "./statusBarModel";
 export function activateStatusBarWindow(
   statusBarWindow: StatusBarWindowModel,
 ): void {
+  if (statusBarWindow.kind === "action") {
+    statusBarWindow.onSelect();
+    return;
+  }
   if (statusBarWindow.isActive) {
     return;
   }
-  if (statusBarWindow.kind === "link") {
-    window.location.assign(statusBarWindow.href);
-    return;
-  }
-  statusBarWindow.onSelect();
+  window.location.assign(statusBarWindow.href);
 }
 
 export function activateStatusBarWindowAtIndex(

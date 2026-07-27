@@ -95,7 +95,9 @@ export function BottomStatusBar({
             ),
           )}
         </nav>
-        <span style={hintStyle}>{leaderDisplay} · ? help</span>
+        {registry ? (
+          <span style={hintStyle}>{leaderDisplay} · ? help</span>
+        ) : null}
       </footer>
     </>
   );

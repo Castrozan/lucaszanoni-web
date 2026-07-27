@@ -22,10 +22,17 @@ export function AppStatusBar({ appId }: AppStatusBarProps) {
   const model: StatusBarModel = {
     sessionLabel: platformModel.sessionLabel,
     windows: [
-      ...platformModel.windows.map((platformWindow) => ({
-        ...platformWindow,
-        isActive: platformWindow.isActive && !isAboutOpen,
-      })),
+      ...platformModel.windows.map((platformWindow) =>
+        platformWindow.isActive
+          ? {
+              kind: "action" as const,
+              id: platformWindow.id,
+              label: platformWindow.label,
+              isActive: !isAboutOpen,
+              onSelect: () => setIsAboutOpen(false),
+            }
+          : platformWindow,
+      ),
       {
         kind: "action",
         id: `${appId}-about`,
@@ -41,7 +48,7 @@ export function AppStatusBar({ appId }: AppStatusBarProps) {
       {isAboutOpen ? (
         <AppAboutPanel route={route} onDismiss={() => setIsAboutOpen(false)} />
       ) : null}
-      <BottomStatusBar model={model} />
+      <BottomStatusBar model={model} registerNavigationKeybinds={false} />
     </>
   );
 }

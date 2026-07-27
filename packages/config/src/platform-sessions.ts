@@ -170,14 +170,24 @@ export function nextWindowIndex(
   windowCount: number,
   currentIndex: number,
 ): number {
-  return windowCount === 0 ? -1 : (currentIndex + 1) % windowCount;
+  if (windowCount === 0) {
+    return -1;
+  }
+  if (currentIndex < 0 || currentIndex >= windowCount) {
+    return 0;
+  }
+  return (currentIndex + 1) % windowCount;
 }
 
 export function previousWindowIndex(
   windowCount: number,
   currentIndex: number,
 ): number {
-  return windowCount === 0
-    ? -1
-    : (currentIndex - 1 + windowCount) % windowCount;
+  if (windowCount === 0) {
+    return -1;
+  }
+  if (currentIndex < 0 || currentIndex >= windowCount) {
+    return windowCount - 1;
+  }
+  return (currentIndex - 1 + windowCount) % windowCount;
 }

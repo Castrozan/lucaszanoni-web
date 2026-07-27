@@ -53,10 +53,10 @@ afterEach(() => {
 });
 
 describe("activateStatusBarWindow", () => {
-  it("does not run onSelect for an action window that is already active", () => {
+  it("runs onSelect for an action window that is already active", () => {
     const alreadyActiveActionWindow = buildActionWindow({ isActive: true });
     activateStatusBarWindow(alreadyActiveActionWindow);
-    expect(alreadyActiveActionWindow.onSelect).not.toHaveBeenCalled();
+    expect(alreadyActiveActionWindow.onSelect).toHaveBeenCalledOnce();
   });
 
   it("does not navigate for a link window that is already active", () => {
