@@ -71,6 +71,8 @@ export type {
   KeybindContextValue,
 } from "./keybinds/keybindContext";
 export type { KeybindBindingView } from "./keybinds/keybindViews";
+export type { KeybindNavigationAction } from "./keybinds/keybindNavigationActionList";
+export { buildKeybindNavigationActions } from "./keybinds/keybindNavigationActionList";
 export {
   DEFAULT_LEADER_BINDING,
   loadKeybindOverrides,

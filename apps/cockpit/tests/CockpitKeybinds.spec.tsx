@@ -53,11 +53,26 @@ function pressLeaderThen(key: string, options: { shift?: boolean } = {}) {
   fireEvent.keyDown(window, { key, shiftKey: Boolean(options.shift) });
 }
 
+function pressLeaderThenGoTo(key: string) {
+  fireEvent.keyDown(window, { key: "b", ctrlKey: true });
+  fireEvent.keyDown(window, { key: "g" });
+  fireEvent.keyDown(window, { key });
+}
+
 describe("CockpitKeybinds", () => {
-  it("routes to jarvis on the leader-then-a chord", () => {
-    const handles = renderCockpitKeybinds();
-    pressLeaderThen("a");
-    expect(handles.navigate).toHaveBeenCalledExactlyOnceWith("/jarvis");
+  it("reaches every cockpit view on its go-to chord", () => {
+    const routedPathByLeaderKey = [
+      ["d", "/"],
+      ["t", "/terminal"],
+      ["j", "/jarvis"],
+      ["o", "/user"],
+    ] as const;
+    for (const [leaderKey, routedPath] of routedPathByLeaderKey) {
+      const handles = renderCockpitKeybinds();
+      pressLeaderThenGoTo(leaderKey);
+      expect(handles.navigate).toHaveBeenCalledExactlyOnceWith(routedPath);
+      cleanup();
+    }
   });
 
   it("opens the command palette on the leader-then-k chord", () => {
@@ -102,7 +117,7 @@ describe("CockpitKeybinds", () => {
   it("still routes on the leader chord after an unbound key cancels the sequence", () => {
     const handles = renderCockpitKeybinds();
     pressLeaderThen("z");
-    pressLeaderThen("a");
+    pressLeaderThenGoTo("j");
     expect(handles.navigate).toHaveBeenCalledExactlyOnceWith("/jarvis");
   });
 });

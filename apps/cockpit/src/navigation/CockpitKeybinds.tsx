@@ -1,5 +1,7 @@
 import { useKeybind } from "@platform/design-system";
 import type { WorkspaceController } from "@platform/workspace";
+import { cockpitViews } from "./cockpit-views";
+import { CockpitViewKeybind } from "./CockpitViewKeybind";
 
 const DEFAULT_AGENT_WINDOW_DRIVER = "claude" as const;
 
@@ -26,24 +28,25 @@ export function CockpitKeybinds({
   promptForSessionName = promptForSessionNameInBrowser,
 }: CockpitKeybindsProps) {
   useKeybind({
-    id: "cockpit.view.jarvis",
-    label: "Jump to Jarvis",
-    defaultBinding: "Leader a",
-    run: () => navigate("/jarvis"),
-  });
-  useKeybind({
     id: "cockpit.palette",
     label: "Open the command palette",
     defaultBinding: "Leader k",
     run: openPalette,
   });
-  return controller ? (
-    <CockpitWorkspaceKeybinds
-      openPalette={openPalette}
-      controller={controller}
-      promptForSessionName={promptForSessionName}
-    />
-  ) : null;
+  return (
+    <>
+      {cockpitViews.map((view) => (
+        <CockpitViewKeybind key={view.id} view={view} navigate={navigate} />
+      ))}
+      {controller ? (
+        <CockpitWorkspaceKeybinds
+          openPalette={openPalette}
+          controller={controller}
+          promptForSessionName={promptForSessionName}
+        />
+      ) : null}
+    </>
+  );
 }
 
 interface CockpitWorkspaceKeybindsProps {
