@@ -14,6 +14,7 @@ async function fetchObjectListingPage(
     `https://storage.googleapis.com/storage/v1/b/${source.snapshotsBucket}/o`,
   );
   listUrl.searchParams.set("prefix", source.snapshotsObjectPrefix);
+  listUrl.searchParams.set("delimiter", "/");
   listUrl.searchParams.set("fields", "items(name),nextPageToken");
   if (pageToken) {
     listUrl.searchParams.set("pageToken", pageToken);
