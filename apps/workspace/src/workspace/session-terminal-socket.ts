@@ -6,6 +6,8 @@ export interface SessionTerminalWindowSize {
 export interface SessionTerminalSocketHandlers {
   onOpen(): void;
   onOutputBytes(bytes: Uint8Array): void;
+  onClose?(reason: string): void;
+  onError?(message: string): void;
 }
 
 export interface SessionTerminalSocket {
@@ -36,6 +38,9 @@ export const connectSessionTerminalWebSocket: SessionTerminalSocketFactory = (
       handlers.onOutputBytes(stringFrameEncoder.encode(data));
     }
   };
+  socket.onclose = (event) =>
+    handlers.onClose?.(event.reason || `code ${event.code}`);
+  socket.onerror = () => handlers.onError?.("connection error");
   return {
     sendOwnerKeystrokes: (bytes) => socket.send(bytes),
     sendControlMessage: (message) => socket.send(message),

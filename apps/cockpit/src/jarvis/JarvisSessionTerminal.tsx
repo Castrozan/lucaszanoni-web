@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { Button } from "@platform/design-system";
 import { resolveJarvisSessionEndpoint } from "./jarvis-session-config";
 import { type JarvisTerminalStatus } from "./jarvis-session-terminal-model";
-import { type JarvisSessionSocketFactory } from "./use-jarvis-session-terminal";
-import { type JarvisTerminalEmulatorFactory } from "./browser-terminal-emulator";
+import {
+  type SessionTerminalEmulatorFactory,
+  type SessionTerminalSocketFactory,
+} from "@platform/workspace";
 import { type JarvisSpeechResolvers } from "./use-jarvis-speech";
 import { SessionVoiceControl } from "./SessionVoiceControl";
 import { useJarvisSessionTerminalView } from "./use-jarvis-session-terminal-view";
@@ -18,8 +20,8 @@ const STATUS_DOT_CLASS: Record<JarvisTerminalStatus, string> = {
 
 export interface JarvisSessionTerminalProps {
   endpoint?: string | null;
-  createSocket?: JarvisSessionSocketFactory;
-  createEmulator?: JarvisTerminalEmulatorFactory;
+  createSocket?: SessionTerminalSocketFactory;
+  createEmulator?: SessionTerminalEmulatorFactory;
   speechResolvers?: JarvisSpeechResolvers;
   speakDebounceMs?: number;
 }

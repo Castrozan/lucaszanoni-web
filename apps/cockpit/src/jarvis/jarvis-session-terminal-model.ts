@@ -36,18 +36,3 @@ export function reduceJarvisTerminal(
       return { status: "error", detail: `error: ${event.message}` };
   }
 }
-
-export interface JarvisTerminalWindowSize {
-  readonly columns: number;
-  readonly rows: number;
-}
-
-export function encodeResizeControlMessage(
-  windowSize: JarvisTerminalWindowSize,
-): string {
-  return JSON.stringify({
-    type: "resize",
-    columns: windowSize.columns,
-    rows: windowSize.rows,
-  });
-}
