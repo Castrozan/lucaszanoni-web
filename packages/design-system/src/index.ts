@@ -71,6 +71,7 @@ export type {
   KeybindContextValue,
 } from "./keybinds/keybindContext";
 export type { KeybindBindingView } from "./keybinds/keybindViews";
+export { LEADER_CAPTURE_SURFACE_ATTRIBUTE } from "./keybinds/keybindProviderHelpers";
 export type { KeybindNavigationAction } from "./keybinds/keybindNavigationActionList";
 export { buildKeybindNavigationActions } from "./keybinds/keybindNavigationActionList";
 export {

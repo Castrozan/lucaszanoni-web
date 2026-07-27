@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { LEADER_CAPTURE_SURFACE_ATTRIBUTE } from "@platform/design-system";
 import {
   connectSessionTerminalWebSocket,
   encodeSessionTerminalResize,
@@ -75,6 +76,7 @@ export function SessionTerminal({
   return (
     <section
       aria-label="Session terminal"
+      {...{ [LEADER_CAPTURE_SURFACE_ATTRIBUTE]: "" }}
       className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background"
     >
       <div

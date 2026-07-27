@@ -6,6 +6,7 @@ import {
   render,
   screen,
 } from "@testing-library/react";
+import { LEADER_CAPTURE_SURFACE_ATTRIBUTE } from "@platform/design-system";
 import { JarvisSessionTerminal } from "../src/jarvis/JarvisSessionTerminal";
 import {
   createFakeEmulatorControl,
@@ -146,6 +147,24 @@ describe("JarvisSessionTerminal", () => {
 
     expect(socket.closed).toBe(true);
     expect(screen.getByText("closed")).toBeDefined();
+  });
+
+  it("marks its surface as capturing leader sequences once attached", () => {
+    const socket = createFakeSocketControl();
+    const emulator = createFakeEmulatorControl();
+    render(
+      <JarvisSessionTerminal
+        endpoint="ws://localhost:9999/session"
+        createSocket={socket.factory}
+        createEmulator={emulator.factory}
+      />,
+    );
+
+    expect(
+      screen
+        .getByRole("region", { name: "Jarvis session terminal" })
+        .hasAttribute(LEADER_CAPTURE_SURFACE_ATTRIBUTE),
+    ).toBe(true);
   });
 
   it("disposes the terminal emulator on unmount", () => {

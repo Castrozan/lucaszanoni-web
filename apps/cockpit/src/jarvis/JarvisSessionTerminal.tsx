@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { Button } from "@platform/design-system";
+import {
+  Button,
+  LEADER_CAPTURE_SURFACE_ATTRIBUTE,
+} from "@platform/design-system";
 import { resolveJarvisSessionEndpoint } from "./jarvis-session-config";
 import { type JarvisTerminalStatus } from "./jarvis-session-terminal-model";
 import {
@@ -91,6 +94,7 @@ export function JarvisSessionTerminal({
   return (
     <section
       aria-label="Jarvis session terminal"
+      {...{ [LEADER_CAPTURE_SURFACE_ATTRIBUTE]: "" }}
       className="flex flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background"
     >
       <SessionVoiceControl

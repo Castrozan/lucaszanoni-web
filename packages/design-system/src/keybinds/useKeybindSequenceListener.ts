@@ -6,11 +6,24 @@ import {
 } from "./keybindResolution";
 import {
   activeElementAcceptsTextInput,
+  activeElementCapturesLeaderSequences,
   sameChordSequence,
 } from "./keybindProviderHelpers";
 import type { KeybindRegistration } from "./keybindContext";
 
 const SEQUENCE_RESET_MS = 1500;
+
+function claimEvent(event: KeyboardEvent): void {
+  event.preventDefault();
+  event.stopPropagation();
+}
+
+function bindingSurvivesTextInput(binding: ResolvedKeybind): boolean {
+  if (binding.allowInInput) {
+    return true;
+  }
+  return binding.chords.length > 1 && activeElementCapturesLeaderSequences();
+}
 
 export function useKeybindSequenceListener(
   resolvedBindings: ResolvedKeybind[],
@@ -34,7 +47,9 @@ export function useKeybindSequenceListener(
         return;
       }
       const candidateBindings = activeElementAcceptsTextInput()
-        ? resolvedBindings.filter((binding) => binding.allowInInput)
+        ? resolvedBindings.filter((binding) =>
+            bindingSurvivesTextInput(binding),
+          )
         : resolvedBindings;
       let candidate = [...pending, chord];
       let result = matchPendingSequence(candidate, candidateBindings);
@@ -43,13 +58,13 @@ export function useKeybindSequenceListener(
         result = matchPendingSequence(candidate, candidateBindings);
       }
       if (result.type === "exact") {
-        event.preventDefault();
+        claimEvent(event);
         clearPending();
         registryReference.current.get(result.id)?.run();
         return;
       }
       if (result.type === "prefix") {
-        event.preventDefault();
+        claimEvent(event);
         if (pending.length > 0 && sameChordSequence(candidate, pending)) {
           clearPending();
           return;
@@ -64,9 +79,9 @@ export function useKeybindSequenceListener(
       }
       clearPending();
     }
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown, true);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown, true);
       clearPending();
     };
   }, [resolvedBindings]);
