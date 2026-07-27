@@ -35,23 +35,19 @@ describe("CockpitJarvisPage multi-machine routing", () => {
   it("hides the machine switcher when no machines are configured", () => {
     renderJarvisPage();
     fireEvent.click(screen.getByRole("tab", { name: "Terminal" }));
-    expect(
-      screen.queryByRole("navigation", { name: "Cockpit machines" }),
-    ).toBeNull();
+    expect(screen.queryByRole("navigation", { name: "Machines" })).toBeNull();
   });
 
   it("lists the configured machines and routes selection in the internal view", () => {
     vi.stubEnv(
-      "VITE_COCKPIT_MACHINES",
+      "VITE_COCKPIT_WORKSPACE_MACHINES",
       "chise:Chise:ws://machine-a.example/session,air:Air:ws://machine-b.example/session",
     );
 
     renderJarvisPage();
     fireEvent.click(screen.getByRole("tab", { name: "Terminal" }));
 
-    expect(
-      screen.getByRole("navigation", { name: "Cockpit machines" }),
-    ).toBeDefined();
+    expect(screen.getByRole("navigation", { name: "Machines" })).toBeDefined();
     expect(
       screen
         .getByRole("button", { name: "Chise" })

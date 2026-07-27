@@ -118,7 +118,6 @@ jobs:
           build_profile: ${{ matrix.build_profile }}
           COCKPIT_GITLAB_BASE_URL: ${{ secrets.COCKPIT_GITLAB_BASE_URL }}
           COCKPIT_GITLAB_PROJECT: ${{ secrets.COCKPIT_GITLAB_PROJECT }}
-          COCKPIT_MACHINES: ${{ secrets.COCKPIT_MACHINES }}
           COCKPIT_REAL_COMPUTE: ${{ secrets.COCKPIT_REAL_COMPUTE }}
           COCKPIT_WORKSPACE_MACHINES: ${{ secrets.COCKPIT_WORKSPACE_MACHINES }}
           ARR_STACK_HOST: ${{ secrets.ARR_STACK_HOST }}
@@ -139,7 +138,6 @@ jobs:
             --build-arg ATRIUM_BUILD_SHA="${{ github.sha }}" \
             --build-arg VITE_COCKPIT_GITLAB_BASE_URL="${COCKPIT_GITLAB_BASE_URL}" \
             --build-arg VITE_COCKPIT_GITLAB_PROJECT="${COCKPIT_GITLAB_PROJECT}" \
-            --build-arg VITE_COCKPIT_MACHINES="${COCKPIT_MACHINES}" \
             --build-arg VITE_COCKPIT_REAL_COMPUTE="${COCKPIT_REAL_COMPUTE}" \
             --build-arg VITE_COCKPIT_WORKSPACE_MACHINES="${COCKPIT_WORKSPACE_MACHINES}" \
             --build-arg VITE_ARR_STACK_HOST="${ARR_STACK_HOST}" \

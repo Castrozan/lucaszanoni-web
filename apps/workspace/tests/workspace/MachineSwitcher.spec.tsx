@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { WorkspaceMachineSwitcher } from "../../src/workspace/WorkspaceMachineSwitcher";
+import { MachineSwitcher } from "../../src/workspace/MachineSwitcher";
 import type { CockpitWorkspaceMachine } from "../../src/workspace/cockpit-machine-endpoints";
 
 afterEach(cleanup);
@@ -20,10 +20,10 @@ const twoMachines: readonly CockpitWorkspaceMachine[] = [
   kiraMachine,
 ];
 
-describe("WorkspaceMachineSwitcher routes the terminal across machines only when there is a choice", () => {
+describe("MachineSwitcher routes the terminal across machines only when there is a choice", () => {
   it("renders nothing when there is a single machine endpoint", () => {
     const { container } = render(
-      <WorkspaceMachineSwitcher
+      <MachineSwitcher
         machines={[chiseMachine]}
         activeKey="chise"
         onSelect={vi.fn()}
@@ -34,7 +34,7 @@ describe("WorkspaceMachineSwitcher routes the terminal across machines only when
 
   it("renders nothing when there are no machine endpoints", () => {
     const { container } = render(
-      <WorkspaceMachineSwitcher
+      <MachineSwitcher
         machines={[]}
         activeKey={null}
         onSelect={vi.fn()}
@@ -45,14 +45,14 @@ describe("WorkspaceMachineSwitcher routes the terminal across machines only when
 
   it("renders a control per machine and marks the active one when more than one exists", () => {
     render(
-      <WorkspaceMachineSwitcher
+      <MachineSwitcher
         machines={twoMachines}
         activeKey="kira"
         onSelect={vi.fn()}
       />,
     );
     expect(
-      screen.getByRole("navigation", { name: "Workspace machines" }),
+      screen.getByRole("navigation", { name: "Machines" }),
     ).toBeDefined();
     const chise = screen.getByRole("button", { name: "Chise" });
     const kira = screen.getByRole("button", { name: "Kira" });
@@ -63,7 +63,7 @@ describe("WorkspaceMachineSwitcher routes the terminal across machines only when
   it("invokes onSelect with the machine key when a control is activated", () => {
     const onSelect = vi.fn();
     render(
-      <WorkspaceMachineSwitcher
+      <MachineSwitcher
         machines={twoMachines}
         activeKey="chise"
         onSelect={onSelect}

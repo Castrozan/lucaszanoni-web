@@ -8,8 +8,8 @@ export const cockpitForwardedBuildArgSpecs = [
     secretName: "COCKPIT_GITLAB_PROJECT",
   },
   {
-    buildArg: "VITE_COCKPIT_MACHINES",
-    secretName: "COCKPIT_MACHINES",
+    buildArg: "VITE_COCKPIT_WORKSPACE_MACHINES",
+    secretName: "COCKPIT_WORKSPACE_MACHINES",
   },
 ];
 

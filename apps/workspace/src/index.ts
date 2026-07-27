@@ -26,3 +26,7 @@ export type {
   CockpitComputePort,
   ComputeWindowSpec,
 } from "./workspace/compute-port";
+export {
+  MachineSwitcher,
+  type MachineSwitcherProps,
+} from "./workspace/MachineSwitcher";
