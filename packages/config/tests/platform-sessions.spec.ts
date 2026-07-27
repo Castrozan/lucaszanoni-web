@@ -21,8 +21,8 @@ describe("buildPlatformSessions", () => {
   it("lists declared windows plus mountPath children for a session", () => {
     const cockpit = sessions.find((session) => session.id === "cockpit");
     expect(cockpit?.windows.map((window) => window.id)).toEqual([
-      "cockpit",
       "cockpit-dashboard",
+      "cockpit-terminal",
       "cockpit-jarvis",
       "cockpit-user",
       "jarvis-session",
@@ -54,7 +54,7 @@ describe("findActiveLocation", () => {
   it("matches the deepest session by mountPath prefix", () => {
     const location = findActiveLocation(sessions, "/cockpit/something");
     expect(location?.session.id).toBe("cockpit");
-    expect(location?.window.id).toBe("cockpit");
+    expect(location?.window.id).toBe("cockpit-dashboard");
   });
 
   it("matches the child window when the pathname is under it", () => {
@@ -64,8 +64,8 @@ describe("findActiveLocation", () => {
   });
 
   it("matches a declared window subpage", () => {
-    const cockpitDashboard = findActiveLocation(sessions, "/cockpit/dashboard");
-    expect(cockpitDashboard?.window.id).toBe("cockpit-dashboard");
+    const cockpitTerminal = findActiveLocation(sessions, "/cockpit/terminal");
+    expect(cockpitTerminal?.window.id).toBe("cockpit-terminal");
     const reportsQuality = findActiveLocation(
       sessions,
       "/engineering/dotfiles/reports/quality",

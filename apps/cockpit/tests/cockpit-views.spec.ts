@@ -2,14 +2,18 @@ import { describe, expect, it } from "vitest";
 import { cockpitViews } from "../src/navigation/cockpit-views";
 
 describe("cockpitViews", () => {
-  it("registers the workspace agent terminal at the cockpit index path", () => {
-    const workspaceView = cockpitViews.find((view) => view.id === "workspace");
-    expect(workspaceView?.path).toBe("/");
+  it("registers the owner dashboard at the cockpit index path", () => {
+    const dashboardView = cockpitViews.find((view) => view.id === "dashboard");
+    expect(dashboardView?.path).toBe("/");
   });
 
-  it("registers the dashboard hub at /dashboard", () => {
-    const dashboardView = cockpitViews.find((view) => view.id === "dashboard");
-    expect(dashboardView?.path).toBe("/dashboard");
+  it("moves the agent terminal off the index to /terminal", () => {
+    const terminalView = cockpitViews.find((view) => view.id === "terminal");
+    expect(terminalView?.path).toBe("/terminal");
+  });
+
+  it("lists the dashboard first so the owner lands there on entry", () => {
+    expect(cockpitViews[0]?.id).toBe("dashboard");
   });
 
   it("registers the user view at /user", () => {
