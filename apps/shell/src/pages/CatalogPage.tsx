@@ -1,3 +1,4 @@
+import { BottomStatusBar } from "@platform/design-system";
 import { buildCatalogCards } from "../home-sections";
 import { LandingHeader } from "../landing/LandingHeader";
 import { LandingFooter } from "../landing/LandingFooter";
@@ -34,6 +35,7 @@ export function CatalogPage() {
         </div>
       </main>
       <LandingFooter />
+      <BottomStatusBar />
     </div>
   );
 }

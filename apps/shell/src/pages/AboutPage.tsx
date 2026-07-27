@@ -1,3 +1,4 @@
+import { BottomStatusBar } from "@platform/design-system";
 import { LandingHeader } from "../landing/LandingHeader";
 import { LandingFooter } from "../landing/LandingFooter";
 import { EngineeringSection } from "../landing/EngineeringSection";
@@ -24,6 +25,7 @@ export function AboutPage() {
         <EngineeringSection />
       </main>
       <LandingFooter />
+      <BottomStatusBar />
     </div>
   );
 }
