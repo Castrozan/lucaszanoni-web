@@ -5,8 +5,8 @@ export interface CockpitView {
 }
 
 export const cockpitViews: readonly CockpitView[] = [
-  { id: "workspace", label: "Workspace", path: "/" },
-  { id: "dashboard", label: "Dashboard", path: "/dashboard" },
+  { id: "dashboard", label: "Dashboard", path: "/" },
+  { id: "terminal", label: "Terminal", path: "/terminal" },
   { id: "jarvis", label: "Jarvis", path: "/jarvis" },
   { id: "user", label: "User", path: "/user" },
 ];

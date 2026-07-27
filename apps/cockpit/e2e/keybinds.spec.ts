@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const cockpitDashboardPath = "/cockpit/dashboard";
+const cockpitDashboardPath = "/cockpit/";
 const cockpitJarvisPath = "/cockpit/jarvis";
 
 const commandPalette = (page: Page) =>
@@ -48,7 +48,7 @@ test.describe("cockpit leader-key bindings", () => {
     await pressCockpitLeaderChord(page);
     await page.keyboard.press("Escape");
     await page.keyboard.press("a");
-    await expect(page).toHaveURL(/\/cockpit\/dashboard$/);
+    await expect(page).toHaveURL(/\/cockpit\/$/);
   });
 
   test("the armed chord disarms after the arm timeout elapses", async ({
@@ -57,7 +57,7 @@ test.describe("cockpit leader-key bindings", () => {
     await pressCockpitLeaderChord(page);
     await page.waitForTimeout(1700);
     await page.keyboard.press("a");
-    await expect(page).toHaveURL(/\/cockpit\/dashboard$/);
+    await expect(page).toHaveURL(/\/cockpit\/$/);
   });
 
   test("the leader chord is suppressed while an editable element is focused", async ({
@@ -95,15 +95,15 @@ test.describe("command palette keyboard control", () => {
     page,
   }) => {
     await expect(selectedCommandOption(page)).toHaveAccessibleName(
-      /Go to Workspace/,
+      /Go to Dashboard/,
     );
     await page.keyboard.press("ArrowDown");
     await expect(selectedCommandOption(page)).toHaveAccessibleName(
-      /Go to Dashboard/,
+      /Go to Terminal/,
     );
     await page.keyboard.press("ArrowUp");
     await expect(selectedCommandOption(page)).toHaveAccessibleName(
-      /Go to Workspace/,
+      /Go to Dashboard/,
     );
   });
 
@@ -121,6 +121,6 @@ test.describe("command palette keyboard control", () => {
   }) => {
     await page.keyboard.press("Escape");
     await expect(commandPalette(page)).toHaveCount(0);
-    await expect(page).toHaveURL(/\/cockpit\/dashboard$/);
+    await expect(page).toHaveURL(/\/cockpit\/$/);
   });
 });

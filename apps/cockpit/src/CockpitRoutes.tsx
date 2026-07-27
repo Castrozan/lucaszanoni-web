@@ -6,7 +6,7 @@ import { CockpitUserPage } from "./pages/CockpitUserPage";
 import { useCockpitWorkspace } from "./tmux-mirror/cockpit-workspace-context";
 import { CockpitTmuxMirrorPage } from "./tmux-mirror/CockpitTmuxMirrorPage";
 
-function CockpitHomeRoute() {
+function CockpitTerminalRoute() {
   const cockpitWorkspace = useCockpitWorkspace();
   return cockpitWorkspace ? (
     <CockpitTmuxMirrorPage />
@@ -18,11 +18,11 @@ function CockpitHomeRoute() {
 export function CockpitRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<CockpitHomeRoute />} />
+      <Route path="/" element={<CockpitDashboardPage />} />
+      <Route path="/terminal" element={<CockpitTerminalRoute />} />
       <Route path="/jarvis" element={<CockpitJarvisPage />} />
-      <Route path="/dashboard" element={<CockpitDashboardPage />} />
       <Route path="/user" element={<CockpitUserPage />} />
-      <Route path="*" element={<CockpitHomeRoute />} />
+      <Route path="*" element={<CockpitDashboardPage />} />
     </Routes>
   );
 }

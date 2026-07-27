@@ -11,8 +11,8 @@ const SESSION_WINDOW_DECLARATIONS: Partial<
   Record<MicroFrontendId, readonly PlatformWindow[]>
 > = {
   cockpit: [
-    { id: "cockpit", label: "Cockpit", path: "/cockpit/" },
-    { id: "cockpit-dashboard", label: "Dashboard", path: "/cockpit/dashboard" },
+    { id: "cockpit-dashboard", label: "Dashboard", path: "/cockpit/" },
+    { id: "cockpit-terminal", label: "Terminal", path: "/cockpit/terminal" },
     { id: "cockpit-jarvis", label: "Jarvis", path: "/cockpit/jarvis" },
     { id: "cockpit-user", label: "User", path: "/cockpit/user" },
   ],

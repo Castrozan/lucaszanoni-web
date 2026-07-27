@@ -26,8 +26,8 @@ export function CockpitDashboardPage() {
           {welcomeHeadline}
         </h1>
         <p className="m-0 max-w-[60ch] font-mono text-[13px] leading-[1.6] text-muted-foreground">
-          One edge, your apps. Quick access on the left; live usage and data
-          below.
+          One edge, your apps. Quick access below, then live usage and data.
+          Leader 2 for the terminal.
         </p>
       </header>
 
