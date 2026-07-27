@@ -133,6 +133,7 @@ export function useJarvisSessionTerminalView({
     disconnect,
     terminalContainerRef,
     focusTerminal,
+    sendOwnerKeystrokes,
     voice: {
       isListening,
       recognitionSupported,

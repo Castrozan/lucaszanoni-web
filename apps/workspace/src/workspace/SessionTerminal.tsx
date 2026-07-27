@@ -10,6 +10,7 @@ import {
   createBrowserSessionTerminalEmulator,
   type SessionTerminalEmulatorFactory,
 } from "./session-terminal-emulator";
+import { useLiteralLeaderPrefixKeybind } from "./use-literal-leader-prefix-keybind";
 
 export interface SessionTerminalProps {
   endpoint: string;
@@ -31,6 +32,10 @@ export function SessionTerminal({
   createTerminal = createBrowserSessionTerminalEmulator,
 }: SessionTerminalProps) {
   const terminalContainerRef = useRef<HTMLDivElement | null>(null);
+  const activeSocketRef = useRef<SessionTerminalSocket | null>(null);
+  useLiteralLeaderPrefixKeybind((bytes) =>
+    activeSocketRef.current?.sendOwnerKeystrokes(bytes),
+  );
 
   useEffect(() => {
     const container = terminalContainerRef.current;
@@ -57,6 +62,7 @@ export function SessionTerminal({
       onOpen: () => sendResize(),
       onOutputBytes: (bytes) => terminal.writeOutputBytes(bytes),
     });
+    activeSocketRef.current = activeSocket;
     terminal.onOwnerInput((bytes) => activeSocket?.sendOwnerKeystrokes(bytes));
 
     const resizeObserver =
@@ -69,6 +75,7 @@ export function SessionTerminal({
       resizeObserver?.disconnect();
       activeSocket?.close();
       activeSocket = null;
+      activeSocketRef.current = null;
       terminal.dispose();
     };
   }, [endpoint, createSocket, createTerminal]);
