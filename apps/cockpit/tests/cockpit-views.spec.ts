@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { cockpitViews } from "../src/navigation/cockpit-views";
+import {
+  cockpitViews,
+  findCockpitViewByPath,
+} from "../src/navigation/cockpit-views";
 
 describe("cockpitViews", () => {
   it("registers the owner dashboard at the cockpit index path", () => {
@@ -29,5 +32,17 @@ describe("cockpitViews", () => {
   it("keeps every view path unique so a leader-key switch is unambiguous", () => {
     const paths = cockpitViews.map((view) => view.path);
     expect(new Set(paths).size).toBe(paths.length);
+  });
+
+  it("fills the viewport for the terminal and for nothing else", () => {
+    const viewportFillingIds = cockpitViews
+      .filter((view) => view.fillsViewport)
+      .map((view) => view.id);
+    expect(viewportFillingIds).toEqual(["terminal"]);
+  });
+
+  it("resolves a view from the path the router reports", () => {
+    expect(findCockpitViewByPath("/terminal")?.id).toBe("terminal");
+    expect(findCockpitViewByPath("/does-not-exist")).toBeNull();
   });
 });
