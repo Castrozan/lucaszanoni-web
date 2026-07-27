@@ -27,7 +27,6 @@ export default defineConfig({
     timeout: 120_000,
     env: {
       VITE_COCKPIT_SESSIONS: "global:Jarvis,build:Build",
-      VITE_COCKPIT_MACHINES: "local:Local:ws://localhost:8787/session",
     },
   },
 });

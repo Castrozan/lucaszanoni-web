@@ -119,7 +119,7 @@ describe("WorkspaceMachineRouter routes the workspace terminal to the selected m
 
     expect(screen.getByText(/no work domains yet/i)).toBeDefined();
     expect(
-      screen.queryByRole("navigation", { name: "Workspace machines" }),
+      screen.queryByRole("navigation", { name: "Machines" }),
     ).toBeNull();
     expect(createComputeForMachine).toHaveBeenCalledWith(chiseMachine);
   });

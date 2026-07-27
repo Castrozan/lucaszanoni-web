@@ -9,9 +9,11 @@ import {
 import { useJarvisSpeech } from "../jarvis/use-jarvis-speech";
 import { useCockpitSessionsContext } from "../sessions/cockpit-sessions-context";
 import { SessionReviewPairing } from "../review/SessionReviewPairing";
-import { MachineSwitcher } from "../machines/MachineSwitcher";
-import { readConfiguredMachines } from "../machines/configured-machines";
-import { resolveActiveMachine } from "../machines/machine-registry";
+import {
+  MachineSwitcher,
+  resolveActiveCockpitWorkspaceMachine,
+  resolveCockpitWorkspaceMachines,
+} from "@platform/workspace";
 
 type JarvisView = "terminal" | "conversation";
 
@@ -21,8 +23,11 @@ export function CockpitJarvisPage() {
   const [draftMessage, setDraftMessage] = useState("");
   const [transcript, setTranscript] = useState<readonly JarvisUtterance[]>([]);
   const [activeMachineKey, setActiveMachineKey] = useState<string | null>(null);
-  const machines = readConfiguredMachines();
-  const activeMachine = resolveActiveMachine(machines, activeMachineKey);
+  const machines = resolveCockpitWorkspaceMachines();
+  const activeMachine = resolveActiveCockpitWorkspaceMachine(
+    machines,
+    activeMachineKey,
+  );
 
   const receiveTranscript = useCallback((text: string) => {
     setDraftMessage(text);

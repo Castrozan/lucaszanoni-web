@@ -32,17 +32,20 @@ test("every cockpit deployment-config build arg is forwarded from a CI secret in
 test("flags a build arg that is never forwarded by the workflow", () => {
   const dockerfile = [
     "FROM node AS build",
-    "ARG VITE_COCKPIT_MACHINES",
-    "ENV VITE_COCKPIT_MACHINES=${VITE_COCKPIT_MACHINES}",
+    "ARG VITE_COCKPIT_WORKSPACE_MACHINES",
+    "ENV VITE_COCKPIT_WORKSPACE_MACHINES=${VITE_COCKPIT_WORKSPACE_MACHINES}",
     "RUN pnpm build",
   ].join("\n");
   assert.deepEqual(
     findUnforwardedCockpitBuildArgs(dockerfile, "docker build .", [
-      { buildArg: "VITE_COCKPIT_MACHINES", secretName: "COCKPIT_MACHINES" },
+      {
+        buildArg: "VITE_COCKPIT_WORKSPACE_MACHINES",
+        secretName: "COCKPIT_WORKSPACE_MACHINES",
+      },
     ]),
     [
       {
-        buildArg: "VITE_COCKPIT_MACHINES",
+        buildArg: "VITE_COCKPIT_WORKSPACE_MACHINES",
         gaps: ["missing-build-arg-forwarding", "missing-secret-binding"],
       },
     ],
@@ -52,21 +55,24 @@ test("flags a build arg that is never forwarded by the workflow", () => {
 test("flags an env export placed after the production build so vite never sees it", () => {
   const dockerfile = [
     "FROM node AS build",
-    "ARG VITE_COCKPIT_MACHINES",
+    "ARG VITE_COCKPIT_WORKSPACE_MACHINES",
     "RUN pnpm build",
-    "ENV VITE_COCKPIT_MACHINES=${VITE_COCKPIT_MACHINES}",
+    "ENV VITE_COCKPIT_WORKSPACE_MACHINES=${VITE_COCKPIT_WORKSPACE_MACHINES}",
   ].join("\n");
   const workflow = [
-    '--build-arg VITE_COCKPIT_MACHINES="${COCKPIT_MACHINES}"',
-    "secrets.COCKPIT_MACHINES",
+    '--build-arg VITE_COCKPIT_WORKSPACE_MACHINES="${COCKPIT_WORKSPACE_MACHINES}"',
+    "secrets.COCKPIT_WORKSPACE_MACHINES",
   ].join("\n");
   assert.deepEqual(
     findUnforwardedCockpitBuildArgs(dockerfile, workflow, [
-      { buildArg: "VITE_COCKPIT_MACHINES", secretName: "COCKPIT_MACHINES" },
+      {
+        buildArg: "VITE_COCKPIT_WORKSPACE_MACHINES",
+        secretName: "COCKPIT_WORKSPACE_MACHINES",
+      },
     ]),
     [
       {
-        buildArg: "VITE_COCKPIT_MACHINES",
+        buildArg: "VITE_COCKPIT_WORKSPACE_MACHINES",
         gaps: ["env-export-after-build"],
       },
     ],
@@ -76,17 +82,20 @@ test("flags an env export placed after the production build so vite never sees i
 test("accepts a fully wired build arg with no gaps", () => {
   const dockerfile = [
     "FROM node AS build",
-    "ARG VITE_COCKPIT_MACHINES",
-    "ENV VITE_COCKPIT_MACHINES=${VITE_COCKPIT_MACHINES}",
+    "ARG VITE_COCKPIT_WORKSPACE_MACHINES",
+    "ENV VITE_COCKPIT_WORKSPACE_MACHINES=${VITE_COCKPIT_WORKSPACE_MACHINES}",
     "RUN pnpm --filter app build",
   ].join("\n");
   const workflow = [
-    '--build-arg VITE_COCKPIT_MACHINES="${COCKPIT_MACHINES}"',
-    "COCKPIT_MACHINES: ${{ secrets.COCKPIT_MACHINES }}",
+    '--build-arg VITE_COCKPIT_WORKSPACE_MACHINES="${COCKPIT_WORKSPACE_MACHINES}"',
+    "COCKPIT_WORKSPACE_MACHINES: ${{ secrets.COCKPIT_WORKSPACE_MACHINES }}",
   ].join("\n");
   assert.deepEqual(
     findUnforwardedCockpitBuildArgs(dockerfile, workflow, [
-      { buildArg: "VITE_COCKPIT_MACHINES", secretName: "COCKPIT_MACHINES" },
+      {
+        buildArg: "VITE_COCKPIT_WORKSPACE_MACHINES",
+        secretName: "COCKPIT_WORKSPACE_MACHINES",
+      },
     ]),
     [],
   );
@@ -98,7 +107,7 @@ test("guards the GitLab review host and project alongside the machine endpoints"
     [
       "VITE_COCKPIT_GITLAB_BASE_URL",
       "VITE_COCKPIT_GITLAB_PROJECT",
-      "VITE_COCKPIT_MACHINES",
+      "VITE_COCKPIT_WORKSPACE_MACHINES",
     ],
   );
 });

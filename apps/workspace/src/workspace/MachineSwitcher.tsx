@@ -1,8 +1,8 @@
 import { Button } from "@platform/design-system";
-import type { CockpitMachine } from "./machine-registry";
+import type { CockpitWorkspaceMachine } from "./cockpit-machine-endpoints";
 
 export interface MachineSwitcherProps {
-  machines: readonly CockpitMachine[];
+  machines: readonly CockpitWorkspaceMachine[];
   activeKey: string | null;
   onSelect: (key: string) => void;
 }
@@ -12,12 +12,12 @@ export function MachineSwitcher({
   activeKey,
   onSelect,
 }: MachineSwitcherProps) {
-  if (machines.length === 0) {
+  if (machines.length <= 1) {
     return null;
   }
   return (
     <nav
-      aria-label="Cockpit machines"
+      aria-label="Machines"
       className="flex items-center gap-2 border-b border-border bg-surface px-4 py-2"
     >
       <span className="text-xs uppercase tracking-wide text-muted-foreground">

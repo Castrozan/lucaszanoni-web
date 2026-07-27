@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { WorkspacePage } from "./WorkspacePage";
-import { WorkspaceMachineSwitcher } from "./workspace/WorkspaceMachineSwitcher";
+import { MachineSwitcher } from "./workspace/MachineSwitcher";
 import {
   resolveActiveCockpitWorkspaceMachine,
   type CockpitWorkspaceMachine,
@@ -35,7 +35,7 @@ export function WorkspaceMachineRouter({
     createCompute && activeMachine ? activeMachine.endpoint : null;
   return (
     <>
-      <WorkspaceMachineSwitcher
+      <MachineSwitcher
         machines={machines}
         activeKey={activeMachine?.key ?? null}
         onSelect={setActiveMachineKey}
