@@ -37,7 +37,7 @@ describe("CockpitComputePort contract (in-memory adapter)", () => {
       (s) => s.key === "platform",
     );
     expect(platform?.windows).toEqual([
-      { id: "w1", title: "claude", driver: "claude" },
+      { id: "w1", title: "claude", driver: "claude", terminalIdentifier: "" },
     ]);
     expect(platform?.activeWindowId).toBe("w1");
   });
@@ -99,8 +99,8 @@ describe("default id sequencing after a non-tail close is reloaded", () => {
             key: "session-1",
             label: "A",
             windows: [
-              { id: "window-1", title: "claude", driver: "claude" },
-              { id: "window-3", title: "codex", driver: "codex" },
+              { id: "window-1", title: "claude", driver: "claude", terminalIdentifier: "" },
+              { id: "window-3", title: "codex", driver: "codex", terminalIdentifier: "" },
             ],
             activeWindowId: "window-1",
           },

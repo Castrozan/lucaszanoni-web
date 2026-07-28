@@ -14,13 +14,13 @@ export function useLiteralLeaderPrefixKeybind(
 
   useKeybind({
     id: "workspace.terminal.literal-leader-prefix",
-    label: "Send the leader chord to the terminal",
+    label: "Send the leader chord past the attach client",
     defaultBinding: "Leader Leader",
     run: () => {
       if (controlByte === null) {
         return;
       }
-      sendOwnerKeystrokes(new Uint8Array([controlByte]));
+      sendOwnerKeystrokes(new Uint8Array([controlByte, controlByte]));
     },
   });
 }

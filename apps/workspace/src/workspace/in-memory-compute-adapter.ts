@@ -66,6 +66,7 @@ export function createInMemoryComputeAdapter(
         id: createWindowId(windowSequence),
         title: spec.title,
         driver: spec.driver,
+        terminalIdentifier: "",
       };
       state = reduceWorkspaceRegistry(state, {
         type: "windowOpened",

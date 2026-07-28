@@ -36,17 +36,23 @@ export function useWorkspace(
     () => loadPersistedWorkspace(storage) ?? emptyWorkspaceRegistry,
     [storage],
   );
-  const computeRef = useRef<CockpitComputePort | null>(null);
-  if (!computeRef.current) {
-    computeRef.current = createCompute
-      ? createCompute(initialState)
-      : createInMemoryComputeAdapter({ initialState });
-  }
-  const compute = computeRef.current;
   const [state, setState] = useState<WorkspaceRegistryState>(initialState);
   const stateRef = useRef<WorkspaceRegistryState>(initialState);
   const storageRef = useRef<Storage | undefined>(storage);
   storageRef.current = storage;
+  const computeRef = useRef<CockpitComputePort | null>(null);
+  const createComputeRef = useRef(createCompute);
+  createComputeRef.current = createCompute;
+
+  const resolveCompute = useCallback((): CockpitComputePort => {
+    if (!computeRef.current) {
+      const createComputeForThisWorkspace = createComputeRef.current;
+      computeRef.current = createComputeForThisWorkspace
+        ? createComputeForThisWorkspace(stateRef.current)
+        : createInMemoryComputeAdapter({ initialState: stateRef.current });
+    }
+    return computeRef.current;
+  }, []);
 
   useEffect(
     () => () => {
@@ -63,9 +69,9 @@ export function useWorkspace(
   }, []);
 
   const syncExistence = useCallback(async () => {
-    const live = await compute.listSessions();
+    const live = await resolveCompute().listSessions();
     return reconcileWorkspace(stateRef.current, live);
-  }, [compute]);
+  }, [resolveCompute]);
 
   useEffect(() => {
     let cancelled = false;
@@ -84,7 +90,7 @@ export function useWorkspace(
 
   const openSession = useCallback(
     async (label: string) => {
-      const created = await compute.openSession(label);
+      const created = await resolveCompute().openSession(label);
       const reconciled = await syncExistence();
       commit(
         reduceWorkspaceRegistry(reconciled, {
@@ -93,7 +99,7 @@ export function useWorkspace(
         }),
       );
     },
-    [commit, compute, syncExistence],
+    [commit, resolveCompute, syncExistence],
   );
 
   const selectSession = useCallback(
@@ -110,10 +116,10 @@ export function useWorkspace(
 
   const closeSession = useCallback(
     async (key: string) => {
-      await compute.closeSession(key);
+      await resolveCompute().closeSession(key);
       commit(await syncExistence());
     },
-    [commit, compute, syncExistence],
+    [commit, resolveCompute, syncExistence],
   );
 
   const openWindow = useCallback(
@@ -122,7 +128,7 @@ export function useWorkspace(
       if (!sessionKey) {
         return;
       }
-      const created = await compute.openWindow(sessionKey, {
+      const created = await resolveCompute().openWindow(sessionKey, {
         title: driver,
         driver,
       });
@@ -135,7 +141,7 @@ export function useWorkspace(
         }),
       );
     },
-    [commit, compute, syncExistence],
+    [commit, resolveCompute, syncExistence],
   );
 
   const selectWindow = useCallback(
@@ -161,10 +167,10 @@ export function useWorkspace(
       if (!sessionKey) {
         return;
       }
-      await compute.closeWindow(sessionKey, windowId);
+      await resolveCompute().closeWindow(sessionKey, windowId);
       commit(await syncExistence());
     },
-    [commit, compute, syncExistence],
+    [commit, resolveCompute, syncExistence],
   );
 
   return {

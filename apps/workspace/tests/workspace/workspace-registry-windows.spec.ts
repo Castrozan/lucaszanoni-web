@@ -16,12 +16,12 @@ function withTwoWindows(): WorkspaceRegistryState {
   const first = reduceWorkspaceRegistry(withPlatformDomain(), {
     type: "windowOpened",
     sessionKey: "platform",
-    window: { id: "w1", title: "claude", driver: "claude" },
+    window: { id: "w1", title: "claude", driver: "claude", terminalIdentifier: "" },
   });
   return reduceWorkspaceRegistry(first, {
     type: "windowOpened",
     sessionKey: "platform",
-    window: { id: "w2", title: "codex", driver: "codex" },
+    window: { id: "w2", title: "codex", driver: "codex", terminalIdentifier: "" },
   });
 }
 
@@ -30,11 +30,11 @@ describe("reduceWorkspaceRegistry window events", () => {
     const opened = reduceWorkspaceRegistry(withPlatformDomain(), {
       type: "windowOpened",
       sessionKey: "platform",
-      window: { id: "w1", title: "claude", driver: "claude" },
+      window: { id: "w1", title: "claude", driver: "claude", terminalIdentifier: "" },
     });
     const platform = opened.sessions.find((s) => s.key === "platform");
     expect(platform?.windows).toEqual([
-      { id: "w1", title: "claude", driver: "claude" },
+      { id: "w1", title: "claude", driver: "claude", terminalIdentifier: "" },
     ]);
     expect(platform?.activeWindowId).toBe("w1");
   });
@@ -44,7 +44,7 @@ describe("reduceWorkspaceRegistry window events", () => {
     const ignored = reduceWorkspaceRegistry(seeded, {
       type: "windowOpened",
       sessionKey: "ghost",
-      window: { id: "w1", title: "claude", driver: "claude" },
+      window: { id: "w1", title: "claude", driver: "claude", terminalIdentifier: "" },
     });
     expect(ignored).toEqual(seeded);
   });
@@ -53,12 +53,12 @@ describe("reduceWorkspaceRegistry window events", () => {
     const seeded = reduceWorkspaceRegistry(withPlatformDomain(), {
       type: "windowOpened",
       sessionKey: "platform",
-      window: { id: "w1", title: "claude", driver: "claude" },
+      window: { id: "w1", title: "claude", driver: "claude", terminalIdentifier: "" },
     });
     const duplicate = reduceWorkspaceRegistry(seeded, {
       type: "windowOpened",
       sessionKey: "platform",
-      window: { id: "w1", title: "codex", driver: "codex" },
+      window: { id: "w1", title: "codex", driver: "codex", terminalIdentifier: "" },
     });
     const platform = duplicate.sessions.find((s) => s.key === "platform");
     expect(platform?.windows).toHaveLength(1);
@@ -100,7 +100,7 @@ describe("reduceWorkspaceRegistry window events", () => {
     const seeded = reduceWorkspaceRegistry(withPlatformDomain(), {
       type: "windowOpened",
       sessionKey: "platform",
-      window: { id: "w1", title: "claude", driver: "claude" },
+      window: { id: "w1", title: "claude", driver: "claude", terminalIdentifier: "" },
     });
     const closed = reduceWorkspaceRegistry(seeded, {
       type: "windowClosed",

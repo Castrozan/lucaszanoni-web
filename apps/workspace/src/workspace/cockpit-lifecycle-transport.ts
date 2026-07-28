@@ -2,6 +2,7 @@ export interface CockpitLifecycleWindowInventory {
   readonly windowIdentifier: string;
   readonly windowTitle: string;
   readonly agentDriver?: string | null;
+  readonly terminalIdentifier?: string | null;
 }
 
 export interface CockpitLifecycleSessionInventory {

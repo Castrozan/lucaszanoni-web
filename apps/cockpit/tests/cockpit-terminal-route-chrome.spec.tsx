@@ -22,7 +22,12 @@ const attachedSessions: readonly CockpitWorkspaceSession[] = [
     key: "dotfiles",
     label: "dotfiles",
     activeWindowId: "@1",
-    windows: [{ id: "@1", title: "claude", driver: "claude" }],
+    windows: [{
+        id: "@1",
+        title: "claude",
+        driver: "claude",
+        terminalIdentifier: "term_6569e1e60304f89",
+      }],
   },
 ];
 

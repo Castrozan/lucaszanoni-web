@@ -1,6 +1,5 @@
 import {
   createContext,
-  useCallback,
   useContext,
   useMemo,
   useState,
@@ -15,18 +14,12 @@ import {
   type WorkspaceController,
 } from "@platform/workspace";
 
-export type CockpitTerminalKeystrokeSender = (bytes: Uint8Array) => void;
-
 export interface CockpitWorkspaceValue {
   readonly controller: WorkspaceController;
   readonly machines: readonly CockpitWorkspaceMachine[];
   readonly activeMachine: CockpitWorkspaceMachine | null;
   readonly selectMachine: (machineKey: string) => void;
   readonly sessionTerminalMachineEndpoint: string | null;
-  readonly attachedTerminalKeystrokeSender: CockpitTerminalKeystrokeSender | null;
-  readonly publishAttachedTerminalKeystrokeSender: (
-    sender: CockpitTerminalKeystrokeSender | null,
-  ) => void;
 }
 
 const CockpitWorkspaceContext = createContext<CockpitWorkspaceValue | null>(
@@ -91,13 +84,6 @@ function CockpitMachineController({
     storage: storage ?? safeLocalStorage(),
     createCompute,
   });
-  const [attachedTerminalKeystrokeSender, setAttachedTerminalKeystrokeSender] =
-    useState<CockpitTerminalKeystrokeSender | null>(null);
-  const publishAttachedTerminalKeystrokeSender = useCallback(
-    (sender: CockpitTerminalKeystrokeSender | null) =>
-      setAttachedTerminalKeystrokeSender(() => sender),
-    [],
-  );
   const value = useMemo<CockpitWorkspaceValue>(
     () => ({
       controller,
@@ -106,8 +92,6 @@ function CockpitMachineController({
       selectMachine,
       sessionTerminalMachineEndpoint:
         createCompute && activeMachine ? activeMachine.endpoint : null,
-      attachedTerminalKeystrokeSender,
-      publishAttachedTerminalKeystrokeSender,
     }),
     [
       controller,
@@ -115,8 +99,6 @@ function CockpitMachineController({
       activeMachine,
       selectMachine,
       createCompute,
-      attachedTerminalKeystrokeSender,
-      publishAttachedTerminalKeystrokeSender,
     ],
   );
   return (

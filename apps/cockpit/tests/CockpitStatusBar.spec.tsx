@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   cleanup,
@@ -13,10 +12,7 @@ import {
   type CockpitComputePort,
   type CockpitWorkspaceSession,
 } from "@platform/workspace";
-import {
-  CockpitWorkspaceProvider,
-  useCockpitWorkspace,
-} from "../src/workspace/cockpit-workspace-context";
+import { CockpitWorkspaceProvider } from "../src/workspace/cockpit-workspace-context";
 import { CockpitStatusBar } from "../src/workspace/CockpitStatusBar";
 
 afterEach(cleanup);
@@ -27,8 +23,18 @@ const liveSessions: readonly CockpitWorkspaceSession[] = [
     label: "dotfiles",
     activeWindowId: "@1",
     windows: [
-      { id: "@1", title: "claude", driver: "claude" },
-      { id: "@2", title: "codex", driver: "codex" },
+      {
+        id: "@1",
+        title: "claude",
+        driver: "claude",
+        terminalIdentifier: "term_6569e1e60304f89",
+      },
+      {
+        id: "@2",
+        title: "codex",
+        driver: "codex",
+        terminalIdentifier: "term_656a545f71b2c8b",
+      },
     ],
   },
 ];
@@ -42,22 +48,11 @@ function seededCompute(): CockpitComputePort {
   };
 }
 
-function AttachedTerminalDouble({ frames }: { frames: Uint8Array[] }) {
-  const cockpitWorkspace = useCockpitWorkspace();
-  const publish = cockpitWorkspace?.publishAttachedTerminalKeystrokeSender;
-  useEffect(() => {
-    publish?.((bytes) => frames.push(bytes));
-    return () => publish?.(null);
-  }, [publish, frames]);
-  return null;
-}
-
-function renderCockpitStatusBar(frames: Uint8Array[] = []) {
+function renderCockpitStatusBar() {
   return render(
     <ThemeProvider>
       <KeybindProvider>
         <CockpitWorkspaceProvider createComputeForMachine={() => seededCompute}>
-          <AttachedTerminalDouble frames={frames} />
           <CockpitStatusBar />
         </CockpitWorkspaceProvider>
       </KeybindProvider>
@@ -76,18 +71,7 @@ describe("CockpitStatusBar reflects the live herdr workspace inventory", () => {
     expect(screen.getByRole("button", { name: "2:codex" })).toBeTruthy();
   });
 
-  it("switches windows by typing the multiplexer chord into its own terminal", async () => {
-    const frames: Uint8Array[] = [];
-    renderCockpitStatusBar(frames);
-
-    fireEvent.click(await screen.findByRole("button", { name: "2:codex" }));
-
-    await waitFor(() => {
-      expect(frames).toEqual([new Uint8Array([2, "2".charCodeAt(0)])]);
-    });
-  });
-
-  it("moves its own highlight without waiting on the bridge", async () => {
+  it("selects a window without sending anything to another client", async () => {
     renderCockpitStatusBar();
 
     fireEvent.click(await screen.findByRole("button", { name: "2:codex" }));

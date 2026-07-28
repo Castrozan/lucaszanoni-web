@@ -50,7 +50,7 @@ describe("workspace compute factory resolution behind the real-compute flag", ()
       {
         key: "platform",
         label: "platform",
-        windows: [{ id: "@1", title: "claude", driver: "claude" }],
+        windows: [{ id: "@1", title: "claude", driver: "claude", terminalIdentifier: "" }],
         activeWindowId: "@1",
       },
     ]);
