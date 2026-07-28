@@ -10,7 +10,7 @@ import {
   createBrowserSessionTerminalEmulator,
   type SessionTerminalEmulatorFactory,
 } from "./session-terminal-emulator";
-import { sessionTerminalRetryDelayMilliseconds } from "./session-terminal-retry-schedule";
+import { bridgeRetryDelayMilliseconds } from "./bridge-retry-schedule";
 import { useLiteralLeaderPrefixKeybind } from "./use-literal-leader-prefix-keybind";
 
 export interface SessionTerminalProps {
@@ -71,7 +71,7 @@ export function SessionTerminal({
       pendingRetry = setTimeout(() => {
         pendingRetry = null;
         openSessionSocket();
-      }, sessionTerminalRetryDelayMilliseconds(consecutiveFailedAttempts));
+      }, bridgeRetryDelayMilliseconds(consecutiveFailedAttempts));
     };
 
     function openSessionSocket() {
