@@ -2,32 +2,36 @@ import { describe, expect, it } from "vitest";
 import { resolveCockpitAttachEndpoint } from "../../src/workspace/cockpit-attach-endpoint";
 
 describe("resolveCockpitAttachEndpoint derives the pty attach url from a machine lifecycle endpoint", () => {
-  it("swaps the trailing lifecycle path for the jarvis-session path and appends the encoded session name", () => {
+  it("swaps the trailing lifecycle path for the jarvis-session path and appends the encoded terminal identifier", () => {
     expect(
       resolveCockpitAttachEndpoint(
         "wss://kira.example/cockpit/lifecycle",
-        "dotfiles",
+        "term_6569e1e60304f89",
       ),
-    ).toBe("wss://kira.example/cockpit/jarvis-session/?sessionName=dotfiles");
+    ).toBe(
+      "wss://kira.example/cockpit/jarvis-session/?terminal=term_6569e1e60304f89",
+    );
   });
 
   it("preserves an explicit host port while swapping the lifecycle path", () => {
     expect(
       resolveCockpitAttachEndpoint(
         "ws://127.0.0.1:8787/cockpit/lifecycle",
-        "todos",
+        "term_656a545f71b2c8b",
       ),
-    ).toBe("ws://127.0.0.1:8787/cockpit/jarvis-session/?sessionName=todos");
+    ).toBe(
+      "ws://127.0.0.1:8787/cockpit/jarvis-session/?terminal=term_656a545f71b2c8b",
+    );
   });
 
-  it("percent-encodes a session key that carries url-significant characters", () => {
+  it("percent-encodes a target that carries url-significant characters", () => {
     expect(
       resolveCockpitAttachEndpoint(
         "wss://kira.example/cockpit/lifecycle",
         "feature/login & signup",
       ),
     ).toBe(
-      "wss://kira.example/cockpit/jarvis-session/?sessionName=feature%2Flogin%20%26%20signup",
+      "wss://kira.example/cockpit/jarvis-session/?terminal=feature%2Flogin%20%26%20signup",
     );
   });
 
@@ -35,14 +39,18 @@ describe("resolveCockpitAttachEndpoint derives the pty attach url from a machine
     expect(
       resolveCockpitAttachEndpoint(
         "wss://kira.example/cockpit/lifecycle/",
-        "dotfiles",
+        "term_6569e1e60304f89",
       ),
-    ).toBe("wss://kira.example/cockpit/jarvis-session/?sessionName=dotfiles");
+    ).toBe(
+      "wss://kira.example/cockpit/jarvis-session/?terminal=term_6569e1e60304f89",
+    );
   });
 
   it("defensively appends the jarvis-session path when the endpoint does not carry the lifecycle path", () => {
-    expect(resolveCockpitAttachEndpoint("wss://kira.example", "dotfiles")).toBe(
-      "wss://kira.example/cockpit/jarvis-session/?sessionName=dotfiles",
+    expect(
+      resolveCockpitAttachEndpoint("wss://kira.example", "term_6569e1e60304f89"),
+    ).toBe(
+      "wss://kira.example/cockpit/jarvis-session/?terminal=term_6569e1e60304f89",
     );
   });
 
@@ -50,10 +58,10 @@ describe("resolveCockpitAttachEndpoint derives the pty attach url from a machine
     expect(
       resolveCockpitAttachEndpoint(
         "wss://lucaszanoni.example/cockpit/kira-session/lifecycle",
-        "dotfiles",
+        "term_6569e1e60304f89",
       ),
     ).toBe(
-      "wss://lucaszanoni.example/cockpit/kira-session/jarvis-session/?sessionName=dotfiles",
+      "wss://lucaszanoni.example/cockpit/kira-session/jarvis-session/?terminal=term_6569e1e60304f89",
     );
   });
 });

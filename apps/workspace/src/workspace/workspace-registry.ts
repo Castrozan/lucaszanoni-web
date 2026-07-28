@@ -4,6 +4,7 @@ export interface CockpitWorkspaceWindow {
   readonly id: string;
   readonly title: string;
   readonly driver: CockpitAgentDriverKind;
+  readonly terminalIdentifier: string;
 }
 
 export interface CockpitWorkspaceSession {

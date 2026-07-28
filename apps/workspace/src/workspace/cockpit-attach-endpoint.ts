@@ -4,7 +4,7 @@ const COCKPIT_JARVIS_SESSION_PATH = "/cockpit/jarvis-session/";
 
 export function resolveCockpitAttachEndpoint(
   machineLifecycleEndpoint: string,
-  sessionKey: string,
+  terminalIdentifier: string,
 ): string {
   const endpointWithoutTrailingSlashes = machineLifecycleEndpoint.replace(
     /\/+$/,
@@ -16,5 +16,5 @@ export function resolveCockpitAttachEndpoint(
         endpointWithoutTrailingSlashes.length - LIFECYCLE_SEGMENT.length,
       ) + JARVIS_SESSION_SEGMENT
     : endpointWithoutTrailingSlashes + COCKPIT_JARVIS_SESSION_PATH;
-  return `${attachBase}?sessionName=${encodeURIComponent(sessionKey)}`;
+  return `${attachBase}?terminal=${encodeURIComponent(terminalIdentifier)}`;
 }

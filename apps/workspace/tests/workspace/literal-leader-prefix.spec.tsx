@@ -58,15 +58,15 @@ function renderTerminalWithKeybinds(ownerKeystrokeFrames: Uint8Array[]) {
   );
 }
 
-describe("the doubled leader chord sends a literal prefix to the session", () => {
-  it("writes the leader control byte into the session on a doubled press", () => {
+describe("the doubled leader chord sends a literal prefix past the attach client", () => {
+  it("writes the doubled control byte so the attach client forwards one through", () => {
     const ownerKeystrokeFrames: Uint8Array[] = [];
     renderTerminalWithKeybinds(ownerKeystrokeFrames);
 
     fireEvent.keyDown(window, { key: "b", ctrlKey: true });
     fireEvent.keyDown(window, { key: "b", ctrlKey: true });
 
-    expect(ownerKeystrokeFrames).toEqual([new Uint8Array([2])]);
+    expect(ownerKeystrokeFrames).toEqual([new Uint8Array([2, 2])]);
   });
 
   it("sends nothing to the session on a single leader press", () => {

@@ -29,8 +29,8 @@ const seeded: WorkspaceRegistryState = {
       key: "platform",
       label: "Platform",
       windows: [
-        { id: "w1", title: "claude", driver: "claude" },
-        { id: "w2", title: "codex", driver: "codex" },
+        { id: "w1", title: "claude", driver: "claude", terminalIdentifier: "" },
+        { id: "w2", title: "codex", driver: "codex", terminalIdentifier: "" },
       ],
       activeWindowId: "w2",
     },

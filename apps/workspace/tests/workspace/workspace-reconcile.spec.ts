@@ -17,6 +17,7 @@ function session(
       id,
       title: id,
       driver: "claude" as const,
+      terminalIdentifier: "",
     })),
     activeWindowId,
   };

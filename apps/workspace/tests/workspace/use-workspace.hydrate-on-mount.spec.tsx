@@ -12,13 +12,13 @@ const liveBridgeSessions: readonly CockpitWorkspaceSession[] = [
   {
     key: "dotfiles",
     label: "dotfiles",
-    windows: [{ id: "@1", title: "claude", driver: "claude" }],
+    windows: [{ id: "@1", title: "claude", driver: "claude", terminalIdentifier: "" }],
     activeWindowId: "@1",
   },
   {
     key: "todos",
     label: "todos",
-    windows: [{ id: "@2", title: "codex", driver: "codex" }],
+    windows: [{ id: "@2", title: "codex", driver: "codex", terminalIdentifier: "" }],
     activeWindowId: "@2",
   },
 ];

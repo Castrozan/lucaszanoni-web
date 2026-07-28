@@ -10,15 +10,15 @@ const liveState: WorkspaceRegistryState = {
       label: "dotfiles",
       activeWindowId: "@1",
       windows: [
-        { id: "@1", title: "claude", driver: "claude" },
-        { id: "@2", title: "codex", driver: "codex" },
+        { id: "@1", title: "claude", driver: "claude", terminalIdentifier: "" },
+        { id: "@2", title: "codex", driver: "codex", terminalIdentifier: "" },
       ],
     },
     {
       key: "todos",
       label: "todos",
       activeWindowId: "@9",
-      windows: [{ id: "@9", title: "shell", driver: "claude" }],
+      windows: [{ id: "@9", title: "shell", driver: "claude", terminalIdentifier: "" }],
     },
   ],
 };
@@ -34,7 +34,7 @@ describe("buildCockpitStatusBarModel", () => {
     ]);
   });
 
-  it("wires each window's onSelect to the identifier and the number the multiplexer addresses it by", () => {
+  it("wires each window's onSelect to its own identifier", () => {
     const onSelectWindow = vi.fn();
     const model = buildCockpitStatusBarModel(liveState, onSelectWindow);
 
@@ -44,7 +44,7 @@ describe("buildCockpitStatusBarModel", () => {
     }
     codexWindow.onSelect();
 
-    expect(onSelectWindow).toHaveBeenCalledWith("@2", 2);
+    expect(onSelectWindow).toHaveBeenCalledWith("@2");
   });
 
   it("falls back to a Cockpit label with no windows when nothing is active", () => {

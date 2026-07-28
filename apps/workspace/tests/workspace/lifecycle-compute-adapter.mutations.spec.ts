@@ -95,7 +95,7 @@ describe("real lifecycle adapter mutates live tmux sessions and windows", () => 
       driver: "claude",
     });
 
-    expect(created).toEqual({ id: "@2", title: "claude", driver: "claude" });
+    expect(created).toEqual({ id: "@2", title: "claude", driver: "claude", terminalIdentifier: "" });
     expect(
       transport.sentRequests.filter((r) => r.operation === "open-window"),
     ).toEqual([
@@ -133,7 +133,7 @@ describe("real lifecycle adapter mutates live tmux sessions and windows", () => 
       driver: "codex",
     });
 
-    expect(created).toEqual({ id: "@2", title: "codex", driver: "codex" });
+    expect(created).toEqual({ id: "@2", title: "codex", driver: "codex", terminalIdentifier: "" });
     expect(
       transport.sentRequests.filter((r) => r.operation === "open-window"),
     ).toEqual([

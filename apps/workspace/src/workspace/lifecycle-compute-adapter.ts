@@ -86,6 +86,7 @@ export function createLifecycleComputeAdapter(
         id: createdWindow?.id ?? spec.title,
         title: spec.title,
         driver: spec.driver,
+        terminalIdentifier: createdWindow?.terminalIdentifier ?? "",
       };
     },
     async closeWindow(_sessionKey, windowId) {
@@ -106,6 +107,10 @@ function mapSessionInventory(
   const windows = session.windows.map<CockpitWorkspaceWindow>((window) => ({
     id: window.windowIdentifier,
     title: window.windowTitle,
+    terminalIdentifier:
+      typeof window.terminalIdentifier === "string"
+        ? window.terminalIdentifier
+        : "",
     driver:
       typeof window.agentDriver === "string" &&
       isCockpitAgentDriverKind(window.agentDriver)

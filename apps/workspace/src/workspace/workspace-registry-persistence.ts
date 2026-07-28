@@ -79,6 +79,7 @@ function normalizePersistedSession(
     id: window.id,
     title: window.title,
     driver: window.driver,
+    terminalIdentifier: "",
   }));
   const activeWindowId =
     typeof session.activeWindowId === "string" &&
