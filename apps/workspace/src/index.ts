@@ -24,10 +24,7 @@ export {
   SessionTerminal,
   type OwnerKeystrokeSender,
 } from "./workspace/SessionTerminal";
-export {
-  sessionJumpChordBytes,
-  windowJumpChordBytes,
-} from "./workspace/multiplexer-view-chords";
+export { windowJumpChordBytes } from "./workspace/multiplexer-view-chords";
 export { useLiteralLeaderPrefixKeybind } from "./workspace/use-literal-leader-prefix-keybind";
 export { createInMemoryComputeAdapter } from "./workspace/in-memory-compute-adapter";
 export type {

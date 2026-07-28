@@ -3,11 +3,9 @@ import {
   SessionTerminal,
 } from "@platform/workspace";
 import { useCockpitWorkspace } from "./cockpit-workspace-context";
-import { useAttachedSessionChord } from "./use-attached-session-chord";
 
 export function CockpitTerminalPage() {
   const cockpitWorkspace = useCockpitWorkspace();
-  useAttachedSessionChord();
   if (!cockpitWorkspace) {
     return null;
   }
