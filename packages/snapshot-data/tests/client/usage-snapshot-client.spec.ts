@@ -4,39 +4,32 @@ import type { SnapshotSourceConfiguration } from "../../src/client/snapshot-sour
 
 const source: SnapshotSourceConfiguration = {
   snapshotsBucket: "usage-snapshots",
-  snapshotsObjectPrefix: "snapshots/",
+  combinedSnapshotsObjectName: "aggregate/machine-usage-snapshots.json",
 };
 
-const machineSnapshotObjectNames = [
-  "snapshots/account-one-machine-one.json",
-  "snapshots/account-one-machine-two.json",
+const combinedSnapshots = [
+  { account_label: "account-one", machine_label: "machine-one" },
+  { account_label: "account-one", machine_label: "machine-two" },
 ];
 
 let requestedUrls: string[];
 
-function respondWith(body: unknown) {
-  return new Response(JSON.stringify(body), {
-    status: 200,
-    headers: { "content-type": "application/json" },
-  });
-}
-
-beforeEach(() => {
-  requestedUrls = [];
+function stubFetchWith(response: Response) {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (requestedUrl: string) => {
       requestedUrls.push(requestedUrl);
-      if (requestedUrl.includes("/storage/v1/b/")) {
-        return respondWith({
-          items: machineSnapshotObjectNames.map((name) => ({ name })),
-          prefixes: [
-            "snapshots/claude-usage/",
-            "snapshots/dotfiles-test-coverage/",
-          ],
-        });
-      }
-      return respondWith({ account_label: "account-one" });
+      return response;
+    }),
+  );
+}
+
+beforeEach(() => {
+  requestedUrls = [];
+  stubFetchWith(
+    new Response(JSON.stringify(combinedSnapshots), {
+      status: 200,
+      headers: { "content-type": "application/json" },
     }),
   );
 });
@@ -46,19 +39,25 @@ afterEach(() => {
 });
 
 describe("fetchAllSnapshots", () => {
-  it("lists only the machine snapshots that sit directly under the prefix", async () => {
+  it("reads every machine snapshot from a single request", async () => {
     await fetchAllSnapshots(source);
-    const listingUrl = new URL(requestedUrls[0] ?? "");
-    expect(listingUrl.searchParams.get("delimiter")).toBe("/");
+    expect(requestedUrls).toEqual([
+      "https://storage.googleapis.com/usage-snapshots/aggregate/machine-usage-snapshots.json",
+    ]);
   });
 
-  it("fetches one object per machine snapshot and nothing else", async () => {
-    await fetchAllSnapshots(source);
-    expect(requestedUrls).toHaveLength(machineSnapshotObjectNames.length + 1);
-  });
-
-  it("returns every snapshot the listing reported", async () => {
+  it("returns every snapshot the combined object carries", async () => {
     const snapshots = await fetchAllSnapshots(source);
-    expect(snapshots).toHaveLength(machineSnapshotObjectNames.length);
+    expect(snapshots.map((snapshot) => snapshot.machine_label)).toEqual([
+      "machine-one",
+      "machine-two",
+    ]);
+  });
+
+  it("fails loudly when the combined object is missing", async () => {
+    stubFetchWith(new Response("", { status: 404 }));
+    await expect(fetchAllSnapshots(source)).rejects.toThrow(
+      "combined snapshot fetch failed with status 404",
+    );
   });
 });
