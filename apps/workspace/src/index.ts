@@ -20,7 +20,14 @@ export {
   type WorkspaceComputeFactoryResolver,
 } from "./workspace/resolve-workspace-compute";
 export { resolveCockpitAttachEndpoint } from "./workspace/cockpit-attach-endpoint";
-export { SessionTerminal } from "./workspace/SessionTerminal";
+export {
+  SessionTerminal,
+  type OwnerKeystrokeSender,
+} from "./workspace/SessionTerminal";
+export {
+  sessionJumpChordBytes,
+  windowJumpChordBytes,
+} from "./workspace/multiplexer-view-chords";
 export { useLiteralLeaderPrefixKeybind } from "./workspace/use-literal-leader-prefix-keybind";
 export { createInMemoryComputeAdapter } from "./workspace/in-memory-compute-adapter";
 export type {

@@ -12,10 +12,13 @@ import {
 } from "./session-terminal-emulator";
 import { useLiteralLeaderPrefixKeybind } from "./use-literal-leader-prefix-keybind";
 
+export type OwnerKeystrokeSender = (bytes: Uint8Array) => void;
+
 export interface SessionTerminalProps {
   endpoint: string;
   createSocket?: SessionTerminalSocketFactory;
   createTerminal?: SessionTerminalEmulatorFactory;
+  publishOwnerKeystrokeSender?: (sender: OwnerKeystrokeSender | null) => void;
 }
 
 function browserHostCanRenderLiveTerminal(): boolean {
@@ -30,9 +33,12 @@ export function SessionTerminal({
   endpoint,
   createSocket = connectSessionTerminalWebSocket,
   createTerminal = createBrowserSessionTerminalEmulator,
+  publishOwnerKeystrokeSender,
 }: SessionTerminalProps) {
   const terminalContainerRef = useRef<HTMLDivElement | null>(null);
   const activeSocketRef = useRef<SessionTerminalSocket | null>(null);
+  const publishSenderRef = useRef(publishOwnerKeystrokeSender);
+  publishSenderRef.current = publishOwnerKeystrokeSender;
   useLiteralLeaderPrefixKeybind((bytes) =>
     activeSocketRef.current?.sendOwnerKeystrokes(bytes),
   );
@@ -59,7 +65,12 @@ export function SessionTerminal({
       );
 
     activeSocket = createSocket(endpoint, {
-      onOpen: () => sendResize(),
+      onOpen: () => {
+        sendResize();
+        publishSenderRef.current?.((bytes) =>
+          activeSocketRef.current?.sendOwnerKeystrokes(bytes),
+        );
+      },
       onOutputBytes: (bytes) => terminal.writeOutputBytes(bytes),
     });
     activeSocketRef.current = activeSocket;
@@ -76,6 +87,7 @@ export function SessionTerminal({
       activeSocket?.close();
       activeSocket = null;
       activeSocketRef.current = null;
+      publishSenderRef.current?.(null);
       terminal.dispose();
     };
   }, [endpoint, createSocket, createTerminal]);
