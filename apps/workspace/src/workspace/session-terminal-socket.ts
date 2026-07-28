@@ -41,9 +41,14 @@ export const connectSessionTerminalWebSocket: SessionTerminalSocketFactory = (
   socket.onclose = (event) =>
     handlers.onClose?.(event.reason || `code ${event.code}`);
   socket.onerror = () => handlers.onError?.("connection error");
+  const sendWhenOpen = (frame: Uint8Array | string) => {
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(frame);
+    }
+  };
   return {
-    sendOwnerKeystrokes: (bytes) => socket.send(bytes),
-    sendControlMessage: (message) => socket.send(message),
+    sendOwnerKeystrokes: sendWhenOpen,
+    sendControlMessage: sendWhenOpen,
     close: () => socket.close(),
   };
 };
