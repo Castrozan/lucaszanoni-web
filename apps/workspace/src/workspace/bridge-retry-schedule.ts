@@ -1,7 +1,7 @@
 const FIRST_RETRY_DELAY_MILLISECONDS = 500;
 const LONGEST_RETRY_DELAY_MILLISECONDS = 10000;
 
-export function sessionTerminalRetryDelayMilliseconds(
+export function bridgeRetryDelayMilliseconds(
   consecutiveFailedAttempts: number,
 ): number {
   const backoffDelay =

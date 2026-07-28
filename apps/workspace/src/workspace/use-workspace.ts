@@ -12,6 +12,7 @@ import {
   savePersistedWorkspace,
 } from "./workspace-registry-persistence";
 import { reconcileWorkspace } from "./workspace-reconcile";
+import { useRetryingBridgeHydration } from "./use-retrying-bridge-hydration";
 
 export interface UseWorkspaceOptions {
   readonly storage?: Storage;
@@ -73,20 +74,7 @@ export function useWorkspace(
     return reconcileWorkspace(stateRef.current, live);
   }, [resolveCompute]);
 
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const hydrated = await syncExistence();
-        if (!cancelled) {
-          commit(hydrated);
-        }
-      } catch {}
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [syncExistence, commit]);
+  useRetryingBridgeHydration(syncExistence, commit);
 
   const openSession = useCallback(
     async (label: string) => {
