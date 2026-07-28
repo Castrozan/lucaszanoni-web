@@ -7,6 +7,7 @@ import {
   type CockpitLifecycleTransportFactory,
 } from "./cockpit-lifecycle-transport";
 import { resolveCockpitLifecycleEndpoint } from "./cockpit-lifecycle-endpoint";
+import { createReconnectingCockpitLifecycleTransport } from "./reconnecting-cockpit-lifecycle-transport";
 
 export interface WorkspaceComputeResolution {
   readonly realComputeEnabled?: boolean;
@@ -36,7 +37,10 @@ export function resolveWorkspaceComputeFactory(
   }
   const connectTransport =
     resolution.connectTransport ?? connectCockpitLifecycleWebSocket;
-  return () => createLifecycleComputeAdapter(connectTransport(endpoint));
+  return () =>
+    createLifecycleComputeAdapter(
+      createReconnectingCockpitLifecycleTransport(endpoint, connectTransport),
+    );
 }
 
 export function resolveWorkspaceComputeForMachine(
