@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LEADER_CAPTURE_SURFACE_ATTRIBUTE } from "@platform/design-system";
 import {
   connectSessionTerminalWebSocket,
@@ -10,6 +10,7 @@ import {
   createBrowserSessionTerminalEmulator,
   type SessionTerminalEmulatorFactory,
 } from "./session-terminal-emulator";
+import { sessionTerminalRetryDelayMilliseconds } from "./session-terminal-retry-schedule";
 import { useLiteralLeaderPrefixKeybind } from "./use-literal-leader-prefix-keybind";
 
 export type OwnerKeystrokeSender = (bytes: Uint8Array) => void;
@@ -39,6 +40,7 @@ export function SessionTerminal({
   const activeSocketRef = useRef<SessionTerminalSocket | null>(null);
   const publishSenderRef = useRef(publishOwnerKeystrokeSender);
   publishSenderRef.current = publishOwnerKeystrokeSender;
+  const [sessionConnectionLost, setSessionConnectionLost] = useState(false);
   useLiteralLeaderPrefixKeybind((bytes) =>
     activeSocketRef.current?.sendOwnerKeystrokes(bytes),
   );
@@ -58,23 +60,49 @@ export function SessionTerminal({
     const terminal = createTerminal();
     terminal.attachTo(container);
 
-    let activeSocket: SessionTerminalSocket | null = null;
+    let stopped = false;
+    let consecutiveFailedAttempts = 0;
+    let pendingRetry: ReturnType<typeof setTimeout> | null = null;
     const sendResize = () =>
-      activeSocket?.sendControlMessage(
+      activeSocketRef.current?.sendControlMessage(
         encodeSessionTerminalResize(terminal.fitToContainer()),
       );
 
-    activeSocket = createSocket(endpoint, {
-      onOpen: () => {
-        sendResize();
-        publishSenderRef.current?.((bytes) =>
-          activeSocketRef.current?.sendOwnerKeystrokes(bytes),
-        );
-      },
-      onOutputBytes: (bytes) => terminal.writeOutputBytes(bytes),
-    });
-    activeSocketRef.current = activeSocket;
-    terminal.onOwnerInput((bytes) => activeSocket?.sendOwnerKeystrokes(bytes));
+    const scheduleReconnect = () => {
+      if (stopped || pendingRetry !== null) {
+        return;
+      }
+      setSessionConnectionLost(true);
+      consecutiveFailedAttempts += 1;
+      pendingRetry = setTimeout(() => {
+        pendingRetry = null;
+        openSessionSocket();
+      }, sessionTerminalRetryDelayMilliseconds(consecutiveFailedAttempts));
+    };
+
+    function openSessionSocket() {
+      if (stopped) {
+        return;
+      }
+      activeSocketRef.current = createSocket(endpoint, {
+        onOpen: () => {
+          consecutiveFailedAttempts = 0;
+          setSessionConnectionLost(false);
+          sendResize();
+          publishSenderRef.current?.((bytes) =>
+            activeSocketRef.current?.sendOwnerKeystrokes(bytes),
+          );
+        },
+        onOutputBytes: (bytes) => terminal.writeOutputBytes(bytes),
+        onClose: scheduleReconnect,
+        onError: scheduleReconnect,
+      });
+    }
+
+    terminal.onOwnerInput((bytes) =>
+      activeSocketRef.current?.sendOwnerKeystrokes(bytes),
+    );
+    openSessionSocket();
 
     const resizeObserver =
       typeof ResizeObserver !== "undefined"
@@ -83,9 +111,12 @@ export function SessionTerminal({
     resizeObserver?.observe(container);
 
     return () => {
+      stopped = true;
+      if (pendingRetry !== null) {
+        clearTimeout(pendingRetry);
+      }
       resizeObserver?.disconnect();
-      activeSocket?.close();
-      activeSocket = null;
+      activeSocketRef.current?.close();
       activeSocketRef.current = null;
       publishSenderRef.current?.(null);
       terminal.dispose();
@@ -98,6 +129,14 @@ export function SessionTerminal({
       {...{ [LEADER_CAPTURE_SURFACE_ATTRIBUTE]: "" }}
       className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background"
     >
+      {sessionConnectionLost ? (
+        <p
+          role="status"
+          className="m-0 border-b border-border bg-surface px-3 py-1 font-mono text-[11px] uppercase tracking-[2px] text-text-faint"
+        >
+          Reconnecting to the session
+        </p>
+      ) : null}
       <div
         ref={terminalContainerRef}
         role="log"
