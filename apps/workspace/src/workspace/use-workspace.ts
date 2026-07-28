@@ -12,7 +12,8 @@ import {
   savePersistedWorkspace,
 } from "./workspace-registry-persistence";
 import { reconcileWorkspace } from "./workspace-reconcile";
-import { useRetryingBridgeHydration } from "./use-retrying-bridge-hydration";
+import { workspaceRegistriesAreEqual } from "./workspace-registry-equality";
+import { useLiveBridgeRegistry } from "./use-live-bridge-registry";
 
 export interface UseWorkspaceOptions {
   readonly storage?: Storage;
@@ -64,6 +65,9 @@ export function useWorkspace(
   );
 
   const commit = useCallback((next: WorkspaceRegistryState) => {
+    if (workspaceRegistriesAreEqual(next, stateRef.current)) {
+      return;
+    }
     stateRef.current = next;
     savePersistedWorkspace(storageRef.current, next);
     setState(next);
@@ -74,7 +78,7 @@ export function useWorkspace(
     return reconcileWorkspace(stateRef.current, live);
   }, [resolveCompute]);
 
-  useRetryingBridgeHydration(syncExistence, commit);
+  useLiveBridgeRegistry(syncExistence, commit);
 
   const openSession = useCallback(
     async (label: string) => {
