@@ -25,7 +25,6 @@ export interface WorkspaceController {
   closeSession(key: string): Promise<void>;
   openWindow(driver: CockpitAgentDriverKind): Promise<void>;
   selectWindow(windowId: string): void;
-  selectWindowOnHost(windowId: string): Promise<void>;
   closeWindow(windowId: string): Promise<void>;
 }
 
@@ -156,24 +155,6 @@ export function useWorkspace(
     [commit],
   );
 
-  const selectWindowOnHost = useCallback(
-    async (windowId: string) => {
-      const sessionKey = stateRef.current.activeSessionKey;
-      if (!sessionKey) {
-        return;
-      }
-      await compute.selectWindow(sessionKey, windowId);
-      commit(
-        reduceWorkspaceRegistry(stateRef.current, {
-          type: "windowSelected",
-          sessionKey,
-          windowId,
-        }),
-      );
-    },
-    [commit, compute],
-  );
-
   const closeWindow = useCallback(
     async (windowId: string) => {
       const sessionKey = stateRef.current.activeSessionKey;
@@ -193,7 +174,6 @@ export function useWorkspace(
     closeSession,
     openWindow,
     selectWindow,
-    selectWindowOnHost,
     closeWindow,
   };
 }

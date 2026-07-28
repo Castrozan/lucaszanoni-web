@@ -34,7 +34,7 @@ describe("buildCockpitStatusBarModel", () => {
     ]);
   });
 
-  it("wires each window's onSelect to the window identifier", () => {
+  it("wires each window's onSelect to the identifier and the number the multiplexer addresses it by", () => {
     const onSelectWindow = vi.fn();
     const model = buildCockpitStatusBarModel(liveState, onSelectWindow);
 
@@ -44,7 +44,7 @@ describe("buildCockpitStatusBarModel", () => {
     }
     codexWindow.onSelect();
 
-    expect(onSelectWindow).toHaveBeenCalledWith("@2");
+    expect(onSelectWindow).toHaveBeenCalledWith("@2", 2);
   });
 
   it("falls back to a Cockpit label with no windows when nothing is active", () => {
