@@ -28,5 +28,5 @@ export function CockpitStatusBar() {
     cockpitWorkspace.controller.state,
     (windowId) => cockpitWorkspace.controller.selectWindow(windowId),
   );
-  return <BottomStatusBar model={model} registerNavigationKeybinds={false} />;
+  return <BottomStatusBar model={model} />;
 }
