@@ -31,6 +31,13 @@ export const cockpitViews: readonly CockpitView[] = [
     leaderKey: "j",
   },
   {
+    id: "docs",
+    label: "Docs",
+    path: "/docs",
+    fillsViewport: false,
+    leaderKey: "s",
+  },
+  {
     id: "user",
     label: "User",
     path: "/user",
