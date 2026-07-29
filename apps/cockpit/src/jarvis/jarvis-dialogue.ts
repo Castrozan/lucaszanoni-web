@@ -5,14 +5,6 @@ export interface JarvisUtterance {
   readonly text: string;
 }
 
-export function composeJarvisAcknowledgement(ownerMessage: string): string {
-  const trimmed = ownerMessage.trim();
-  if (trimmed.length === 0) {
-    return "I'm listening.";
-  }
-  return `Standing by on: ${trimmed}`;
-}
-
 export function appendOwnerMessage(
   transcript: readonly JarvisUtterance[],
   text: string,
@@ -21,9 +13,16 @@ export function appendOwnerMessage(
   if (trimmed.length === 0) {
     return transcript;
   }
-  return [
-    ...transcript,
-    { speaker: "owner", text: trimmed },
-    { speaker: "jarvis", text: composeJarvisAcknowledgement(trimmed) },
-  ];
+  return [...transcript, { speaker: "owner", text: trimmed }];
+}
+
+export function appendJarvisReply(
+  transcript: readonly JarvisUtterance[],
+  text: string,
+): readonly JarvisUtterance[] {
+  const trimmed = text.trim();
+  if (trimmed.length === 0) {
+    return transcript;
+  }
+  return [...transcript, { speaker: "jarvis", text: trimmed }];
 }

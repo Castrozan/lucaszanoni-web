@@ -7,6 +7,12 @@ locals {
         forwarded_base_path = ""
         trusted             = false
       }
+      "/cockpit/agent-chat" = {
+        origin_host         = "jarvis-session-origin.${local.edge_serving_domain}"
+        path_rewrite        = "preserve"
+        forwarded_base_path = ""
+        trusted             = false
+      }
     },
     var.enable_kira_session_tunnel ? {
       "/cockpit/kira-session/" = {

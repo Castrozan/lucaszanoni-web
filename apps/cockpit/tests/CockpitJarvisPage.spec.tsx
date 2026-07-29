@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { CockpitJarvisPage } from "../src/pages/CockpitJarvisPage";
 
@@ -14,7 +14,23 @@ vi.mock("@platform/workspace", async (importOriginal) => ({
   }),
 }));
 
-afterEach(cleanup);
+class SilentWebSocket {
+  static readonly OPEN = 1;
+  readonly readyState = 0;
+  addEventListener() {}
+  removeEventListener() {}
+  send() {}
+  close() {}
+}
+
+beforeEach(() => {
+  vi.stubGlobal("WebSocket", SilentWebSocket);
+});
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
 
 function renderJarvisPage() {
   render(<CockpitJarvisPage />);
@@ -44,6 +60,18 @@ describe("CockpitJarvisPage", () => {
     ).toBeDefined();
   });
 
+  it("never answers on the agent's behalf while the reply is in flight", () => {
+    renderJarvisPage();
+    fireEvent.click(screen.getByRole("tab", { name: "Conversation" }));
+    fireEvent.change(screen.getByLabelText("Message Jarvis"), {
+      target: { value: "status report" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    const transcript = screen.getByRole("list", { name: "Jarvis transcript" });
+    expect(transcript.textContent).not.toContain("Standing by");
+    expect(transcript.querySelectorAll("li")).toHaveLength(1);
+  });
+
   it("appends the owner message to the transcript and clears the input on send", () => {
     renderJarvisPage();
     fireEvent.click(screen.getByRole("tab", { name: "Conversation" }));
@@ -51,7 +79,7 @@ describe("CockpitJarvisPage", () => {
     fireEvent.change(input, { target: { value: "status report" } });
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
     expect(screen.getByText("status report")).toBeDefined();
-    expect(screen.getByText("Standing by on: status report")).toBeDefined();
+    expect(screen.getByText("Jarvis is thinking")).toBeDefined();
     expect(input.value).toBe("");
   });
 
