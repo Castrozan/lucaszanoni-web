@@ -6,10 +6,15 @@ import {
   CardTitle,
   DriveYourOwnMachineCallToAction,
 } from "@platform/design-system";
-import { DailyTokensChart, useUsageViewModel } from "@platform/usage-insights";
+import {
+  DailyTokensChart,
+  buildUsageHeadlineFigures,
+  useUsageViewModel,
+} from "@platform/usage-insights";
 import { useOwnerAccessIdentity } from "../identity/use-owner-access-identity";
 import { cockpitQuickAccessBookmarks } from "../layout/cockpit-quick-access-bookmarks";
 import { CockpitQuickAccessTile } from "../layout/CockpitQuickAccessTile";
+import { UsageKeyFigures } from "../dashboard/UsageKeyFigures";
 
 export function CockpitDashboardPage() {
   const ownerAccessIdentity = useOwnerAccessIdentity();
@@ -27,27 +32,27 @@ export function CockpitDashboardPage() {
           {welcomeHeadline}
         </h1>
         <p className="m-0 max-w-[60ch] font-mono text-[13px] leading-[1.6] text-muted-foreground">
-          One edge, your apps. Quick access below, then live usage and data.
+          {usageViewModelState.lastUpdatedLabel
+            ? `Live across your machines · updated ${usageViewModelState.lastUpdatedLabel}`
+            : "Live token usage across your machines."}
         </p>
       </header>
 
-      <section
-        aria-label="Quick access"
-        className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))]"
-      >
-        {cockpitQuickAccessBookmarks.map((bookmark) => (
-          <CockpitQuickAccessTile key={bookmark.id} bookmark={bookmark} />
-        ))}
-      </section>
+      <UsageKeyFigures
+        figures={
+          usageViewModelState.viewModel
+            ? buildUsageHeadlineFigures(usageViewModelState.viewModel)
+            : null
+        }
+        isUnavailable={usageViewModelState.errorMessage !== null}
+      />
 
-      <section aria-label="Usage and data">
+      <section aria-label="Usage over time">
         <Card>
           <CardHeader>
-            <CardTitle>Usage &amp; data</CardTitle>
+            <CardTitle>Daily tokens</CardTitle>
             <CardDescription>
-              {usageViewModelState.lastUpdatedLabel
-                ? `Live · updated ${usageViewModelState.lastUpdatedLabel}`
-                : "Live token usage across your accounts."}
+              Every account, every machine, one series per account.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -64,6 +69,15 @@ export function CockpitDashboardPage() {
             )}
           </CardContent>
         </Card>
+      </section>
+
+      <section
+        aria-label="Quick access"
+        className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))]"
+      >
+        {cockpitQuickAccessBookmarks.map((bookmark) => (
+          <CockpitQuickAccessTile key={bookmark.id} bookmark={bookmark} />
+        ))}
       </section>
 
       <section aria-label="Drive your own machine">
