@@ -1,5 +1,11 @@
-import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { KeybindProvider, ThemeProvider } from "@platform/design-system";
 import {
@@ -23,6 +29,12 @@ const liveSessions: readonly CockpitWorkspaceSession[] = [
         title: "claude",
         driver: "claude",
         terminalIdentifier: "term_6569e1e60304f89",
+      },
+      {
+        id: "@2",
+        title: "codex",
+        driver: "codex",
+        terminalIdentifier: "term_6569e1e60304f90",
       },
     ],
   },
@@ -96,5 +108,43 @@ describe("the status bar navigates the site everywhere except the terminal", () 
       expect(screen.getByRole("button", { name: "1:claude" })).toBeTruthy();
     });
     expect(screen.queryByRole("link", { name: "2:Terminal" })).toBeNull();
+  });
+});
+
+function pressLeaderThen(key: string) {
+  fireEvent.keyDown(window, { key: "b", ctrlKey: true });
+  fireEvent.keyDown(window, { key });
+}
+
+describe("the terminal keeps the tmux chords the status bar is drawn for", () => {
+  it("jumps to a live herdr window on its number chord", async () => {
+    renderStatusBarAt("/terminal");
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "2:codex" })).toBeTruthy();
+    });
+    pressLeaderThen("2");
+
+    await waitFor(() => {
+      expect(
+        screen
+          .getByRole("button", { name: "2:codex" })
+          .getAttribute("aria-current"),
+      ).toBe("page");
+    });
+  });
+
+  it("opens the session picker on the leader-then-s chord", async () => {
+    const paletteOpened = vi.fn();
+    window.addEventListener("atrium:command-palette", paletteOpened);
+    renderStatusBarAt("/terminal");
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "1:claude" })).toBeTruthy();
+    });
+    pressLeaderThen("s");
+    window.removeEventListener("atrium:command-palette", paletteOpened);
+
+    expect(paletteOpened).toHaveBeenCalledOnce();
   });
 });
