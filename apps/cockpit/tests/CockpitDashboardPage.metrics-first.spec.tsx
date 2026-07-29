@@ -115,3 +115,16 @@ describe("the dashboard opens on the numbers, not on the links", () => {
     expect(screen.getByText("Claude usage")).toBeTruthy();
   });
 });
+
+describe("the owner dashboard drops what only a visitor needs", () => {
+  it("does not pitch running a local cockpit", async () => {
+    stubSnapshotFetch();
+    renderDashboard();
+
+    await waitFor(() => {
+      expect(screen.getByText("$128.00")).toBeTruthy();
+    });
+    expect(screen.queryByText("Drive your own machine")).toBeNull();
+    expect(document.body.textContent ?? "").not.toContain("local-cockpit.py");
+  });
+});

@@ -4,7 +4,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  DriveYourOwnMachineCallToAction,
 } from "@platform/design-system";
 import {
   DailyTokensChart,
@@ -78,10 +77,6 @@ export function CockpitDashboardPage() {
         {cockpitQuickAccessBookmarks.map((bookmark) => (
           <CockpitQuickAccessTile key={bookmark.id} bookmark={bookmark} />
         ))}
-      </section>
-
-      <section aria-label="Drive your own machine">
-        <DriveYourOwnMachineCallToAction />
       </section>
     </div>
   );
