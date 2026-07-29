@@ -89,7 +89,7 @@ describe("the dashboard opens on the numbers, not on the links", () => {
     await waitFor(() => {
       expect(screen.getByText("$128.00")).toBeTruthy();
     });
-    expect(screen.getByText("Tokens today")).toBeTruthy();
+    expect(screen.getByText("Latest day")).toBeTruthy();
     expect(screen.getByText("2.5M")).toBeTruthy();
     expect(screen.getByText("12M")).toBeTruthy();
     const snapshotRequests = vi

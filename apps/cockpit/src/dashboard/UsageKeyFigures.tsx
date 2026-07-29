@@ -6,9 +6,9 @@ export interface UsageKeyFiguresProps {
 }
 
 const PLACEHOLDER_FIGURE_LABELS = [
-  "Tokens today",
+  "Latest day",
   "Total tokens",
-  "Spend",
+  "Cache reads",
   "Machines",
 ];
 

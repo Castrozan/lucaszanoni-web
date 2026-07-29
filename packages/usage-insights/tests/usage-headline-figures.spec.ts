@@ -53,12 +53,31 @@ describe("the dashboard leads with the figures the owner opens it for", () => {
     expect(total?.formattedValue).toBe("27.04M");
   });
 
-  it("takes today's tokens from the latest charted day across accounts", () => {
+  it("names the latest charted day rather than claiming it is today", () => {
     const figures = buildUsageHeadlineFigures(usageViewModelWith());
 
-    const today = figures.find((figure) => figure.id === "tokens-today");
-    expect(today?.formattedValue).toBe("12.5K");
-    expect(today?.caption).toBe("2026-07-28");
+    const latestDay = figures.find((figure) => figure.id === "latest-day");
+    expect(latestDay?.label).toBe("Latest day");
+    expect(latestDay?.formattedValue).toBe("12.5K");
+    expect(latestDay?.caption).toBe("2026-07-28");
+  });
+
+  it("scales past a million into billions instead of five-digit millions", () => {
+    const model = usageViewModelWith();
+    const figures = buildUsageHeadlineFigures({
+      ...model,
+      summary: {
+        ...model.summary,
+        token_totals: {
+          ...model.summary.token_totals,
+          cache_read_input_tokens: 130_077_560_000,
+        },
+      },
+    });
+
+    expect(
+      figures.find((figure) => figure.id === "total-tokens")?.formattedValue,
+    ).toBe("130.08B");
   });
 
   it("reports spend in dollars and the fleet it covers", () => {
@@ -72,14 +91,31 @@ describe("the dashboard leads with the figures the owner opens it for", () => {
     expect(fleet?.caption).toBe("2 accounts");
   });
 
+  it("shows cache reads instead of a dead spend tile on a subscription fleet", () => {
+    const model = usageViewModelWith();
+    const figures = buildUsageHeadlineFigures({
+      ...model,
+      summary: {
+        ...model.summary,
+        token_totals: { ...model.summary.token_totals, cost_usd: 0 },
+      },
+    });
+
+    expect(figures.find((figure) => figure.id === "spend")).toBeUndefined();
+    const cacheReads = figures.find((figure) => figure.id === "cache-reads");
+    expect(cacheReads?.label).toBe("Cache reads");
+    expect(cacheReads?.formattedValue).toBe("91%");
+    expect(cacheReads?.caption).toBe("of all tokens");
+  });
+
   it("survives a view model with no charted days", () => {
     const figures = buildUsageHeadlineFigures(
       usageViewModelWith({ chart: { dates: [], series: [] } }),
     );
 
-    const today = figures.find((figure) => figure.id === "tokens-today");
-    expect(today?.formattedValue).toBe("0");
-    expect(today?.caption).toBe("no sessions yet");
+    const latestDay = figures.find((figure) => figure.id === "latest-day");
+    expect(latestDay?.formattedValue).toBe("0");
+    expect(latestDay?.caption).toBe("no sessions yet");
   });
 
   it("keeps a single machine singular", () => {
