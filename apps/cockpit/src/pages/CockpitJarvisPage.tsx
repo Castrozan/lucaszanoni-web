@@ -2,11 +2,8 @@ import { useCallback, useState } from "react";
 import { Button } from "@platform/design-system";
 import { JarvisGraphField } from "../jarvis/JarvisGraphField";
 import { JarvisSessionTerminal } from "../jarvis/JarvisSessionTerminal";
-import {
-  appendOwnerMessage,
-  type JarvisUtterance,
-} from "../jarvis/jarvis-dialogue";
 import { useJarvisSpeech } from "../jarvis/use-jarvis-speech";
+import { useJarvisConversation } from "../jarvis/use-jarvis-conversation";
 import { SessionReviewPairing } from "../review/SessionReviewPairing";
 import {
   MachineSwitcher,
@@ -19,7 +16,6 @@ type JarvisView = "terminal" | "conversation";
 export function CockpitJarvisPage() {
   const [activeView, setActiveView] = useState<JarvisView>("terminal");
   const [draftMessage, setDraftMessage] = useState("");
-  const [transcript, setTranscript] = useState<readonly JarvisUtterance[]>([]);
   const [activeMachineKey, setActiveMachineKey] = useState<string | null>(null);
   const machines = resolveCockpitWorkspaceMachines();
   const activeMachine = resolveActiveCockpitWorkspaceMachine(
@@ -33,22 +29,15 @@ export function CockpitJarvisPage() {
   const { isListening, recognitionSupported, toggleListening, speak } =
     useJarvisSpeech(receiveTranscript);
 
+  const { transcript, isAwaitingReply, failureMessage, send } =
+    useJarvisConversation(speak);
+
   const submitMessage = useCallback(
     (text: string) => {
       setDraftMessage("");
-      setTranscript((current) => {
-        const next = appendOwnerMessage(current, text);
-        if (next === current) {
-          return current;
-        }
-        const latest = next[next.length - 1];
-        if (latest?.speaker === "jarvis") {
-          speak(latest.text);
-        }
-        return next;
-      });
+      send(text);
     },
-    [speak],
+    [send],
   );
 
   return (
@@ -128,6 +117,22 @@ export function CockpitJarvisPage() {
                 ))}
               </ul>
             )}
+            {isAwaitingReply ? (
+              <p
+                aria-live="polite"
+                className="m-0 font-mono text-[11px] uppercase tracking-[2px] text-text-faint"
+              >
+                Jarvis is thinking
+              </p>
+            ) : null}
+            {failureMessage ? (
+              <p
+                role="alert"
+                className="m-0 font-mono text-[12px] text-status-negative"
+              >
+                {failureMessage}
+              </p>
+            ) : null}
           </div>
           <form
             className="relative flex items-center gap-2 border-t border-border bg-surface px-4 py-3"

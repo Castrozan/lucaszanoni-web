@@ -44,3 +44,9 @@ export {
   type SessionTerminalEmulator,
   type SessionTerminalEmulatorFactory,
 } from "./workspace/session-terminal-emulator";
+export { resolveEdgeWebsocketEndpoint } from "./workspace/edge-websocket-endpoint";
+export {
+  connectJsonRequestReplySocket,
+  type JsonRequestReplySocket,
+  type JsonRequestReplySocketOptions,
+} from "./workspace/json-request-reply-socket";
