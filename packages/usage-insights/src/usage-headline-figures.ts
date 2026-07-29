@@ -24,8 +24,8 @@ export function buildUsageHeadlineFigures(
         );
   return [
     {
-      id: "tokens-today",
-      label: "Tokens today",
+      id: "latest-day",
+      label: "Latest day",
       formattedValue: formatTokenCount(tokensOnLatestChartedDay),
       caption: chart.dates[latestChartedDayIndex] ?? NO_SESSIONS_CAPTION,
     },
@@ -37,12 +37,7 @@ export function buildUsageHeadlineFigures(
         ? `since ${summary.first_session_date}`
         : NO_SESSIONS_CAPTION,
     },
-    {
-      id: "spend",
-      label: "Spend",
-      formattedValue: formatUnitedStatesDollars(summary.token_totals.cost_usd),
-      caption: "billed to date",
-    },
+    billedFigureOrCacheReadShare(summary.token_totals),
     {
       id: "fleet",
       label: "Machines",
@@ -50,6 +45,29 @@ export function buildUsageHeadlineFigures(
       caption: pluralize(summary.account_count, "account"),
     },
   ];
+}
+
+function billedFigureOrCacheReadShare(
+  tokenTotals: UsageViewModel["summary"]["token_totals"],
+): UsageHeadlineFigure {
+  if (tokenTotals.cost_usd > 0) {
+    return {
+      id: "spend",
+      label: "Spend",
+      formattedValue: formatUnitedStatesDollars(tokenTotals.cost_usd),
+      caption: "billed to date",
+    };
+  }
+  const everyToken = sumEveryTokenKind(tokenTotals);
+  return {
+    id: "cache-reads",
+    label: "Cache reads",
+    formattedValue:
+      everyToken === 0
+        ? "0%"
+        : `${Math.round((tokenTotals.cache_read_input_tokens / everyToken) * 100)}%`,
+    caption: "of all tokens",
+  };
 }
 
 function sumEveryTokenKind(
@@ -64,6 +82,9 @@ function sumEveryTokenKind(
 }
 
 function formatTokenCount(tokenCount: number): string {
+  if (tokenCount >= 1_000_000_000) {
+    return `${trimTrailingZeros(tokenCount / 1_000_000_000)}B`;
+  }
   if (tokenCount >= 1_000_000) {
     return `${trimTrailingZeros(tokenCount / 1_000_000)}M`;
   }
