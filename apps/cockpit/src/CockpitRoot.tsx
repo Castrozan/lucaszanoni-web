@@ -19,8 +19,8 @@ export function CockpitRoot() {
               <CockpitShell>
                 <CockpitRoutes />
               </CockpitShell>
+              <CockpitStatusBar />
             </BrowserRouter>
-            <CockpitStatusBar />
           </CockpitWorkspaceProvider>
         </KeybindProvider>
       </ThemeProvider>

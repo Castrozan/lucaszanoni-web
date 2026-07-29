@@ -6,6 +6,8 @@ export interface CockpitView {
   readonly leaderKey: string;
 }
 
+export const COCKPIT_TERMINAL_VIEW_PATH = "/terminal";
+
 export const cockpitViews: readonly CockpitView[] = [
   {
     id: "dashboard",
@@ -17,7 +19,7 @@ export const cockpitViews: readonly CockpitView[] = [
   {
     id: "terminal",
     label: "Terminal",
-    path: "/terminal",
+    path: COCKPIT_TERMINAL_VIEW_PATH,
     fillsViewport: true,
     leaderKey: "t",
   },

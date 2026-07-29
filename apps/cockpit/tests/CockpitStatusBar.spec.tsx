@@ -6,7 +6,9 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { KeybindProvider, ThemeProvider } from "@platform/design-system";
+import { COCKPIT_TERMINAL_VIEW_PATH } from "../src/navigation/cockpit-views";
 import {
   createInMemoryComputeAdapter,
   type CockpitComputePort,
@@ -53,7 +55,9 @@ function renderCockpitStatusBar() {
     <ThemeProvider>
       <KeybindProvider>
         <CockpitWorkspaceProvider createComputeForMachine={() => seededCompute}>
-          <CockpitStatusBar />
+          <MemoryRouter initialEntries={[COCKPIT_TERMINAL_VIEW_PATH]}>
+            <CockpitStatusBar />
+          </MemoryRouter>
         </CockpitWorkspaceProvider>
       </KeybindProvider>
     </ThemeProvider>,
