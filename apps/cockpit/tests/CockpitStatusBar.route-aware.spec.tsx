@@ -65,7 +65,10 @@ describe("the status bar navigates the site everywhere except the terminal", () 
       screen.getByRole("link", { name: "2:Terminal" }).getAttribute("href"),
     ).toBe("/cockpit/terminal");
     expect(screen.getByRole("link", { name: "3:Jarvis" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "4:User" })).toBeTruthy();
+    expect(
+      screen.getByRole("link", { name: "4:Docs" }).getAttribute("href"),
+    ).toBe("/cockpit/docs");
+    expect(screen.getByRole("link", { name: "5:User" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "1:claude" })).toBeNull();
   });
 

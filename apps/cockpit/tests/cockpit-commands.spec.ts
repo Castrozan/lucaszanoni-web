@@ -16,6 +16,7 @@ describe("buildNavigationCommands", () => {
       "Go to Dashboard",
       "Go to Terminal",
       "Go to Jarvis",
+      "Go to Docs",
       "Go to User",
     ]);
   });

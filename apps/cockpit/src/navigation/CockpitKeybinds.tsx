@@ -2,6 +2,12 @@ import { useKeybind } from "@platform/design-system";
 import type { WorkspaceController } from "@platform/workspace";
 import { cockpitViews } from "./cockpit-views";
 import { CockpitViewKeybind } from "./CockpitViewKeybind";
+import {
+  CHOOSE_MACHINE_KEYBIND,
+  COMMAND_PALETTE_KEYBIND,
+  NEW_AGENT_WINDOW_KEYBIND,
+  NEW_SESSION_KEYBIND,
+} from "./cockpit-workspace-keybind-declarations";
 
 const DEFAULT_AGENT_WINDOW_DRIVER = "claude" as const;
 
@@ -27,12 +33,7 @@ export function CockpitKeybinds({
   controller,
   promptForSessionName = promptForSessionNameInBrowser,
 }: CockpitKeybindsProps) {
-  useKeybind({
-    id: "cockpit.palette",
-    label: "Open the command palette",
-    defaultBinding: "Leader k",
-    run: openPalette,
-  });
+  useKeybind({ ...COMMAND_PALETTE_KEYBIND, run: openPalette });
   return (
     <>
       {cockpitViews.map((view) => (
@@ -60,16 +61,9 @@ function CockpitWorkspaceKeybinds({
   controller,
   promptForSessionName,
 }: CockpitWorkspaceKeybindsProps) {
+  useKeybind({ ...CHOOSE_MACHINE_KEYBIND, run: openPalette });
   useKeybind({
-    id: "cockpit.machine.choose",
-    label: "Switch machine",
-    defaultBinding: "Leader d",
-    run: openPalette,
-  });
-  useKeybind({
-    id: "cockpit.session.new",
-    label: "Create a new session",
-    defaultBinding: "Leader Shift+s",
+    ...NEW_SESSION_KEYBIND,
     run: () => {
       const requestedName = promptForSessionName()?.trim();
       if (requestedName) {
@@ -78,9 +72,7 @@ function CockpitWorkspaceKeybinds({
     },
   });
   useKeybind({
-    id: "cockpit.window.new",
-    label: "Open a new agent window",
-    defaultBinding: "Leader c",
+    ...NEW_AGENT_WINDOW_KEYBIND,
     run: () => void controller.openWindow(DEFAULT_AGENT_WINDOW_DRIVER),
   });
   return null;

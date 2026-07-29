@@ -24,6 +24,7 @@ describe("buildPlatformSessions", () => {
       "cockpit-dashboard",
       "cockpit-terminal",
       "cockpit-jarvis",
+      "cockpit-docs",
       "cockpit-user",
       "jarvis-session",
       "kira-session",

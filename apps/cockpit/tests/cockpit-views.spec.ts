@@ -20,6 +20,12 @@ describe("cockpitViews", () => {
     expect(cockpitViews[0]?.id).toBe("dashboard");
   });
 
+  it("registers the private documentation surface at /docs", () => {
+    const docsView = cockpitViews.find((view) => view.id === "docs");
+    expect(docsView?.path).toBe("/docs");
+    expect(docsView?.label).toBe("Docs");
+  });
+
   it("registers the user view at /user", () => {
     const userView = cockpitViews.find((view) => view.id === "user");
     expect(userView?.path).toBe("/user");

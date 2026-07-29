@@ -53,6 +53,17 @@ describe("CockpitRoutes", () => {
     ).toBeDefined();
   });
 
+  it("serves the private documentation surface at /docs", () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => new Promise(() => {})),
+    );
+    renderAtPath("/docs");
+    expect(
+      screen.getByRole("heading", { name: "System documentation" }),
+    ).toBeDefined();
+  });
+
   it("never falls the terminal route back to the workspace launcher", () => {
     vi.stubGlobal(
       "fetch",
