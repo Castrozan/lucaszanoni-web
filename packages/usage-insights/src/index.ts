@@ -16,3 +16,7 @@ export {
   DailyTokensChart,
   type DailyTokensChartProps,
 } from "./DailyTokensChart";
+export {
+  buildUsageHeadlineFigures,
+  type UsageHeadlineFigure,
+} from "./usage-headline-figures";
