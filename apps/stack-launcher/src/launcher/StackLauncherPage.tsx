@@ -1,12 +1,30 @@
 import { findMicroFrontendRoute } from "@platform/config";
 import { arrStackApps } from "./arr-stack-apps";
-import { buildArrStackAppUrl, resolveArrStackHost } from "./arr-stack-host";
+import {
+  buildArrStackAppUrl,
+  resolveArrStackFunnelHost,
+  resolveArrStackTailnetHost,
+} from "./arr-stack-host";
 
 const stackLauncherRoute = findMicroFrontendRoute("stack-launcher");
 
+function ExposureBadge({ exposure }: { exposure: "funnel" | "tailnet" }) {
+  return (
+    <span className="border border-border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[1.5px] text-text-faint">
+      {exposure === "funnel" ? "public" : "tailnet"}
+    </span>
+  );
+}
+
 export function StackLauncherPage() {
-  const arrStackHost = resolveArrStackHost();
-  const isStackHostConfigured = arrStackHost.length > 0;
+  const funnelHost = resolveArrStackFunnelHost();
+  const tailnetHost = resolveArrStackTailnetHost();
+  const funnelConfigured = funnelHost.length > 0;
+  const tailnetConfigured = tailnetHost.length > 0;
+  const launcherApps = arrStackApps.filter((arrStackApp) =>
+    arrStackApp.exposure === "funnel" ? funnelConfigured : tailnetConfigured,
+  );
+
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
@@ -21,24 +39,29 @@ export function StackLauncherPage() {
         </p>
       </header>
 
-      {isStackHostConfigured ? (
+      {launcherApps.length > 0 ? (
         <section
           aria-label="Self-hosted apps"
           className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))]"
         >
-          {arrStackApps.map((arrStackApp) => (
+          {launcherApps.map((arrStackApp) => (
             <a
               key={arrStackApp.id}
-              href={buildArrStackAppUrl(arrStackHost, arrStackApp.port)}
+              href={buildArrStackAppUrl(arrStackApp)}
               target="_blank"
               rel="noreferrer"
               className="block rounded-lg border border-border bg-surface px-5 py-4 text-inherit no-underline transition-colors hover:border-primary"
             >
-              <div className="text-[1.05rem] font-semibold text-primary">
-                {arrStackApp.label}
+              <div className="flex items-start justify-between gap-2">
+                <div className="text-[1.05rem] font-semibold text-primary">
+                  {arrStackApp.label}
+                </div>
+                <ExposureBadge exposure={arrStackApp.exposure} />
               </div>
               <div className="mt-1.5 font-mono text-sm text-muted-foreground">
-                {`port ${arrStackApp.port}`}
+                {arrStackApp.exposure === "funnel"
+                  ? `port ${arrStackApp.funnelPort}`
+                  : `port ${arrStackApp.port}`}
               </div>
             </a>
           ))}
@@ -52,7 +75,8 @@ export function StackLauncherPage() {
             stack host not configured
           </div>
           <p className="m-0 max-w-[52ch] font-mono text-[13px] leading-[1.6] text-muted-foreground">
-            Set VITE_ARR_STACK_HOST at build time to link the self-hosted apps.
+            Set VITE_ARR_STACK_HOST and VITE_ARR_STACK_TAILNET_HOST at build
+            time to link the self-hosted apps.
           </p>
         </section>
       )}
