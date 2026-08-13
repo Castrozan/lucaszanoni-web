@@ -28,4 +28,10 @@ describe("arr stack apps", () => {
       ]),
     );
   });
+
+  it("does not carry a dead Homepage tile now that the stack has no port-80 dashboard", () => {
+    expect(arrStackApps).not.toContainEqual(
+      expect.objectContaining({ id: "homepage" }),
+    );
+  });
 });

@@ -38,8 +38,5 @@ describe("buildArrStackAppUrl", () => {
     expect(buildArrStackAppUrl(appById("sonarr"))).toBe(
       "http://100.94.11.81:8989",
     );
-    expect(buildArrStackAppUrl(appById("homepage"))).toBe(
-      "http://100.94.11.81",
-    );
   });
 });
