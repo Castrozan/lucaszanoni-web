@@ -1,19 +1,43 @@
+export type ArrStackAppExposure = "funnel" | "tailnet";
+
 export interface ArrStackApp {
   readonly id: string;
   readonly label: string;
+  readonly exposure: ArrStackAppExposure;
   readonly port: number;
+  readonly funnelPort?: number;
 }
 
+const FunnelApp = (
+  id: string,
+  label: string,
+  port: number,
+  funnelPort: number,
+): ArrStackApp => ({
+  id,
+  label,
+  exposure: "funnel",
+  port,
+  funnelPort,
+});
+
+const TailnetApp = (id: string, label: string, port: number): ArrStackApp => ({
+  id,
+  label,
+  exposure: "tailnet",
+  port,
+});
+
 export const arrStackApps: readonly ArrStackApp[] = [
-  { id: "jellyfin", label: "Jellyfin", port: 8096 },
-  { id: "jellyseerr", label: "Jellyseerr", port: 5055 },
-  { id: "kavita", label: "Kavita", port: 5000 },
-  { id: "seanime", label: "Seanime", port: 43211 },
-  { id: "radarr", label: "Radarr", port: 7878 },
-  { id: "sonarr", label: "Sonarr", port: 8989 },
-  { id: "prowlarr", label: "Prowlarr", port: 9696 },
-  { id: "bazarr", label: "Bazarr", port: 6767 },
-  { id: "suwayomi", label: "Suwayomi", port: 4567 },
-  { id: "qbittorrent", label: "qBittorrent", port: 8080 },
-  { id: "homepage", label: "Homepage", port: 80 },
+  FunnelApp("jellyfin", "Jellyfin", 8096, 443),
+  FunnelApp("jellyseerr", "Jellyseerr", 5055, 8443),
+  FunnelApp("kavita", "Kavita", 5000, 10000),
+  TailnetApp("seanime", "Seanime", 43211),
+  TailnetApp("radarr", "Radarr", 7878),
+  TailnetApp("sonarr", "Sonarr", 8989),
+  TailnetApp("prowlarr", "Prowlarr", 9696),
+  TailnetApp("bazarr", "Bazarr", 6767),
+  TailnetApp("suwayomi", "Suwayomi", 4567),
+  TailnetApp("qbittorrent", "qBittorrent", 8080),
+  TailnetApp("homepage", "Homepage", 80),
 ];
