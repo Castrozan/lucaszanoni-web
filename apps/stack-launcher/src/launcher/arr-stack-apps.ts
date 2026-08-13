@@ -39,5 +39,4 @@ export const arrStackApps: readonly ArrStackApp[] = [
   TailnetApp("bazarr", "Bazarr", 6767),
   TailnetApp("suwayomi", "Suwayomi", 4567),
   TailnetApp("qbittorrent", "qBittorrent", 8080),
-  TailnetApp("homepage", "Homepage", 80),
 ];
