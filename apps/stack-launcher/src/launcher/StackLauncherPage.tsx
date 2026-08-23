@@ -2,7 +2,6 @@ import { findMicroFrontendRoute } from "@platform/config";
 import { arrStackApps } from "./arr-stack-apps";
 import {
   buildArrStackAppUrl,
-  resolveArrStackFunnelHost,
   resolveArrStackPublicDomain,
   resolveArrStackTailnetHost,
 } from "./arr-stack-host";
@@ -13,27 +12,19 @@ const stackLauncherRoute = findMicroFrontendRoute("stack-launcher");
 function ExposureBadge({ exposure }: { exposure: ArrStackAppExposure }) {
   return (
     <span className="border border-border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[1.5px] text-text-faint">
-      {exposure === "custom-domain"
-        ? "private"
-        : exposure === "funnel"
-          ? "public"
-          : "tailnet"}
+      {exposure === "custom-domain" ? "private" : "tailnet"}
     </span>
   );
 }
 
 export function StackLauncherPage() {
   const publicDomain = resolveArrStackPublicDomain();
-  const funnelHost = resolveArrStackFunnelHost();
   const tailnetHost = resolveArrStackTailnetHost();
-  const funnelConfigured = funnelHost.length > 0;
   const tailnetConfigured = tailnetHost.length > 0;
   const launcherApps = arrStackApps.filter((arrStackApp) =>
     arrStackApp.exposure === "custom-domain"
       ? publicDomain.length > 0
-      : arrStackApp.exposure === "funnel"
-        ? funnelConfigured
-        : tailnetConfigured,
+      : tailnetConfigured,
   );
 
   return (
@@ -72,9 +63,7 @@ export function StackLauncherPage() {
               <div className="mt-1.5 font-mono text-sm text-muted-foreground">
                 {arrStackApp.exposure === "custom-domain"
                   ? `${arrStackApp.subdomainLabel}.${publicDomain}`
-                  : arrStackApp.exposure === "funnel"
-                    ? `port ${arrStackApp.funnelPort}`
-                    : `port ${arrStackApp.port}`}
+                  : `port ${arrStackApp.port}`}
               </div>
             </a>
           ))}
@@ -88,8 +77,8 @@ export function StackLauncherPage() {
             stack host not configured
           </div>
           <p className="m-0 max-w-[52ch] font-mono text-[13px] leading-[1.6] text-muted-foreground">
-            Set VITE_ARR_STACK_HOST and VITE_ARR_STACK_TAILNET_HOST at build
-            time to link the self-hosted apps.
+            Set VITE_ARR_STACK_TAILNET_HOST at build time to link the private
+            tailnet apps.
           </p>
         </section>
       )}

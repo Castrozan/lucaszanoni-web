@@ -15,7 +15,7 @@ afterEach(() => {
 });
 
 describe("buildArrStackAppUrl", () => {
-  it("links the request and playback apps through the current private platform domain", () => {
+  it("links the public media apps through the current private platform domain", () => {
     vi.stubEnv("VITE_ARR_STACK_PUBLIC_DOMAIN", "lucaszanoni.com");
 
     expect(buildArrStackAppUrl(appById("jellyfin"))).toBe(
@@ -24,13 +24,8 @@ describe("buildArrStackAppUrl", () => {
     expect(buildArrStackAppUrl(appById("jellyseerr"))).toBe(
       "https://request.lucaszanoni.com",
     );
-  });
-
-  it("keeps Kavita on the existing funnel port", () => {
-    vi.stubEnv("VITE_ARR_STACK_HOST", "chise.tailfdafd6.ts.net");
-
     expect(buildArrStackAppUrl(appById("kavita"))).toBe(
-      "https://chise.tailfdafd6.ts.net:10000",
+      "https://read.lucaszanoni.com",
     );
   });
 

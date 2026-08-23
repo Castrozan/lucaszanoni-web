@@ -120,7 +120,6 @@ jobs:
           COCKPIT_GITLAB_PROJECT: ${{ secrets.COCKPIT_GITLAB_PROJECT }}
           COCKPIT_REAL_COMPUTE: ${{ secrets.COCKPIT_REAL_COMPUTE }}
           COCKPIT_WORKSPACE_MACHINES: ${{ secrets.COCKPIT_WORKSPACE_MACHINES }}
-          ARR_STACK_HOST: ${{ secrets.ARR_STACK_HOST }}
           ARR_STACK_TAILNET_HOST: ${{ secrets.ARR_STACK_TAILNET_HOST }}
         run: |
           case "${build_profile}" in
@@ -141,7 +140,6 @@ jobs:
             --build-arg VITE_COCKPIT_GITLAB_PROJECT="${COCKPIT_GITLAB_PROJECT}" \
             --build-arg VITE_COCKPIT_REAL_COMPUTE="${COCKPIT_REAL_COMPUTE}" \
             --build-arg VITE_COCKPIT_WORKSPACE_MACHINES="${COCKPIT_WORKSPACE_MACHINES}" \
-            --build-arg VITE_ARR_STACK_HOST="${ARR_STACK_HOST}" \
             --build-arg VITE_ARR_STACK_TAILNET_HOST="${ARR_STACK_TAILNET_HOST}" \
             --tag "${image_repository}:${{ github.sha }}" \
             --tag "${image_repository}:latest" \

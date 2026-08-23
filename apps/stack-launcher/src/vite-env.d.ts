@@ -2,6 +2,5 @@
 
 interface ImportMetaEnv {
   readonly VITE_ARR_STACK_PUBLIC_DOMAIN?: string;
-  readonly VITE_ARR_STACK_HOST?: string;
   readonly VITE_ARR_STACK_TAILNET_HOST?: string;
 }

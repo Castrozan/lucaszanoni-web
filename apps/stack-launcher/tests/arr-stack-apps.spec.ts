@@ -11,12 +11,12 @@ describe("arr stack apps", () => {
     });
   });
 
-  it("publishes request and playback through the private platform domain", () => {
+  it("publishes request, playback, and reading through the private platform domain", () => {
     expect(
       arrStackApps
         .filter((app) => app.exposure === "custom-domain")
         .map((app) => app.id),
-    ).toEqual(["jellyfin", "jellyseerr"]);
+    ).toEqual(["jellyfin", "jellyseerr", "kavita"]);
     expect(arrStackApps).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ id: "jellyfin", subdomainLabel: "watch" }),
@@ -24,14 +24,9 @@ describe("arr stack apps", () => {
           id: "jellyseerr",
           subdomainLabel: "request",
         }),
+        expect.objectContaining({ id: "kavita", subdomainLabel: "read" }),
       ]),
     );
-  });
-
-  it("keeps Kavita as the only public funnel app", () => {
-    expect(arrStackApps.filter((app) => app.exposure === "funnel")).toEqual([
-      expect.objectContaining({ id: "kavita", funnelPort: 10000 }),
-    ]);
   });
 
   it("does not carry a dead Homepage tile now that the stack has no port-80 dashboard", () => {
