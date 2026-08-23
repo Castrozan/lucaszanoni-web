@@ -1,12 +1,30 @@
-export type ArrStackAppExposure = "funnel" | "tailnet";
+export type ArrStackAppExposure = "custom-domain" | "funnel" | "tailnet";
 
-export interface ArrStackApp {
+interface ArrStackAppBase {
   readonly id: string;
   readonly label: string;
-  readonly exposure: ArrStackAppExposure;
   readonly port: number;
-  readonly funnelPort?: number;
 }
+
+export type ArrStackApp = ArrStackAppBase &
+  (
+    | { readonly exposure: "custom-domain"; readonly subdomainLabel: string }
+    | { readonly exposure: "funnel"; readonly funnelPort: number }
+    | { readonly exposure: "tailnet" }
+  );
+
+const CustomDomainApp = (
+  id: string,
+  label: string,
+  port: number,
+  subdomainLabel: string,
+): ArrStackApp => ({
+  id,
+  label,
+  exposure: "custom-domain",
+  port,
+  subdomainLabel,
+});
 
 const FunnelApp = (
   id: string,
@@ -29,8 +47,8 @@ const TailnetApp = (id: string, label: string, port: number): ArrStackApp => ({
 });
 
 export const arrStackApps: readonly ArrStackApp[] = [
-  FunnelApp("jellyfin", "Jellyfin", 8096, 443),
-  FunnelApp("jellyseerr", "Jellyseerr", 5055, 8443),
+  CustomDomainApp("jellyfin", "Jellyfin", 8096, "watch"),
+  CustomDomainApp("jellyseerr", "Jellyseerr", 5055, "request"),
   FunnelApp("kavita", "Kavita", 5000, 10000),
   TailnetApp("seanime", "Seanime", 43211),
   TailnetApp("radarr", "Radarr", 7878),

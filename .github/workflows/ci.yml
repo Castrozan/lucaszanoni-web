@@ -118,3 +118,18 @@ jobs:
         run: |
           tofu init -backend=false -input=false
           tofu test
+
+  cloudflare-jarvis-tunnel-module-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.11.8
+
+      - name: Cloudflare host tunnel module test
+        working-directory: infra/modules/cloudflare-jarvis-tunnel
+        run: |
+          tofu init -backend=false -input=false
+          tofu test

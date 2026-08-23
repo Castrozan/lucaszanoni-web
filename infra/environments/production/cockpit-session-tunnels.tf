@@ -37,10 +37,11 @@ module "jarvis_session_tunnel" {
   source = "../../modules/cloudflare-jarvis-tunnel"
   count  = var.enable_jarvis_session_tunnel ? 1 : 0
 
-  cloudflare_account_id = var.cloudflare_account_id
-  zone_name             = local.edge_serving_domain
-  origin_hostname       = "jarvis-session-origin.${local.edge_serving_domain}"
-  tunnel_secret         = var.jarvis_session_tunnel_secret
+  cloudflare_account_id       = var.cloudflare_account_id
+  zone_name                   = local.edge_serving_domain
+  origin_hostname             = "jarvis-session-origin.${local.edge_serving_domain}"
+  additional_origin_hostnames = values(local.arr_stack_media_hostnames)
+  tunnel_secret               = var.jarvis_session_tunnel_secret
 }
 
 module "kira_session_tunnel" {

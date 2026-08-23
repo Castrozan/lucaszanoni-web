@@ -15,6 +15,11 @@ variable "origin_hostname" {
   type = string
 }
 
+variable "additional_origin_hostnames" {
+  type    = set(string)
+  default = []
+}
+
 variable "tunnel_secret" {
   type      = string
   sensitive = true

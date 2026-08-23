@@ -22,3 +22,14 @@ resource "cloudflare_dns_record" "tunnel_origin" {
   proxied = true
   ttl     = 1
 }
+
+resource "cloudflare_dns_record" "additional_tunnel_origin" {
+  for_each = var.additional_origin_hostnames
+
+  zone_id = data.cloudflare_zone.this.id
+  name    = each.key
+  type    = "CNAME"
+  content = "${cloudflare_zero_trust_tunnel_cloudflared.this.id}.cfargotunnel.com"
+  proxied = true
+  ttl     = 1
+}

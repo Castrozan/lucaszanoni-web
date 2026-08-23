@@ -47,10 +47,14 @@ locals {
     if try(app.servingLocation.kind, "path-prefix") != "subdomain"
   }
 
-  private_environment_apps = {
+  private_registry_applications = {
     for app in local.app_registry :
     app.id => {
-      mount_path    = app.mountPath
+      application_domain = (
+        try(app.servingLocation.kind, "path-prefix") == "subdomain"
+        ? "${app.servingLocation.subdomainLabel}.${local.edge_serving_domain}"
+        : "${local.edge_serving_domain}${trimsuffix(app.mountPath, "/")}"
+      )
       audience_kind = try(app.accessModel.audience.kind, "owner")
       audience_key  = try(app.accessModel.audience.audienceKey, "")
     }
@@ -145,9 +149,11 @@ module "access" {
   source = "../../modules/cloudflare-access"
   count  = var.enable_cloudflare_edge ? 1 : 0
 
-  cloudflare_account_id                   = var.cloudflare_account_id
-  zone_name                               = local.edge_serving_domain
-  private_environment_apps                = local.private_environment_apps
+  cloudflare_account_id = var.cloudflare_account_id
+  private_applications = merge(
+    local.private_registry_applications,
+    local.arr_stack_media_private_applications,
+  )
   owner_account_email                     = var.owner_account_email
   shared_access_audience_email_allowlists = var.shared_access_audience_email_allowlists
   google_sso_client_id                    = var.google_sso_client_id

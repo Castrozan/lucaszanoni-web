@@ -11,22 +11,27 @@ describe("arr stack apps", () => {
     });
   });
 
-  it("publishes only the login-bearing front ends on the funnel", () => {
+  it("publishes request and playback through the private platform domain", () => {
     expect(
       arrStackApps
-        .filter((app) => app.exposure === "funnel")
+        .filter((app) => app.exposure === "custom-domain")
         .map((app) => app.id),
-    ).toEqual(["jellyfin", "jellyseerr", "kavita"]);
-  });
-
-  it("gives each funnel app a distinct Tailscale Funnel HTTPS port", () => {
-    expect(arrStackApps.filter((app) => app.exposure === "funnel")).toEqual(
+    ).toEqual(["jellyfin", "jellyseerr"]);
+    expect(arrStackApps).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ id: "jellyfin", funnelPort: 443 }),
-        expect.objectContaining({ id: "jellyseerr", funnelPort: 8443 }),
-        expect.objectContaining({ id: "kavita", funnelPort: 10000 }),
+        expect.objectContaining({ id: "jellyfin", subdomainLabel: "watch" }),
+        expect.objectContaining({
+          id: "jellyseerr",
+          subdomainLabel: "request",
+        }),
       ]),
     );
+  });
+
+  it("keeps Kavita as the only public funnel app", () => {
+    expect(arrStackApps.filter((app) => app.exposure === "funnel")).toEqual([
+      expect.objectContaining({ id: "kavita", funnelPort: 10000 }),
+    ]);
   });
 
   it("does not carry a dead Homepage tile now that the stack has no port-80 dashboard", () => {

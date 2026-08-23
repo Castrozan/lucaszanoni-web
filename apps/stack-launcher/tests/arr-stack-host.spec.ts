@@ -15,15 +15,20 @@ afterEach(() => {
 });
 
 describe("buildArrStackAppUrl", () => {
-  it("links funnel apps over HTTPS on their funnel ports", () => {
-    vi.stubEnv("VITE_ARR_STACK_HOST", "chise.tailfdafd6.ts.net");
+  it("links the request and playback apps through the current private platform domain", () => {
+    vi.stubEnv("VITE_ARR_STACK_PUBLIC_DOMAIN", "lucaszanoni.com");
 
     expect(buildArrStackAppUrl(appById("jellyfin"))).toBe(
-      "https://chise.tailfdafd6.ts.net",
+      "https://watch.lucaszanoni.com",
     );
     expect(buildArrStackAppUrl(appById("jellyseerr"))).toBe(
-      "https://chise.tailfdafd6.ts.net:8443",
+      "https://request.lucaszanoni.com",
     );
+  });
+
+  it("keeps Kavita on the existing funnel port", () => {
+    vi.stubEnv("VITE_ARR_STACK_HOST", "chise.tailfdafd6.ts.net");
+
     expect(buildArrStackAppUrl(appById("kavita"))).toBe(
       "https://chise.tailfdafd6.ts.net:10000",
     );

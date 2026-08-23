@@ -1,6 +1,6 @@
 locals {
   app_email_includes = {
-    for app_id, app in var.private_environment_apps :
+    for app_id, app in var.private_applications :
     app_id => app.audience_kind == "owner" ? (
       var.owner_account_email == "" ? [] : [var.owner_account_email]
       ) : (
@@ -16,7 +16,7 @@ locals {
 }
 
 resource "cloudflare_zero_trust_access_policy" "app" {
-  for_each = var.private_environment_apps
+  for_each = var.private_applications
 
   account_id = var.cloudflare_account_id
   name       = "lucaszanoni-${each.key}-allow"
@@ -52,11 +52,11 @@ resource "cloudflare_zero_trust_access_identity_provider" "google" {
 }
 
 resource "cloudflare_zero_trust_access_application" "app" {
-  for_each = var.private_environment_apps
+  for_each = var.private_applications
 
   account_id       = var.cloudflare_account_id
   name             = "lucaszanoni-${each.key}"
-  domain           = "${var.zone_name}${trimsuffix(each.value.mount_path, "/")}"
+  domain           = each.value.application_domain
   type             = "self_hosted"
   session_duration = var.session_duration
 

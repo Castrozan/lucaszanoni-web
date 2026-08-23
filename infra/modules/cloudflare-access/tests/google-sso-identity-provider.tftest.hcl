@@ -2,13 +2,12 @@ mock_provider "cloudflare" {}
 
 variables {
   cloudflare_account_id = "0000000000000000000000000000abcd"
-  zone_name             = "lucaszanoni.test"
   owner_account_email   = "owner@example.test"
-  private_environment_apps = {
+  private_applications = {
     db = {
-      mount_path    = "/db/"
-      audience_kind = "owner"
-      audience_key  = ""
+      application_domain = "lucaszanoni.test/db"
+      audience_kind      = "owner"
+      audience_key       = ""
     }
   }
 }
@@ -39,6 +38,25 @@ run "no_identity_provider_when_google_credentials_absent" {
   assert {
     condition     = output.google_sso_login_enabled == false
     error_message = "the module must report Google sso login disabled while the credentials are empty"
+  }
+}
+
+run "private_subdomain_uses_its_explicit_application_domain" {
+  command = plan
+
+  variables {
+    private_applications = {
+      jellyfin = {
+        application_domain = "watch.lucaszanoni.test"
+        audience_kind      = "owner"
+        audience_key       = ""
+      }
+    }
+  }
+
+  assert {
+    condition     = cloudflare_zero_trust_access_application.app["jellyfin"].domain == "watch.lucaszanoni.test"
+    error_message = "a private media application must protect its explicit subdomain instead of forcing the apex path shape"
   }
 }
 

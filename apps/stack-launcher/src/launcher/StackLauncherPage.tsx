@@ -3,26 +3,37 @@ import { arrStackApps } from "./arr-stack-apps";
 import {
   buildArrStackAppUrl,
   resolveArrStackFunnelHost,
+  resolveArrStackPublicDomain,
   resolveArrStackTailnetHost,
 } from "./arr-stack-host";
+import type { ArrStackAppExposure } from "./arr-stack-apps";
 
 const stackLauncherRoute = findMicroFrontendRoute("stack-launcher");
 
-function ExposureBadge({ exposure }: { exposure: "funnel" | "tailnet" }) {
+function ExposureBadge({ exposure }: { exposure: ArrStackAppExposure }) {
   return (
     <span className="border border-border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[1.5px] text-text-faint">
-      {exposure === "funnel" ? "public" : "tailnet"}
+      {exposure === "custom-domain"
+        ? "private"
+        : exposure === "funnel"
+          ? "public"
+          : "tailnet"}
     </span>
   );
 }
 
 export function StackLauncherPage() {
+  const publicDomain = resolveArrStackPublicDomain();
   const funnelHost = resolveArrStackFunnelHost();
   const tailnetHost = resolveArrStackTailnetHost();
   const funnelConfigured = funnelHost.length > 0;
   const tailnetConfigured = tailnetHost.length > 0;
   const launcherApps = arrStackApps.filter((arrStackApp) =>
-    arrStackApp.exposure === "funnel" ? funnelConfigured : tailnetConfigured,
+    arrStackApp.exposure === "custom-domain"
+      ? publicDomain.length > 0
+      : arrStackApp.exposure === "funnel"
+        ? funnelConfigured
+        : tailnetConfigured,
   );
 
   return (
@@ -59,9 +70,11 @@ export function StackLauncherPage() {
                 <ExposureBadge exposure={arrStackApp.exposure} />
               </div>
               <div className="mt-1.5 font-mono text-sm text-muted-foreground">
-                {arrStackApp.exposure === "funnel"
-                  ? `port ${arrStackApp.funnelPort}`
-                  : `port ${arrStackApp.port}`}
+                {arrStackApp.exposure === "custom-domain"
+                  ? `${arrStackApp.subdomainLabel}.${publicDomain}`
+                  : arrStackApp.exposure === "funnel"
+                    ? `port ${arrStackApp.funnelPort}`
+                    : `port ${arrStackApp.port}`}
               </div>
             </a>
           ))}
