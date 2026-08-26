@@ -3,6 +3,7 @@ export type ArrStackAppExposure = "custom-domain" | "tailnet";
 interface ArrStackAppBase {
   readonly id: string;
   readonly label: string;
+  readonly launchPath?: string;
   readonly port: number;
 }
 
@@ -17,10 +18,12 @@ const CustomDomainApp = (
   label: string,
   port: number,
   subdomainLabel: string,
+  launchPath?: string,
 ): ArrStackApp => ({
   id,
   label,
   exposure: "custom-domain",
+  launchPath,
   port,
   subdomainLabel,
 });
@@ -36,6 +39,7 @@ export const arrStackApps: readonly ArrStackApp[] = [
   CustomDomainApp("jellyfin", "Jellyfin", 8096, "watch"),
   CustomDomainApp("jellyseerr", "Jellyseerr", 5055, "request"),
   CustomDomainApp("kavita", "Kavita", 5000, "read"),
+  CustomDomainApp("stremio", "Stremio", 43212, "stream", "/setup"),
   TailnetApp("seanime", "Seanime", 43211),
   TailnetApp("radarr", "Radarr", 7878),
   TailnetApp("sonarr", "Sonarr", 8989),

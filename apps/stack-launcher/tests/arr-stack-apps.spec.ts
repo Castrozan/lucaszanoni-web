@@ -11,12 +11,23 @@ describe("arr stack apps", () => {
     });
   });
 
+  it("publishes Stremio through the stream domain and direct tailnet setup path", () => {
+    expect(arrStackApps).toContainEqual({
+      id: "stremio",
+      label: "Stremio",
+      exposure: "custom-domain",
+      port: 43212,
+      subdomainLabel: "stream",
+      launchPath: "/setup",
+    });
+  });
+
   it("publishes request, playback, and reading through the private platform domain", () => {
     expect(
       arrStackApps
         .filter((app) => app.exposure === "custom-domain")
         .map((app) => app.id),
-    ).toEqual(["jellyfin", "jellyseerr", "kavita"]);
+    ).toEqual(["jellyfin", "jellyseerr", "kavita", "stremio"]);
     expect(arrStackApps).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ id: "jellyfin", subdomainLabel: "watch" }),

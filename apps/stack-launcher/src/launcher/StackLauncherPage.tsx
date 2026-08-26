@@ -1,31 +1,45 @@
 import { findMicroFrontendRoute } from "@platform/config";
 import { arrStackApps } from "./arr-stack-apps";
-import {
-  buildArrStackAppUrl,
-  resolveArrStackPublicDomain,
-  resolveArrStackTailnetHost,
+import { buildArrStackAppLinks } from "./arr-stack-host";
+import type {
+  ArrStackAppLink,
+  ArrStackAppLinkExposure,
 } from "./arr-stack-host";
-import type { ArrStackAppExposure } from "./arr-stack-apps";
 
 const stackLauncherRoute = findMicroFrontendRoute("stack-launcher");
 
-function ExposureBadge({ exposure }: { exposure: ArrStackAppExposure }) {
+function exposureLabel(exposure: ArrStackAppLinkExposure): string {
+  return exposure === "cloudflare" ? "Cloudflare" : "Tailscale";
+}
+
+function AppLaunchLink({
+  appLabel,
+  link,
+}: {
+  appLabel: string;
+  link: ArrStackAppLink;
+}) {
+  const label = exposureLabel(link.exposure);
   return (
-    <span className="border border-border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[1.5px] text-text-faint">
-      {exposure === "custom-domain" ? "private" : "tailnet"}
-    </span>
+    <a
+      href={link.url}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={`${appLabel} via ${label}`}
+      className="rounded border border-border px-3 py-2 font-mono text-xs uppercase tracking-[1px] text-muted-foreground no-underline transition-colors hover:border-primary hover:text-primary"
+    >
+      {label}
+    </a>
   );
 }
 
 export function StackLauncherPage() {
-  const publicDomain = resolveArrStackPublicDomain();
-  const tailnetHost = resolveArrStackTailnetHost();
-  const tailnetConfigured = tailnetHost.length > 0;
-  const launcherApps = arrStackApps.filter((arrStackApp) =>
-    arrStackApp.exposure === "custom-domain"
-      ? publicDomain.length > 0
-      : tailnetConfigured,
-  );
+  const launcherApps = arrStackApps
+    .map((arrStackApp) => ({
+      app: arrStackApp,
+      links: buildArrStackAppLinks(arrStackApp),
+    }))
+    .filter(({ links }) => links.length > 0);
 
   return (
     <div className="flex flex-col gap-8">
@@ -46,26 +60,24 @@ export function StackLauncherPage() {
           aria-label="Self-hosted apps"
           className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))]"
         >
-          {launcherApps.map((arrStackApp) => (
-            <a
-              key={arrStackApp.id}
-              href={buildArrStackAppUrl(arrStackApp)}
-              target="_blank"
-              rel="noreferrer"
-              className="block rounded-lg border border-border bg-surface px-5 py-4 text-inherit no-underline transition-colors hover:border-primary"
+          {launcherApps.map(({ app, links }) => (
+            <article
+              key={app.id}
+              className="rounded-lg border border-border bg-surface px-5 py-4"
             >
-              <div className="flex items-start justify-between gap-2">
-                <div className="text-[1.05rem] font-semibold text-primary">
-                  {arrStackApp.label}
-                </div>
-                <ExposureBadge exposure={arrStackApp.exposure} />
+              <div className="text-[1.05rem] font-semibold text-primary">
+                {app.label}
               </div>
-              <div className="mt-1.5 font-mono text-sm text-muted-foreground">
-                {arrStackApp.exposure === "custom-domain"
-                  ? `${arrStackApp.subdomainLabel}.${publicDomain}`
-                  : `port ${arrStackApp.port}`}
+              <div className="mt-3 flex flex-wrap gap-2">
+                {links.map((link) => (
+                  <AppLaunchLink
+                    key={link.exposure}
+                    appLabel={app.label}
+                    link={link}
+                  />
+                ))}
               </div>
-            </a>
+            </article>
           ))}
         </section>
       ) : (
@@ -77,8 +89,8 @@ export function StackLauncherPage() {
             stack host not configured
           </div>
           <p className="m-0 max-w-[52ch] font-mono text-[13px] leading-[1.6] text-muted-foreground">
-            Set VITE_ARR_STACK_TAILNET_HOST at build time to link the private
-            tailnet apps.
+            Configure a public domain or VITE_ARR_STACK_TAILNET_HOST at build
+            time to expose launch links.
           </p>
         </section>
       )}
