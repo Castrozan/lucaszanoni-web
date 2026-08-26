@@ -1,16 +1,12 @@
 import { findMicroFrontendRoute } from "@platform/config";
 import { arrStackApps } from "./arr-stack-apps";
-import { buildArrStackAppLinks } from "./arr-stack-host";
-import type {
-  ArrStackAppLink,
-  ArrStackAppLinkExposure,
+import {
+  arrStackAppLinkExposureLabel,
+  buildArrStackAppLinks,
+  type ArrStackAppLink,
 } from "./arr-stack-host";
 
 const stackLauncherRoute = findMicroFrontendRoute("stack-launcher");
-
-function exposureLabel(exposure: ArrStackAppLinkExposure): string {
-  return exposure === "cloudflare" ? "Cloudflare" : "Tailscale";
-}
 
 function AppLaunchLink({
   appLabel,
@@ -19,7 +15,7 @@ function AppLaunchLink({
   appLabel: string;
   link: ArrStackAppLink;
 }) {
-  const label = exposureLabel(link.exposure);
+  const label = arrStackAppLinkExposureLabel(link.exposure);
   return (
     <a
       href={link.url}

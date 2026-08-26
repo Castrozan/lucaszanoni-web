@@ -9,6 +9,12 @@ export interface ArrStackAppLink {
   readonly url: string;
 }
 
+export function arrStackAppLinkExposureLabel(
+  exposure: ArrStackAppLinkExposure,
+): string {
+  return exposure === "cloudflare" ? "Cloudflare" : "Tailscale";
+}
+
 export function resolveArrStackPublicDomain(): string {
   const configuredDomain = import.meta.env.VITE_ARR_STACK_PUBLIC_DOMAIN;
   if (typeof configuredDomain === "string" && configuredDomain.trim() !== "") {

@@ -19,4 +19,33 @@ describe("AppShell", () => {
     expect(screen.queryByRole("navigation", { name: "Primary" })).toBeNull();
     expect(screen.queryByRole("navigation", { name: "Breadcrumb" })).toBeNull();
   });
+
+  it("renders a supplied status bar model", () => {
+    render(
+      <AppShell
+        activeRouteId="stack-launcher"
+        statusBarModel={{
+          sessionLabel: "Stack",
+          windows: [
+            {
+              kind: "link",
+              id: "jellyfin-cloudflare",
+              label: "Jellyfin Cloudflare",
+              href: "https://watch.lucaszanoni.com",
+              isActive: false,
+            },
+          ],
+        }}
+      >
+        <p>stack body</p>
+      </AppShell>,
+    );
+
+    expect(screen.getByText("Stack")).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", { name: "1:Jellyfin Cloudflare" })
+        .getAttribute("href"),
+    ).toBe("https://watch.lucaszanoni.com");
+  });
 });
