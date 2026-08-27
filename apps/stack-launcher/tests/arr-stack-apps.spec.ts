@@ -2,12 +2,13 @@ import { describe, expect, it } from "vitest";
 import { arrStackApps } from "../src/launcher/arr-stack-apps";
 
 describe("arr stack apps", () => {
-  it("links Seanime on its private tailnet port", () => {
+  it("publishes Seanime through its private domain and tailnet port", () => {
     expect(arrStackApps).toContainEqual({
       id: "seanime",
       label: "Seanime",
-      exposure: "tailnet",
+      exposure: "custom-domain",
       port: 43211,
+      subdomainLabel: "seanime",
     });
   });
 
@@ -22,22 +23,24 @@ describe("arr stack apps", () => {
     });
   });
 
-  it("publishes request, playback, and reading through the private platform domain", () => {
+  it("publishes every app through the private platform domain", () => {
     expect(
       arrStackApps
         .filter((app) => app.exposure === "custom-domain")
-        .map((app) => app.id),
-    ).toEqual(["jellyfin", "jellyseerr", "kavita", "stremio"]);
-    expect(arrStackApps).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ id: "jellyfin", subdomainLabel: "watch" }),
-        expect.objectContaining({
-          id: "jellyseerr",
-          subdomainLabel: "request",
-        }),
-        expect.objectContaining({ id: "kavita", subdomainLabel: "read" }),
-      ]),
-    );
+        .map((app) => [app.id, app.subdomainLabel]),
+    ).toEqual([
+      ["jellyfin", "watch"],
+      ["jellyseerr", "request"],
+      ["kavita", "read"],
+      ["stremio", "stream"],
+      ["seanime", "seanime"],
+      ["radarr", "radarr"],
+      ["sonarr", "sonarr"],
+      ["prowlarr", "prowlarr"],
+      ["bazarr", "bazarr"],
+      ["suwayomi", "suwayomi"],
+      ["qbittorrent", "qbittorrent"],
+    ]);
   });
 
   it("does not carry a dead Homepage tile now that the stack has no port-80 dashboard", () => {

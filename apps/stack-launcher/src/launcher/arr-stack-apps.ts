@@ -28,23 +28,16 @@ const CustomDomainApp = (
   subdomainLabel,
 });
 
-const TailnetApp = (id: string, label: string, port: number): ArrStackApp => ({
-  id,
-  label,
-  exposure: "tailnet",
-  port,
-});
-
 export const arrStackApps: readonly ArrStackApp[] = [
   CustomDomainApp("jellyfin", "Jellyfin", 8096, "watch"),
   CustomDomainApp("jellyseerr", "Jellyseerr", 5055, "request"),
   CustomDomainApp("kavita", "Kavita", 5000, "read"),
   CustomDomainApp("stremio", "Stremio", 43212, "stream", "/setup"),
-  TailnetApp("seanime", "Seanime", 43211),
-  TailnetApp("radarr", "Radarr", 7878),
-  TailnetApp("sonarr", "Sonarr", 8989),
-  TailnetApp("prowlarr", "Prowlarr", 9696),
-  TailnetApp("bazarr", "Bazarr", 6767),
-  TailnetApp("suwayomi", "Suwayomi", 4567),
-  TailnetApp("qbittorrent", "qBittorrent", 8080),
+  CustomDomainApp("seanime", "Seanime", 43211, "seanime"),
+  CustomDomainApp("radarr", "Radarr", 7878, "radarr"),
+  CustomDomainApp("sonarr", "Sonarr", 8989, "sonarr"),
+  CustomDomainApp("prowlarr", "Prowlarr", 9696, "prowlarr"),
+  CustomDomainApp("bazarr", "Bazarr", 6767, "bazarr"),
+  CustomDomainApp("suwayomi", "Suwayomi", 4567, "suwayomi"),
+  CustomDomainApp("qbittorrent", "qBittorrent", 8080, "qbittorrent"),
 ];

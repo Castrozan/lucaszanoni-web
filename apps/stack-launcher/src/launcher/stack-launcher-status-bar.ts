@@ -1,10 +1,7 @@
 import { findMicroFrontendRoute } from "@platform/config";
 import type { StatusBarModel } from "@platform/design-system";
 import { arrStackApps } from "./arr-stack-apps";
-import {
-  arrStackAppLinkExposureLabel,
-  buildArrStackAppLinks,
-} from "./arr-stack-host";
+import { buildArrStackAppLinks } from "./arr-stack-host";
 
 const stackLauncherRoute = findMicroFrontendRoute("stack-launcher");
 
@@ -25,7 +22,7 @@ export function buildStackLauncherStatusBarModel(): StatusBarModel {
           .map((link) => ({
             kind: "link" as const,
             id: `${app.id}-${link.exposure}`,
-            label: `${app.label} ${arrStackAppLinkExposureLabel(link.exposure)}`,
+            label: app.label,
             href: link.url,
             isActive: false,
           })),

@@ -29,7 +29,7 @@ describe("StackLauncherRoot", () => {
     const windows = within(statusBar).getByRole("navigation", {
       name: "Windows",
     });
-    expect(within(windows).getAllByRole("link")).toHaveLength(5);
+    expect(within(windows).getAllByRole("link")).toHaveLength(12);
     expect(
       within(windows)
         .getByRole("link", { name: "1:Stack" })
@@ -37,19 +37,25 @@ describe("StackLauncherRoot", () => {
     ).toBe("/stack/");
     expect(
       within(windows)
-        .getByRole("link", { name: "2:Jellyfin Cloudflare" })
+        .getByRole("link", { name: "2:Jellyfin" })
         .getAttribute("href"),
     ).toBe("https://watch.lucaszanoni.com");
     expect(
       within(windows)
-        .getByRole("link", { name: "3:Jellyseerr Cloudflare" })
+        .getByRole("link", { name: "3:Jellyseerr" })
         .getAttribute("href"),
     ).toBe("https://request.lucaszanoni.com");
     expect(
       within(windows)
-        .getByRole("link", { name: "5:Stremio Cloudflare" })
+        .getByRole("link", { name: "5:Stremio" })
         .getAttribute("href"),
     ).toBe("https://stream.lucaszanoni.com/setup");
+    expect(
+      within(windows)
+        .getByRole("link", { name: "12:qBittorrent" })
+        .getAttribute("href"),
+    ).toBe("https://qbittorrent.lucaszanoni.com");
+    expect(within(windows).queryByText(/Cloudflare/)).toBeNull();
     expect(within(windows).queryByText(/Tailscale/)).toBeNull();
   });
 

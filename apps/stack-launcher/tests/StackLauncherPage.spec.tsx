@@ -15,6 +15,13 @@ describe("StackLauncherPage", () => {
     render(<StackLauncherPage />);
 
     expect(
+      screen.getAllByRole("link", { name: /via Cloudflare/ }),
+    ).toHaveLength(11);
+    expect(screen.getAllByRole("link", { name: /via Tailscale/ })).toHaveLength(
+      11,
+    );
+
+    expect(
       screen
         .getByRole("link", { name: "Jellyfin via Cloudflare" })
         .getAttribute("href"),
@@ -34,5 +41,15 @@ describe("StackLauncherPage", () => {
         .getByRole("link", { name: "Stremio via Tailscale" })
         .getAttribute("href"),
     ).toBe("http://100.94.11.81:43212/setup");
+    expect(
+      screen
+        .getByRole("link", { name: "Seanime via Cloudflare" })
+        .getAttribute("href"),
+    ).toBe("https://seanime.lucaszanoni.com");
+    expect(
+      screen
+        .getByRole("link", { name: "qBittorrent via Cloudflare" })
+        .getAttribute("href"),
+    ).toBe("https://qbittorrent.lucaszanoni.com");
   });
 });
