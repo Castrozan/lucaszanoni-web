@@ -20,13 +20,15 @@ export function buildStackLauncherStatusBarModel(): StatusBarModel {
         isActive: true,
       },
       ...arrStackApps.flatMap((app) =>
-        buildArrStackAppLinks(app).map((link) => ({
-          kind: "link" as const,
-          id: `${app.id}-${link.exposure}`,
-          label: `${app.label} ${arrStackAppLinkExposureLabel(link.exposure)}`,
-          href: link.url,
-          isActive: false,
-        })),
+        buildArrStackAppLinks(app)
+          .filter((link) => link.exposure === "cloudflare")
+          .map((link) => ({
+            kind: "link" as const,
+            id: `${app.id}-${link.exposure}`,
+            label: `${app.label} ${arrStackAppLinkExposureLabel(link.exposure)}`,
+            href: link.url,
+            isActive: false,
+          })),
       ),
     ],
   };
