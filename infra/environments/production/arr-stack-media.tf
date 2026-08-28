@@ -4,7 +4,7 @@ locals {
     jellyseerr  = "request.${local.edge_serving_domain}"
     kavita      = "read.${local.edge_serving_domain}"
     stremio     = "stream.${local.edge_serving_domain}"
-    seanime     = "seanime.${local.edge_serving_domain}"
+    miwayomi    = "anime.${local.edge_serving_domain}"
     radarr      = "radarr.${local.edge_serving_domain}"
     sonarr      = "sonarr.${local.edge_serving_domain}"
     prowlarr    = "prowlarr.${local.edge_serving_domain}"

@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest";
 import { arrStackApps } from "../src/launcher/arr-stack-apps";
 
 describe("arr stack apps", () => {
-  it("publishes Seanime through its private domain and tailnet port", () => {
+  it("publishes Miwayomi through its private domain and tailnet port", () => {
     expect(arrStackApps).toContainEqual({
-      id: "seanime",
-      label: "Seanime",
+      id: "miwayomi",
+      label: "Miwayomi",
       exposure: "custom-domain",
-      port: 43211,
-      subdomainLabel: "seanime",
+      port: 4568,
+      subdomainLabel: "anime",
     });
   });
 
@@ -33,7 +33,7 @@ describe("arr stack apps", () => {
       ["jellyseerr", "request"],
       ["kavita", "read"],
       ["stremio", "stream"],
-      ["seanime", "seanime"],
+      ["miwayomi", "anime"],
       ["radarr", "radarr"],
       ["sonarr", "sonarr"],
       ["prowlarr", "prowlarr"],

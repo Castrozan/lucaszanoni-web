@@ -33,7 +33,7 @@ export const arrStackApps: readonly ArrStackApp[] = [
   CustomDomainApp("jellyseerr", "Jellyseerr", 5055, "request"),
   CustomDomainApp("kavita", "Kavita", 5000, "read"),
   CustomDomainApp("stremio", "Stremio", 43212, "stream", "/setup"),
-  CustomDomainApp("seanime", "Seanime", 43211, "seanime"),
+  CustomDomainApp("miwayomi", "Miwayomi", 4568, "anime"),
   CustomDomainApp("radarr", "Radarr", 7878, "radarr"),
   CustomDomainApp("sonarr", "Sonarr", 8989, "sonarr"),
   CustomDomainApp("prowlarr", "Prowlarr", 9696, "prowlarr"),

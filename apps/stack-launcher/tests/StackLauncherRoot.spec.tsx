@@ -52,6 +52,11 @@ describe("StackLauncherRoot", () => {
     ).toBe("https://stream.lucaszanoni.com/setup");
     expect(
       within(windows)
+        .getByRole("link", { name: "6:Miwayomi" })
+        .getAttribute("href"),
+    ).toBe("https://anime.lucaszanoni.com");
+    expect(
+      within(windows)
         .getByRole("link", { name: "12:qBittorrent" })
         .getAttribute("href"),
     ).toBe("https://qbittorrent.lucaszanoni.com");

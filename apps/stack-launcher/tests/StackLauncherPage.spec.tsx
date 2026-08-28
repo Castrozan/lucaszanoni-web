@@ -43,9 +43,9 @@ describe("StackLauncherPage", () => {
     ).toBe("http://100.94.11.81:43212/setup");
     expect(
       screen
-        .getByRole("link", { name: "Seanime via Cloudflare" })
+        .getByRole("link", { name: "Miwayomi via Cloudflare" })
         .getAttribute("href"),
-    ).toBe("https://seanime.lucaszanoni.com");
+    ).toBe("https://anime.lucaszanoni.com");
     expect(
       screen
         .getByRole("link", { name: "qBittorrent via Cloudflare" })
