@@ -47,18 +47,18 @@ describe("buildArrStackAppLinks", () => {
     ]);
   });
 
-  it("launches Stremio setup on both routes", () => {
+  it("launches Stremio normally on both routes", () => {
     vi.stubEnv("VITE_ARR_STACK_PUBLIC_DOMAIN", "lucaszanoni.com");
     vi.stubEnv("VITE_ARR_STACK_TAILNET_HOST", "100.94.11.81");
 
     expect(buildArrStackAppLinks(appById("stremio"))).toEqual([
       {
         exposure: "cloudflare",
-        url: "https://stream.lucaszanoni.com/setup",
+        url: "https://stream.lucaszanoni.com",
       },
       {
         exposure: "tailscale",
-        url: "http://100.94.11.81:43212/setup",
+        url: "http://100.94.11.81:43212",
       },
     ]);
   });

@@ -49,7 +49,7 @@ describe("StackLauncherRoot", () => {
       within(windows)
         .getByRole("link", { name: "5:Stremio" })
         .getAttribute("href"),
-    ).toBe("https://stream.lucaszanoni.com/setup");
+    ).toBe("https://stream.lucaszanoni.com");
     expect(
       within(windows)
         .getByRole("link", { name: "6:Miwayomi" })

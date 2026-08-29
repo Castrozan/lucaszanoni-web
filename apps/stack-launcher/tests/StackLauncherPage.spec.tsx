@@ -35,12 +35,12 @@ describe("StackLauncherPage", () => {
       screen
         .getByRole("link", { name: "Stremio via Cloudflare" })
         .getAttribute("href"),
-    ).toBe("https://stream.lucaszanoni.com/setup");
+    ).toBe("https://stream.lucaszanoni.com");
     expect(
       screen
         .getByRole("link", { name: "Stremio via Tailscale" })
         .getAttribute("href"),
-    ).toBe("http://100.94.11.81:43212/setup");
+    ).toBe("http://100.94.11.81:43212");
     expect(
       screen
         .getByRole("link", { name: "Miwayomi via Cloudflare" })

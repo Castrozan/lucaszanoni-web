@@ -12,14 +12,13 @@ describe("arr stack apps", () => {
     });
   });
 
-  it("publishes Stremio through the stream domain and direct tailnet setup path", () => {
+  it("publishes Stremio through its ordinary stream routes", () => {
     expect(arrStackApps).toContainEqual({
       id: "stremio",
       label: "Stremio",
       exposure: "custom-domain",
       port: 43212,
       subdomainLabel: "stream",
-      launchPath: "/setup",
     });
   });
 
