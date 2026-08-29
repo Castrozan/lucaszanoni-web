@@ -1,0 +1,27 @@
+name: purge-stremio-worker-cache
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Purge the canonical Stremio service worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -Eeuo pipefail
+          zone_response="$(curl --silent --show-error --fail-with-body \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            'https://api.cloudflare.com/client/v4/zones?name=lucaszanoni.com&status=active')"
+          zone_id="$(jq -er '.result | if length == 1 then .[0].id else error("expected one active lucaszanoni.com zone") end' <<< "${zone_response}")"
+          purge_response="$(curl --silent --show-error --fail-with-body \
+            --request POST \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            --json '{"files":["https://stream.lucaszanoni.com/service-worker.js"]}' \
+            "https://api.cloudflare.com/client/v4/zones/${zone_id}/purge_cache")"
+          jq -e '.success == true' <<< "${purge_response}" >/dev/null
