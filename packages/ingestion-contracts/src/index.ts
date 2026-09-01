@@ -41,8 +41,14 @@ export {
   DOTFILES_TEST_BASELINE_SCHEMA_VERSION,
   DOTFILES_TEST_BASELINE_TOPIC,
   type TestBaselineCategoryResult,
+  type TestBaselineExecutionProfile,
+  type TestBaselineExecutionRole,
+  type TestBaselineNamedExecutionProfile,
   type TestBaselinePayload,
+  type TestBaselineProviderUsage,
+  type TestBaselineRunSource,
   type TestBaselineTestResult,
+  type TestBaselineTokenUsage,
 } from "./topics/test-baseline/test-baseline-types";
 export { testCoverageContract } from "./topics/test-coverage/test-coverage-contract";
 export { parseTestCoveragePayload } from "./topics/test-coverage/test-coverage-parser";

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { parseTestBaselinePayload } from "../../src/topics/test-baseline/test-baseline-parser";
 import { IngestionContractViolationError } from "../../src/ingestion-types";
 import { testBaselinePayloadFixture } from "../ingestion-test-fixtures";
+import { testBaselineEvidencePayloadFixture } from "../test-baseline-evidence-fixture";
 
 describe("parseTestBaselinePayload", () => {
   const validPayload = testBaselinePayloadFixture;
@@ -11,6 +12,16 @@ describe("parseTestBaselinePayload", () => {
     expect(payload.totalTests).toBe(6);
     expect(payload.categories).toHaveLength(2);
     expect(payload.categories[0]?.tests).toHaveLength(2);
+  });
+
+  it("preserves execution provenance and token usage", () => {
+    const payload = parseTestBaselinePayload(
+      testBaselineEvidencePayloadFixture,
+    );
+    expect(payload.executionProfile?.subject.harness).toBe("codex");
+    expect(payload.executionProfiles?.[0]?.id).toBe("codex-profile");
+    expect(payload.tokenUsage?.subject?.codex?.inputTokens).toBe(120);
+    expect(payload.categories[0]?.tests[0]?.runSource?.sessionId).toBe(66279);
   });
 
   it("accepts a category name with the nested skill separator", () => {

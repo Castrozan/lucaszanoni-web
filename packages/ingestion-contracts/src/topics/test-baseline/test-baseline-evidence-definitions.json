@@ -1,0 +1,95 @@
+{
+  "executionRole": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["harness", "model", "reasoningEffort"],
+    "properties": {
+      "harness": {
+        "type": "string",
+        "pattern": "^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$"
+      },
+      "model": {
+        "type": ["string", "null"],
+        "minLength": 1
+      },
+      "reasoningEffort": {
+        "type": ["string", "null"],
+        "minLength": 1
+      }
+    }
+  },
+  "executionProfile": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["subject", "judge"],
+    "properties": {
+      "subject": { "$ref": "#/definitions/executionRole" },
+      "judge": { "$ref": "#/definitions/executionRole" }
+    }
+  },
+  "namedExecutionProfile": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "subject", "judge"],
+    "properties": {
+      "id": { "type": "string", "minLength": 1 },
+      "subject": { "$ref": "#/definitions/executionRole" },
+      "judge": { "$ref": "#/definitions/executionRole" }
+    }
+  },
+  "runSource": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["kind"],
+    "anyOf": [{ "required": ["gitCommit"] }, { "required": ["sessionId"] }],
+    "properties": {
+      "kind": { "type": "string", "minLength": 1 },
+      "gitCommit": { "type": "string", "minLength": 1 },
+      "sessionId": {
+        "anyOf": [
+          { "type": "string", "minLength": 1 },
+          { "type": "integer", "minimum": 0 }
+        ]
+      }
+    }
+  },
+  "providerUsage": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "invocations",
+      "measuredInvocations",
+      "inputTokens",
+      "cachedInputTokens",
+      "cacheWriteInputTokens",
+      "outputTokens",
+      "reasoningOutputTokens"
+    ],
+    "properties": {
+      "invocations": { "type": "integer", "minimum": 0 },
+      "measuredInvocations": { "type": "integer", "minimum": 0 },
+      "inputTokens": { "type": "integer", "minimum": 0 },
+      "cachedInputTokens": { "type": "integer", "minimum": 0 },
+      "cacheWriteInputTokens": { "type": "integer", "minimum": 0 },
+      "outputTokens": { "type": "integer", "minimum": 0 },
+      "reasoningOutputTokens": { "type": "integer", "minimum": 0 }
+    }
+  },
+  "roleUsage": {
+    "type": "object",
+    "patternProperties": {
+      "^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$": {
+        "$ref": "#/definitions/providerUsage"
+      }
+    },
+    "additionalProperties": false
+  },
+  "tokenUsage": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "subject": { "$ref": "#/definitions/roleUsage" },
+      "judge": { "$ref": "#/definitions/roleUsage" }
+    }
+  }
+}
