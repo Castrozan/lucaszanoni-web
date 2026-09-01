@@ -9,6 +9,7 @@ import {
   testCoverageEventFixture,
   testQualityEventFixture,
 } from "./ingestion-test-fixtures";
+import { testBaselineEvidenceEventFixture } from "./test-baseline-evidence-fixture";
 
 const ajv = new Ajv({ allErrors: true });
 const validateEnvelope = ajv.compile(ingestionEventSchema);
@@ -79,6 +80,13 @@ const structurallyInvalidPayloads: readonly {
     label: "an empty category list",
     payload: { ...testBaselineEventFixture.payload, categories: [] },
   },
+  {
+    label: "a partial eval evidence extension",
+    payload: {
+      ...testBaselineEventFixture.payload,
+      oldestEvidenceAt: "2026-07-20T03:26:24.774576+00:00",
+    },
+  },
 ];
 
 const referenceEvents: readonly {
@@ -86,6 +94,10 @@ const referenceEvents: readonly {
   readonly event: { readonly topic: string; readonly payload: unknown };
 }[] = [
   { label: "dotfiles-test-baseline", event: testBaselineEventFixture },
+  {
+    label: "dotfiles-test-baseline evidence",
+    event: testBaselineEvidenceEventFixture,
+  },
   { label: "dotfiles-test-coverage", event: testCoverageEventFixture },
   { label: "dotfiles-test-quality", event: testQualityEventFixture },
   { label: "claude-usage", event: claudeUsageEventFixture },
