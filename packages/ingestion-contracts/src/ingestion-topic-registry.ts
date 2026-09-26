@@ -6,6 +6,7 @@ import { claudeUsageContract } from "./topics/claude-usage/claude-usage-contract
 import { testBaselineContract } from "./topics/test-baseline/test-baseline-contract";
 import { testCoverageContract } from "./topics/test-coverage/test-coverage-contract";
 import { testQualityContract } from "./topics/test-quality/test-quality-contract";
+import { qualityOverviewContract } from "./topics/quality-overview/quality-overview-contract";
 
 export const INGESTION_TOPIC_CONTRACTS: readonly IngestionTopicContract<unknown>[] =
   [
@@ -13,6 +14,7 @@ export const INGESTION_TOPIC_CONTRACTS: readonly IngestionTopicContract<unknown>
     testBaselineContract,
     testCoverageContract,
     testQualityContract,
+    qualityOverviewContract,
   ];
 
 export function findIngestionTopicContract(
