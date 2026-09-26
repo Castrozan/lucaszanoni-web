@@ -1,4 +1,5 @@
 import Ajv from "ajv";
+import addFormats from "ajv-formats";
 import { describe, expect, it } from "vitest";
 import ingestionEventSchema from "../src/ingestion-event.schema.json";
 import { parseIngestionEvent } from "../src/ingestion-event-parser";
@@ -12,6 +13,7 @@ import {
 import { testBaselineEvidenceEventFixture } from "./test-baseline-evidence-fixture";
 
 const ajv = new Ajv({ allErrors: true });
+addFormats(ajv);
 const validateEnvelope = ajv.compile(ingestionEventSchema);
 
 function validatePayload(topic: string, payload: unknown): boolean {

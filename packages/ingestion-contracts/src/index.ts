@@ -59,6 +59,18 @@ export {
   type TestCoveragePayload,
 } from "./topics/test-coverage/test-coverage-types";
 export { testQualityContract } from "./topics/test-quality/test-quality-contract";
+export { qualityOverviewContract } from "./topics/quality-overview/quality-overview-contract";
+export { parseQualityOverviewPayload } from "./topics/quality-overview/quality-overview-parser";
+export {
+  DOTFILES_QUALITY_OVERVIEW_TOPIC,
+  DOTFILES_QUALITY_OVERVIEW_SCHEMA_VERSION,
+  type QualityOverview,
+  type QualityOverviewEvidence,
+  type QualityOverviewMeasurement,
+  type QualityOverviewArtifactCase,
+  type QualityOverviewPayload,
+  type QualityOverviewWorkflow,
+} from "./topics/quality-overview/quality-overview-types";
 export { parseTestQualityPayload } from "./topics/test-quality/test-quality-parser";
 export {
   DOTFILES_TEST_QUALITY_SCHEMA_VERSION,
