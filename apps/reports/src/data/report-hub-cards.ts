@@ -14,6 +14,13 @@ export interface ReportHubCard {
 export function buildReportHubCards(): ReportHubCard[] {
   return [
     {
+      id: "overview",
+      title: "quality overview",
+      description:
+        "Delivered AI artifacts, native tests and scoped coverage, with each result's source, freshness and unmeasured capabilities.",
+      href: `${REPORTS_MOUNT_PATH}overview/`,
+    },
+    {
       id: "baseline",
       title: "agent-eval baseline",
       description:
