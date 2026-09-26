@@ -3,9 +3,10 @@ import { INGESTION_TOPIC_CONTRACTS } from "@platform/ingestion-contracts";
 import { buildReportHubCards } from "../../src/data/report-hub-cards";
 
 describe("buildReportHubCards", () => {
-  it("lists the report destinations in the legacy hub order, then the topics hub", () => {
+  it("leads with the overview and retains the existing report destinations", () => {
     const cards = buildReportHubCards();
     expect(cards.map((card) => card.id)).toEqual([
+      "overview",
       "baseline",
       "quality",
       "coverage",

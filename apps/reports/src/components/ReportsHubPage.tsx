@@ -7,8 +7,9 @@ export function ReportsHubPage() {
       <h1 className="mt-2 mb-1 text-2xl font-semibold">dotfiles reports</h1>
       <p className="mb-6 max-w-[74ch] text-muted-foreground">
         Living dashboards for the dotfiles repo, regenerated on every push to{" "}
-        <code>main</code>. No screenshots, no stale issues. Each page is built
-        from the repo's own git history and test runs.
+        <code>main</code>. The quality overview shows each measurement's source,
+        freshness and gaps; separately recorded evaluations retain their own
+        dates.
       </p>
       <div className="my-6 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(11.875rem,1fr))]">
         {reportCards.map((card) => (
