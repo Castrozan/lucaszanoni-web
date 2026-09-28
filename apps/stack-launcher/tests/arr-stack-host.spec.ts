@@ -15,20 +15,23 @@ afterEach(() => {
 });
 
 describe("buildArrStackAppLinks", () => {
-  it("launches ReadMeABook over Tailscale without advertising an unconfigured Cloudflare route", () => {
+  it("launches ReadMeABook over Cloudflare and Tailscale", () => {
     vi.stubEnv("VITE_ARR_STACK_PUBLIC_DOMAIN", "lucaszanoni.com");
     vi.stubEnv("VITE_ARR_STACK_TAILNET_HOST", "100.94.11.81");
 
     expect(buildArrStackAppLinks(appById("readmeabook"))).toEqual([
+      { exposure: "cloudflare", url: "https://readmeabook.lucaszanoni.com" },
       { exposure: "tailscale", url: "http://100.94.11.81:3030" },
     ]);
   });
 
-  it("does not invent a ReadMeABook route when no tailnet host is configured", () => {
+  it("keeps ReadMeABook accessible over Cloudflare when no tailnet host is configured", () => {
     vi.stubEnv("VITE_ARR_STACK_PUBLIC_DOMAIN", "lucaszanoni.com");
     vi.stubEnv("VITE_ARR_STACK_TAILNET_HOST", "");
 
-    expect(buildArrStackAppLinks(appById("readmeabook"))).toEqual([]);
+    expect(buildArrStackAppLinks(appById("readmeabook"))).toEqual([
+      { exposure: "cloudflare", url: "https://readmeabook.lucaszanoni.com" },
+    ]);
   });
 
   it("links public media apps through Cloudflare and directly through Tailscale", () => {

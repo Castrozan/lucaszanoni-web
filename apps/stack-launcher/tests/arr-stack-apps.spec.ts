@@ -39,6 +39,8 @@ describe("arr stack apps", () => {
       ["bazarr", "bazarr"],
       ["suwayomi", "suwayomi"],
       ["qbittorrent", "qbittorrent"],
+      ["readmeabook", "readmeabook"],
+      ["audiobookshelf", "audiobookshelf"],
     ]);
   });
 
