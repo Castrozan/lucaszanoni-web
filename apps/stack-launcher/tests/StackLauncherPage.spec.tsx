@@ -13,6 +13,16 @@ describe("StackLauncherPage", () => {
     vi.stubEnv("VITE_ARR_STACK_TAILNET_HOST", "100.94.11.81");
 
     render(<StackLauncherPage />);
+    expect(
+      screen
+        .getByRole("link", { name: "Audiobookshelf via Cloudflare" })
+        .getAttribute("href"),
+    ).toBe("https://audiobookshelf.lucaszanoni.com");
+    expect(
+      screen
+        .getByRole("link", { name: "Audiobookshelf via Tailscale" })
+        .getAttribute("href"),
+    ).toBe("http://100.94.11.81:13378");
 
     expect(
       screen
@@ -21,13 +31,13 @@ describe("StackLauncherPage", () => {
     ).toBe("http://100.94.11.81:3030");
     expect(
       screen.queryByRole("link", { name: "ReadMeABook via Cloudflare" }),
-    ).toBeNull();
+    ).toBeTruthy();
 
     expect(
       screen.getAllByRole("link", { name: /via Cloudflare/ }),
-    ).toHaveLength(11);
+    ).toHaveLength(13);
     expect(screen.getAllByRole("link", { name: /via Tailscale/ })).toHaveLength(
-      12,
+      13,
     );
 
     expect(

@@ -39,6 +39,9 @@ module "jarvis_session_tunnel" {
 
   depends_on = [module.access]
 
+  # Keep Access-before-DNS ordering without making existing DNS zone IDs unknown.
+  zone_id = var.enable_cloudflare_edge ? one(module.edge[*].zone_id) : null
+
   cloudflare_account_id       = var.cloudflare_account_id
   zone_name                   = local.edge_serving_domain
   origin_hostname             = "jarvis-session-origin.${local.edge_serving_domain}"

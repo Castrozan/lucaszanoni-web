@@ -29,7 +29,7 @@ describe("StackLauncherRoot", () => {
     const windows = within(statusBar).getByRole("navigation", {
       name: "Windows",
     });
-    expect(within(windows).getAllByRole("link")).toHaveLength(12);
+    expect(within(windows).getAllByRole("link")).toHaveLength(14);
     expect(
       within(windows)
         .getByRole("link", { name: "1:Stack" })
