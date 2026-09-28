@@ -15,10 +15,19 @@ describe("StackLauncherPage", () => {
     render(<StackLauncherPage />);
 
     expect(
+      screen
+        .getByRole("link", { name: "ReadMeABook via Tailscale" })
+        .getAttribute("href"),
+    ).toBe("http://100.94.11.81:3030");
+    expect(
+      screen.queryByRole("link", { name: "ReadMeABook via Cloudflare" }),
+    ).toBeNull();
+
+    expect(
       screen.getAllByRole("link", { name: /via Cloudflare/ }),
     ).toHaveLength(11);
     expect(screen.getAllByRole("link", { name: /via Tailscale/ })).toHaveLength(
-      11,
+      12,
     );
 
     expect(
