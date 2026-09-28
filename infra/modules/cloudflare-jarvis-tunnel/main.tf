@@ -15,7 +15,7 @@ resource "cloudflare_zero_trust_tunnel_cloudflared" "this" {
 }
 
 resource "cloudflare_dns_record" "tunnel_origin" {
-  zone_id = data.cloudflare_zone.this.id
+  zone_id = var.zone_id != null ? var.zone_id : data.cloudflare_zone.this.id
   name    = var.origin_hostname
   type    = "CNAME"
   content = "${cloudflare_zero_trust_tunnel_cloudflared.this.id}.cfargotunnel.com"
@@ -26,7 +26,7 @@ resource "cloudflare_dns_record" "tunnel_origin" {
 resource "cloudflare_dns_record" "additional_tunnel_origin" {
   for_each = var.additional_origin_hostnames
 
-  zone_id = data.cloudflare_zone.this.id
+  zone_id = var.zone_id != null ? var.zone_id : data.cloudflare_zone.this.id
   name    = each.key
   type    = "CNAME"
   content = "${cloudflare_zero_trust_tunnel_cloudflared.this.id}.cfargotunnel.com"

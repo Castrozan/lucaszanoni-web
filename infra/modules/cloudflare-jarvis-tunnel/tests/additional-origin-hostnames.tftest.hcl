@@ -29,3 +29,18 @@ run "one_proxied_dns_record_per_declared_origin_hostname" {
     error_message = "the watch hostname must stay proxied so Cloudflare Access gates it before the tunnel"
   }
 }
+
+run "explicit_zone_id_is_preserved_for_all_dns_records" {
+  command = plan
+
+  variables {
+    zone_id = "00000000000000000000000000001234"
+  }
+
+  assert {
+    condition = cloudflare_dns_record.tunnel_origin.zone_id == var.zone_id && alltrue([
+      for record in cloudflare_dns_record.additional_tunnel_origin : record.zone_id == var.zone_id
+    ])
+    error_message = "An explicit zone ID must keep every DNS record plan-known even when the module's zone lookup is deferred."
+  }
+}
