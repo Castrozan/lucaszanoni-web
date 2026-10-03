@@ -29,14 +29,14 @@
 
 Seven micro-frontends and five shared packages:
 
-| App | Stack | Does |
-| --- | --- | --- |
-| **shell** | Vite SPA, react-router | Landing, about, and catalog pages mounted at `/` |
-| **cockpit** | Vite SPA, xterm, react-query | In-browser agent terminal, machine list, and AI center |
-| **workspace** | React + xterm component | Reusable terminal and machine-management surface |
-| **usage-dashboard** | Vite SPA, Chart.js | Token-usage analytics over snapshot data |
-| **reports** | Vite SPA | Quality, baseline, and coverage report pages |
-| **dynamic-ia-canvas** | Next.js 15, ReactFlow | Visual canvas for AI-generated workflow nodes |
+| App                       | Stack                             | Does                                                         |
+| ------------------------- | --------------------------------- | ------------------------------------------------------------ |
+| **shell**                 | Vite SPA, react-router            | Landing, about, and catalog pages mounted at `/`             |
+| **cockpit**               | Vite SPA, xterm, react-query      | In-browser agent terminal, machine list, and AI center       |
+| **workspace**             | React + xterm component           | Reusable terminal and machine-management surface             |
+| **usage-dashboard**       | Vite SPA, Chart.js                | Token-usage analytics over snapshot data                     |
+| **reports**               | Vite SPA                          | Quality, baseline, and coverage report pages                 |
+| **dynamic-ia-canvas**     | Next.js 15, ReactFlow             | Visual canvas for AI-generated workflow nodes                |
 | **dynamic-ia-interfaces** | Next.js 15, @assistant-ui, AI SDK | Generative chat UI that builds React components from prompts |
 
 Shared packages: **design-system** (Radix UI and Tailwind components, theming, CommandPalette, BottomStatusBar, AppShell), **config** (mount-path constants, the micro-frontend route registry, and the `app-registry.json` parser and builder), **usage-insights** (token aggregation, Chart.js formatting, OTel metrics, memory-recall savings), **snapshot-data** (UsageSnapshot, AccountView, and UsageSummary models with their aggregation functions), and **tsconfig** (shared TypeScript presets).
@@ -100,7 +100,7 @@ The repo is a pnpm workspace driven by Turborepo, and it splits into three areas
 
 **`packages/`** holds the shared code that the apps import: the design system, the routing and registry helpers in `config`, the usage and snapshot analytics packages, and the shared TypeScript presets. `packages/config/src/app-registry.json` is the single source of truth for which apps exist, where they mount, and how they are served. CI and the deploy matrix both read from it, so the registry and the running topology never drift apart.
 
-**`infra/`** holds the Terraform and OpenTofu modules for the Cloudflare edge Worker and Access audiences, the Cloud Run services, and the per-machine Cloudflare Tunnels, with the live state under `infra/environments/production/`. Each piece is flag-gated by a `TF_VAR_enable_*` variable, so individual machine tunnels or static-route groups can be turned on without touching the rest. Alongside these, `.github/workflows/` carries the CI and deploy pipelines and `docs/` carries the maintainer and keyboard-navigation guides.
+**`infra/`** holds the Terraform and OpenTofu modules for the Cloudflare edge Worker and Access audiences, the Cloud Run services, and the per-machine Cloudflare Tunnels, with the live state under `infra/environments/production/`. Each piece is controlled by an `enable_*` Terraform variable, so individual machine tunnels or static-route groups can be turned on without touching the rest. Alongside these, `.gitlab-ci.yml` and `.gitlab/ci/` carry the CI and deploy pipelines and `docs/` carries the maintainer and keyboard-navigation guides.
 
 ---
 
@@ -119,7 +119,9 @@ corepack pnpm typecheck   # tsc project-wide
 
 Run a single app by scoping the task, for example `corepack pnpm --filter cockpit dev`.
 
-Deploys are keyless and driven by the registry. Open a PR and CI validates everything: typecheck, lint, unit tests, the deployment-contract tests for the edge router and deploy-matrix derivation, the cockpit end-to-end run, the Cloudflare module tests under OpenTofu, and the full build. Merge to `main` and two workflows take over. `deploy-apps` builds each micro-frontend as a Docker image, pushes it to GCP Artifact Registry, and rolls Cloud Run forward with a health-gated traffic migration that only shifts all traffic once the candidate revision answers `200` on `/livez`. `deploy-infrastructure` runs `terraform apply` for the edge, Cloud Run, and tunnels. The deploy matrix derives straight from `app-registry.json`, GCP auth uses workload identity federation, and every secret is injected at runtime from GitHub Actions, never committed. Every service runs scale-to-zero, so the idle platform carries no standing compute cost; `infra/COST-CEILINGS.md` owns the enforced ceilings.
+GitLab CI validates merge requests with typechecking, lint, unit and deployment-contract tests, cockpit end-to-end tests, OpenTofu module tests, and the production build. A protected `main` pipeline applies the production Terraform state, then builds the registry applications and deploys them to Cloud Run. Each service receives traffic only after its candidate revision answers `200` on `/livez`.
+
+Google Cloud authentication uses GitLab OIDC federation. The owner provisions its restricted trust through `infra/gitlab-identity/`; deployment jobs cannot change that trust. The production state remains in its existing GCS backend. Protected GitLab variables provide `CLOUDFLARE_API_TOKEN`, the JSON file variable `PRODUCTION_TERRAFORM_VARIABLES`, and the frontend build settings consumed by `deploy/gitlab/deploy-app.sh`. Keep credential values outside Git. A scheduled pipeline runs the synthetic uptime check, and a manually started pipeline exposes the encrypted Jarvis connector export. `infra/COST-CEILINGS.md` owns the compute and storage limits.
 
 ---
 

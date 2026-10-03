@@ -61,7 +61,7 @@ function findWorkflowForwardingGaps(spec, deployWorkflowText) {
   if (!forwardsBuildArg) {
     gaps.push("missing-build-arg-forwarding");
   }
-  if (!deployWorkflowText.includes(`secrets.${spec.secretName}`)) {
+  if (!deployWorkflowText.includes("${" + spec.secretName + ":-}")) {
     gaps.push("missing-secret-binding");
   }
   return gaps;

@@ -20,14 +20,9 @@ Google SSO is backed by an OAuth 2.0 Web Client in the owner's Google Cloud cons
 
 ## The secret-name wiring contract
 
-The credentials reach Terraform through two GitHub Actions secrets whose names match the module variables:
+The protected GitLab file variable `PRODUCTION_TERRAFORM_VARIABLES` contains the production Terraform variables as JSON. Its `google_sso_client_id` and `google_sso_client_secret` fields supply the Google OAuth credentials.
 
-```
-GOOGLE_SSO_CLIENT_ID      -> var.google_sso_client_id
-GOOGLE_SSO_CLIENT_SECRET  -> var.google_sso_client_secret
-```
-
-`.github/workflows/deploy-infrastructure.yml` already plumbs both onto the plan and apply steps as `TF_VAR_google_sso_client_id` and `TF_VAR_google_sso_client_secret`, so setting or clearing the two repository secrets is the entire control surface. Both variables are `sensitive` with empty defaults (`variables.tf`); the client secret is a credential and lives only in the secret, never in a committed file.
+The infrastructure job in `.gitlab/ci/production.yml` passes that file to `terraform plan`; apply consumes the saved plan. Rotate the fields in the protected variable while preserving the other production settings. Both Terraform inputs are sensitive and default to empty values. Never commit the variable file.
 
 ## The CD token scope
 

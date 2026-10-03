@@ -1,6 +1,6 @@
 # Maintaining and expanding atrium
 
-How a maintainer adds an app, gates it, and ships it on the atrium platform (brand `lucaszanoni`). This guide owns the _workflow_; it never restates the field lists, app set, or flag values that drift. The authoritative shapes live in code: the registry JSON Schema (`packages/config/src/app-registry.schema.json`), the TypeScript types and parser (`packages/config/src/app-registry-types.ts`, `app-registry-parser.ts`), and the two deploy workflows (`.github/workflows/deploy-apps.yml`, `deploy-infrastructure.yml`). When this guide and those files disagree, the files win.
+How a maintainer adds an app, gates it, and ships it on the atrium platform (brand `lucaszanoni`). This guide owns the _workflow_; it never restates the field lists, app set, or flag values that drift. The authoritative shapes live in code: the registry JSON Schema (`packages/config/src/app-registry.schema.json`), the TypeScript types and parser (`packages/config/src/app-registry-types.ts`, `app-registry-parser.ts`), and the GitLab deployment jobs (`.gitlab/ci/production.yml`, `.gitlab/ci/deploy-app.yml`). When this guide and those files disagree, the files win.
 
 For platform shape and toolchain see `README.md`; for cost ceilings see `infra/COST-CEILINGS.md`; for how Google SSO is wired into Cloudflare Access see `infra/modules/cloudflare-access/GOOGLE-SSO-ENABLEMENT.md`.
 

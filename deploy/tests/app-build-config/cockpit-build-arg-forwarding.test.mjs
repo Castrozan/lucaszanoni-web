@@ -15,7 +15,7 @@ const staticSpaDockerfileText = readFileSync(
   "utf8",
 );
 const deployAppsWorkflowText = readFileSync(
-  resolve(repositoryRoot, ".github/workflows/deploy-apps.yml"),
+  resolve(repositoryRoot, "deploy/gitlab/deploy-app.sh"),
   "utf8",
 );
 
@@ -60,8 +60,7 @@ test("flags an env export placed after the production build so vite never sees i
     "ENV VITE_COCKPIT_WORKSPACE_MACHINES=${VITE_COCKPIT_WORKSPACE_MACHINES}",
   ].join("\n");
   const workflow = [
-    '--build-arg VITE_COCKPIT_WORKSPACE_MACHINES="${COCKPIT_WORKSPACE_MACHINES}"',
-    "secrets.COCKPIT_WORKSPACE_MACHINES",
+    '--build-arg VITE_COCKPIT_WORKSPACE_MACHINES="${COCKPIT_WORKSPACE_MACHINES:-}"',
   ].join("\n");
   assert.deepEqual(
     findUnforwardedCockpitBuildArgs(dockerfile, workflow, [
@@ -87,8 +86,7 @@ test("accepts a fully wired build arg with no gaps", () => {
     "RUN pnpm --filter app build",
   ].join("\n");
   const workflow = [
-    '--build-arg VITE_COCKPIT_WORKSPACE_MACHINES="${COCKPIT_WORKSPACE_MACHINES}"',
-    "COCKPIT_WORKSPACE_MACHINES: ${{ secrets.COCKPIT_WORKSPACE_MACHINES }}",
+    '--build-arg VITE_COCKPIT_WORKSPACE_MACHINES="${COCKPIT_WORKSPACE_MACHINES:-}"',
   ].join("\n");
   assert.deepEqual(
     findUnforwardedCockpitBuildArgs(dockerfile, workflow, [

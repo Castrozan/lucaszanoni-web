@@ -19,7 +19,7 @@ The Artifact Registry repository and the billing account are provisioned in the 
 
 ### 1. Artifact Registry image retention (keep-N cleanup policy)
 
-`deploy-apps` builds and pushes both a `:<commit-sha>` tag and a `:latest` tag for every app on every deploy (`.github/workflows/deploy-apps.yml`). Nothing prunes old `:<sha>` images, so registry storage grows without bound. Add a keep-most-recent cleanup policy to the repository in the foundation state. The repository name `lucaszanoni-web` is a frozen identifier and must not be renamed; only the `cleanup_policies` blocks below are added.
+The GitLab application jobs build and push a `:<commit-sha>` image for each registry app (`deploy/gitlab/deploy-app.sh`). Nothing prunes old `:<sha>` images, so registry storage grows without bound. Add a keep-most-recent cleanup policy to the repository in the foundation state. The repository name `lucaszanoni-web` is a frozen identifier and must not be renamed; only the `cleanup_policies` blocks below are added.
 
 ```hcl
 resource "google_artifact_registry_repository" "lucaszanoni_web" {

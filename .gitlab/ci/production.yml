@@ -1,0 +1,74 @@
+.production:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true" && $CI_PIPELINE_SOURCE != "schedule"'
+
+.terraform:
+  extends: .production
+  image:
+    name: hashicorp/terraform:1.9.8
+    entrypoint: [""]
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: https://gitlab.com
+  before_script:
+    - apk add --no-cache jq curl bash age
+    - . deploy/gitlab/authenticate-google-cloud.sh
+    - terraform -chdir=infra/environments/production init -input=false
+
+app-deployment-matrix:
+  extends: .production
+  image: node:22.22.2-bookworm
+  stage: prepare
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends jq
+    - jq -c -f deploy/deploy-matrix-from-registry.jq packages/config/src/app-registry.json | node deploy/gitlab/generate-app-pipeline.mjs > app-deployment.yml
+  artifacts:
+    paths: [app-deployment.yml]
+    expire_in: 1 day
+
+infrastructure:
+  extends: .terraform
+  stage: infrastructure
+  resource_group: infrastructure-production
+  environment:
+    name: production/infrastructure
+  script:
+    - test -n "$PRODUCTION_TERRAFORM_VARIABLES"
+    - terraform -chdir=infra/environments/production plan -input=false -var-file="$PRODUCTION_TERRAFORM_VARIABLES" -out=tfplan
+    - terraform -chdir=infra/environments/production apply -input=false tfplan
+    - |
+      if [ "${ENABLE_WORKER_ROLLOUT_SMOKE_GATE:-false}" = "true" ]; then
+        BASE_URL=https://lucaszanoni.com ALIAS_REDIRECT_HOST=lucaszanoni.com.br REGISTRY_PATH=packages/config/src/app-registry.json sh deploy/cloudflare/smoke-check-edge-routes.sh
+      fi
+
+applications:
+  extends: .production
+  stage: deploy
+  trigger:
+    include:
+      - artifact: app-deployment.yml
+        job: app-deployment-matrix
+    strategy: depend
+
+jarvis-connector-credentials:
+  extends: .terraform
+  stage: deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true" && $CI_PIPELINE_SOURCE == "web"'
+      when: manual
+      allow_failure: true
+  script:
+    - bash deploy/gitlab/encrypt-connector-credentials.sh
+  artifacts:
+    paths: [connector-credentials.age]
+    expire_in: 1 day
+    access: maintainer
+
+synthetic-uptime:
+  image: node:22.22.2-bookworm
+  stage: verify
+  resource_group: synthetic-uptime
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  script:
+    - BASE_URL=https://lucaszanoni.com node deploy/synthetic-uptime/run-synthetic-uptime-check.mjs

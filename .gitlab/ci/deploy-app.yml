@@ -1,0 +1,26 @@
+.deploy-app:
+  stage: deploy
+  image: google/cloud-sdk:552.0.0-slim
+  services:
+    - name: docker:27.5.1-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: /certs
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_CERT_PATH: /certs/client
+    GOOGLE_CLOUD_PROJECT_ID: zg-url-shortener-2026
+    GOOGLE_CLOUD_REGION: southamerica-east1
+    GOOGLE_WORKLOAD_IDENTITY_PROVIDER: projects/933601426694/locations/global/workloadIdentityPools/lucaszanoni-web-gitlab/providers/gitlab
+    GOOGLE_DEPLOY_SERVICE_ACCOUNT: lucaszanoni-web-deployer@zg-url-shortener-2026.iam.gserviceaccount.com
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: https://gitlab.com
+  resource_group: cloud-run-$CLOUD_RUN_SERVICE_NAME
+  environment:
+    name: production/$APP_DIRECTORY_NAME
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends docker.io jq curl
+    - . deploy/gitlab/authenticate-google-cloud.sh
+  script:
+    - sh deploy/gitlab/deploy-app.sh

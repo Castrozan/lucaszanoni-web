@@ -1,0 +1,50 @@
+.node:
+  image: node:22.22.2-bookworm
+  cache:
+    key:
+      files:
+        - pnpm-lock.yaml
+    paths:
+      - .pnpm-store/
+  before_script:
+    - corepack enable
+    - pnpm config set store-dir .pnpm-store
+    - pnpm install --frozen-lockfile
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+
+build-and-test:
+  extends: .node
+  stage: verify
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends nginx-light gettext-base
+    - pnpm typecheck
+    - pnpm lint
+    - pnpm exec turbo run test --concurrency=2 -- --maxWorkers=2
+    - node --test deploy/tests/*/*.test.mjs
+    - sh deploy/tests/assert-edge-nginx-serving-contract.sh
+    - sh deploy/tests/assert-cloud-run-health-gated-rollout.sh
+    - sh deploy/tests/assert-worker-rollout-smoke-gate.sh
+    - pnpm exec turbo run build --concurrency=2
+
+cockpit-e2e:
+  extends: .node
+  stage: verify
+  script:
+    - pnpm --filter @platform/cockpit exec playwright install --with-deps chromium
+    - pnpm --filter @platform/cockpit e2e
+
+terraform-modules:
+  image:
+    name: ghcr.io/opentofu/opentofu:1.11.8
+    entrypoint: [""]
+  stage: verify
+  parallel:
+    matrix:
+      - MODULE: [cloudflare-edge, cloudflare-access, cloudflare-jarvis-tunnel]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+  script:
+    - cd "infra/modules/$MODULE"
+    - tofu init -backend=false -input=false
+    - tofu test
