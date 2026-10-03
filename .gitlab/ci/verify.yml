@@ -17,7 +17,7 @@ build-and-test:
   extends: .node
   stage: verify
   script:
-    - apt-get update && apt-get install -y --no-install-recommends nginx-light gettext-base
+    - apt-get update && apt-get install -y --no-install-recommends nginx-light gettext-base jq
     - pnpm typecheck
     - pnpm lint
     - pnpm exec turbo run test --concurrency=2 -- --maxWorkers=2
