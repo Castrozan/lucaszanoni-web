@@ -34,7 +34,9 @@ infrastructure:
     name: production/infrastructure
   script:
     - test -n "$PRODUCTION_TERRAFORM_VARIABLES"
-    - terraform -chdir=infra/environments/production plan -input=false -var-file="$PRODUCTION_TERRAFORM_VARIABLES" -out=tfplan
+    - production_variables_directory=$(mktemp -d)
+    - cp "$PRODUCTION_TERRAFORM_VARIABLES" "$production_variables_directory/production.tfvars.json"
+    - terraform -chdir=infra/environments/production plan -input=false -var-file="$production_variables_directory/production.tfvars.json" -out=tfplan
     - terraform -chdir=infra/environments/production apply -input=false tfplan
     - |
       if [ "${ENABLE_WORKER_ROLLOUT_SMOKE_GATE:-false}" = "true" ]; then
