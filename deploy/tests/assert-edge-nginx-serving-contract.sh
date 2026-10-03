@@ -69,6 +69,7 @@ run_serving_contract_for_mount_path() {
 	listen_port="$2"
 
 	current_work_directory=$(mktemp -d)
+	chmod 755 "$current_work_directory"
 	document_root="$current_work_directory/document-root"
 	mkdir -p "$document_root${application_mount_path}assets"
 	printf '%s' "$index_marker" >"$document_root${application_mount_path}index.html"
@@ -105,6 +106,9 @@ NGINX_CONFIGURATION
 	until curl -fsS -o /dev/null "http://127.0.0.1:$listen_port${application_mount_path}" -H "X-Edge-Auth: $correct_edge_secret" 2>/dev/null; do
 		attempts=$((attempts + 1))
 		if [ "$attempts" -ge 50 ]; then
+			if [ -f "$current_work_directory/error.log" ]; then
+				cat "$current_work_directory/error.log" >&2
+			fi
 			echo "FAIL: nginx did not become ready on port $listen_port for mount path $application_mount_path" >&2
 			exit 1
 		fi
