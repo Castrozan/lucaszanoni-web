@@ -35,9 +35,9 @@ describe("StackLauncherPage", () => {
 
     expect(
       screen.getAllByRole("link", { name: /via Cloudflare/ }),
-    ).toHaveLength(13);
+    ).toHaveLength(12);
     expect(screen.getAllByRole("link", { name: /via Tailscale/ })).toHaveLength(
-      13,
+      12,
     );
 
     expect(

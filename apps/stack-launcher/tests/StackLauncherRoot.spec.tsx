@@ -29,7 +29,7 @@ describe("StackLauncherRoot", () => {
     const windows = within(statusBar).getByRole("navigation", {
       name: "Windows",
     });
-    expect(within(windows).getAllByRole("link")).toHaveLength(14);
+    expect(within(windows).getAllByRole("link")).toHaveLength(13);
     expect(
       within(windows)
         .getByRole("link", { name: "1:Stack" })
@@ -47,17 +47,17 @@ describe("StackLauncherRoot", () => {
     ).toBe("https://request.lucaszanoni.com");
     expect(
       within(windows)
-        .getByRole("link", { name: "5:Stremio" })
+        .getByRole("link", { name: "4:Stremio" })
         .getAttribute("href"),
     ).toBe("https://stream.lucaszanoni.com");
     expect(
       within(windows)
-        .getByRole("link", { name: "6:Miwayomi" })
+        .getByRole("link", { name: "5:Miwayomi" })
         .getAttribute("href"),
     ).toBe("https://anime.lucaszanoni.com");
     expect(
       within(windows)
-        .getByRole("link", { name: "12:qBittorrent" })
+        .getByRole("link", { name: "11:qBittorrent" })
         .getAttribute("href"),
     ).toBe("https://qbittorrent.lucaszanoni.com");
     expect(within(windows).queryByText(/Cloudflare/)).toBeNull();

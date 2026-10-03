@@ -4,7 +4,6 @@ locals {
     audiobookshelf = "audiobookshelf.${local.edge_serving_domain}"
     jellyfin       = "watch.${local.edge_serving_domain}"
     jellyseerr     = "request.${local.edge_serving_domain}"
-    kavita         = "read.${local.edge_serving_domain}"
     stremio        = "stream.${local.edge_serving_domain}"
     miwayomi       = "anime.${local.edge_serving_domain}"
     radarr         = "radarr.${local.edge_serving_domain}"

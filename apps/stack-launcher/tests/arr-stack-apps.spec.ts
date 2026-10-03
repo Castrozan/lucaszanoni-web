@@ -30,7 +30,6 @@ describe("arr stack apps", () => {
     ).toEqual([
       ["jellyfin", "watch"],
       ["jellyseerr", "request"],
-      ["kavita", "read"],
       ["stremio", "stream"],
       ["miwayomi", "anime"],
       ["radarr", "radarr"],
