@@ -35,9 +35,9 @@ describe("StackLauncherPage", () => {
 
     expect(
       screen.getAllByRole("link", { name: /via Cloudflare/ }),
-    ).toHaveLength(12);
+    ).toHaveLength(7);
     expect(screen.getAllByRole("link", { name: /via Tailscale/ })).toHaveLength(
-      12,
+      7,
     );
 
     expect(
@@ -66,9 +66,9 @@ describe("StackLauncherPage", () => {
         .getAttribute("href"),
     ).toBe("https://anime.lucaszanoni.com");
     expect(
-      screen
-        .getByRole("link", { name: "qBittorrent via Cloudflare" })
-        .getAttribute("href"),
-    ).toBe("https://qbittorrent.lucaszanoni.com");
+      screen.queryAllByRole("link", {
+        name: /(?:Radarr|Sonarr|Prowlarr|Bazarr|qBittorrent) via/,
+      }),
+    ).toHaveLength(0);
   });
 });

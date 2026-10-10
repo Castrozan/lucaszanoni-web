@@ -32,12 +32,7 @@ describe("arr stack apps", () => {
       ["jellyseerr", "request"],
       ["stremio", "stream"],
       ["miwayomi", "anime"],
-      ["radarr", "radarr"],
-      ["sonarr", "sonarr"],
-      ["prowlarr", "prowlarr"],
-      ["bazarr", "bazarr"],
       ["suwayomi", "suwayomi"],
-      ["qbittorrent", "qbittorrent"],
       ["readmeabook", "readmeabook"],
       ["audiobookshelf", "audiobookshelf"],
     ]);
