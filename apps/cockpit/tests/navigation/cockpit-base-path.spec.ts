@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { COCKPIT_MOUNT_PATH } from "@platform/config";
-import cockpitViteConfig from "../vite.config";
+import cockpitViteConfig from "../../vite.config";
 
 describe("cockpit vite base", () => {
   it("pins the production build base to the cockpit mount path from config", () => {
