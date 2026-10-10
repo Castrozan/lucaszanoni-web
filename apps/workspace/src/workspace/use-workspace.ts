@@ -6,7 +6,7 @@ import {
   type WorkspaceRegistryState,
 } from "./workspace-registry";
 import type { CockpitComputePort } from "./compute-port";
-import { createInMemoryComputeAdapter } from "./in-memory-compute-adapter";
+import { createInMemoryComputeAdapter } from "./lifecycle/in-memory-compute-adapter";
 import {
   loadPersistedWorkspace,
   savePersistedWorkspace,

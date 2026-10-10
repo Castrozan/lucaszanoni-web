@@ -1,13 +1,13 @@
 import type { CockpitComputePort } from "./compute-port";
 import type { WorkspaceRegistryState } from "./workspace-registry";
 import type { CockpitWorkspaceMachine } from "./cockpit-machine-endpoints";
-import { createLifecycleComputeAdapter } from "./lifecycle-compute-adapter";
+import { createLifecycleComputeAdapter } from "./lifecycle/lifecycle-compute-adapter";
 import {
   connectCockpitLifecycleWebSocket,
   type CockpitLifecycleTransportFactory,
-} from "./cockpit-lifecycle-transport";
-import { resolveCockpitLifecycleEndpoint } from "./cockpit-lifecycle-endpoint";
-import { createReconnectingCockpitLifecycleTransport } from "./reconnecting-cockpit-lifecycle-transport";
+} from "./lifecycle/cockpit-lifecycle-transport";
+import { resolveCockpitLifecycleEndpoint } from "./lifecycle/cockpit-lifecycle-endpoint";
+import { createReconnectingCockpitLifecycleTransport } from "./lifecycle/reconnecting-cockpit-lifecycle-transport";
 
 export interface WorkspaceComputeResolution {
   readonly realComputeEnabled?: boolean;

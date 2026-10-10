@@ -24,11 +24,11 @@ export const cockpitViews: readonly CockpitView[] = [
     leaderKey: "t",
   },
   {
-    id: "jarvis",
-    label: "Jarvis",
-    path: "/jarvis",
+    id: "session",
+    label: "Session",
+    path: "/session",
     fillsViewport: false,
-    leaderKey: "j",
+    leaderKey: "e",
   },
   {
     id: "docs",
