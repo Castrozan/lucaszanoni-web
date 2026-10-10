@@ -6,7 +6,7 @@ import {
 } from "./workspace/use-workspace";
 import { WorkspaceSessionSwitcher } from "./workspace/WorkspaceSessionSwitcher";
 import { WorkspaceWindowPanel } from "./workspace/WorkspaceWindowPanel";
-import { resolveCockpitAttachEndpoint } from "./workspace/cockpit-attach-endpoint";
+import { resolveCockpitAttachEndpoint } from "./workspace/terminal/cockpit-attach-endpoint";
 
 export interface WorkspacePageProps extends UseWorkspaceOptions {
   readonly sessionTerminalMachineEndpoint?: string | null;

@@ -1,0 +1,164 @@
+import { describe, expect, it } from "vitest";
+import type { CockpitComputePort } from "../../../src/workspace/compute-port";
+import { createLifecycleComputeAdapter } from "../../../src/workspace/lifecycle/lifecycle-compute-adapter";
+import {
+  createScriptedLifecycleTransport,
+  inventoryReply,
+} from "../../support/lifecycle-transport-fakes";
+
+describe("real lifecycle adapter reads the live tmux inventory", () => {
+  it("maps the tmux inventory into keyed work-domain sessions", async () => {
+    const compute: CockpitComputePort = createLifecycleComputeAdapter(
+      createScriptedLifecycleTransport(() =>
+        inventoryReply([
+          {
+            sessionName: "platform",
+            windows: [
+              { windowIdentifier: "@1", windowTitle: "claude" },
+              { windowIdentifier: "@2", windowTitle: "shell" },
+            ],
+          },
+        ]),
+      ),
+    );
+
+    const sessions = await compute.listSessions();
+
+    expect(sessions).toEqual([
+      {
+        key: "platform",
+        label: "platform",
+        windows: [
+          {
+            id: "@1",
+            title: "claude",
+            driver: "claude",
+            terminalIdentifier: "",
+          },
+          {
+            id: "@2",
+            title: "shell",
+            driver: "claude",
+            terminalIdentifier: "",
+          },
+        ],
+        activeWindowId: "@1",
+      },
+    ]);
+  });
+
+  it("recovers each window's agent driver from the round-tripped window title", async () => {
+    const compute = createLifecycleComputeAdapter(
+      createScriptedLifecycleTransport(() =>
+        inventoryReply([
+          {
+            sessionName: "platform",
+            windows: [
+              { windowIdentifier: "@1", windowTitle: "codex" },
+              { windowIdentifier: "@2", windowTitle: "claude" },
+              { windowIdentifier: "@3", windowTitle: "shell" },
+            ],
+          },
+        ]),
+      ),
+    );
+
+    const sessions = await compute.listSessions();
+
+    expect(sessions).toEqual([
+      {
+        key: "platform",
+        label: "platform",
+        windows: [
+          { id: "@1", title: "codex", driver: "codex", terminalIdentifier: "" },
+          {
+            id: "@2",
+            title: "claude",
+            driver: "claude",
+            terminalIdentifier: "",
+          },
+          {
+            id: "@3",
+            title: "shell",
+            driver: "claude",
+            terminalIdentifier: "",
+          },
+        ],
+        activeWindowId: "@1",
+      },
+    ]);
+  });
+
+  it("prefers the bridge-detected agent driver over the window title inference", async () => {
+    const compute = createLifecycleComputeAdapter(
+      createScriptedLifecycleTransport(() =>
+        inventoryReply([
+          {
+            sessionName: "platform",
+            windows: [
+              {
+                windowIdentifier: "@1",
+                windowTitle: "shell",
+                agentDriver: "claude",
+              },
+              {
+                windowIdentifier: "@2",
+                windowTitle: "claude",
+                agentDriver: "codex",
+              },
+            ],
+          },
+        ]),
+      ),
+    );
+
+    const sessions = await compute.listSessions();
+
+    expect(sessions).toEqual([
+      {
+        key: "platform",
+        label: "platform",
+        windows: [
+          {
+            id: "@1",
+            title: "shell",
+            driver: "claude",
+            terminalIdentifier: "",
+          },
+          {
+            id: "@2",
+            title: "claude",
+            driver: "codex",
+            terminalIdentifier: "",
+          },
+        ],
+        activeWindowId: "@1",
+      },
+    ]);
+  });
+
+  it("returns an empty inventory as no sessions", async () => {
+    const compute = createLifecycleComputeAdapter(
+      createScriptedLifecycleTransport(() => inventoryReply([])),
+    );
+    expect(await compute.listSessions()).toEqual([]);
+  });
+
+  it("surfaces a lifecycle error reply as a thrown failure", async () => {
+    const compute = createLifecycleComputeAdapter(
+      createScriptedLifecycleTransport(() => ({ error: "invalid-request" })),
+    );
+    await expect(compute.listSessions()).rejects.toThrow(/invalid-request/);
+  });
+
+  it("throws on a malformed reply instead of wiping the workspace as empty", async () => {
+    const compute = createLifecycleComputeAdapter(
+      createScriptedLifecycleTransport(() => ({
+        operation: "list-sessions",
+        exitCode: 0,
+        standardError: "",
+      })),
+    );
+    await expect(compute.listSessions()).rejects.toThrow(/unrecognized/);
+  });
+});

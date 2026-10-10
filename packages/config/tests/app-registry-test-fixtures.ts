@@ -5,7 +5,7 @@ import {
   ingestApp,
 } from "./app-registry-dynamic-service-fixtures";
 import {
-  jarvisSessionApp,
+  terminalSessionApp,
   kiraSessionApp,
   rinSessionApp,
 } from "./app-registry-session-fixtures";
@@ -104,7 +104,7 @@ export const cockpitApp: AppRegistryEntry = {
   },
 };
 
-export { jarvisSessionApp, kiraSessionApp, rinSessionApp };
+export { terminalSessionApp, kiraSessionApp, rinSessionApp };
 
 export const workspaceApp: AppRegistryEntry = {
   id: "workspace",
@@ -153,7 +153,7 @@ export const todaysApps: readonly AppRegistryEntry[] = [
   reportsApp,
   dbApp,
   cockpitApp,
-  jarvisSessionApp,
+  terminalSessionApp,
   kiraSessionApp,
   rinSessionApp,
   workspaceApp,

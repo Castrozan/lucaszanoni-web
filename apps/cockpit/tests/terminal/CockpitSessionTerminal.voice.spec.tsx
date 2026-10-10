@@ -1,0 +1,182 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
+import { CockpitSessionTerminal } from "../../src/terminal/CockpitSessionTerminal";
+import {
+  createFakeEmulatorControl,
+  createFakeSocketControl,
+} from "../support/cockpit-session-terminal-fakes";
+import type {
+  CockpitRecognitionConstructor,
+  CockpitSpeechRecognition,
+} from "../../src/terminal/use-cockpit-speech";
+
+const textDecoder = new TextDecoder();
+const textEncoder = new TextEncoder();
+
+function captureSpokenSynthesis() {
+  const spoken: string[] = [];
+  return {
+    spoken,
+    resolvers: {
+      resolveRecognitionConstructor: () => null,
+      resolveSynthesis: () => ({
+        speak: (utterance: unknown) =>
+          spoken.push((utterance as { text: string }).text),
+        cancel: () => {},
+      }),
+      createUtterance: (text: string) => ({ text }),
+    },
+  };
+}
+
+function installFakeRecognition() {
+  const instances: FakeRecognition[] = [];
+  class FakeRecognition implements CockpitSpeechRecognition {
+    lang = "";
+    interimResults = false;
+    continuous = false;
+    onresult:
+      | ((event: {
+          results: ArrayLike<ArrayLike<{ transcript: string }>>;
+        }) => void)
+      | null = null;
+    onend: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    start() {
+      instances.push(this);
+    }
+    stop() {
+      this.onend?.();
+    }
+    emit(transcript: string) {
+      this.onresult?.({ results: [[{ transcript }]] });
+    }
+  }
+  (
+    window as unknown as { SpeechRecognition: CockpitRecognitionConstructor }
+  ).SpeechRecognition =
+    FakeRecognition as unknown as CockpitRecognitionConstructor;
+  return instances;
+}
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllEnvs();
+  delete (window as unknown as { SpeechRecognition?: unknown })
+    .SpeechRecognition;
+  delete (window as unknown as { webkitSpeechRecognition?: unknown })
+    .webkitSpeechRecognition;
+});
+
+describe("CockpitSessionTerminal voice control", () => {
+  it("disables the voice control when speech recognition is unavailable", () => {
+    const socket = createFakeSocketControl();
+    const emulator = createFakeEmulatorControl();
+    render(
+      <CockpitSessionTerminal
+        endpoint="ws://localhost:9999/session"
+        createSocket={socket.factory}
+        createEmulator={emulator.factory}
+      />,
+    );
+
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Talk to session",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+  });
+
+  it("forwards a recognized phrase into the open socket as owner keystrokes", () => {
+    const instances = installFakeRecognition();
+    const socket = createFakeSocketControl();
+    const emulator = createFakeEmulatorControl();
+    render(
+      <CockpitSessionTerminal
+        endpoint="ws://localhost:9999/session"
+        createSocket={socket.factory}
+        createEmulator={emulator.factory}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Connect" }));
+    act(() => socket.handlers?.onOpen());
+    fireEvent.click(screen.getByRole("button", { name: "Talk to session" }));
+    act(() => instances[0]?.emit("deploy the build"));
+
+    expect(
+      socket.ownerKeystrokeFrames.map((frame) => textDecoder.decode(frame)),
+    ).toContain("deploy the build\r");
+  });
+
+  it("does not speak session output by default because spoken output starts off", () => {
+    vi.useFakeTimers();
+    try {
+      const { spoken, resolvers } = captureSpokenSynthesis();
+      const socket = createFakeSocketControl();
+      const emulator = createFakeEmulatorControl();
+      render(
+        <CockpitSessionTerminal
+          endpoint="ws://localhost:9999/session"
+          createSocket={socket.factory}
+          createEmulator={emulator.factory}
+          speakDebounceMs={20}
+          speechResolvers={resolvers}
+        />,
+      );
+
+      act(() => socket.handlers?.onOpen());
+      act(() =>
+        socket.handlers?.onOutputBytes(
+          textEncoder.encode("\x1b[2Jbuild succeeded\n"),
+        ),
+      );
+      act(() => vi.advanceTimersByTime(40));
+
+      expect(spoken).toEqual([]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("speaks session output once the owner enables spoken output", () => {
+    vi.useFakeTimers();
+    try {
+      const { spoken, resolvers } = captureSpokenSynthesis();
+      const socket = createFakeSocketControl();
+      const emulator = createFakeEmulatorControl();
+      render(
+        <CockpitSessionTerminal
+          endpoint="ws://localhost:9999/session"
+          createSocket={socket.factory}
+          createEmulator={emulator.factory}
+          speakDebounceMs={20}
+          speechResolvers={resolvers}
+        />,
+      );
+
+      act(() => socket.handlers?.onOpen());
+      fireEvent.click(
+        screen.getByRole("button", { name: "Speak session output" }),
+      );
+      act(() =>
+        socket.handlers?.onOutputBytes(
+          textEncoder.encode("\x1b[2Jbuild succeeded\n"),
+        ),
+      );
+      act(() => vi.advanceTimersByTime(40));
+
+      expect(spoken).toContain("build succeeded");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});

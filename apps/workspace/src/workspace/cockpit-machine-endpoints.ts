@@ -1,4 +1,4 @@
-import { resolveCockpitLifecycleEndpoint } from "./cockpit-lifecycle-endpoint";
+import { resolveCockpitLifecycleEndpoint } from "./lifecycle/cockpit-lifecycle-endpoint";
 
 export interface CockpitWorkspaceMachine {
   readonly key: string;

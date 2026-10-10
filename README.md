@@ -47,7 +47,7 @@ Shared packages: **design-system** (Radix UI and Tailwind components, theming, C
 
 ## 🏗️ Architecture
 
-Every request lands on one Cloudflare Worker. The Worker matches a path prefix or subdomain, runs the private paths through Cloudflare Access, and forwards to the right origin: a Cloud Run micro-frontend, a per-machine tunnel, a static GCS bucket, or an external HTTPS origin. The cockpit reaches each machine over that machine's own cloudflared tunnel to its session-bridge, mounted at `/cockpit/kira-session/` and `/cockpit/rin-session/` for kira and rin, and at `/cockpit/jarvis-session/` for chise.
+Every request lands on one Cloudflare Worker. The Worker matches a path prefix or subdomain, runs the private paths through Cloudflare Access, and forwards to the right origin: a Cloud Run micro-frontend, a per-machine tunnel, a static GCS bucket, or an external HTTPS origin. The cockpit reaches each machine over that machine's own cloudflared tunnel to its session-bridge, mounted at `/cockpit/kira-session/` and `/cockpit/rin-session/` for kira and rin, and at `/cockpit/terminal-session/` for chise.
 
 ```mermaid
 graph TD
@@ -121,7 +121,7 @@ Run a single app by scoping the task, for example `corepack pnpm --filter cockpi
 
 GitLab CI validates merge requests with typechecking, lint, unit and deployment-contract tests, cockpit end-to-end tests, OpenTofu module tests, and the production build. A protected `main` pipeline applies the production Terraform state, then builds the registry applications and deploys them to Cloud Run. Each service receives traffic only after its candidate revision answers `200` on `/livez`.
 
-Google Cloud authentication uses GitLab OIDC federation. The owner provisions its restricted trust through `infra/gitlab-identity/`; deployment jobs cannot change that trust. The production state remains in its existing GCS backend. Protected GitLab variables provide `CLOUDFLARE_API_TOKEN`, the JSON file variable `PRODUCTION_TERRAFORM_VARIABLES`, and the frontend build settings consumed by `deploy/gitlab/deploy-app.sh`. Keep credential values outside Git. A scheduled pipeline runs the synthetic uptime check, and a manually started pipeline exposes the encrypted Jarvis connector export. `infra/COST-CEILINGS.md` owns the compute and storage limits.
+Google Cloud authentication uses GitLab OIDC federation. The owner provisions its restricted trust through `infra/gitlab-identity/`; deployment jobs cannot change that trust. The production state remains in its existing GCS backend. Protected GitLab variables provide `CLOUDFLARE_API_TOKEN`, the JSON file variable `PRODUCTION_TERRAFORM_VARIABLES`, and the frontend build settings consumed by `deploy/gitlab/deploy-app.sh`. Keep credential values outside Git. A scheduled pipeline runs the synthetic uptime check, and a manually started pipeline exposes the encrypted session connector export. `infra/COST-CEILINGS.md` owns the compute and storage limits.
 
 ---
 

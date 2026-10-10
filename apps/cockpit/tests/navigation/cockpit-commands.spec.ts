@@ -1,0 +1,40 @@
+import { describe, expect, it, vi } from "vitest";
+import { buildNavigationCommands } from "../../src/command-palette/cockpit-commands";
+import { cockpitViews } from "../../src/navigation/cockpit-views";
+
+describe("buildNavigationCommands", () => {
+  it("builds one navigation command per cockpit view", () => {
+    const commands = buildNavigationCommands(vi.fn());
+    expect(commands.map((command) => command.id)).toEqual(
+      cockpitViews.map((view) => `view:${view.id}`),
+    );
+  });
+
+  it("titles each command after its destination view", () => {
+    const commands = buildNavigationCommands(vi.fn());
+    expect(commands.map((command) => command.title)).toEqual([
+      "Go to Dashboard",
+      "Go to Terminal",
+      "Go to Session",
+      "Go to Docs",
+      "Go to User",
+    ]);
+  });
+
+  it("navigates to the view path when a command runs", () => {
+    const navigate = vi.fn();
+    const commands = buildNavigationCommands(navigate);
+    const sessionCommand = commands.find(
+      (command) => command.id === "view:session",
+    );
+    sessionCommand?.run();
+    expect(navigate).toHaveBeenCalledWith("/session");
+  });
+
+  it("offers no session-switch command because the cockpit owns no session registry", () => {
+    const commands = buildNavigationCommands(vi.fn());
+    expect(
+      commands.some((command) => command.title.startsWith("Switch to ")),
+    ).toBe(false);
+  });
+});

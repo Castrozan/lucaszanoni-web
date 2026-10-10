@@ -1,11 +1,11 @@
 import type { AppRegistryEntry } from "../src/app-registry-types";
 
-export const jarvisSessionApp: AppRegistryEntry = {
-  id: "jarvis-session",
-  mountPath: "/cockpit/jarvis-session/",
-  navigationLabel: "Jarvis session",
+export const terminalSessionApp: AppRegistryEntry = {
+  id: "terminal-session",
+  mountPath: "/cockpit/terminal-session/",
+  navigationLabel: "Cockpit session",
   description:
-    "Owner-only websocket bridge to the Jarvis session host, attached at the edge and gated by Cloudflare Access.",
+    "Owner-only websocket bridge to the Cockpit session host, attached at the edge and gated by Cloudflare Access.",
   showInCrossSectionNavigation: false,
   status: "active",
   accessModel: { environment: "private", audience: { kind: "owner" } },

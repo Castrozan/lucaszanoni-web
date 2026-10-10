@@ -3,7 +3,7 @@ import { parseAppRegistry } from "../src/app-registry-parser";
 import { AppRegistryValidationError } from "../src/app-registry-types";
 import {
   cockpitApp,
-  jarvisSessionApp,
+  terminalSessionApp,
   shellApp,
 } from "./app-registry-test-fixtures";
 
@@ -25,7 +25,7 @@ describe("parseAppRegistry accessApplicationProvisioning", () => {
   });
 
   it("accepts a child inheriting its access application from a private-environment dedicated parent", () => {
-    const parsed = parseAppRegistry([cockpitApp, jarvisSessionApp]);
+    const parsed = parseAppRegistry([cockpitApp, terminalSessionApp]);
     expect(parsed[1]?.accessApplicationProvisioning).toEqual({
       kind: "inherited-from-parent-path",
       parentMountPath: "/cockpit/",
@@ -87,7 +87,7 @@ describe("parseAppRegistry accessApplicationProvisioning", () => {
   });
 
   it("rejects an inheritance from a parent path with no app mounted there", () => {
-    expect(() => parseAppRegistry([jarvisSessionApp])).toThrow(
+    expect(() => parseAppRegistry([terminalSessionApp])).toThrow(
       /no app is mounted there/,
     );
   });
@@ -96,7 +96,7 @@ describe("parseAppRegistry accessApplicationProvisioning", () => {
     expect(() =>
       parseAppRegistry([
         { ...cockpitApp, accessModel: { environment: "public" } },
-        jarvisSessionApp,
+        terminalSessionApp,
       ]),
     ).toThrow(/ungated/);
   });
@@ -115,7 +115,7 @@ describe("parseAppRegistry accessApplicationProvisioning", () => {
             parentMountPath: "/",
           },
         },
-        jarvisSessionApp,
+        terminalSessionApp,
       ]),
     ).toThrow(/dedicated access application/);
   });
