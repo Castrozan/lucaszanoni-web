@@ -3,7 +3,7 @@ import { cleanup, render } from "@testing-library/react";
 import {
   readHashSectionId,
   useScrollToHashSection,
-} from "../src/landing/useScrollToHashSection";
+} from "../../src/landing/useScrollToHashSection";
 
 const KNOWN_SECTION_IDS = ["hero", "cockpit"] as const;
 

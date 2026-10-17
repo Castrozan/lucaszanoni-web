@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { ThemeProvider } from "@platform/design-system";
-import { HeroSection } from "../src/landing/HeroSection";
+import { HeroSection } from "../../src/landing/HeroSection";
 
 afterEach(cleanup);
 

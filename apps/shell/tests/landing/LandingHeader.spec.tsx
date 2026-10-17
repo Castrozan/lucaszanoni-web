@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { OWNER_SIGN_IN_ENTRY_ROUTE } from "@platform/config";
-import { LandingHeader } from "../src/landing/LandingHeader";
+import { LandingHeader } from "../../src/landing/LandingHeader";
 
 afterEach(cleanup);
 

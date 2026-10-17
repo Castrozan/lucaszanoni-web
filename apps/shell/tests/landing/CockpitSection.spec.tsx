@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
-import { CockpitSection } from "../src/landing/CockpitSection";
-import { COCKPIT_SECTION_ID } from "../src/landing/landingSections";
+import { CockpitSection } from "../../src/landing/CockpitSection";
+import { COCKPIT_SECTION_ID } from "../../src/landing/landingSections";
 
 afterEach(cleanup);
 

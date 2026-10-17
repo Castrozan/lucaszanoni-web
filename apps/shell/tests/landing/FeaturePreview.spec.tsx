@@ -2,8 +2,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { MICRO_FRONTEND_ROUTES } from "@platform/config";
-import { featurePreviews } from "../src/landing/landingContent";
-import { FeaturePreview } from "../src/landing/FeaturePreview";
+import { featurePreviews } from "../../src/landing/landingContent";
+import { FeaturePreview } from "../../src/landing/FeaturePreview";
 
 afterEach(cleanup);
 

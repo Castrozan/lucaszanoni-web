@@ -3,7 +3,7 @@ import {
   heroContent,
   terminalContent,
   platformFeatures,
-} from "../src/landing/landingContent";
+} from "../../src/landing/landingContent";
 
 describe("landingContent", () => {
   it("keeps the two-line hero headline", () => {

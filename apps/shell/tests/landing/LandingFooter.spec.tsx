@@ -4,7 +4,7 @@ import {
   CROSS_SECTION_NAVIGATION_ROUTES,
   OWNER_SIGN_IN_ENTRY_ROUTE,
 } from "@platform/config";
-import { LandingFooter } from "../src/landing/LandingFooter";
+import { LandingFooter } from "../../src/landing/LandingFooter";
 
 afterEach(cleanup);
 
