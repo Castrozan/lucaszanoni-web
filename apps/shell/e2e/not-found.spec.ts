@@ -25,24 +25,40 @@ test("offers the catalog without relying on browser history", async ({
   await expect(page.getByRole("heading", { name: "CATALOG" })).toBeVisible();
 });
 
-for (const width of [375, 768, 1440]) {
-  test(`keeps recovery visible without horizontal overflow at ${width}px`, async ({
+for (const viewport of [
+  { width: 320, height: 568 },
+  { width: 375, height: 667 },
+  { width: 375, height: 812 },
+  { width: 568, height: 320 },
+  { width: 768, height: 900 },
+  { width: 844, height: 390 },
+  { width: 1440, height: 720 },
+  { width: 1440, height: 900 },
+]) {
+  test(`fits the viewport without scrolling at ${viewport.width}x${viewport.height}`, async ({
     page,
   }) => {
-    await page.setViewportSize({ width, height: 900 });
+    await page.setViewportSize(viewport);
     await page.goto("/off-the-map");
     await page.evaluate(() => document.fonts.ready);
     await expect(
       page.getByRole("link", { name: /take me home/i }),
-    ).toBeInViewport();
+    ).toBeInViewport({ ratio: 1 });
     await expect(
       page.getByRole("link", { name: /explore the catalog/i }),
-    ).toBeInViewport();
+    ).toBeInViewport({ ratio: 1 });
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,
       ),
     ).toBe(true);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollHeight <= window.innerHeight,
+      ),
+    ).toBe(true);
+    await page.evaluate(() => window.scrollTo(0, 1000));
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
     await page.locator(".not-found-scene").evaluate(async (element) => {
       await Promise.all(
         element
@@ -51,7 +67,9 @@ for (const width of [375, 768, 1440]) {
       );
     });
     await page.screenshot({
-      path: test.info().outputPath(`not-found-${width}.png`),
+      path: test
+        .info()
+        .outputPath(`not-found-${viewport.width}x${viewport.height}.png`),
       fullPage: true,
     });
   });
