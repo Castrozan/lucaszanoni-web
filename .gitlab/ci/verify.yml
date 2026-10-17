@@ -40,6 +40,11 @@ shell-e2e:
   script:
     - pnpm --filter @platform/shell exec playwright install --with-deps chromium
     - pnpm --filter @platform/shell e2e
+  artifacts:
+    when: always
+    paths:
+      - apps/shell/test-results/
+    expire_in: 1 week
 
 terraform-modules:
   image:
