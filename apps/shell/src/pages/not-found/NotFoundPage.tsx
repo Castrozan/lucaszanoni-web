@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { BottomStatusBar, Button } from "@platform/design-system";
 import { LandingHeader } from "../../landing/LandingHeader";
-import { LandingFooter } from "../../landing/LandingFooter";
 import { NotFoundScene } from "./NotFoundScene";
 import "./not-found.css";
 
@@ -61,7 +60,6 @@ export function NotFoundPage() {
         </div>
         <NotFoundScene />
       </main>
-      <LandingFooter />
       <BottomStatusBar />
     </div>
   );
