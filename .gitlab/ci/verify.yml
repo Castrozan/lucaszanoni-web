@@ -34,6 +34,18 @@ cockpit-e2e:
     - pnpm --filter @platform/cockpit exec playwright install --with-deps chromium
     - pnpm --filter @platform/cockpit e2e
 
+shell-e2e:
+  extends: .node
+  stage: verify
+  script:
+    - pnpm --filter @platform/shell exec playwright install --with-deps chromium
+    - pnpm --filter @platform/shell e2e
+  artifacts:
+    when: always
+    paths:
+      - apps/shell/test-results/
+    expire_in: 1 week
+
 terraform-modules:
   image:
     name: ghcr.io/opentofu/opentofu:1.11.8

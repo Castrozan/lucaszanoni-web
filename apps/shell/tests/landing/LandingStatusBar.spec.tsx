@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { buildLandingStatusBarModel } from "../src/landing/LandingStatusBar";
+import { buildLandingStatusBarModel } from "../../src/landing/LandingStatusBar";
 import {
   COCKPIT_SECTION_ID,
   HERO_SECTION_ID,
   LANDING_SECTIONS,
   SHOWCASE_SECTION_ID,
-} from "../src/landing/landingSections";
+} from "../../src/landing/landingSections";
 
 afterEach(() => {
   document.body.innerHTML = "";

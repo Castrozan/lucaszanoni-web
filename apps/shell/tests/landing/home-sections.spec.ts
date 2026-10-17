@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCatalogCards } from "../src/home-sections";
+import { buildCatalogCards } from "../../src/home-sections";
 
 describe("buildCatalogCards", () => {
   it("lists every micro-frontend except the shell itself", () => {

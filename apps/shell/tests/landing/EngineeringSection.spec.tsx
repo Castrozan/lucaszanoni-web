@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { MICRO_FRONTEND_ROUTES } from "@platform/config";
-import { engineeringContent } from "../src/landing/landingContent";
-import { EngineeringSection } from "../src/landing/EngineeringSection";
+import { engineeringContent } from "../../src/landing/landingContent";
+import { EngineeringSection } from "../../src/landing/EngineeringSection";
 
 afterEach(cleanup);
 

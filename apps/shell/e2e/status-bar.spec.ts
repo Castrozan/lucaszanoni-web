@@ -19,10 +19,10 @@ test.describe("status bar", () => {
 
   test("shows the active session and its current window", async ({ page }) => {
     const bar = statusBar(page);
-    await expect(bar.getByText("Home", { exact: true })).toBeVisible();
-    const homeWindow = bar.getByRole("link", { name: "1:Home" });
-    await expect(homeWindow).toBeVisible();
-    await expect(homeWindow).toHaveAttribute("aria-current", "page");
+    await expect(bar.getByText("Atrium", { exact: true })).toBeVisible();
+    const heroWindow = bar.getByRole("button", { name: "1:Hero" });
+    await expect(heroWindow).toBeVisible();
+    await expect(heroWindow).toHaveAttribute("aria-current", "page");
   });
 
   test("reserves bottom space so page content is not occluded", async ({

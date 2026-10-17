@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { resolveActiveSectionId } from "../src/landing/useActiveLandingSection";
+import { resolveActiveSectionId } from "../../src/landing/useActiveLandingSection";
 
 afterEach(() => {
   document.body.innerHTML = "";

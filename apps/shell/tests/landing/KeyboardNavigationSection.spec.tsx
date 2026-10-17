@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
-import { KeyboardNavigationSection } from "../src/landing/KeyboardNavigationSection";
-import { LANDING_SECTIONS } from "../src/landing/landingSections";
+import { KeyboardNavigationSection } from "../../src/landing/KeyboardNavigationSection";
+import { LANDING_SECTIONS } from "../../src/landing/landingSections";
 
 afterEach(cleanup);
 

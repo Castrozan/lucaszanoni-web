@@ -2,11 +2,11 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { KeybindProvider } from "@platform/design-system";
-import { LandingPage } from "../src/landing/LandingPage";
+import { LandingPage } from "../../src/landing/LandingPage";
 import {
   KEYBOARD_SECTION_ID,
   LANDING_SECTIONS,
-} from "../src/landing/landingSections";
+} from "../../src/landing/landingSections";
 
 afterEach(cleanup);
 
