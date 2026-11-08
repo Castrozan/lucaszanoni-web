@@ -8,3 +8,5 @@ export const reportArtifactBucketBaseUrl = `${reportBucketBaseUrl}reports/`;
 export const baselineArtifactUrl = `${reportArtifactBucketBaseUrl}baseline/index.html`;
 
 export const coverageArtifactUrl = `${reportArtifactBucketBaseUrl}coverage/index.html`;
+
+export const baselineReportJsonUrl = `${reportArtifactBucketBaseUrl}baseline/report.json`;
