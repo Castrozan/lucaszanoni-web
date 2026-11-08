@@ -58,7 +58,7 @@ describe("UsageDashboardPage", () => {
     expect(screen.getByText("accounts tracked")).toBeTruthy();
     expect(screen.getByTestId("daily-tokens-chart")).toBeTruthy();
     const baselineLink = screen.getByRole("link", {
-      name: "agent-eval baseline",
+      name: "agent instructions report",
     });
     expect(baselineLink.getAttribute("href")).toBe(
       "/engineering/dotfiles/reports/baseline/",

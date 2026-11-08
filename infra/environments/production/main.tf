@@ -122,10 +122,6 @@ module "edge" {
   shell_origin_host     = module.in_repo_cloud_run_app[local.root_app_id].origin_host
   prefix_origin_hosts   = local.prefix_origin_hosts
   static_bucket_prefix_origins = var.enable_reports_static_gcs_routes ? {
-    "/engineering/dotfiles/reports/baseline/" = {
-      bucket            = var.reports_static_bucket_name
-      object_key_prefix = "reports/baseline/"
-    }
     "/engineering/dotfiles/reports/coverage/" = {
       bucket            = var.reports_static_bucket_name
       object_key_prefix = "reports/coverage/"

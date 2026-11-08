@@ -156,7 +156,7 @@ export function UsageDashboardPage({
         from Cloud Storage that each machine exports with{" "}
         <code>agents/usage/export_usage_snapshot.py</code> &middot;{" "}
         <a className="text-primary" href={baselineReportUrl}>
-          agent-eval baseline
+          agent instructions report
         </a>
       </footer>
     </div>
