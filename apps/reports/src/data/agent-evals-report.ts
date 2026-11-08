@@ -31,6 +31,16 @@ export interface AgentEvalsHeader {
     readonly subject: { readonly client: string; readonly model?: string };
   };
   readonly reasons: readonly AgentEvalsReason[];
+  readonly testSuite?: AgentEvalsTestSuite;
+}
+
+export interface AgentEvalsTestSuite {
+  readonly ranAt: string;
+  readonly exitCode: number;
+  readonly tests?: number;
+  readonly failures?: number;
+  readonly errors?: number;
+  readonly skipped?: number;
 }
 
 export interface AgentEvalsCase {

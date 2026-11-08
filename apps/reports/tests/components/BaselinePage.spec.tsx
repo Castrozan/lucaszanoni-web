@@ -80,6 +80,29 @@ describe("BaselinePage", () => {
     );
   });
 
+  it("puts the ordinary test suite under the verdict only when the report carries it", async () => {
+    const withSuite = await renderLoadedPage({
+      ...agentEvalsReportFixture,
+      header: {
+        ...agentEvalsReportFixture.header,
+        testSuite: {
+          ranAt: "2026-11-08T02:59:45.372Z",
+          exitCode: 0,
+          tests: 6969,
+          failures: 0,
+          errors: 0,
+          skipped: 103,
+        },
+      },
+    });
+    expect(withSuite.textContent).toContain(
+      "Tests passing. All 6,969 ordinary tests passed, 103 skipped.",
+    );
+    cleanup();
+    const withoutSuite = await renderLoadedPage();
+    expect(withoutSuite.textContent).not.toContain("ordinary tests");
+  });
+
   it("explains the failure in at most three bullets and folds the rest", async () => {
     const container = await renderLoadedPage();
     expect(container.textContent).toContain("core rules fell below its floor");

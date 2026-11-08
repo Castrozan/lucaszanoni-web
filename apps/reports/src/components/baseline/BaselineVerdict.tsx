@@ -4,15 +4,12 @@ import {
   buildVerdict,
   describeSubject,
   formatMeasuredDate,
-  type VerdictTone,
 } from "../../data/humanize-agent-evals-report";
-import { baselineMutedTextClassName } from "./baseline-report-content";
-
-const verdictToneClassNames: Record<VerdictTone, string> = {
-  positive: "text-status-positive",
-  negative: "text-status-negative",
-  caution: "text-status-caution",
-};
+import {
+  baselineMutedTextClassName,
+  verdictToneClassNames,
+} from "./baseline-report-content";
+import { TestSuiteLine } from "./TestSuiteLine";
 
 const commitPrefixLength = 8;
 
@@ -37,6 +34,7 @@ export function BaselineVerdict({
         </strong>{" "}
         {verdict.detail}
       </p>
+      {header.testSuite ? <TestSuiteLine testSuite={header.testSuite} /> : null}
       <p className={cn("mt-1", baselineMutedTextClassName)}>
         {measurementParts.join(" · ")}
       </p>
