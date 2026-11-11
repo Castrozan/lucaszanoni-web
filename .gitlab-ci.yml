@@ -5,17 +5,11 @@ workflow:
 
 stages:
   - verify
-  - prepare
-  - infrastructure
   - deploy
 
 variables:
-  GOOGLE_CLOUD_PROJECT_ID: zg-url-shortener-2026
-  GOOGLE_CLOUD_REGION: southamerica-east1
-  GOOGLE_WORKLOAD_IDENTITY_PROVIDER: projects/933601426694/locations/global/workloadIdentityPools/lucaszanoni-web-gitlab/providers/gitlab
-  GOOGLE_DEPLOY_SERVICE_ACCOUNT: lucaszanoni-web-deployer@zg-url-shortener-2026.iam.gserviceaccount.com
   TF_IN_AUTOMATION: "true"
 
 include:
   - local: .gitlab/ci/verify.yml
-  - local: .gitlab/ci/production.yml
+  - local: .gitlab/ci/cloudflare.yml

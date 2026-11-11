@@ -8,6 +8,7 @@ import type {
 } from "./app-registry-types";
 
 export type AppOriginSpec =
+  | { readonly kind: "in-repo-worker-assets" }
   | {
       readonly kind: "in-repo-cloud-run";
       readonly buildProfile: AppBuildProfile;
@@ -41,6 +42,12 @@ const inRepoCloudRunPackageScope = "@platform";
 
 function buildOrigin(id: string, origin: AppOriginSpec): AppOrigin {
   switch (origin.kind) {
+    case "in-repo-worker-assets":
+      return {
+        kind: origin.kind,
+        appPackageName: `@platform/${id}`,
+        appDirectoryName: id,
+      };
     case "in-repo-cloud-run":
       return {
         kind: "in-repo-cloud-run",

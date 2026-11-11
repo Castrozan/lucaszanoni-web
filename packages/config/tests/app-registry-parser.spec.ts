@@ -2,7 +2,49 @@ import { describe, expect, it } from "vitest";
 import appRegistryDocument from "../src/app-registry.json";
 import { parseAppRegistry } from "../src/app-registry-parser";
 import { AppRegistryValidationError } from "../src/app-registry-types";
-import { shellApp } from "./app-registry-test-fixtures";
+import { cockpitApp, shellApp } from "./app-registry-test-fixtures";
+
+describe("Worker static assets", () => {
+  it("preserves the private owner policy without a Cloud Run origin", () => {
+    const [application] = parseAppRegistry([cockpitApp]);
+    expect(application?.origin).toEqual({
+      kind: "in-repo-worker-assets",
+      appPackageName: "@platform/cockpit",
+      appDirectoryName: "cockpit",
+    });
+    expect(application?.accessModel).toEqual({
+      environment: "private",
+      audience: { kind: "owner" },
+    });
+  });
+
+  it("rejects obsolete Cloud Run fields on an asset origin", () => {
+    expect(() =>
+      parseAppRegistry([
+        {
+          ...cockpitApp,
+          origin: { ...cockpitApp.origin, cloudRunServiceName: "obsolete" },
+        },
+      ]),
+    ).toThrow(/cloudRunServiceName/);
+  });
+
+  it("rejects duplicate source directories across hosting providers", () => {
+    expect(() =>
+      parseAppRegistry([
+        shellApp,
+        {
+          ...cockpitApp,
+          origin: {
+            kind: "in-repo-worker-assets",
+            appPackageName: "@platform/shell",
+            appDirectoryName: "shell",
+          },
+        },
+      ]),
+    ).toThrow(/appDirectoryName/);
+  });
+});
 
 describe("parseAppRegistry", () => {
   const baseEntry = shellApp;

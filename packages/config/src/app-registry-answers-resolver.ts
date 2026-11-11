@@ -36,6 +36,9 @@ export function resolveAccessModel(answers: AddAppAnswers): AppAccessModel {
 }
 
 export function resolveOriginSpec(answers: AddAppAnswers): AppOriginSpec {
+  if (answers.originKind === "in-repo-worker-assets") {
+    return { kind: answers.originKind };
+  }
   if (answers.originKind === "external-https") {
     return {
       kind: "external-https",

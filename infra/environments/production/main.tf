@@ -11,7 +11,6 @@ locals {
     shell                   = var.shell_container_image
     "usage-dashboard"       = var.usage_dashboard_container_image
     reports                 = var.reports_container_image
-    cockpit                 = var.cockpit_container_image
     workspace               = var.workspace_container_image
     "dynamic-ia-canvas"     = var.dynamic_ia_canvas_container_image
     "dynamic-ia-interfaces" = var.dynamic_ia_interfaces_container_image
@@ -117,10 +116,11 @@ module "edge" {
   source = "../../modules/cloudflare-edge"
   count  = var.enable_cloudflare_edge ? 1 : 0
 
-  zone_name             = local.edge_serving_domain
-  cloudflare_account_id = var.cloudflare_account_id
-  shell_origin_host     = module.in_repo_cloud_run_app[local.root_app_id].origin_host
-  prefix_origin_hosts   = local.prefix_origin_hosts
+  zone_name              = local.edge_serving_domain
+  cloudflare_account_id  = var.cloudflare_account_id
+  shell_origin_host      = module.in_repo_cloud_run_app[local.root_app_id].origin_host
+  prefix_origin_hosts    = local.prefix_origin_hosts
+  worker_assets_prefixes = [for app in local.app_registry : app.mountPath if app.origin.kind == "in-repo-worker-assets"]
   static_bucket_prefix_origins = var.enable_reports_static_gcs_routes ? {
     "/engineering/dotfiles/reports/coverage/" = {
       bucket            = var.reports_static_bucket_name

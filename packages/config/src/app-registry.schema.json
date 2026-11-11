@@ -144,6 +144,16 @@
         {
           "type": "object",
           "additionalProperties": false,
+          "required": ["kind", "appPackageName", "appDirectoryName"],
+          "properties": {
+            "kind": { "const": "in-repo-worker-assets" },
+            "appPackageName": { "type": "string", "minLength": 1 },
+            "appDirectoryName": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
           "required": [
             "kind",
             "cloudRunServiceName",

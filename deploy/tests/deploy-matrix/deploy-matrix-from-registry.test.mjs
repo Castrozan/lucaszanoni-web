@@ -39,13 +39,6 @@ const expectedDeployMatrixFromCommittedRegistry = {
       build_profile: "static-spa",
     },
     {
-      service_name: "lucaszanoni-cockpit",
-      app_package_name: "@platform/cockpit",
-      app_directory_name: "cockpit",
-      app_mount_path: "/cockpit/",
-      build_profile: "static-spa",
-    },
-    {
       service_name: "lucaszanoni-workspace",
       app_package_name: "@platform/workspace",
       app_directory_name: "workspace",

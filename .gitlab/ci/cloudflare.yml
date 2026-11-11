@@ -1,0 +1,20 @@
+cockpit-cloudflare:
+  extends: .node
+  stage: deploy
+  resource_group: cloudflare-production
+  environment:
+    name: production/cockpit
+    url: https://lucaszanoni.com/cockpit/
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true" && $CI_PIPELINE_SOURCE != "schedule"'
+  script:
+    - node deploy/cloudflare/deploy-cockpit.mjs
+
+synthetic-uptime:
+  image: node:22.22.2-bookworm
+  stage: verify
+  resource_group: synthetic-uptime
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  script:
+    - BASE_URL=https://lucaszanoni.com node deploy/synthetic-uptime/run-synthetic-uptime-check.mjs

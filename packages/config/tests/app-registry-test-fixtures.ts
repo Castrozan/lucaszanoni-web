@@ -94,13 +94,9 @@ export const cockpitApp: AppRegistryEntry = {
   status: "active",
   accessModel: { environment: "private", audience: { kind: "owner" } },
   origin: {
-    kind: "in-repo-cloud-run",
-    cloudRunServiceName: "lucaszanoni-cockpit",
+    kind: "in-repo-worker-assets",
     appPackageName: "@platform/cockpit",
     appDirectoryName: "cockpit",
-    buildProfile: "static-spa",
-    nonSecretEnvironment: {},
-    secretEnvironmentReferences: {},
   },
 };
 

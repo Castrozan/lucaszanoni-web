@@ -168,6 +168,27 @@ export default {
       return fetch(externalOriginRequest);
     }
 
+    const workerAssetsRoute = (routingTable.workerAssetsPrefixes ?? []).find(
+      (route) =>
+        requestPathMatchesMountPrefix(incomingUrl.pathname, route.prefix),
+    );
+    if (workerAssetsRoute) {
+      if (incomingUrl.pathname === workerAssetsRoute.prefix.slice(0, -1)) {
+        const canonicalUrl = new URL(incomingUrl);
+        canonicalUrl.pathname += "/";
+        return new Response(null, {
+          status: 308,
+          headers: { Location: canonicalUrl.toString() },
+        });
+      }
+      const assetUrl = new URL(incomingUrl);
+      const assetPath = incomingUrl.pathname.slice(
+        workerAssetsRoute.prefix.length - 1,
+      );
+      assetUrl.pathname = assetPath === "/" ? "/index.html" : assetPath;
+      return env.ASSETS.fetch(new Request(assetUrl, request));
+    }
+
     const originUrl = new URL(request.url);
     originUrl.hostname = selectCloudRunOriginHost(
       incomingUrl.pathname,
