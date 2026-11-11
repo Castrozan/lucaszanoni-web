@@ -37,12 +37,6 @@ variable "reports_container_image" {
   default     = "us-docker.pkg.dev/cloudrun/container/hello"
 }
 
-variable "cockpit_container_image" {
-  type        = string
-  description = "Fully qualified Artifact Registry image for the cockpit service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."
-  default     = "us-docker.pkg.dev/cloudrun/container/hello"
-}
-
 variable "workspace_container_image" {
   type        = string
   description = "Fully qualified Artifact Registry image for the workspace service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."
@@ -58,12 +52,6 @@ variable "dynamic_ia_canvas_container_image" {
 variable "dynamic_ia_interfaces_container_image" {
   type        = string
   description = "Fully qualified Artifact Registry image for the dynamic-ia-interfaces service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."
-  default     = "us-docker.pkg.dev/cloudrun/container/hello"
-}
-
-variable "stack_launcher_container_image" {
-  type        = string
-  description = "Fully qualified Artifact Registry image for the stack-launcher service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."
   default     = "us-docker.pkg.dev/cloudrun/container/hello"
 }
 
@@ -88,7 +76,7 @@ variable "enable_dotcom_canonical" {
 variable "enable_reports_static_gcs_routes" {
   type        = bool
   default     = false
-  description = "Whether the edge serves /engineering/dotfiles/reports/baseline/ and /engineering/dotfiles/reports/coverage/ from the public GCS bucket. Defaults off so the routes stay dark until the dotfiles pipeline has published the generated baseline and coverage trees to the bucket; while off the Worker falls those paths through to the reports SPA, so flipping it is the only behavior change."
+  description = "Whether the edge serves /engineering/dotfiles/reports/coverage/ from the public GCS bucket. Defaults off so the route stays dark until the dotfiles pipeline has published the generated coverage tree to the bucket; while off the Worker falls that path through to the reports SPA, so flipping it is the only behavior change."
 }
 
 variable "reports_static_bucket_name" {

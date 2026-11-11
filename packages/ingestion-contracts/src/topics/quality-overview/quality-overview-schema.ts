@@ -45,8 +45,9 @@ export const qualityOverviewPayloadSchema = {
     },
     detailsBaseUrl: {
       type: "string",
+      format: "uri",
       pattern:
-        "^https://storage\\.googleapis\\.com/zg-url-shortener-2026-dotfiles-usage-snapshots/reports/overview/[1-9][0-9]*/[1-9][0-9]*/$",
+        "^https://[^/?#@]+/(?:[^?#]*/)?overview/[1-9][0-9]*/[1-9][0-9]*/$",
     },
   },
 } as const;

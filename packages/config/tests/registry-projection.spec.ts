@@ -32,7 +32,13 @@ describe("registry projection", () => {
       expect(projected?.description).toBe(route?.description);
       expect(projected?.mountPath).toBe(route?.mountPath);
       expect(projected?.accessModel).toEqual(entry.accessModel);
-      expect(projected?.origin).toEqual(entry.origin);
+      expect(projected?.hostingKind).toBe(entry.origin.kind);
+      expect(projected?.buildProfile).toBe(entry.source?.buildProfile);
+      expect(projected?.isAiPowered).toBe(
+        entry.capabilities?.includes("generative-ai") ?? false,
+      );
+      expect(projected).not.toHaveProperty("origin");
+      expect(projected).not.toHaveProperty("source");
     }
   });
 

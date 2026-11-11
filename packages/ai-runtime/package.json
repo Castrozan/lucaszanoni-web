@@ -1,0 +1,22 @@
+{
+  "name": "@platform/ai-runtime",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^3.0.85",
+    "ai": "^6.0.0"
+  },
+  "devDependencies": {
+    "@platform/tsconfig": "workspace:*",
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.9"
+  }
+}

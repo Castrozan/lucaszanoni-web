@@ -15,7 +15,7 @@ describe("buildPlatformSessions", () => {
     expect(ids).toContain("cockpit");
     expect(ids).toContain("workspace");
     expect(ids).not.toContain("db");
-    expect(ids).not.toContain("jarvis-session");
+    expect(ids).not.toContain("terminal-session");
   });
 
   it("lists declared windows plus mountPath children for a session", () => {
@@ -23,10 +23,10 @@ describe("buildPlatformSessions", () => {
     expect(cockpit?.windows.map((window) => window.id)).toEqual([
       "cockpit-dashboard",
       "cockpit-terminal",
-      "cockpit-jarvis",
+      "cockpit-session",
       "cockpit-docs",
       "cockpit-user",
-      "jarvis-session",
+      "terminal-session",
       "kira-session",
       "rin-session",
     ]);
@@ -59,9 +59,12 @@ describe("findActiveLocation", () => {
   });
 
   it("matches the child window when the pathname is under it", () => {
-    const location = findActiveLocation(sessions, "/cockpit/jarvis-session/x");
+    const location = findActiveLocation(
+      sessions,
+      "/cockpit/terminal-session/x",
+    );
     expect(location?.session.id).toBe("cockpit");
-    expect(location?.window.id).toBe("jarvis-session");
+    expect(location?.window.id).toBe("terminal-session");
   });
 
   it("matches a declared window subpage", () => {

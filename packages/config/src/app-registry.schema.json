@@ -4,7 +4,9 @@
   "title": "Platform application registry",
   "description": "The single declarative source of truth every consumer derives from: typed loader, Terraform, and the deploy matrix.",
   "type": "array",
-  "items": { "$ref": "#/definitions/appRegistryEntry" },
+  "items": {
+    "$ref": "#/definitions/appRegistryEntry"
+  },
   "definitions": {
     "appRegistryEntry": {
       "type": "object",
@@ -20,19 +22,54 @@
         "origin"
       ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "mountPath": { "type": "string", "pattern": "^(/|/.*/)$" },
-        "navigationLabel": { "type": "string", "minLength": 1 },
-        "description": { "type": "string", "minLength": 1 },
-        "showInCrossSectionNavigation": { "type": "boolean" },
-        "status": { "enum": ["active", "retired"] },
-        "accessModel": { "$ref": "#/definitions/accessModel" },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mountPath": {
+          "type": "string",
+          "pattern": "^(/|/.*/)$"
+        },
+        "navigationLabel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "showInCrossSectionNavigation": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": ["active", "retired"]
+        },
+        "accessModel": {
+          "$ref": "#/definitions/accessModel"
+        },
         "accessApplicationProvisioning": {
           "$ref": "#/definitions/accessApplicationProvisioning"
         },
-        "origin": { "$ref": "#/definitions/origin" },
-        "servingLocation": { "$ref": "#/definitions/servingLocation" },
-        "healthProbePath": { "type": "string", "pattern": "^/" }
+        "origin": {
+          "$ref": "#/definitions/origin"
+        },
+        "servingLocation": {
+          "$ref": "#/definitions/servingLocation"
+        },
+        "healthProbePath": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "source": {
+          "$ref": "#/definitions/source"
+        },
+        "capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["generative-ai"]
+          }
+        }
       },
       "allOf": [
         {
@@ -42,8 +79,11 @@
               "origin": {
                 "required": ["kind"],
                 "properties": {
-                  "kind": { "const": "static-gcs-bucket" }
-                }
+                  "kind": {
+                    "const": "static-gcs-bucket"
+                  }
+                },
+                "type": "object"
               }
             }
           },
@@ -52,10 +92,32 @@
               "accessModel": {
                 "required": ["environment"],
                 "properties": {
-                  "environment": { "const": "public" }
-                }
+                  "environment": {
+                    "const": "public"
+                  }
+                },
+                "type": "object"
               }
             }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "enum": ["cloud-run", "cloudflare-worker"]
+                  }
+                },
+                "required": ["kind"]
+              }
+            },
+            "required": ["origin"]
+          },
+          "then": {
+            "required": ["source"]
           }
         }
       ]
@@ -66,14 +128,20 @@
           "type": "object",
           "additionalProperties": false,
           "required": ["kind"],
-          "properties": { "kind": { "const": "path-prefix" } }
+          "properties": {
+            "kind": {
+              "const": "path-prefix"
+            }
+          }
         },
         {
           "type": "object",
           "additionalProperties": false,
           "required": ["kind", "subdomainLabel"],
           "properties": {
-            "kind": { "const": "subdomain" },
+            "kind": {
+              "const": "subdomain"
+            },
             "subdomainLabel": {
               "type": "string",
               "pattern": "^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$"
@@ -88,15 +156,24 @@
           "type": "object",
           "additionalProperties": false,
           "required": ["kind"],
-          "properties": { "kind": { "const": "dedicated" } }
+          "properties": {
+            "kind": {
+              "const": "dedicated"
+            }
+          }
         },
         {
           "type": "object",
           "additionalProperties": false,
           "required": ["kind", "parentMountPath"],
           "properties": {
-            "kind": { "const": "inherited-from-parent-path" },
-            "parentMountPath": { "type": "string", "pattern": "^/.*/$" }
+            "kind": {
+              "const": "inherited-from-parent-path"
+            },
+            "parentMountPath": {
+              "type": "string",
+              "pattern": "^/.*/$"
+            }
           }
         }
       ]
@@ -107,15 +184,23 @@
           "type": "object",
           "additionalProperties": false,
           "required": ["environment"],
-          "properties": { "environment": { "const": "public" } }
+          "properties": {
+            "environment": {
+              "const": "public"
+            }
+          }
         },
         {
           "type": "object",
           "additionalProperties": false,
           "required": ["environment", "audience"],
           "properties": {
-            "environment": { "const": "private" },
-            "audience": { "$ref": "#/definitions/accessAudience" }
+            "environment": {
+              "const": "private"
+            },
+            "audience": {
+              "$ref": "#/definitions/accessAudience"
+            }
           }
         }
       ]
@@ -126,15 +211,24 @@
           "type": "object",
           "additionalProperties": false,
           "required": ["kind"],
-          "properties": { "kind": { "const": "owner" } }
+          "properties": {
+            "kind": {
+              "const": "owner"
+            }
+          }
         },
         {
           "type": "object",
           "additionalProperties": false,
           "required": ["kind", "audienceKey"],
           "properties": {
-            "kind": { "const": "shared" },
-            "audienceKey": { "type": "string", "minLength": 1 }
+            "kind": {
+              "const": "shared"
+            },
+            "audienceKey": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         }
       ]
@@ -144,28 +238,45 @@
         {
           "type": "object",
           "additionalProperties": false,
+          "required": ["kind", "scriptName"],
+          "properties": {
+            "kind": {
+              "const": "cloudflare-worker"
+            },
+            "scriptName": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
           "required": [
             "kind",
             "cloudRunServiceName",
-            "appPackageName",
-            "appDirectoryName",
-            "buildProfile",
             "nonSecretEnvironment",
             "secretEnvironmentReferences"
           ],
           "properties": {
-            "kind": { "const": "in-repo-cloud-run" },
-            "cloudRunServiceName": { "type": "string", "minLength": 1 },
-            "appPackageName": { "type": "string", "minLength": 1 },
-            "appDirectoryName": { "type": "string", "minLength": 1 },
-            "buildProfile": { "enum": ["static-spa", "dynamic-service"] },
+            "kind": {
+              "const": "cloud-run"
+            },
+            "cloudRunServiceName": {
+              "type": "string",
+              "minLength": 1
+            },
             "nonSecretEnvironment": {
               "type": "object",
-              "additionalProperties": { "type": "string" }
+              "additionalProperties": {
+                "type": "string"
+              }
             },
             "secretEnvironmentReferences": {
               "type": "object",
-              "additionalProperties": { "type": "string" }
+              "additionalProperties": {
+                "type": "string"
+              }
             }
           }
         },
@@ -180,11 +291,22 @@
             "trusted"
           ],
           "properties": {
-            "kind": { "const": "external-https" },
-            "originHost": { "type": "string", "minLength": 1 },
-            "pathRewrite": { "enum": ["preserve", "strip-mount-path"] },
-            "forwardedBasePath": { "type": "string" },
-            "trusted": { "type": "boolean" }
+            "kind": {
+              "const": "external-https"
+            },
+            "originHost": {
+              "type": "string",
+              "minLength": 1
+            },
+            "pathRewrite": {
+              "enum": ["preserve", "strip-mount-path"]
+            },
+            "forwardedBasePath": {
+              "type": "string"
+            },
+            "trusted": {
+              "type": "boolean"
+            }
           }
         },
         {
@@ -192,12 +314,61 @@
           "additionalProperties": false,
           "required": ["kind", "bucketName", "objectKeyPrefix"],
           "properties": {
-            "kind": { "const": "static-gcs-bucket" },
-            "bucketName": { "type": "string", "minLength": 1 },
-            "objectKeyPrefix": { "type": "string" }
+            "kind": {
+              "const": "static-gcs-bucket"
+            },
+            "bucketName": {
+              "type": "string",
+              "minLength": 1
+            },
+            "objectKeyPrefix": {
+              "type": "string"
+            }
           }
         }
       ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "appPackageName",
+        "appDirectoryName",
+        "buildProfile",
+        "publicBuildEnvironment",
+        "publicBuildEnvironmentReferences"
+      ],
+      "properties": {
+        "appPackageName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "appDirectoryName": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "buildProfile": {
+          "enum": ["static-spa", "dynamic-service"]
+        },
+        "publicBuildEnvironment": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^(VITE_|NEXT_PUBLIC_)[A-Z0-9_]+$"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "publicBuildEnvironmentReferences": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^(VITE_|NEXT_PUBLIC_)[A-Z0-9_]+$"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }

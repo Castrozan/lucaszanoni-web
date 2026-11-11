@@ -1,4 +1,4 @@
-import { findMicroFrontendRoute } from "./route-registry";
+import { findMicroFrontendRoute } from "./route-registry.ts";
 
 export const SITE_DOMAIN = "lucaszanoni.com.br";
 

@@ -40,11 +40,18 @@ function inRepoCloudRunEntry(id, appDirectoryName, appPackageName) {
     id,
     mountPath: "/",
     status: "active",
-    origin: {
-      kind: "in-repo-cloud-run",
-      cloudRunServiceName: `lucaszanoni-${id}`,
+    source: {
       appPackageName,
       appDirectoryName,
+      buildProfile: "static-spa",
+      publicBuildEnvironment: {},
+      publicBuildEnvironmentReferences: {},
+    },
+    origin: {
+      kind: "cloud-run",
+      cloudRunServiceName: `lucaszanoni-${id}`,
+      nonSecretEnvironment: {},
+      secretEnvironmentReferences: {},
     },
   };
 }
@@ -69,6 +76,52 @@ test("the committed registry and the apps directories are mutually consistent", 
     ),
     [],
   );
+});
+
+test("repository directory ownership is independent of hosting target", () => {
+  const entry = inRepoCloudRunEntry("shell", "shell", "@platform/shell");
+  const inventory = [
+    { directoryName: "shell", packageName: "@platform/shell" },
+  ];
+  for (const origin of [
+    entry.origin,
+    { kind: "cloudflare-worker", scriptName: "lucaszanoni-shell" },
+    externalHttpsEntry("shell").origin,
+    { kind: "static-gcs-bucket", bucketName: "shell", objectKeyPrefix: "" },
+  ]) {
+    assert.deepEqual(
+      findRegistryAppDirectoryInconsistencies(
+        [{ ...entry, origin }],
+        inventory,
+      ),
+      [],
+    );
+    assert.deepEqual(
+      findRegistryAppDirectoryInconsistencies([{ ...entry, origin }], []),
+      [
+        {
+          kind: "missing-app-directory",
+          entryId: "shell",
+          expectedAppDirectoryName: "shell",
+        },
+      ],
+    );
+    assert.deepEqual(
+      findRegistryAppDirectoryInconsistencies(
+        [{ ...entry, origin }],
+        [{ directoryName: "shell", packageName: "@platform/renamed" }],
+      ),
+      [
+        {
+          kind: "package-name-mismatch",
+          entryId: "shell",
+          appDirectoryName: "shell",
+          expectedPackageName: "@platform/shell",
+          actualPackageName: "@platform/renamed",
+        },
+      ],
+    );
+  }
 });
 
 test("flags an in-repo entry whose app directory is missing", () => {

@@ -3,8 +3,10 @@ import { useIngestedTestCoverageSnapshot } from "../data/test-coverage-snapshot"
 import { ArtifactIframePage } from "./artifact/ArtifactIframePage";
 import { IngestedCoverageSummary } from "./test-coverage/IngestedCoverageSummary";
 
+import { snapshotLoadStatusLabel } from "./ingested/snapshot-load-status";
+
 export function CoveragePage() {
-  const snapshot = useIngestedTestCoverageSnapshot();
+  const state = useIngestedTestCoverageSnapshot();
   return (
     <ArtifactIframePage
       heading="bash test coverage"
@@ -12,7 +14,11 @@ export function CoveragePage() {
       artifactUrl={coverageArtifactUrl}
       iframeTitle="bash test coverage report"
       summary={
-        snapshot ? <IngestedCoverageSummary snapshot={snapshot} /> : undefined
+        state.status === "ready" ? (
+          <IngestedCoverageSummary snapshot={state.snapshot} />
+        ) : (
+          <p role="status">{snapshotLoadStatusLabel(state.status)}</p>
+        )
       }
     />
   );

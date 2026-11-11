@@ -1,0 +1,160 @@
+import { useEffect, useState } from "react";
+import {
+  Button,
+  LEADER_CAPTURE_SURFACE_ATTRIBUTE,
+} from "@platform/design-system";
+import { resolveCockpitSessionEndpoint } from "./cockpit-session-config";
+import { type CockpitTerminalStatus } from "./cockpit-session-terminal-model";
+import {
+  useLiteralLeaderPrefixKeybind,
+  type SessionTerminalEmulatorFactory,
+  type SessionTerminalSocketFactory,
+} from "@platform/workspace";
+import { type CockpitSpeechResolvers } from "./use-cockpit-speech";
+import { SessionVoiceControl } from "./SessionVoiceControl";
+import { useCockpitSessionTerminalView } from "./use-cockpit-session-terminal-view";
+
+const STATUS_DOT_CLASS: Record<CockpitTerminalStatus, string> = {
+  idle: "bg-text-faint",
+  connecting: "bg-status-caution",
+  open: "bg-status-positive",
+  closed: "bg-text-faint",
+  error: "bg-status-negative",
+};
+
+export interface CockpitSessionTerminalProps {
+  endpoint?: string | null;
+  createSocket?: SessionTerminalSocketFactory;
+  createEmulator?: SessionTerminalEmulatorFactory;
+  speechResolvers?: CockpitSpeechResolvers;
+  speakDebounceMs?: number;
+}
+
+export function CockpitSessionTerminal({
+  endpoint = resolveCockpitSessionEndpoint(),
+  createSocket,
+  createEmulator,
+  speechResolvers,
+  speakDebounceMs,
+}: CockpitSessionTerminalProps) {
+  const {
+    status,
+    detail,
+    connect,
+    disconnect,
+    terminalContainerRef,
+    focusTerminal,
+    sendOwnerKeystrokes,
+    voice,
+  } = useCockpitSessionTerminalView({
+    endpoint: endpoint ?? null,
+    createSocket,
+    createEmulator,
+    speechResolvers,
+    speakDebounceMs,
+  });
+
+  useLiteralLeaderPrefixKeybind(sendOwnerKeystrokes);
+
+  const [isTerminalFocused, setIsTerminalFocused] = useState(false);
+  useEffect(() => {
+    const container = terminalContainerRef.current;
+    if (!container) {
+      return;
+    }
+    function handleFocusIn() {
+      setIsTerminalFocused(true);
+    }
+    function handleFocusOut() {
+      setIsTerminalFocused(false);
+    }
+    container.addEventListener("focusin", handleFocusIn);
+    container.addEventListener("focusout", handleFocusOut);
+    return () => {
+      container.removeEventListener("focusin", handleFocusIn);
+      container.removeEventListener("focusout", handleFocusOut);
+    };
+  }, [terminalContainerRef]);
+
+  if (!endpoint) {
+    return (
+      <section
+        aria-label="Session terminal"
+        className="flex flex-1 flex-col items-center justify-center gap-2 overflow-hidden rounded-lg border border-border bg-background px-6 text-center"
+      >
+        <p className="m-0 font-mono text-xs uppercase tracking-[2px] text-text-faint">
+          local session endpoint not configured
+        </p>
+        <p className="m-0 max-w-[46ch] font-mono text-[11px] leading-[1.6] text-muted-foreground">
+          Set VITE_COCKPIT_SESSION_WS_URL to the session websocket to stream the
+          session here.
+        </p>
+      </section>
+    );
+  }
+
+  const isOpen = status === "open";
+
+  return (
+    <section
+      aria-label="Session terminal"
+      {...{ [LEADER_CAPTURE_SURFACE_ATTRIBUTE]: "" }}
+      className="flex flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background"
+    >
+      <SessionVoiceControl
+        isListening={voice.isListening}
+        recognitionSupported={voice.recognitionSupported}
+        onToggleListening={voice.toggleListening}
+        synthesisSupported={voice.synthesisSupported}
+        spokenOutputMuted={voice.spokenOutputMuted}
+        onToggleSpokenOutput={voice.toggleSpokenOutput}
+      />
+      <header className="flex items-center justify-between border-b border-border bg-surface px-4 py-2">
+        <div className="flex items-center gap-2">
+          <span
+            aria-hidden
+            className={`h-2 w-2 rounded-full ${STATUS_DOT_CLASS[status]}`}
+          />
+          <span
+            title={detail}
+            className="font-mono text-[11px] uppercase tracking-[2px] text-text-faint"
+          >
+            {status}
+          </span>
+        </div>
+        {isOpen ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={disconnect}
+          >
+            Disconnect
+          </Button>
+        ) : (
+          <Button type="button" size="sm" onClick={connect}>
+            Connect
+          </Button>
+        )}
+      </header>
+      <div className="relative flex-1 overflow-hidden">
+        <div
+          ref={terminalContainerRef}
+          role="log"
+          aria-label="Session output"
+          className="absolute inset-0 px-2 py-2"
+        />
+        {isOpen && !isTerminalFocused ? (
+          <button
+            type="button"
+            onClick={focusTerminal}
+            aria-label="Focus the terminal"
+            className="absolute inset-0 z-10 flex cursor-text items-center justify-center bg-background/40 font-mono text-[11px] uppercase tracking-[2px] text-text-faint backdrop-blur-[2px] transition-colors hover:text-foreground"
+          >
+            Click to focus terminal
+          </button>
+        ) : null}
+      </div>
+    </section>
+  );
+}

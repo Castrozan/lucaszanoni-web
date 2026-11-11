@@ -1,10 +1,18 @@
-export const REPORT_ARTIFACT_BUCKET =
-  "zg-url-shortener-2026-dotfiles-usage-snapshots";
+import { SNAPSHOT_ARTIFACT_LOCATIONS } from "@platform/config";
 
-export const reportBucketBaseUrl = `https://storage.googleapis.com/${REPORT_ARTIFACT_BUCKET}/`;
-
-export const reportArtifactBucketBaseUrl = `${reportBucketBaseUrl}reports/`;
-
-export const baselineArtifactUrl = `${reportArtifactBucketBaseUrl}baseline/index.html`;
-
-export const coverageArtifactUrl = `${reportArtifactBucketBaseUrl}coverage/index.html`;
+export const artifactStoreBaseUrl =
+  SNAPSHOT_ARTIFACT_LOCATIONS.artifactStoreBaseUrl;
+export const reportArtifactsBaseUrl =
+  SNAPSHOT_ARTIFACT_LOCATIONS.reportArtifactsBaseUrl;
+export const baselineArtifactUrl = new URL(
+  "baseline/index.html",
+  reportArtifactsBaseUrl,
+).toString();
+export const coverageArtifactUrl = new URL(
+  "coverage/index.html",
+  reportArtifactsBaseUrl,
+).toString();
+export const baselineReportJsonUrl = new URL(
+  "baseline/report.json",
+  reportArtifactsBaseUrl,
+).toString();

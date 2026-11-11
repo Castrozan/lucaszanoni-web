@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { cockpitApp, shellApp } from "./app-registry/test-fixtures";
 import {
   CROSS_SECTION_NAVIGATION_ROUTES,
   MICRO_FRONTEND_ROUTES,
@@ -8,6 +9,57 @@ import {
 import type { MicroFrontendId } from "../src/route-registry";
 
 describe("micro frontend route registry", () => {
+  it.each(["cloud-run", "cloudflare-worker"] as const)(
+    "projects AI capability independently of %s hosting or secret names",
+    async (kind) => {
+      vi.resetModules();
+      const origin =
+        kind === "cloud-run"
+          ? {
+              kind,
+              cloudRunServiceName: "lucaszanoni-shell",
+              nonSecretEnvironment: {},
+              secretEnvironmentReferences: { ANOTHER_PROVIDER_KEY: "ai-key" },
+            }
+          : { kind, scriptName: "lucaszanoni-shell" };
+      vi.doMock("../src/app-registry.ts", () => ({
+        appRegistry: [
+          cockpitApp,
+          { ...shellApp, capabilities: ["generative-ai"], origin },
+          {
+            ...shellApp,
+            id: "not-ai",
+            mountPath: "/not-ai/",
+            origin: {
+              kind: "cloud-run",
+              cloudRunServiceName: "lucaszanoni-not-ai",
+              nonSecretEnvironment: {},
+              secretEnvironmentReferences: {
+                GOOGLE_GENERATIVE_AI_API_KEY: "unrelated-key",
+              },
+            },
+          },
+        ],
+      }));
+      try {
+        const { MICRO_FRONTEND_ROUTES: routes } =
+          await import("../src/route-registry.ts");
+        const aiRoute = routes.find((route) => route.id === "shell");
+        expect(aiRoute?.isAiPowered).toBe(true);
+        expect(aiRoute?.hostingKind).toBe(kind);
+        expect(aiRoute?.buildProfile).toBe("static-spa");
+        expect(aiRoute).not.toHaveProperty("origin");
+        expect(aiRoute).not.toHaveProperty("source");
+        expect(routes.find((route) => route.id === "not-ai")?.isAiPowered).toBe(
+          false,
+        );
+      } finally {
+        vi.doUnmock("../src/app-registry.ts");
+        vi.resetModules();
+      }
+    },
+  );
+
   it("exposes every mount path with a leading and trailing slash", () => {
     for (const route of MICRO_FRONTEND_ROUTES) {
       expect(route.mountPath.startsWith("/")).toBe(true);

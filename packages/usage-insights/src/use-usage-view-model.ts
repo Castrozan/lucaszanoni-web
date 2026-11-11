@@ -4,6 +4,7 @@ import {
   UsageAggregationService,
   fetchAllSnapshots,
   type UsageViewModel,
+  type SnapshotSourceConfiguration,
 } from "@platform/snapshot-data";
 import {
   LIVE_REFRESH_INTERVAL_MILLISECONDS,
@@ -19,10 +20,12 @@ export interface UsageDashboardState {
   lastUpdatedLabel: string | null;
 }
 
-export function useUsageViewModel(): UsageDashboardState {
+export function useUsageViewModel(
+  source: SnapshotSourceConfiguration = USAGE_SNAPSHOT_SOURCE,
+): UsageDashboardState {
   const usageSnapshotsQuery = useQuery({
-    queryKey: ["usage-snapshots", USAGE_SNAPSHOT_SOURCE.snapshotsBucket],
-    queryFn: () => fetchAllSnapshots(USAGE_SNAPSHOT_SOURCE),
+    queryKey: ["usage-snapshots", source.snapshotUrl],
+    queryFn: () => fetchAllSnapshots(source),
     refetchInterval: LIVE_REFRESH_INTERVAL_MILLISECONDS,
   });
 

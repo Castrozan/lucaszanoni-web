@@ -11,9 +11,7 @@ import type { MicroFrontendRoute } from "@platform/config";
 import { engineeringContent } from "./landingContent";
 
 function buildProfileLabel(route: MicroFrontendRoute): string {
-  return route.origin.kind === "in-repo-cloud-run"
-    ? route.origin.buildProfile
-    : route.origin.kind;
+  return route.buildProfile ?? route.hostingKind;
 }
 
 export function EngineeringSection() {

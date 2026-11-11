@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { WorkspaceMachineRouter } from "../src/WorkspaceMachineRouter";
 import type { CockpitWorkspaceMachine } from "../src/workspace/cockpit-machine-endpoints";
 import type { CockpitComputePort } from "../src/workspace/compute-port";
-import { createInMemoryComputeAdapter } from "../src/workspace/in-memory-compute-adapter";
+import { createInMemoryComputeAdapter } from "../src/workspace/lifecycle/in-memory-compute-adapter";
 import { createFakeStorage } from "./support/fake-web-storage";
 
 afterEach(cleanup);
@@ -118,9 +118,7 @@ describe("WorkspaceMachineRouter routes the workspace terminal to the selected m
     );
 
     expect(screen.getByText(/no work domains yet/i)).toBeDefined();
-    expect(
-      screen.queryByRole("navigation", { name: "Machines" }),
-    ).toBeNull();
+    expect(screen.queryByRole("navigation", { name: "Machines" })).toBeNull();
     expect(createComputeForMachine).toHaveBeenCalledWith(chiseMachine);
   });
 });

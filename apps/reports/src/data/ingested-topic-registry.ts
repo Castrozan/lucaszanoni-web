@@ -7,6 +7,8 @@ import {
   type IngestedSnapshotSource,
 } from "./ingested-snapshot-source";
 
+import { artifactStoreBaseUrl } from "./report-artifact-sources";
+
 export interface RegisteredIngestionTopic {
   readonly contract: IngestionTopicContract<unknown>;
   readonly source: IngestedSnapshotSource<unknown>;
@@ -15,5 +17,5 @@ export interface RegisteredIngestionTopic {
 export const REGISTERED_INGESTION_TOPICS: readonly RegisteredIngestionTopic[] =
   INGESTION_TOPIC_CONTRACTS.map((contract) => ({
     contract,
-    source: createIngestedSnapshotSource(contract),
+    source: createIngestedSnapshotSource(contract, artifactStoreBaseUrl),
   }));

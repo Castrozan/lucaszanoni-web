@@ -1,31 +1,31 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
+import { appRegistry } from "../../../packages/config/src/app-registry.ts";
+import { createApplicationBuildEnvironment } from "../../cloudflare/application-deployment.mjs";
 import {
   cockpitForwardedBuildArgSpecs,
   findUnforwardedCockpitBuildArgs,
 } from "../../cockpit-build-config/cockpit-build-arg-forwarding.mjs";
 
-const testFileDirectory = dirname(fileURLToPath(import.meta.url));
-const repositoryRoot = resolve(testFileDirectory, "../../..");
-const staticSpaDockerfileText = readFileSync(
-  resolve(repositoryRoot, "deploy/docker/Dockerfile"),
-  "utf8",
-);
-const deployAppsWorkflowText = readFileSync(
-  resolve(repositoryRoot, ".github/workflows/deploy-apps.yml"),
+const workflow = readFileSync(
+  new URL("../../../.github/workflows/ci.yml", import.meta.url),
   "utf8",
 );
 
-test("every cockpit deployment-config build arg is forwarded from a CI secret into the static-spa build", () => {
-  assert.deepEqual(
-    findUnforwardedCockpitBuildArgs(
-      staticSpaDockerfileText,
-      deployAppsWorkflowText,
-    ),
-    [],
+test("Cockpit forwards machine endpoints from GitHub secrets into the native static build", () => {
+  const source = appRegistry.find(
+    (application) => application.id === "cockpit",
+  ).source;
+  assert.match(
+    workflow,
+    /COCKPIT_WORKSPACE_MACHINES: \$\{\{ secrets\.COCKPIT_WORKSPACE_MACHINES \}\}/,
+  );
+  assert.equal(
+    createApplicationBuildEnvironment(source, {
+      COCKPIT_WORKSPACE_MACHINES: "machines",
+    }).VITE_COCKPIT_WORKSPACE_MACHINES,
+    "machines",
   );
 });
 
@@ -60,8 +60,7 @@ test("flags an env export placed after the production build so vite never sees i
     "ENV VITE_COCKPIT_WORKSPACE_MACHINES=${VITE_COCKPIT_WORKSPACE_MACHINES}",
   ].join("\n");
   const workflow = [
-    '--build-arg VITE_COCKPIT_WORKSPACE_MACHINES="${COCKPIT_WORKSPACE_MACHINES}"',
-    "secrets.COCKPIT_WORKSPACE_MACHINES",
+    '--build-arg VITE_COCKPIT_WORKSPACE_MACHINES="${COCKPIT_WORKSPACE_MACHINES:-}"',
   ].join("\n");
   assert.deepEqual(
     findUnforwardedCockpitBuildArgs(dockerfile, workflow, [
@@ -87,8 +86,7 @@ test("accepts a fully wired build arg with no gaps", () => {
     "RUN pnpm --filter app build",
   ].join("\n");
   const workflow = [
-    '--build-arg VITE_COCKPIT_WORKSPACE_MACHINES="${COCKPIT_WORKSPACE_MACHINES}"',
-    "COCKPIT_WORKSPACE_MACHINES: ${{ secrets.COCKPIT_WORKSPACE_MACHINES }}",
+    '--build-arg VITE_COCKPIT_WORKSPACE_MACHINES="${COCKPIT_WORKSPACE_MACHINES:-}"',
   ].join("\n");
   assert.deepEqual(
     findUnforwardedCockpitBuildArgs(dockerfile, workflow, [

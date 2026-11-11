@@ -7,98 +7,90 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Enable corepack
         run: corepack enable
-
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.22.2
           cache: pnpm
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
       - name: Typecheck
         run: pnpm typecheck
-
       - name: Lint
         run: pnpm lint
-
       - name: Test
-        run: pnpm test
-
-      - name: Edge router worker test
-        run: node --test deploy/tests/edge-router/*.test.mjs
-
-      - name: Deploy matrix derivation test
-        run: node --test deploy/tests/deploy-matrix/*.test.mjs
-
-      - name: Registry app-directory consistency test
-        run: node --test deploy/tests/registry-consistency/*.test.mjs
-
-      - name: App build-config forwarding test
-        run: node --test deploy/tests/app-build-config/*.test.mjs
-
-      - name: Synthetic uptime check unit test
-        run: node --test deploy/tests/synthetic-uptime/*.test.mjs
-
-      - name: Edge nginx serving contract test
+        run: pnpm exec turbo run test --concurrency=2 -- --maxWorkers=2
+      - name: Deployment contracts
+        run: node --test deploy/tests/*/*.test.mjs
+      - name: Edge nginx serving contract
         run: |
           sudo apt-get update
           sudo apt-get install -y nginx-light gettext-base
           sh deploy/tests/assert-edge-nginx-serving-contract.sh
-
-      - name: Cloud Run health-gated rollout test
+      - name: Cloud Run health-gated rollout contract
         run: sh deploy/tests/assert-cloud-run-health-gated-rollout.sh
-
-      - name: Worker rollout smoke-gate test
+      - name: Worker rollout smoke-gate contract
         run: sh deploy/tests/assert-worker-rollout-smoke-gate.sh
-
       - name: Build
-        run: pnpm build
+        run: pnpm exec turbo run build --concurrency=2
+      - name: Native multi-Worker verification
+        run: node deploy/cloudflare/verify-local-site.mjs
 
   cockpit-e2e:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Enable corepack
         run: corepack enable
-
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.22.2
           cache: pnpm
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
       - name: Install Playwright browser
         run: pnpm --filter @platform/cockpit exec playwright install --with-deps chromium
-
-      - name: Cockpit keybind e2e
+      - name: Cockpit browser tests
         run: pnpm --filter @platform/cockpit e2e
+
+  shell-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright browser
+        run: pnpm --filter @platform/shell exec playwright install --with-deps chromium
+      - name: Shell browser tests
+        run: pnpm --filter @platform/shell e2e
 
   cloudflare-edge-module-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: opentofu/setup-opentofu@v1
         with:
           tofu_version: 1.11.8
-
-      - name: Cloudflare edge module test
+      - name: Cloudflare edge module mocks
         working-directory: infra/modules/cloudflare-edge
         run: |
           tofu init -backend=false -input=false
@@ -108,12 +100,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: opentofu/setup-opentofu@v1
         with:
           tofu_version: 1.11.8
-
-      - name: Cloudflare access module test
+      - name: Cloudflare Access module mocks
         working-directory: infra/modules/cloudflare-access
         run: |
           tofu init -backend=false -input=false
@@ -123,13 +113,43 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: opentofu/setup-opentofu@v1
         with:
           tofu_version: 1.11.8
-
-      - name: Cloudflare host tunnel module test
+      - name: Cloudflare tunnel module mocks
         working-directory: infra/modules/cloudflare-jarvis-tunnel
         run: |
           tofu init -backend=false -input=false
           tofu test
+
+  deploy-site:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs:
+      - build-and-test
+      - cockpit-e2e
+      - shell-e2e
+      - cloudflare-edge-module-test
+      - cloudflare-access-module-test
+      - cloudflare-jarvis-tunnel-module-test
+    runs-on: ubuntu-latest
+    concurrency:
+      group: cloudflare-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Deploy private application Workers and edge
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_SITE_HOSTNAME: lucaszanoni.com
+          COCKPIT_WORKSPACE_MACHINES: ${{ secrets.COCKPIT_WORKSPACE_MACHINES }}
+          ARR_STACK_TAILNET_HOST: ${{ secrets.ARR_STACK_TAILNET_HOST }}
+        run: node deploy/cloudflare/deploy-site.mjs

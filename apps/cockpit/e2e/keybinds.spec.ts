@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const cockpitDashboardPath = "/cockpit/";
-const cockpitJarvisPath = "/cockpit/jarvis";
+const cockpitSessionPath = "/cockpit/session";
 
 const commandPalette = (page: Page) =>
   page.getByRole("dialog", { name: "Command palette" });
@@ -13,6 +13,7 @@ async function gotoCockpit(page: Page, path: string) {
   await expect(
     page.getByRole("contentinfo", { name: "Status bar" }),
   ).toBeVisible();
+  await page.waitForLoadState("networkidle");
 }
 
 async function pressCockpitLeaderChord(page: Page) {
@@ -35,12 +36,12 @@ test.describe("cockpit leader-key bindings", () => {
     await gotoCockpit(page, cockpitDashboardPath);
   });
 
-  test("leader then g then j navigates to the jarvis view", async ({
+  test("leader then g then e navigates to the session view", async ({
     page,
   }) => {
     await pressCockpitLeaderChord(page);
-    await pressGoToViewKeys(page, "j");
-    await expect(page).toHaveURL(/\/cockpit\/jarvis$/);
+    await pressGoToViewKeys(page, "e");
+    await expect(page).toHaveURL(/\/cockpit\/session$/);
   });
 
   test("leader then g then t navigates to the terminal view", async ({
@@ -60,7 +61,7 @@ test.describe("cockpit leader-key bindings", () => {
   test("a leader sequence escapes a terminal that holds focus", async ({
     page,
   }) => {
-    await gotoCockpit(page, cockpitJarvisPath);
+    await gotoCockpit(page, cockpitSessionPath);
     await page.getByRole("textbox", { name: "Terminal input" }).focus();
     await expect(
       page.getByRole("textbox", { name: "Terminal input" }),
@@ -75,7 +76,7 @@ test.describe("cockpit leader-key bindings", () => {
   }) => {
     await pressCockpitLeaderChord(page);
     await page.keyboard.press("Escape");
-    await pressGoToViewKeys(page, "j");
+    await pressGoToViewKeys(page, "e");
     await expect(page).toHaveURL(/\/cockpit\/$/);
   });
 
@@ -84,21 +85,21 @@ test.describe("cockpit leader-key bindings", () => {
   }) => {
     await pressCockpitLeaderChord(page);
     await page.waitForTimeout(1700);
-    await pressGoToViewKeys(page, "j");
+    await pressGoToViewKeys(page, "e");
     await expect(page).toHaveURL(/\/cockpit\/$/);
   });
 
   test("the leader chord is suppressed while an editable element is focused", async ({
     page,
   }) => {
-    await gotoCockpit(page, cockpitJarvisPath);
-    await page.getByRole("tab", { name: "Conversation" }).click();
-    await page.getByRole("textbox", { name: "Message Jarvis" }).click();
+    await page.keyboard.press("Control+k");
+    await expect(commandPalette(page)).toBeVisible();
+    await page.getByRole("textbox", { name: "Search commands" }).click();
     await pressCockpitLeaderChord(page);
     await page.keyboard.press("k");
-    await expect(commandPalette(page)).toHaveCount(0);
+    await expect(commandPalette(page)).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: "Message Jarvis" }),
+      page.getByRole("textbox", { name: "Search commands" }),
     ).toHaveValue("k");
   });
 });
