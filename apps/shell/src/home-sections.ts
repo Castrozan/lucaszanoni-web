@@ -31,10 +31,6 @@ function mapRouteToCard(route: MicroFrontendRoute): HomeSectionCard {
     route.accessModel.environment === "private"
       ? route.accessModel.audience.kind
       : undefined;
-  const buildProfile =
-    route.origin.kind === "in-repo-cloud-run"
-      ? route.origin.buildProfile
-      : undefined;
   return {
     id: route.id,
     title: route.navigationLabel,
@@ -43,8 +39,8 @@ function mapRouteToCard(route: MicroFrontendRoute): HomeSectionCard {
     locked,
     accessEnvironment: route.accessModel.environment,
     audienceKind,
-    originKind: route.origin.kind,
-    buildProfile,
+    originKind: route.hostingKind,
+    buildProfile: route.buildProfile,
     isAiPowered: route.isAiPowered,
     status: route.status,
   };

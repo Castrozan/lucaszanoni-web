@@ -4,26 +4,28 @@ import {
   parseIngestedSnapshotRecordForTopic,
   type IngestionTopicContract,
 } from "@platform/ingestion-contracts";
-import { reportBucketBaseUrl } from "./report-artifact-sources";
-
-export interface IngestedSnapshot<PayloadShape> {
-  readonly receivedAt: string;
-  readonly producedAt: string;
-  readonly payload: PayloadShape;
-}
+import {
+  transitionSnapshotLoadState,
+  type IngestedSnapshot,
+  type IngestedSnapshotLoadState,
+} from "./ingested-snapshot-state";
 
 export interface IngestedSnapshotSource<PayloadShape> {
   readonly snapshotUrl: string;
   readonly readSnapshot: (
     value: unknown,
   ) => IngestedSnapshot<PayloadShape> | null;
-  readonly useSnapshot: () => IngestedSnapshot<PayloadShape> | null;
+  readonly useSnapshot: () => IngestedSnapshotLoadState<PayloadShape>;
 }
 
 export function createIngestedSnapshotSource<PayloadShape>(
   contract: IngestionTopicContract<PayloadShape>,
+  artifactStoreBaseUrl: string,
 ): IngestedSnapshotSource<PayloadShape> {
-  const snapshotUrl = `${reportBucketBaseUrl}${buildLatestSnapshotObjectKey(contract.topic)}`;
+  const snapshotUrl = new URL(
+    buildLatestSnapshotObjectKey(contract.topic),
+    artifactStoreBaseUrl,
+  ).toString();
 
   function readSnapshot(value: unknown): IngestedSnapshot<PayloadShape> | null {
     try {
@@ -38,24 +40,44 @@ export function createIngestedSnapshotSource<PayloadShape>(
     }
   }
 
-  function useSnapshot(): IngestedSnapshot<PayloadShape> | null {
-    const [snapshot, setSnapshot] =
-      useState<IngestedSnapshot<PayloadShape> | null>(null);
+  async function observeSnapshot(
+    signal: AbortSignal,
+  ): Promise<IngestedSnapshotLoadState<PayloadShape>> {
+    let response: Response;
+    try {
+      response = await fetch(snapshotUrl, {
+        signal: AbortSignal.any([signal, AbortSignal.timeout(30_000)]),
+        cache: "no-store",
+      });
+    } catch {
+      return { status: "unavailable" };
+    }
+    if (response.status === 404) return { status: "missing" };
+    if (!response.ok) return { status: "unavailable" };
+    try {
+      const snapshot = readSnapshot(await response.json());
+      return snapshot ? { status: "ready", snapshot } : { status: "malformed" };
+    } catch {
+      return { status: "malformed" };
+    }
+  }
+
+  function useSnapshot(): IngestedSnapshotLoadState<PayloadShape> {
+    const [state, setState] = useState<IngestedSnapshotLoadState<PayloadShape>>(
+      { status: "loading" },
+    );
     useEffect(() => {
-      let subscribed = true;
-      fetch(snapshotUrl)
-        .then((response) => (response.ok ? response.json() : null))
-        .then((value) => {
-          if (subscribed) {
-            setSnapshot(readSnapshot(value));
-          }
-        })
-        .catch(() => undefined);
-      return () => {
-        subscribed = false;
-      };
+      const requestGeneration = new AbortController();
+      setState((current) =>
+        transitionSnapshotLoadState(current, { status: "loading" }),
+      );
+      void observeSnapshot(requestGeneration.signal).then((observed) => {
+        if (!requestGeneration.signal.aborted)
+          setState((current) => transitionSnapshotLoadState(current, observed));
+      });
+      return () => requestGeneration.abort();
     }, []);
-    return snapshot;
+    return state;
   }
 
   return { snapshotUrl, readSnapshot, useSnapshot };

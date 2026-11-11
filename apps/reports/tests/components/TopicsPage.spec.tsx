@@ -112,6 +112,50 @@ describe("TopicsPage", () => {
     );
   });
 
+  it("shows blocked storage as unavailable rather than an empty topic", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 403 }),
+    );
+    render(<TopicsPage />);
+    await waitFor(() =>
+      expect(screen.getAllByText("snapshot unavailable")).toHaveLength(
+        INGESTION_TOPIC_CONTRACTS.length,
+      ),
+    );
+    expect(screen.queryByText("nothing ingested yet")).toBeNull();
+  });
+
+  it("keeps malformed records distinct from missing snapshots", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValue({
+          ok: true,
+          status: 200,
+          json: async () => ({ invalid: true }),
+        }),
+    );
+    render(<TopicsPage />);
+    await waitFor(() =>
+      expect(screen.getAllByText("snapshot malformed")).toHaveLength(
+        INGESTION_TOPIC_CONTRACTS.length,
+      ),
+    );
+    expect(screen.queryByText("nothing ingested yet")).toBeNull();
+  });
+
+  it("reports network failure instead of inventing an empty record", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
+    render(<TopicsPage />);
+    await waitFor(() =>
+      expect(screen.getAllByText("snapshot unavailable")).toHaveLength(
+        INGESTION_TOPIC_CONTRACTS.length,
+      ),
+    );
+  });
+
   it("renders no undefined and no NaN when nothing has ever been ingested", async () => {
     vi.stubGlobal(
       "fetch",

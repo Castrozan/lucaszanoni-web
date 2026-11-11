@@ -15,12 +15,23 @@ variable "proxied_placeholder_origin_ip" {
 
 variable "shell_origin_host" {
   type        = string
-  description = "Cloud Run host that answers the catch-all root prefix."
+  default     = null
+  description = "Owned HTTPS host that answers the root prefix when no root Worker is configured."
+}
+
+variable "worker_service_prefixes" {
+  type    = map(string)
+  default = {}
+}
+
+variable "worker_services" {
+  type    = map(string)
+  default = {}
 }
 
 variable "prefix_origin_hosts" {
   type        = map(string)
-  description = "Map of edge path prefix to the Cloud Run host that serves it. Prefixes are non-overlapping, so the Worker matches the first prefix the request path starts with and falls back to the shell origin when none match."
+  description = "Map of edge path prefix to the Cloud Run host that serves it. The Worker selects the longest matching application prefix and falls back to the shell origin when none match."
 }
 
 variable "static_bucket_prefix_origins" {
@@ -56,7 +67,7 @@ variable "subdomain_apps" {
     trusted     = bool
   }))
   default     = {}
-  description = "Apps the registry serves on their own subdomain instead of a shared path prefix, keyed by the DNS label. For each entry the module stands up a proxied A record at <label>.<zone_name>, attaches the same edge Worker via a per-subdomain route, and adds the subdomain to the Worker routing table so the Worker selects the app's origin by request hostname instead of by path prefix; a genuinely untrusted app thus gets its own origin and cookie jar instead of sharing the apex same-origin scope. origin_host is the host the Worker forwards the subdomain's whole request to; origin_kind is in-repo-cloud-run for an origin that receives the injected shared secret or external-https for one that never does and whose forwarded Cloudflare Access identity is gated by trusted exactly as the path-prefix external routes are. The Worker strips the apex Cloudflare Access session cookies from every subdomain request regardless of kind, so the apex login never leaks into an isolated subdomain. Empty by default, so no subdomain hostnames exist until an app sets its registry servingLocation to subdomain."
+  description = "Apps the registry serves on their own subdomain instead of a shared path prefix, keyed by the DNS label. For each entry the module stands up a proxied A record at <label>.<zone_name>, attaches the same edge Worker via a per-subdomain route, and adds the subdomain to the Worker routing table so the Worker selects the app's origin by request hostname instead of by path prefix; a genuinely untrusted app thus gets its own origin and cookie jar instead of sharing the apex same-origin scope. origin_host is the host the Worker forwards the subdomain's whole request to; origin_kind is cloud-run for an origin that receives the injected shared secret or external-https for one that never does and whose forwarded Cloudflare Access identity is gated by trusted exactly as the path-prefix external routes are. The Worker strips the apex Cloudflare Access session cookies from every subdomain request regardless of kind, so the apex login never leaks into an isolated subdomain. Empty by default, so no subdomain hostnames exist until an app sets its registry servingLocation to subdomain."
 }
 
 variable "edge_shared_secret_header_name" {

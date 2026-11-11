@@ -25,7 +25,10 @@ const countedContract: IngestionTopicContract<CountedPayload> = {
   parsePayload: parseCountedPayload,
 };
 
-const countedSource = createIngestedSnapshotSource(countedContract);
+const countedSource = createIngestedSnapshotSource(
+  countedContract,
+  "https://artifacts.example.test/site/",
+);
 
 const ingestedRecord = {
   receivedAt: "2026-07-24T03:26:30.000Z",
@@ -48,7 +51,7 @@ function recordWithEventOverrides(overrides: Record<string, unknown>) {
 describe("the shared ingested snapshot source", () => {
   it("reads the contracted latest object of the topic it was built for", () => {
     expect(countedSource.snapshotUrl).toBe(
-      "https://storage.googleapis.com/zg-url-shortener-2026-dotfiles-usage-snapshots/snapshots/counted-topic/latest.json",
+      "https://artifacts.example.test/site/snapshots/counted-topic/latest.json",
     );
   });
 

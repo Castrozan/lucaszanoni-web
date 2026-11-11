@@ -10,14 +10,12 @@ function renderReportsRootAt(path: string) {
 }
 
 describe("ReportsRoot routing", () => {
-  it("renders the baseline iframe, not the hub, at the baseline route", () => {
+  it("renders the agent instructions report, not the hub, at the baseline route", () => {
     const { container } = renderReportsRootAt(
       "/engineering/dotfiles/reports/baseline/",
     );
-    const iframe = container.querySelector("iframe");
-    expect(iframe?.getAttribute("src")).toBe(
-      "https://storage.googleapis.com/zg-url-shortener-2026-dotfiles-usage-snapshots/reports/baseline/index.html",
-    );
+    expect(container.querySelector("iframe")).toBeNull();
+    expect(screen.getByText("agent instructions report")).toBeTruthy();
     expect(screen.queryByText("dotfiles reports")).toBeNull();
   });
 

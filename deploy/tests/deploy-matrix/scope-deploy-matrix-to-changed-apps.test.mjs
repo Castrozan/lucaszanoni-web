@@ -84,7 +84,7 @@ test("forces the full matrix when the lockfile, workspace, turbo config, or depl
     "package.json",
     "deploy/cloud-run/roll-service-onto-image-with-health-gated-traffic-migration.sh",
     "deploy/deploy-matrix-from-registry.jq",
-    ".github/workflows/deploy-apps.yml",
+    ".gitlab-ci.yml",
   ]) {
     const scoped = scopeDeployMatrixToChangedApps({
       fullMatrixInclude,

@@ -12,11 +12,15 @@ const selectStaticBucketRoute = (requestPath, routingTable) =>
     requestPath.startsWith(route.prefix),
   );
 
-const selectCloudRunOriginHost = (requestPath, routingTable) => {
-  const matchedRoute = routingTable.prefixes.find((route) =>
-    requestPathMatchesMountPrefix(requestPath, route.prefix),
-  );
-  return matchedRoute ? matchedRoute.host : routingTable.shell;
+const selectApplicationRoute = (requestPath, routingTable) => {
+  const routes = [
+    ...(routingTable.workerServicePrefixes ?? []),
+    ...routingTable.prefixes,
+    ...(routingTable.shell ? [{ prefix: "/", host: routingTable.shell }] : []),
+  ];
+  return routes
+    .sort((left, right) => right.prefix.length - left.prefix.length)
+    .find((route) => requestPathMatchesMountPrefix(requestPath, route.prefix));
 };
 
 const buildStaticBucketObjectUrl = (requestUrl, staticBucketRoute) => {
@@ -114,7 +118,7 @@ export default {
       subdomainOriginUrl.hostname = subdomainRoute.originHost;
       const subdomainOriginRequest = new Request(subdomainOriginUrl, request);
       stripCloudflareAccessSessionCookies(subdomainOriginRequest);
-      if (subdomainRoute.originKind === "in-repo-cloud-run") {
+      if (subdomainRoute.originKind === "cloud-run") {
         subdomainOriginRequest.headers.set(
           env.EDGE_SHARED_SECRET_HEADER_NAME,
           env.EDGE_SHARED_SECRET,
@@ -168,11 +172,26 @@ export default {
       return fetch(externalOriginRequest);
     }
 
-    const originUrl = new URL(request.url);
-    originUrl.hostname = selectCloudRunOriginHost(
+    const applicationRoute = selectApplicationRoute(
       incomingUrl.pathname,
       routingTable,
     );
+    if (!applicationRoute) {
+      return new Response("Application route is not configured", {
+        status: 503,
+      });
+    }
+    if (applicationRoute.binding) {
+      const applicationService = env[applicationRoute.binding];
+      if (!applicationService) {
+        return new Response("Application service is not bound", {
+          status: 503,
+        });
+      }
+      return applicationService.fetch(request);
+    }
+    const originUrl = new URL(request.url);
+    originUrl.hostname = applicationRoute.host;
 
     const originRequest = new Request(originUrl, request);
     originRequest.headers.set(

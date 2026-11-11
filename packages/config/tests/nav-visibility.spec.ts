@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { isPubliclyVisibleNavigationEntry } from "../src/route-registry";
-import { reportsApp, shellApp } from "./app-registry-test-fixtures";
-import type { AppRegistryEntry } from "../src/app-registry-types";
+import { reportsApp, shellApp } from "./app-registry/test-fixtures";
+import type { AppRegistryEntry } from "../src/app-registry/types";
 
 describe("public navigation visibility", () => {
   it("includes a public entry flagged for cross-section navigation", () => {

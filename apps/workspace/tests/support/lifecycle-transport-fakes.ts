@@ -2,7 +2,7 @@ import type {
   CockpitLifecycleReply,
   CockpitLifecycleRequest,
   CockpitLifecycleTransport,
-} from "../../src/workspace/cockpit-lifecycle-transport";
+} from "../../src/workspace/lifecycle/cockpit-lifecycle-transport";
 
 export interface RecordingLifecycleTransport extends CockpitLifecycleTransport {
   readonly sentRequests: CockpitLifecycleRequest[];

@@ -5,7 +5,7 @@ const exactGlobalDeployInputPaths = new Set([
   "package.json",
   "deploy/deploy-matrix-from-registry.jq",
   "packages/config/src/app-registry.json",
-  ".github/workflows/deploy-apps.yml",
+  ".gitlab-ci.yml",
 ]);
 
 const globalDeployInputPathPrefixes = ["deploy/docker/", "deploy/cloud-run/"];

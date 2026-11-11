@@ -9,7 +9,7 @@ import {
   defaultCockpitAgentDriverKind,
   resolveAgentDriver,
 } from "./agent-driver";
-import { SessionTerminal } from "./SessionTerminal";
+import { SessionTerminal } from "./terminal/SessionTerminal";
 
 export interface WorkspaceWindowPanelProps {
   windows: readonly CockpitWorkspaceWindow[];

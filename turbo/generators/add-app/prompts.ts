@@ -67,18 +67,24 @@ export const addAppPrompts: PlopTypes.PromptQuestion[] = [
     message: "Origin kind",
     choices: (answers: AddAppAnswers) =>
       answers.accessModelChoice === "public"
-        ? ["in-repo-cloud-run", "external-https", "static-gcs-bucket"]
-        : ["in-repo-cloud-run", "external-https"],
-    default: "in-repo-cloud-run",
+        ? [
+            "cloud-run",
+            "cloudflare-worker",
+            "external-https",
+            "static-gcs-bucket",
+          ]
+        : ["cloud-run", "cloudflare-worker", "external-https"],
+    default: "cloudflare-worker",
   },
   {
     type: "list",
     name: "buildProfile",
     message: "Build profile",
-    choices: ["static-spa", "dynamic-service"],
+    choices: ["static-spa"],
     default: "static-spa",
     when: (answers: AddAppAnswers) =>
-      answers.originKind === "in-repo-cloud-run",
+      answers.originKind === "cloud-run" ||
+      answers.originKind === "cloudflare-worker",
   },
   {
     type: "input",

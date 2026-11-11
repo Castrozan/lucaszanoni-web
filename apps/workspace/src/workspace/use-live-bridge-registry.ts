@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { bridgeRetryDelayMilliseconds } from "./bridge-retry-schedule";
+import { bridgeRetryDelayMilliseconds } from "./lifecycle/bridge-retry-schedule";
 import type { WorkspaceRegistryState } from "./workspace-registry";
 
 export const BRIDGE_REFRESH_INTERVAL_MILLISECONDS = 5000;

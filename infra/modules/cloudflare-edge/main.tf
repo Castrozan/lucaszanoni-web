@@ -1,6 +1,7 @@
 locals {
   edge_routing_table = {
-    shell = var.shell_origin_host
+    shell                 = var.shell_origin_host
+    workerServicePrefixes = [for prefix, binding in var.worker_service_prefixes : { prefix = prefix, binding = binding }]
     prefixes = [
       for prefix, origin_host in var.prefix_origin_hosts : {
         prefix = prefix
@@ -79,8 +80,9 @@ resource "cloudflare_workers_script" "edge_router" {
   content            = file("${path.module}/edge-router-worker.mjs")
   main_module        = "worker.js"
   compatibility_date = "2024-11-01"
+  keep_assets        = false
 
-  bindings = [
+  bindings = concat([
     {
       name = "EDGE_ROUTES"
       type = "plain_text"
@@ -96,7 +98,11 @@ resource "cloudflare_workers_script" "edge_router" {
       type = "secret_text"
       text = var.edge_shared_secret_value
     },
-  ]
+    ], [for binding, service in var.worker_services : {
+      name    = binding
+      type    = "service"
+      service = service
+  }])
 }
 
 resource "cloudflare_workers_route" "edge_router_catch_all" {

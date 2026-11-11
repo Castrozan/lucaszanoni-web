@@ -30,7 +30,7 @@ export function QualityPageLede({ metrics }: QualityPageLedeProps) {
           {formatMetricsGeneratedDate(metrics.generatedAt)}
         </>
       ) : (
-        ", so the counts appear once that snapshot lands"
+        ", with counts shown only when the snapshot is available"
       )}
       .
     </p>

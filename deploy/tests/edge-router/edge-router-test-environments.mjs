@@ -169,7 +169,7 @@ export const edgeEnvironmentWithSubdomains = {
       {
         host: subdomainInRepoServingHost,
         originHost: subdomainInRepoOriginHost,
-        originKind: "in-repo-cloud-run",
+        originKind: "cloud-run",
         trusted: true,
       },
       {

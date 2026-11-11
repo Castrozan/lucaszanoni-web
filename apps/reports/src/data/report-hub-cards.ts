@@ -22,9 +22,9 @@ export function buildReportHubCards(): ReportHubCard[] {
     },
     {
       id: "baseline",
-      title: "agent-eval baseline",
+      title: "agent instructions report",
       description:
-        "How well the AI agent obeys the instruction surface, as a pass-rate trend pulled straight from the git history of baseline.json.",
+        "Whether the AI agent follows its written instructions, in plain language: the latest verdict, why it fails and which checks it got wrong.",
       href: `${REPORTS_MOUNT_PATH}baseline/`,
     },
     {

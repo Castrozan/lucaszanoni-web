@@ -3,8 +3,7 @@ import { fetchAllSnapshots } from "../../src/client/usage-snapshot-client";
 import type { SnapshotSourceConfiguration } from "../../src/client/snapshot-source-configuration";
 
 const source: SnapshotSourceConfiguration = {
-  snapshotsBucket: "usage-snapshots",
-  combinedSnapshotsObjectName: "aggregate/machine-usage-snapshots.json",
+  snapshotUrl: "https://artifacts.example.test/usage/current.json",
 };
 
 const combinedSnapshots = [
@@ -42,8 +41,19 @@ describe("fetchAllSnapshots", () => {
   it("reads every machine snapshot from a single request", async () => {
     await fetchAllSnapshots(source);
     expect(requestedUrls).toEqual([
-      "https://storage.googleapis.com/usage-snapshots/aggregate/machine-usage-snapshots.json",
+      "https://artifacts.example.test/usage/current.json",
     ]);
+  });
+
+  it("accepts a caller-owned reader without invoking the global transport", async () => {
+    const reader = vi
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify(combinedSnapshots)));
+    await fetchAllSnapshots(source, reader);
+    expect(reader).toHaveBeenCalledWith(source.snapshotUrl, {
+      cache: "no-store",
+    });
+    expect(requestedUrls).toEqual([]);
   });
 
   it("returns every snapshot the combined object carries", async () => {
