@@ -8,12 +8,19 @@ export function findRegistryAppDirectoryInconsistencies(
   );
   const inRepoAppDirectoryNames = new Set(
     registryEntries
-      .filter((entry) => entry.origin.kind === "in-repo-cloud-run")
+      .filter(
+        (entry) =>
+          entry.origin.kind === "in-repo-cloud-run" ||
+          entry.origin.kind === "in-repo-worker-assets",
+      )
       .map((entry) => entry.origin.appDirectoryName),
   );
 
   for (const entry of registryEntries) {
-    if (entry.origin.kind !== "in-repo-cloud-run") {
+    if (
+      entry.origin.kind !== "in-repo-cloud-run" &&
+      entry.origin.kind !== "in-repo-worker-assets"
+    ) {
       if (
         packageNameByDirectoryName.has(entry.id) &&
         !inRepoAppDirectoryNames.has(entry.id)

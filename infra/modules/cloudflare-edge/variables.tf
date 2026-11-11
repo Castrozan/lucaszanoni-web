@@ -18,6 +18,11 @@ variable "shell_origin_host" {
   description = "Cloud Run host that answers the catch-all root prefix."
 }
 
+variable "worker_assets_prefixes" {
+  type    = list(string)
+  default = []
+}
+
 variable "prefix_origin_hosts" {
   type        = map(string)
   description = "Map of edge path prefix to the Cloud Run host that serves it. Prefixes are non-overlapping, so the Worker matches the first prefix the request path starts with and falls back to the shell origin when none match."

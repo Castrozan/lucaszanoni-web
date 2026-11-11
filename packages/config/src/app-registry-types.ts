@@ -35,6 +35,11 @@ export type AppAccessApplicationProvisioning =
 
 export type AppOrigin =
   | {
+      readonly kind: "in-repo-worker-assets";
+      readonly appPackageName: string;
+      readonly appDirectoryName: string;
+    }
+  | {
       readonly kind: "in-repo-cloud-run";
       readonly cloudRunServiceName: string;
       readonly appPackageName: string;

@@ -170,7 +170,12 @@ export function parseAppRegistry(value: unknown): readonly AppRegistryEntry[] {
     "cloudRunServiceName",
   );
   assertUnique(
-    inRepoCloudRunOrigins.map((origin) => origin.appDirectoryName),
+    entries.flatMap((entry) =>
+      entry.origin.kind === "in-repo-cloud-run" ||
+      entry.origin.kind === "in-repo-worker-assets"
+        ? [entry.origin.appDirectoryName]
+        : [],
+    ),
     "appDirectoryName",
   );
   assertUnique(collectSubdomainLabels(entries), "subdomainLabel");

@@ -16,10 +16,34 @@ export function parseOrigin(value: unknown, context: string): AppOrigin {
   const kind = requireOneOf(
     record,
     "kind",
-    ["in-repo-cloud-run", "external-https", "static-gcs-bucket"] as const,
+    [
+      "in-repo-cloud-run",
+      "in-repo-worker-assets",
+      "external-https",
+      "static-gcs-bucket",
+    ] as const,
     `${context} origin`,
   );
   switch (kind) {
+    case "in-repo-worker-assets":
+      rejectUnknownKeys(
+        record,
+        ["kind", "appPackageName", "appDirectoryName"],
+        `${context} origin`,
+      );
+      return {
+        kind,
+        appPackageName: requireString(
+          record,
+          "appPackageName",
+          `${context} origin`,
+        ),
+        appDirectoryName: requireString(
+          record,
+          "appDirectoryName",
+          `${context} origin`,
+        ),
+      };
     case "in-repo-cloud-run":
       rejectUnknownKeys(
         record,
