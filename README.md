@@ -7,7 +7,6 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/castrozan/lucaszanoni-web/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/castrozan/lucaszanoni-web/ci.yml?branch=main&style=for-the-badge&label=CI&labelColor=302D41&logo=githubactions&logoColor=D9E0EE&color=A6E3A1" alt="CI"></a>
   <a href="https://lucaszanoni.com"><img src="https://img.shields.io/badge/live-lucaszanoni.com-A6E3A1?style=for-the-badge&labelColor=302D41&logo=cloudflare&logoColor=D9E0EE" alt="Live site"></a>
   <img src="https://img.shields.io/badge/TypeScript_5.7-89B4FA?style=for-the-badge&labelColor=302D41&logo=typescript&logoColor=D9E0EE" alt="TypeScript">
   <img src="https://img.shields.io/badge/React_19-89DCEB?style=for-the-badge&labelColor=302D41&logo=react&logoColor=D9E0EE" alt="React">
@@ -20,26 +19,14 @@
 
 </div>
 
-**atrium** is the personal web platform that runs at **[lucaszanoni.com](https://lucaszanoni.com)**. It is a pnpm and Turborepo monorepo of TypeScript and React **micro-frontends**, each one independently deployable to a scale-to-zero GCP Cloud Run service and mounted at its own path prefix or subdomain. A single **Cloudflare edge Worker** sits in front of everything and routes each request to the right origin, with Cloudflare Access gating the owner-only paths. One of those apps is the **cockpit**, an in-browser agent terminal that lists the machines `chise`, `kira`, and `rin` and drives their live tmux and Claude sessions straight over each machine's own Cloudflare tunnel, with no SSH relay in the path.
+**atrium** is the personal web platform that runs at **[lucaszanoni.com](https://lucaszanoni.com)**. It is a pnpm and Turborepo monorepo of TypeScript and React **micro-frontends** mounted at their own path prefixes or subdomains. Each app's build source is independent of where it is served: the registry declares source, mount, access model and origin separately. Private static apps run as separate private Cloudflare Workers behind standard service bindings from a single **Cloudflare edge Worker**, and Cloudflare Access gates private requests before they reach the Worker. One of the apps is the **cockpit**, an in-browser agent terminal that drives the live tmux and Claude sessions of the owner's machines over each machine's own Cloudflare tunnel, with no SSH relay in the path.
 
 <details>
 <summary>✨ What's inside</summary>
 
 <br>
 
-Seven micro-frontends and five shared packages:
-
-| App                       | Stack                             | Does                                                         |
-| ------------------------- | --------------------------------- | ------------------------------------------------------------ |
-| **shell**                 | Vite SPA, react-router            | Landing, about, and catalog pages mounted at `/`             |
-| **cockpit**               | Vite SPA, xterm, react-query      | In-browser agent terminal, machine list, and AI center       |
-| **workspace**             | React + xterm component           | Reusable terminal and machine-management surface             |
-| **usage-dashboard**       | Vite SPA, Chart.js                | Token-usage analytics over snapshot data                     |
-| **reports**               | Vite SPA                          | Quality, baseline, and coverage report pages                 |
-| **dynamic-ia-canvas**     | Next.js 15, ReactFlow             | Visual canvas for AI-generated workflow nodes                |
-| **dynamic-ia-interfaces** | Next.js 15, @assistant-ui, AI SDK | Generative chat UI that builds React components from prompts |
-
-Shared packages: **design-system** (Radix UI and Tailwind components, theming, CommandPalette, BottomStatusBar, AppShell), **config** (mount-path constants, the micro-frontend route registry, and the `app-registry.json` parser and builder), **usage-insights** (token aggregation, Chart.js formatting, OTel metrics, memory-recall savings), **snapshot-data** (UsageSnapshot, AccountView, and UsageSummary models with their aggregation functions), and **tsconfig** (shared TypeScript presets).
+Micro-frontends live in `apps/` and shared code in `packages/`. The registry at `packages/config/src/app-registry.json` is the authority on which apps exist, where they mount and how they are served, and each app's own `package.json` describes its stack. Migrating an app to another target is covered in the [integration guide](docs/integration.md).
 
 </details>
 
@@ -47,48 +34,11 @@ Shared packages: **design-system** (Radix UI and Tailwind components, theming, C
 
 ## 🏗️ Architecture
 
-Every request lands on one Cloudflare Worker. The Worker matches a path prefix or subdomain, runs the private paths through Cloudflare Access, and forwards to the right origin: a Cloud Run micro-frontend, a per-machine tunnel, a static GCS bucket, or an external HTTPS origin. The cockpit reaches each machine over that machine's own cloudflared tunnel to its session-bridge, mounted at `/cockpit/kira-session/` and `/cockpit/rin-session/` for kira and rin, and at `/cockpit/terminal-session/` for chise.
+Every request lands on the edge Worker. It matches a path prefix or subdomain and forwards to the origin the registry declares for that app. Private static apps are deployed as separate private Cloudflare Workers and reached through standard service bindings; they have no public route of their own, and Cloudflare Access runs before a protected request reaches the Worker. Each app owns its own asset namespace, and deeper external API or WebSocket routes retain precedence over an app's mount. Apps that are not migrated keep their existing targets, such as Cloud Run, a static bucket or an external HTTPS origin.
 
-```mermaid
-graph TD
-    Browser([Browser]):::entry --> Edge
+The cockpit reaches each machine over that machine's own cloudflared tunnel using the session-bridge routes declared in the edge configuration.
 
-    subgraph CF[Cloudflare edge]
-        Edge["lucaszanoni-edge-router Worker"]:::edge
-        Access["Cloudflare Access<br/>owner-only · shared allowlist"]:::gate
-    end
-
-    Edge -->|public routes| Shell
-    Edge -->|private routes| Access
-    Access --> Cockpit
-
-    subgraph GCP[GCP Cloud Run]
-        Shell["shell  /"]:::app
-        Cockpit["cockpit  /cockpit/"]:::app
-        Rest["workspace · usage-dashboard<br/>reports · dynamic-ia"]:::app
-    end
-
-    Edge --> Rest
-
-    Cockpit -->|tunnel routes| Chise
-    Cockpit --> Kira
-    Cockpit --> Rin
-
-    subgraph Machines[Per-machine cloudflared tunnels]
-        Chise["chise<br/>session-bridge"]:::machine --> ChiseS["tmux + claude"]:::session
-        Kira["kira<br/>session-bridge"]:::machine --> KiraS["tmux + claude"]:::session
-        Rin["rin<br/>session-bridge"]:::machine --> RinS["tmux + claude"]:::session
-    end
-
-    classDef entry fill:#f38ba8,color:#1e1e2e,stroke:#1e1e2e;
-    classDef edge fill:#fab387,color:#1e1e2e,stroke:#1e1e2e;
-    classDef gate fill:#f9e2af,color:#1e1e2e,stroke:#1e1e2e;
-    classDef app fill:#89b4fa,color:#1e1e2e,stroke:#1e1e2e;
-    classDef machine fill:#a6e3a1,color:#1e1e2e,stroke:#1e1e2e;
-    classDef session fill:#cba6f7,color:#1e1e2e,stroke:#1e1e2e;
-```
-
-A few details that keep this honest. Cloud Run services trust an edge-shared-secret header, so they only answer the Worker; tunnel origins and external origins do not carry that header. Cloudflare Access uses two audience kinds, owner-only for a single account and shared for a per-audience email allowlist, with optional Google SSO and a 24-hour session. The Worker strips Access session cookies from subdomain requests so each subdomain keeps its own same-origin scope. Retired routes return `410 Gone` instead of pointing at a dead origin.
+Cloudflare Access uses two audience kinds, owner-only for a single account and shared for a per-audience email allowlist, with optional Google SSO. The Worker strips Access session cookies from subdomain requests so each subdomain keeps its own same-origin scope. Retired routes return `410 Gone` instead of pointing at a dead origin. [`docs/integration.md`](docs/integration.md) is the migration guide for moving further apps onto the Worker target.
 
 ---
 
@@ -96,17 +46,17 @@ A few details that keep this honest. Cloud Run services trust an edge-shared-sec
 
 The repo is a pnpm workspace driven by Turborepo, and it splits into three areas.
 
-**`apps/`** holds the micro-frontends listed above. Most are Vite single-page apps; the two `dynamic-ia` apps run on Next.js 15. Each app ships its own Tailwind config and `vite.config.ts`, tests with Vitest, and covers its flows with Playwright. Every app is built and deployed on its own, so the shell at `/` and the cockpit at `/cockpit/` move independently.
+**`apps/`** holds the micro-frontends. Each app has its own build configuration and is built and deployed independently of the others.
 
-**`packages/`** holds the shared code that the apps import: the design system, the routing and registry helpers in `config`, the usage and snapshot analytics packages, and the shared TypeScript presets. `packages/config/src/app-registry.json` is the single source of truth for which apps exist, where they mount, and how they are served. CI and the deploy matrix both read from it, so the registry and the running topology never drift apart.
+**`packages/`** holds the shared code that the apps import. `packages/config/src/app-registry.json` is the single source of truth for which apps exist, where they mount, and how they are served; its schema and types live beside it under `packages/config/src/`. CI and the deploy entry points read from it.
 
-**`infra/`** holds the Terraform and OpenTofu modules for the Cloudflare edge Worker and Access audiences, the Cloud Run services, and the per-machine Cloudflare Tunnels, with the live state under `infra/environments/production/`. Each piece is controlled by an `enable_*` Terraform variable, so individual machine tunnels or static-route groups can be turned on without touching the rest. Alongside these, `.gitlab-ci.yml` and `.gitlab/ci/` carry the CI and deploy pipelines and `docs/` carries the maintainer and keyboard-navigation guides.
+**`infra/`** holds the Terraform and OpenTofu modules for the Cloudflare edge and Access audiences, the retained Google Cloud resources and the per-machine Cloudflare Tunnels. `infra/environments/production/` also provisions Google Cloud and keeps a GCS backend, so it is not a Cloudflare-only deployment command. Alongside these, `.gitlab-ci.yml` and `.gitlab/ci/` carry the CI and deploy pipelines and `docs/` carries the maintainer guides.
 
 ---
 
 ## 🚀 Getting Started
 
-You need Node 22.12 or newer and pnpm, which `corepack` provisions and pins through the root `packageManager` field.
+You need the Node version in the root `package.json` `engines` field and the pnpm version pinned by its `packageManager` field, which `corepack` provisions.
 
 ```bash
 corepack pnpm install     # install the whole workspace
@@ -117,11 +67,9 @@ corepack pnpm lint        # eslint
 corepack pnpm typecheck   # tsc project-wide
 ```
 
-Run a single app by scoping the task, for example `corepack pnpm --filter cockpit dev`.
+Run a single app by scoping the task, for example `corepack pnpm --filter @platform/cockpit dev`.
 
-GitLab CI validates merge requests with typechecking, lint, unit and deployment-contract tests, cockpit end-to-end tests, OpenTofu module tests, and the production build. A protected `main` pipeline applies the production Terraform state, then builds the registry applications and deploys them to Cloud Run. Each service receives traffic only after its candidate revision answers `200` on `/livez`.
-
-Google Cloud authentication uses GitLab OIDC federation. The owner provisions its restricted trust through `infra/gitlab-identity/`; deployment jobs cannot change that trust. The production state remains in its existing GCS backend. Protected GitLab variables provide `CLOUDFLARE_API_TOKEN`, the JSON file variable `PRODUCTION_TERRAFORM_VARIABLES`, and the frontend build settings consumed by `deploy/gitlab/deploy-app.sh`. Keep credential values outside Git. A scheduled pipeline runs the synthetic uptime check, and a manually started pipeline exposes the encrypted session connector export. `infra/COST-CEILINGS.md` owns the compute and storage limits.
+GitLab CI validates merge requests with the checks defined in `.gitlab/ci/`. The protected default-branch deployment is Cloudflare-only: it runs `deploy/cloudflare/deploy-site.mjs`, which builds the registry's Cloudflare Worker targets, publishes the private app Workers, then publishes the edge service bindings, and it does not apply GCP Terraform. Existing non-Cloudflare targets are left unchanged. Protected GitLab variables provide the Cloudflare credentials; keep credential values outside Git. A scheduled pipeline runs the synthetic uptime check. `infra/COST-CEILINGS.md` owns the compute and storage limits.
 
 ---
 

@@ -6,12 +6,12 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": resolve(__dirname, "src"),
       "@/core": resolve(__dirname, "src/modules/core"),
       "@/canvas": resolve(__dirname, "src/modules/canvas"),
       "@/sandbox": resolve(__dirname, "src/modules/sandbox"),
       "@/generation": resolve(__dirname, "src/modules/generation"),
       "@/catalog": resolve(__dirname, "src/modules/catalog"),
+      "@": resolve(__dirname, "src"),
     },
   },
   test: {

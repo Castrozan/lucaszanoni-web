@@ -99,12 +99,12 @@ importers:
 
   apps/dynamic-ia-canvas:
     dependencies:
-      '@ai-sdk/google':
-        specifier: ^3.0.85
-        version: 3.0.85(zod@3.25.76)
       '@ai-sdk/react':
         specifier: ^3.0.136
         version: 3.0.213(react@19.2.7)(zod@3.25.76)
+      '@platform/ai-runtime':
+        specifier: workspace:*
+        version: link:../../packages/ai-runtime
       '@platform/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -199,9 +199,6 @@ importers:
 
   apps/dynamic-ia-interfaces:
     dependencies:
-      '@ai-sdk/google':
-        specifier: ^3.0.85
-        version: 3.0.85(zod@3.25.76)
       '@ai-sdk/react':
         specifier: ^3.0.136
         version: 3.0.213(react@19.2.7)(zod@3.25.76)
@@ -211,6 +208,9 @@ importers:
       '@assistant-ui/react-ai-sdk':
         specifier: ^0.8.0
         version: 0.8.1(@assistant-ui/react@0.8.20(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))(@types/react@19.2.17)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7))
+      '@platform/ai-runtime':
+        specifier: workspace:*
+        version: link:../../packages/ai-runtime
       '@platform/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -630,6 +630,25 @@ importers:
         specifier: ^4.1.9
         version: 4.1.9(@opentelemetry/api@1.9.1)(@types/node@22.20.0)(jsdom@25.0.1)(vite@8.0.16(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0))
 
+  packages/ai-runtime:
+    dependencies:
+      '@ai-sdk/google':
+        specifier: ^3.0.85
+        version: 3.0.85(zod@3.25.76)
+      ai:
+        specifier: ^6.0.0
+        version: 6.0.211(zod@3.25.76)
+    devDependencies:
+      '@platform/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(@opentelemetry/api@1.9.1)(@types/node@22.20.0)(jsdom@25.0.1)(vite@8.0.16(@types/node@22.20.0)(esbuild@0.28.2)(jiti@2.7.0))
+
   packages/config:
     devDependencies:
       '@platform/tsconfig':
@@ -735,6 +754,9 @@ importers:
 
   packages/usage-insights:
     dependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../config
       '@platform/design-system':
         specifier: workspace:*
         version: link:../design-system

@@ -1,22 +1,14 @@
-import { appRegistry } from "./app-registry";
-import type { MicroFrontendId } from "./app-registry";
+import { appRegistry } from "./app-registry.ts";
+import type { MicroFrontendId } from "./app-registry.ts";
 import type {
   AppRegistryEntry,
   AppLifecycleStatus,
-} from "./app-registry-types";
-import { belongsToPrivateEnvironment } from "./app-registry-access-environment";
+  AppOrigin,
+  AppBuildProfile,
+} from "./app-registry/types.ts";
+import { belongsToPrivateEnvironment } from "./app-registry/access-environment.ts";
 
 export type { MicroFrontendId };
-
-const GEMINI_API_KEY_ENVIRONMENT_VARIABLE_NAME = "GOOGLE_GENERATIVE_AI_API_KEY";
-
-function originDeclaresAiModelKey(origin: AppRegistryEntry["origin"]): boolean {
-  return (
-    origin.kind === "in-repo-cloud-run" &&
-    GEMINI_API_KEY_ENVIRONMENT_VARIABLE_NAME in
-      origin.secretEnvironmentReferences
-  );
-}
 
 export interface MicroFrontendRoute {
   readonly id: MicroFrontendId;
@@ -27,7 +19,8 @@ export interface MicroFrontendRoute {
   readonly showInCrossSectionNavigation: boolean;
   readonly isAiPowered: boolean;
   readonly accessModel: AppRegistryEntry["accessModel"];
-  readonly origin: AppRegistryEntry["origin"];
+  readonly hostingKind: AppOrigin["kind"];
+  readonly buildProfile?: AppBuildProfile;
 }
 
 export const MICRO_FRONTEND_ROUTES: readonly MicroFrontendRoute[] =
@@ -38,9 +31,10 @@ export const MICRO_FRONTEND_ROUTES: readonly MicroFrontendRoute[] =
     mountPath: entry.mountPath,
     status: entry.status,
     showInCrossSectionNavigation: entry.showInCrossSectionNavigation,
-    isAiPowered: originDeclaresAiModelKey(entry.origin),
+    isAiPowered: entry.capabilities?.includes("generative-ai") ?? false,
     accessModel: entry.accessModel,
-    origin: entry.origin,
+    hostingKind: entry.origin.kind,
+    buildProfile: entry.source?.buildProfile,
   }));
 
 export function findMicroFrontendRoute(

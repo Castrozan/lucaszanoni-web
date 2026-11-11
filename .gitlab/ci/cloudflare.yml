@@ -1,14 +1,16 @@
-cockpit-cloudflare:
+site-cloudflare:
   extends: .node
   stage: deploy
   resource_group: cloudflare-production
+  variables:
+    CLOUDFLARE_SITE_HOSTNAME: lucaszanoni.com
   environment:
-    name: production/cockpit
-    url: https://lucaszanoni.com/cockpit/
+    name: production/site
+    url: https://lucaszanoni.com/
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true" && $CI_PIPELINE_SOURCE != "schedule"'
   script:
-    - node deploy/cloudflare/deploy-cockpit.mjs
+    - node deploy/cloudflare/deploy-site.mjs
 
 synthetic-uptime:
   image: node:22.22.2-bookworm

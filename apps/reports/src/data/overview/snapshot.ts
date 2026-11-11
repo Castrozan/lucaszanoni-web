@@ -4,7 +4,7 @@ import {
   parseIngestedSnapshotRecordForTopic,
   type IngestionTopicContract,
 } from "@platform/ingestion-contracts";
-import { reportBucketBaseUrl } from "../report-artifact-sources";
+import { artifactStoreBaseUrl } from "../report-artifact-sources";
 
 export type SnapshotState<Payload> =
   | { readonly status: "loading" | "missing" | "malformed" | "unavailable" }
@@ -50,7 +50,7 @@ export function useOverviewSnapshot<Payload>(
     const controller = new AbortController();
     let active = true;
     const timeout = setTimeout(() => controller.abort(), 30000);
-    const url = `${reportBucketBaseUrl}${buildLatestSnapshotObjectKey(contract.topic)}`;
+    const url = `${artifactStoreBaseUrl}${buildLatestSnapshotObjectKey(contract.topic)}`;
     async function load() {
       let next: SnapshotState<Payload>;
       try {

@@ -101,30 +101,85 @@ test("the deploy matrix jq filter reproduces today's hand-authored rows from the
   );
 });
 
-test("the deploy matrix selects only in-repo-cloud-run origins, matching the Terraform for_each predicate", () => {
+test("changing a hosting target changes matrix inclusion without changing build metadata", () => {
+  const application = {
+    id: "shell",
+    mountPath: "/",
+    status: "active",
+    source: {
+      appPackageName: "@platform/shell",
+      appDirectoryName: "shell",
+      buildProfile: "static-spa",
+      publicBuildEnvironment: {},
+      publicBuildEnvironmentReferences: {},
+    },
+    origin: {
+      kind: "cloud-run",
+      cloudRunServiceName: "lucaszanoni-shell",
+      nonSecretEnvironment: {},
+      secretEnvironmentReferences: {},
+    },
+  };
+  const original = deriveDeployMatrixFromRegistryValue([application]);
+  assert.equal(
+    original.include[0].app_package_name,
+    application.source.appPackageName,
+  );
+  assert.equal(
+    original.include[0].app_directory_name,
+    application.source.appDirectoryName,
+  );
+  assert.equal(
+    original.include[0].build_profile,
+    application.source.buildProfile,
+  );
+  assert.deepEqual(
+    deriveDeployMatrixFromRegistryValue([
+      {
+        ...application,
+        origin: { kind: "cloudflare-worker", scriptName: "lucaszanoni-shell" },
+      },
+    ]),
+    { include: [] },
+  );
+});
+
+test("the deploy matrix selects only cloud-run origins, matching the Terraform for_each predicate", () => {
   const registryWithMixedOrigins = [
     {
       id: "shell",
       mountPath: "/",
       status: "active",
-      origin: {
-        kind: "in-repo-cloud-run",
-        cloudRunServiceName: "lucaszanoni-shell",
+      source: {
         appPackageName: "@platform/shell",
         appDirectoryName: "shell",
         buildProfile: "static-spa",
+        publicBuildEnvironment: {},
+        publicBuildEnvironmentReferences: {},
+      },
+      origin: {
+        kind: "cloud-run",
+        cloudRunServiceName: "lucaszanoni-shell",
+        nonSecretEnvironment: {},
+        secretEnvironmentReferences: {},
       },
     },
     {
       id: "ledger-service",
       mountPath: "/ledger/",
       status: "active",
-      origin: {
-        kind: "in-repo-cloud-run",
-        cloudRunServiceName: "lucaszanoni-ledger-service",
+      source: {
         appPackageName: "@platform/ledger-service",
         appDirectoryName: "ledger-service",
         buildProfile: "dynamic-service",
+        publicBuildEnvironment: {},
+        publicBuildEnvironmentReferences: {},
+      },
+      origin: {
+        kind: "cloud-run",
+        cloudRunServiceName: "lucaszanoni-ledger-service",
+        nonSecretEnvironment: {},
+        secretEnvironmentReferences: {},
       },
     },
     {

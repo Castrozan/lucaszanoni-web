@@ -4,7 +4,7 @@ locals {
   in_repo_cloud_run_apps = {
     for app in local.app_registry :
     app.id => app
-    if app.origin.kind == "in-repo-cloud-run"
+    if app.origin.kind == "cloud-run"
   }
 
   in_repo_app_container_images = {
@@ -19,7 +19,7 @@ locals {
   }
 
   root_app_id = one([
-    for app_id, app in local.in_repo_cloud_run_apps : app_id
+    for app in local.app_registry : app.id
     if app.mountPath == "/"
   ])
 
@@ -69,7 +69,7 @@ locals {
     for app in local.app_registry :
     app.servingLocation.subdomainLabel => {
       origin_host = (
-        app.origin.kind == "in-repo-cloud-run"
+        app.origin.kind == "cloud-run"
         ? module.in_repo_cloud_run_app[app.id].origin_host
         : app.origin.originHost
       )
@@ -116,11 +116,18 @@ module "edge" {
   source = "../../modules/cloudflare-edge"
   count  = var.enable_cloudflare_edge ? 1 : 0
 
-  zone_name              = local.edge_serving_domain
-  cloudflare_account_id  = var.cloudflare_account_id
-  shell_origin_host      = module.in_repo_cloud_run_app[local.root_app_id].origin_host
-  prefix_origin_hosts    = local.prefix_origin_hosts
-  worker_assets_prefixes = [for app in local.app_registry : app.mountPath if app.origin.kind == "in-repo-worker-assets"]
+  zone_name             = local.edge_serving_domain
+  cloudflare_account_id = var.cloudflare_account_id
+  shell_origin_host     = try(module.in_repo_cloud_run_app[local.root_app_id].origin_host, null)
+  prefix_origin_hosts   = local.prefix_origin_hosts
+  worker_service_prefixes = {
+    for app in local.app_registry : app.mountPath => "APP_${upper(replace(app.id, "-", "_"))}"
+    if app.origin.kind == "cloudflare-worker" && app.status == "active"
+  }
+  worker_services = {
+    for app in local.app_registry : "APP_${upper(replace(app.id, "-", "_"))}" => app.origin.scriptName
+    if app.origin.kind == "cloudflare-worker" && app.status == "active"
+  }
   static_bucket_prefix_origins = var.enable_reports_static_gcs_routes ? {
     "/engineering/dotfiles/reports/coverage/" = {
       bucket            = var.reports_static_bucket_name

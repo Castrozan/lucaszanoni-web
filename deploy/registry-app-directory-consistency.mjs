@@ -8,19 +8,12 @@ export function findRegistryAppDirectoryInconsistencies(
   );
   const inRepoAppDirectoryNames = new Set(
     registryEntries
-      .filter(
-        (entry) =>
-          entry.origin.kind === "in-repo-cloud-run" ||
-          entry.origin.kind === "in-repo-worker-assets",
-      )
-      .map((entry) => entry.origin.appDirectoryName),
+      .filter((entry) => entry.source)
+      .map((entry) => entry.source.appDirectoryName),
   );
 
   for (const entry of registryEntries) {
-    if (
-      entry.origin.kind !== "in-repo-cloud-run" &&
-      entry.origin.kind !== "in-repo-worker-assets"
-    ) {
+    if (!entry.source) {
       if (
         packageNameByDirectoryName.has(entry.id) &&
         !inRepoAppDirectoryNames.has(entry.id)
@@ -34,7 +27,7 @@ export function findRegistryAppDirectoryInconsistencies(
       }
       continue;
     }
-    const expectedAppDirectoryName = entry.origin.appDirectoryName;
+    const expectedAppDirectoryName = entry.source.appDirectoryName;
     const actualPackageName = packageNameByDirectoryName.get(
       expectedAppDirectoryName,
     );
@@ -46,12 +39,12 @@ export function findRegistryAppDirectoryInconsistencies(
       });
       continue;
     }
-    if (actualPackageName !== entry.origin.appPackageName) {
+    if (actualPackageName !== entry.source.appPackageName) {
       inconsistencies.push({
         kind: "package-name-mismatch",
         entryId: entry.id,
         appDirectoryName: expectedAppDirectoryName,
-        expectedPackageName: entry.origin.appPackageName,
+        expectedPackageName: entry.source.appPackageName,
         actualPackageName,
       });
     }

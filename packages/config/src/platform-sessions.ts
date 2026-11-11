@@ -1,5 +1,5 @@
-import { MICRO_FRONTEND_ROUTES } from "./route-registry";
-import type { MicroFrontendId } from "./route-registry";
+import { MICRO_FRONTEND_ROUTES } from "./route-registry.ts";
+import type { MicroFrontendId } from "./route-registry.ts";
 
 export interface PlatformWindow {
   readonly id: string;

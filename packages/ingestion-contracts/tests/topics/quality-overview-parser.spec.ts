@@ -32,6 +32,16 @@ describe("quality overview evidence ingestion", () => {
     expect(payload.overview.evidence[1]!.usable).toBe(false);
   });
 
+  it("accepts HTTPS evidence on a different storage provider without changing run provenance", () => {
+    const original = qualityOverviewFixture();
+    const payload = {
+      ...original,
+      detailsBaseUrl: `https://artifacts.example.test/site/reports/overview/${original.workflow.runId}/${original.workflow.runAttempt}/`,
+    };
+    expect(validateSchema(payload)).toBe(true);
+    expect(parseQualityOverviewPayload(payload)).toEqual(payload);
+  });
+
   it.each([
     {
       name: "empty evidence",

@@ -3,9 +3,11 @@ import type { SnapshotSourceConfiguration } from "./snapshot-source-configuratio
 
 export async function fetchAllSnapshots(
   source: SnapshotSourceConfiguration,
+  readSnapshots: typeof fetch = fetch,
 ): Promise<UsageSnapshot[]> {
-  const combinedSnapshotsUrl = `https://storage.googleapis.com/${source.snapshotsBucket}/${source.combinedSnapshotsObjectName}`;
-  const response = await fetch(combinedSnapshotsUrl, { cache: "no-store" });
+  const response = await readSnapshots(source.snapshotUrl, {
+    cache: "no-store",
+  });
   if (!response.ok) {
     throw new Error(
       `combined snapshot fetch failed with status ${response.status}`,
