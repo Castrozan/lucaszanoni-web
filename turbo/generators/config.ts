@@ -2,6 +2,7 @@ import type { PlopTypes } from "@turbo/gen";
 import { registerAppendRegistryEntryAction } from "./add-app/registry-append-action.ts";
 import { addAppPrompts } from "./add-app/prompts.ts";
 import type { AddAppAnswers } from "@platform/config";
+import { resolveSourceSpec } from "../../packages/config/src/app-registry/answers-resolver.ts";
 
 export default function generator(plop: PlopTypes.NodePlopAPI): void {
   registerAppendRegistryEntryAction(plop);
@@ -12,8 +13,14 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
     prompts: addAppPrompts,
     actions: (data) => {
       const answers = data as AddAppAnswers;
+      const source = resolveSourceSpec(answers);
+      if (source?.buildProfile === "dynamic-service") {
+        throw new Error(
+          "The app generator scaffolds static SPAs; dynamic services require an application-specific source adapter",
+        );
+      }
       const actions: PlopTypes.ActionType[] = [{ type: "appendRegistryEntry" }];
-      if (answers.originKind === "in-repo-cloud-run") {
+      if (source) {
         actions.push({
           type: "addMany",
           destination: "apps/{{dashCase id}}",

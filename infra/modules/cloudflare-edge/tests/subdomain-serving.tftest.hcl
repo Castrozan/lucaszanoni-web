@@ -34,7 +34,7 @@ run "one_proxied_host_and_route_per_subdomain_app" {
     subdomain_apps = {
       ledger = {
         origin_host = "lucaszanoni-ledger.example.run.app"
-        origin_kind = "in-repo-cloud-run"
+        origin_kind = "cloud-run"
         trusted     = true
       }
       db = {
@@ -76,7 +76,7 @@ run "one_proxied_host_and_route_per_subdomain_app" {
   }
 
   assert {
-    condition     = strcontains([for binding in cloudflare_workers_script.edge_router.bindings : binding.text if binding.name == "EDGE_ROUTES"][0], "\"host\":\"ledger.lucaszanoni.test\",\"originHost\":\"lucaszanoni-ledger.example.run.app\",\"originKind\":\"in-repo-cloud-run\",\"trusted\":true")
+    condition     = strcontains([for binding in cloudflare_workers_script.edge_router.bindings : binding.text if binding.name == "EDGE_ROUTES"][0], "\"host\":\"ledger.lucaszanoni.test\",\"originHost\":\"lucaszanoni-ledger.example.run.app\",\"originKind\":\"cloud-run\",\"trusted\":true")
     error_message = "an in-repo subdomain app must route by host to its own cloud run origin with the shared-secret-bearing origin kind"
   }
 

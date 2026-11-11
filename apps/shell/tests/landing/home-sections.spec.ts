@@ -27,6 +27,12 @@ describe("buildCatalogCards", () => {
     }
   });
 
+  it("uses the source build profile for Worker-hosted catalog cards", () => {
+    const cockpit = buildCatalogCards().find((card) => card.id === "cockpit");
+    expect(cockpit?.originKind).toBe("cloudflare-worker");
+    expect(cockpit?.buildProfile).toBe("static-spa");
+  });
+
   it("locks the owner-gated dotfiles apps and the cockpit", () => {
     const cards = buildCatalogCards();
     for (const id of ["usage-dashboard", "reports", "cockpit"]) {

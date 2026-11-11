@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   baselineArtifactUrl,
   coverageArtifactUrl,
-  reportArtifactBucketBaseUrl,
+  reportArtifactsBaseUrl,
 } from "../../src/data/report-artifact-sources";
 
 describe("report artifact sources", () => {
   it("points the bucket base url at the public reports prefix", () => {
-    expect(reportArtifactBucketBaseUrl).toBe(
+    expect(reportArtifactsBaseUrl).toBe(
       "https://storage.googleapis.com/zg-url-shortener-2026-dotfiles-usage-snapshots/reports/",
     );
   });

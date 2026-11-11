@@ -1,13 +1,14 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { PlopTypes } from "@turbo/gen";
-import { buildAppRegistryEntry } from "../../../packages/config/src/app-registry-entry-builder.ts";
+import { buildAppRegistryEntry } from "../../../packages/config/src/app-registry/entry-builder.ts";
 import {
   resolveAccessModel,
   resolveOriginSpec,
+  resolveSourceSpec,
   type AddAppAnswers,
-} from "../../../packages/config/src/app-registry-answers-resolver.ts";
-import { appendEntryToRegistryDocument } from "../../../packages/config/src/app-registry-document-writer.ts";
+} from "../../../packages/config/src/app-registry/answers-resolver.ts";
+import { appendEntryToRegistryDocument } from "../../../packages/config/src/app-registry/document-writer.ts";
 
 const registryRelativePath = "packages/config/src/app-registry.json";
 
@@ -23,6 +24,7 @@ export function appendRegistryEntryFromAnswers(
     showInCrossSectionNavigation: answers.showInCrossSectionNavigation,
     status: answers.status,
     accessModel: resolveAccessModel(answers),
+    source: resolveSourceSpec(answers),
     origin: resolveOriginSpec(answers),
   });
   const nextRegistryJson = appendEntryToRegistryDocument(

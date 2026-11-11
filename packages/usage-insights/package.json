@@ -18,7 +18,8 @@
     "@platform/snapshot-data": "workspace:*",
     "@tanstack/react-query": "^5.62.0",
     "chart.js": "^4.5.0",
-    "react-chartjs-2": "^5.3.0"
+    "react-chartjs-2": "^5.3.0",
+    "@platform/config": "workspace:*"
   },
   "devDependencies": {
     "@platform/tsconfig": "workspace:*",

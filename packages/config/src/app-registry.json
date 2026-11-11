@@ -6,15 +6,21 @@
     "description": "Platform overview and entry point.",
     "showInCrossSectionNavigation": false,
     "status": "active",
-    "accessModel": { "environment": "public" },
+    "accessModel": {
+      "environment": "public"
+    },
     "origin": {
-      "kind": "in-repo-cloud-run",
+      "kind": "cloud-run",
       "cloudRunServiceName": "lucaszanoni-shell",
+      "nonSecretEnvironment": {},
+      "secretEnvironmentReferences": {}
+    },
+    "source": {
       "appPackageName": "@platform/shell",
       "appDirectoryName": "shell",
       "buildProfile": "static-spa",
-      "nonSecretEnvironment": {},
-      "secretEnvironmentReferences": {}
+      "publicBuildEnvironment": {},
+      "publicBuildEnvironmentReferences": {}
     }
   },
   {
@@ -26,16 +32,22 @@
     "status": "active",
     "accessModel": {
       "environment": "private",
-      "audience": { "kind": "owner" }
+      "audience": {
+        "kind": "owner"
+      }
     },
     "origin": {
-      "kind": "in-repo-cloud-run",
+      "kind": "cloud-run",
       "cloudRunServiceName": "lucaszanoni-usage-dashboard",
+      "nonSecretEnvironment": {},
+      "secretEnvironmentReferences": {}
+    },
+    "source": {
       "appPackageName": "@platform/usage-dashboard",
       "appDirectoryName": "usage-dashboard",
       "buildProfile": "static-spa",
-      "nonSecretEnvironment": {},
-      "secretEnvironmentReferences": {}
+      "publicBuildEnvironment": {},
+      "publicBuildEnvironmentReferences": {}
     }
   },
   {
@@ -47,16 +59,22 @@
     "status": "active",
     "accessModel": {
       "environment": "private",
-      "audience": { "kind": "owner" }
+      "audience": {
+        "kind": "owner"
+      }
     },
     "origin": {
-      "kind": "in-repo-cloud-run",
+      "kind": "cloud-run",
       "cloudRunServiceName": "lucaszanoni-reports",
+      "nonSecretEnvironment": {},
+      "secretEnvironmentReferences": {}
+    },
+    "source": {
       "appPackageName": "@platform/reports",
       "appDirectoryName": "reports",
       "buildProfile": "static-spa",
-      "nonSecretEnvironment": {},
-      "secretEnvironmentReferences": {}
+      "publicBuildEnvironment": {},
+      "publicBuildEnvironmentReferences": {}
     }
   },
   {
@@ -68,7 +86,9 @@
     "status": "active",
     "accessModel": {
       "environment": "private",
-      "audience": { "kind": "owner" }
+      "audience": {
+        "kind": "owner"
+      }
     },
     "origin": {
       "kind": "external-https",
@@ -87,12 +107,26 @@
     "status": "active",
     "accessModel": {
       "environment": "private",
-      "audience": { "kind": "owner" }
+      "audience": {
+        "kind": "owner"
+      }
     },
     "origin": {
-      "kind": "in-repo-worker-assets",
+      "kind": "cloudflare-worker",
+      "scriptName": "lucaszanoni-cockpit"
+    },
+    "source": {
       "appPackageName": "@platform/cockpit",
-      "appDirectoryName": "cockpit"
+      "appDirectoryName": "cockpit",
+      "buildProfile": "static-spa",
+      "publicBuildEnvironment": {
+        "VITE_COCKPIT_REAL_COMPUTE": "true"
+      },
+      "publicBuildEnvironmentReferences": {
+        "VITE_COCKPIT_GITLAB_BASE_URL": "COCKPIT_GITLAB_BASE_URL",
+        "VITE_COCKPIT_GITLAB_PROJECT": "COCKPIT_GITLAB_PROJECT",
+        "VITE_COCKPIT_WORKSPACE_MACHINES": "COCKPIT_WORKSPACE_MACHINES"
+      }
     }
   },
   {
@@ -104,7 +138,9 @@
     "status": "active",
     "accessModel": {
       "environment": "private",
-      "audience": { "kind": "owner" }
+      "audience": {
+        "kind": "owner"
+      }
     },
     "accessApplicationProvisioning": {
       "kind": "inherited-from-parent-path",
@@ -127,7 +163,9 @@
     "status": "active",
     "accessModel": {
       "environment": "private",
-      "audience": { "kind": "owner" }
+      "audience": {
+        "kind": "owner"
+      }
     },
     "accessApplicationProvisioning": {
       "kind": "inherited-from-parent-path",
@@ -150,7 +188,9 @@
     "status": "active",
     "accessModel": {
       "environment": "private",
-      "audience": { "kind": "owner" }
+      "audience": {
+        "kind": "owner"
+      }
     },
     "accessApplicationProvisioning": {
       "kind": "inherited-from-parent-path",
@@ -173,16 +213,22 @@
     "status": "active",
     "accessModel": {
       "environment": "private",
-      "audience": { "kind": "owner" }
+      "audience": {
+        "kind": "owner"
+      }
     },
     "origin": {
-      "kind": "in-repo-cloud-run",
+      "kind": "cloud-run",
       "cloudRunServiceName": "lucaszanoni-workspace",
+      "nonSecretEnvironment": {},
+      "secretEnvironmentReferences": {}
+    },
+    "source": {
       "appPackageName": "@platform/workspace",
       "appDirectoryName": "workspace",
       "buildProfile": "static-spa",
-      "nonSecretEnvironment": {},
-      "secretEnvironmentReferences": {}
+      "publicBuildEnvironment": {},
+      "publicBuildEnvironmentReferences": {}
     }
   },
   {
@@ -192,20 +238,27 @@
     "description": "AI-driven generative component canvas that renders interfaces from natural language prompts.",
     "showInCrossSectionNavigation": true,
     "status": "active",
-    "accessModel": { "environment": "public" },
+    "accessModel": {
+      "environment": "public"
+    },
     "origin": {
-      "kind": "in-repo-cloud-run",
+      "kind": "cloud-run",
       "cloudRunServiceName": "lucaszanoni-dynamic-ia-canvas",
-      "appPackageName": "@platform/dynamic-ia-canvas",
-      "appDirectoryName": "dynamic-ia-canvas",
-      "buildProfile": "dynamic-service",
       "nonSecretEnvironment": {
         "APP_SERVER_ENTRYPOINT_PATH": "server-entrypoint.mjs"
       },
       "secretEnvironmentReferences": {
         "GOOGLE_GENERATIVE_AI_API_KEY": "dynamic-ia-gemini-api-key"
       }
-    }
+    },
+    "source": {
+      "appPackageName": "@platform/dynamic-ia-canvas",
+      "appDirectoryName": "dynamic-ia-canvas",
+      "buildProfile": "dynamic-service",
+      "publicBuildEnvironment": {},
+      "publicBuildEnvironmentReferences": {}
+    },
+    "capabilities": ["generative-ai"]
   },
   {
     "id": "dynamic-ia-interfaces",
@@ -214,20 +267,27 @@
     "description": "AI-driven generative interfaces explorer that streams chat-composed UIs from natural language prompts.",
     "showInCrossSectionNavigation": true,
     "status": "active",
-    "accessModel": { "environment": "public" },
+    "accessModel": {
+      "environment": "public"
+    },
     "origin": {
-      "kind": "in-repo-cloud-run",
+      "kind": "cloud-run",
       "cloudRunServiceName": "lucaszanoni-dynamic-ia-interfaces",
-      "appPackageName": "@platform/dynamic-ia-interfaces",
-      "appDirectoryName": "dynamic-ia-interfaces",
-      "buildProfile": "dynamic-service",
       "nonSecretEnvironment": {
         "APP_SERVER_ENTRYPOINT_PATH": "server-entrypoint.mjs"
       },
       "secretEnvironmentReferences": {
         "GOOGLE_GENERATIVE_AI_API_KEY": "dynamic-ia-gemini-api-key"
       }
-    }
+    },
+    "source": {
+      "appPackageName": "@platform/dynamic-ia-interfaces",
+      "appDirectoryName": "dynamic-ia-interfaces",
+      "buildProfile": "dynamic-service",
+      "publicBuildEnvironment": {},
+      "publicBuildEnvironmentReferences": {}
+    },
+    "capabilities": ["generative-ai"]
   },
   {
     "id": "stack-launcher",
@@ -238,16 +298,22 @@
     "status": "active",
     "accessModel": {
       "environment": "private",
-      "audience": { "kind": "owner" }
+      "audience": {
+        "kind": "owner"
+      }
     },
     "origin": {
-      "kind": "in-repo-cloud-run",
+      "kind": "cloud-run",
       "cloudRunServiceName": "lucaszanoni-stack-launcher",
+      "nonSecretEnvironment": {},
+      "secretEnvironmentReferences": {}
+    },
+    "source": {
       "appPackageName": "@platform/stack-launcher",
       "appDirectoryName": "stack-launcher",
       "buildProfile": "static-spa",
-      "nonSecretEnvironment": {},
-      "secretEnvironmentReferences": {}
+      "publicBuildEnvironment": {},
+      "publicBuildEnvironmentReferences": {}
     }
   },
   {
@@ -261,11 +327,8 @@
       "environment": "public"
     },
     "origin": {
-      "kind": "in-repo-cloud-run",
+      "kind": "cloud-run",
       "cloudRunServiceName": "lucaszanoni-ingest",
-      "appPackageName": "@platform/ingest",
-      "appDirectoryName": "ingest",
-      "buildProfile": "dynamic-service",
       "nonSecretEnvironment": {
         "APP_SERVER_ENTRYPOINT_PATH": "server-entrypoint.mjs",
         "SNAPSHOT_BUCKET_NAME": "zg-url-shortener-2026-dotfiles-usage-snapshots"
@@ -273,6 +336,13 @@
       "secretEnvironmentReferences": {
         "INGEST_PRODUCER_SECRET": "ingest-producer-secret"
       }
+    },
+    "source": {
+      "appPackageName": "@platform/ingest",
+      "appDirectoryName": "ingest",
+      "buildProfile": "dynamic-service",
+      "publicBuildEnvironment": {},
+      "publicBuildEnvironmentReferences": {}
     }
   }
 ]

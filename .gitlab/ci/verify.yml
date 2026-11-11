@@ -26,6 +26,7 @@ build-and-test:
     - sh deploy/tests/assert-cloud-run-health-gated-rollout.sh
     - sh deploy/tests/assert-worker-rollout-smoke-gate.sh
     - pnpm exec turbo run build --concurrency=2
+    - node deploy/cloudflare/verify-local-site.mjs
 
 cockpit-e2e:
   extends: .node

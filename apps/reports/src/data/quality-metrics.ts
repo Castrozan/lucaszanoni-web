@@ -63,7 +63,18 @@ export function readQualityMetricsFromIngestedSnapshot(
   };
 }
 
-export function useQualityMetrics(): QualityMetrics | null {
-  const snapshot = useIngestedTestQualitySnapshot();
-  return snapshot ? readQualityMetricsFromIngestedSnapshot(snapshot) : null;
+import type { SnapshotUnloadedState } from "./ingested-snapshot-state";
+
+export type QualityMetricsLoadState =
+  | SnapshotUnloadedState
+  | { readonly status: "ready"; readonly metrics: QualityMetrics };
+
+export function useQualityMetrics(): QualityMetricsLoadState {
+  const state = useIngestedTestQualitySnapshot();
+  return state.status === "ready"
+    ? {
+        status: "ready",
+        metrics: readQualityMetricsFromIngestedSnapshot(state.snapshot),
+      }
+    : state;
 }
