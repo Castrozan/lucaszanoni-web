@@ -84,8 +84,8 @@ describe("parseAppRegistry serving location axis", () => {
           servingLocation: { kind: "subdomain", subdomainLabel: "ledger" },
           source: { ...baseEntry.source, appDirectoryName: "ledger-clone" },
           origin: {
-            ...baseEntry.origin,
-            cloudRunServiceName: "lucaszanoni-ledger-clone",
+            kind: "cloudflare-worker",
+            scriptName: "lucaszanoni-ledger-clone",
           },
         },
       ]),
