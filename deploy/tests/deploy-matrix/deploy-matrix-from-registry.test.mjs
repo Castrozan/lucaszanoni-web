@@ -18,34 +18,6 @@ const applicationRegistryPath = resolve(
 const expectedDeployMatrixFromCommittedRegistry = {
   include: [
     {
-      service_name: "lucaszanoni-shell",
-      app_package_name: "@platform/shell",
-      app_directory_name: "shell",
-      app_mount_path: "/",
-      build_profile: "static-spa",
-    },
-    {
-      service_name: "lucaszanoni-usage-dashboard",
-      app_package_name: "@platform/usage-dashboard",
-      app_directory_name: "usage-dashboard",
-      app_mount_path: "/engineering/dotfiles/claude/usage/",
-      build_profile: "static-spa",
-    },
-    {
-      service_name: "lucaszanoni-reports",
-      app_package_name: "@platform/reports",
-      app_directory_name: "reports",
-      app_mount_path: "/engineering/dotfiles/reports/",
-      build_profile: "static-spa",
-    },
-    {
-      service_name: "lucaszanoni-workspace",
-      app_package_name: "@platform/workspace",
-      app_directory_name: "workspace",
-      app_mount_path: "/workspace/",
-      build_profile: "static-spa",
-    },
-    {
       service_name: "lucaszanoni-dynamic-ia-canvas",
       app_package_name: "@platform/dynamic-ia-canvas",
       app_directory_name: "dynamic-ia-canvas",

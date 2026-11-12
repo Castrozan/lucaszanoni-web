@@ -19,30 +19,6 @@ variable "canonical_domain_name" {
   description = "Primary public domain for the platform. When enable_dotcom_canonical is on, the edge serves this zone and the domain_name zone is reduced to a permanent redirect alias pointing here."
 }
 
-variable "shell_container_image" {
-  type        = string
-  description = "Fully qualified Artifact Registry image for the shell service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."
-  default     = "us-docker.pkg.dev/cloudrun/container/hello"
-}
-
-variable "usage_dashboard_container_image" {
-  type        = string
-  description = "Fully qualified Artifact Registry image for the usage-dashboard service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."
-  default     = "us-docker.pkg.dev/cloudrun/container/hello"
-}
-
-variable "reports_container_image" {
-  type        = string
-  description = "Fully qualified Artifact Registry image for the reports service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."
-  default     = "us-docker.pkg.dev/cloudrun/container/hello"
-}
-
-variable "workspace_container_image" {
-  type        = string
-  description = "Fully qualified Artifact Registry image for the workspace service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."
-  default     = "us-docker.pkg.dev/cloudrun/container/hello"
-}
-
 variable "dynamic_ia_canvas_container_image" {
   type        = string
   description = "Fully qualified Artifact Registry image for the dynamic-ia-canvas service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."

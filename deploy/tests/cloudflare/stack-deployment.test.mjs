@@ -7,6 +7,11 @@ import {
   createSiteDeploymentPlan,
 } from "../../cloudflare/application-deployment.mjs";
 
+const stackRoutingApplicationIds = ["cockpit", "stack-launcher"];
+const stackRoutingRegistry = appRegistry.filter((application) =>
+  stackRoutingApplicationIds.includes(application.id),
+);
+
 const routes = {
   shell: "shell.run.app",
   prefixes: [
@@ -55,7 +60,11 @@ test("Stack retains its source, URL and owner-only audience behind a private Wor
 
 test("Stack replaces only its Cloud Run route and owns an isolated private asset service", () => {
   const before = structuredClone(settings);
-  const plan = createSiteDeploymentPlan(settings, appRegistry, "/repository");
+  const plan = createSiteDeploymentPlan(
+    settings,
+    stackRoutingRegistry,
+    "/repository",
+  );
   const stack = plan.applications.find(
     (application) => application.applicationId === "stack-launcher",
   );

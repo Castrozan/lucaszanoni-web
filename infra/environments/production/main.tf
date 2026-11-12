@@ -8,10 +8,6 @@ locals {
   }
 
   in_repo_app_container_images = {
-    shell                   = var.shell_container_image
-    "usage-dashboard"       = var.usage_dashboard_container_image
-    reports                 = var.reports_container_image
-    workspace               = var.workspace_container_image
     "dynamic-ia-canvas"     = var.dynamic_ia_canvas_container_image
     "dynamic-ia-interfaces" = var.dynamic_ia_interfaces_container_image
     ingest                  = var.ingest_container_image
@@ -94,21 +90,6 @@ module "in_repo_cloud_run_app" {
   edge_shared_secret_value               = var.edge_shared_secret_value
   non_secret_environment_variables       = each.value.origin.nonSecretEnvironment
   secret_environment_variable_references = each.value.origin.secretEnvironmentReferences
-}
-
-moved {
-  from = module.shell
-  to   = module.in_repo_cloud_run_app["shell"]
-}
-
-moved {
-  from = module.usage_dashboard
-  to   = module.in_repo_cloud_run_app["usage-dashboard"]
-}
-
-moved {
-  from = module.reports
-  to   = module.in_repo_cloud_run_app["reports"]
 }
 
 module "edge" {

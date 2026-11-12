@@ -25,12 +25,7 @@ export const shellApp: AppRegistryEntry = {
     publicBuildEnvironment: {},
     publicBuildEnvironmentReferences: {},
   },
-  origin: {
-    kind: "cloud-run",
-    cloudRunServiceName: "lucaszanoni-shell",
-    nonSecretEnvironment: {},
-    secretEnvironmentReferences: {},
-  },
+  origin: { kind: "cloudflare-worker", scriptName: "lucaszanoni-shell" },
 };
 
 export const usageDashboardApp: AppRegistryEntry = {
@@ -49,10 +44,8 @@ export const usageDashboardApp: AppRegistryEntry = {
     publicBuildEnvironmentReferences: {},
   },
   origin: {
-    kind: "cloud-run",
-    cloudRunServiceName: "lucaszanoni-usage-dashboard",
-    nonSecretEnvironment: {},
-    secretEnvironmentReferences: {},
+    kind: "cloudflare-worker",
+    scriptName: "lucaszanoni-usage-dashboard",
   },
 };
 
@@ -71,12 +64,7 @@ export const reportsApp: AppRegistryEntry = {
     publicBuildEnvironment: {},
     publicBuildEnvironmentReferences: {},
   },
-  origin: {
-    kind: "cloud-run",
-    cloudRunServiceName: "lucaszanoni-reports",
-    nonSecretEnvironment: {},
-    secretEnvironmentReferences: {},
-  },
+  origin: { kind: "cloudflare-worker", scriptName: "lucaszanoni-reports" },
 };
 
 export const dbApp: AppRegistryEntry = {
@@ -136,15 +124,12 @@ export const workspaceApp: AppRegistryEntry = {
     appPackageName: "@platform/workspace",
     appDirectoryName: "workspace",
     buildProfile: "static-spa",
-    publicBuildEnvironment: {},
-    publicBuildEnvironmentReferences: {},
+    publicBuildEnvironment: { VITE_COCKPIT_REAL_COMPUTE: "true" },
+    publicBuildEnvironmentReferences: {
+      VITE_COCKPIT_WORKSPACE_MACHINES: "COCKPIT_WORKSPACE_MACHINES",
+    },
   },
-  origin: {
-    kind: "cloud-run",
-    cloudRunServiceName: "lucaszanoni-workspace",
-    nonSecretEnvironment: {},
-    secretEnvironmentReferences: {},
-  },
+  origin: { kind: "cloudflare-worker", scriptName: "lucaszanoni-workspace" },
 };
 
 export { dynamicIaCanvasApp, dynamicIaInterfacesApp, ingestApp };
