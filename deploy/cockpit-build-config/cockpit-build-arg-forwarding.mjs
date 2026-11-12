@@ -1,13 +1,5 @@
 export const cockpitForwardedBuildArgSpecs = [
   {
-    buildArg: "VITE_COCKPIT_GITLAB_BASE_URL",
-    secretName: "COCKPIT_GITLAB_BASE_URL",
-  },
-  {
-    buildArg: "VITE_COCKPIT_GITLAB_PROJECT",
-    secretName: "COCKPIT_GITLAB_PROJECT",
-  },
-  {
     buildArg: "VITE_COCKPIT_WORKSPACE_MACHINES",
     secretName: "COCKPIT_WORKSPACE_MACHINES",
   },

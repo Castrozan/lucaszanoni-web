@@ -109,10 +109,12 @@ export const cockpitApp: AppRegistryEntry = {
     appPackageName: "@platform/cockpit",
     appDirectoryName: "cockpit",
     buildProfile: "static-spa",
-    publicBuildEnvironment: { VITE_COCKPIT_REAL_COMPUTE: "true" },
+    publicBuildEnvironment: {
+      VITE_COCKPIT_REAL_COMPUTE: "true",
+      VITE_COCKPIT_REPOSITORY_URL:
+        "https://github.com/Castrozan/lucaszanoni-web",
+    },
     publicBuildEnvironmentReferences: {
-      VITE_COCKPIT_GITLAB_BASE_URL: "COCKPIT_GITLAB_BASE_URL",
-      VITE_COCKPIT_GITLAB_PROJECT: "COCKPIT_GITLAB_PROJECT",
       VITE_COCKPIT_WORKSPACE_MACHINES: "COCKPIT_WORKSPACE_MACHINES",
     },
   },

@@ -23,55 +23,53 @@ function renderSessionPage() {
   render(<CockpitSessionPage />);
 }
 
-describe("CockpitSessionPage GitLab review pairing", () => {
-  it("shows the review pairing empty-state prompt when no GitLab host is configured", () => {
+describe("CockpitSessionPage GitHub review pairing", () => {
+  it("shows the review pairing empty-state prompt when no GitHub repository is configured", () => {
     renderSessionPage();
     expect(
-      screen.getByRole("region", { name: "GitLab review pairing" }),
+      screen.getByRole("region", { name: "GitHub review pairing" }),
     ).toBeDefined();
     expect(
-      screen.getByText(/configure the GitLab host for this machine/i),
+      screen.getByText(/configure the GitHub repository for this machine/i),
     ).toBeDefined();
     expect(
-      screen.queryByRole("link", { name: "Open merge request review" }),
+      screen.queryByRole("link", { name: "Open pull request review" }),
     ).toBeNull();
   });
 
-  it("renders enabled review deep-links on the main branch by default when only the host and project are configured", () => {
-    vi.stubEnv("VITE_COCKPIT_GITLAB_BASE_URL", "https://gitlab.example.com");
-    vi.stubEnv("VITE_COCKPIT_GITLAB_PROJECT", "group/app");
+  it("renders enabled review deep-links on the main branch by default when only the repository is configured", () => {
+    vi.stubEnv("VITE_COCKPIT_REPOSITORY_URL", "https://github.com/example/app");
 
     renderSessionPage();
 
     expect(
       (
         screen.getByRole("link", {
-          name: "Open merge request review",
+          name: "Open pull request review",
         }) as HTMLAnchorElement
       ).getAttribute("href"),
     ).toBe(
-      "https://gitlab.example.com/group/app/-/merge_requests?scope=all&state=opened&source_branch=main",
+      "https://github.com/example/app/pulls?q=is%3Apr+is%3Aopen+head%3Amain",
     );
   });
 
-  it("deep-links the configured GitLab host in the internal view", () => {
-    vi.stubEnv("VITE_COCKPIT_GITLAB_BASE_URL", "https://gitlab.example.com");
-    vi.stubEnv("VITE_COCKPIT_GITLAB_PROJECT", "group/app");
-    vi.stubEnv("VITE_COCKPIT_GITLAB_BRANCH", "feature/login");
+  it("deep-links the configured GitHub repository in the internal view", () => {
+    vi.stubEnv("VITE_COCKPIT_REPOSITORY_URL", "https://github.com/example/app");
+    vi.stubEnv("VITE_COCKPIT_REVIEW_BRANCH", "feature/login");
 
     renderSessionPage();
 
     expect(
-      screen.getByRole("region", { name: "GitLab review pairing" }),
+      screen.getByRole("region", { name: "GitHub review pairing" }),
     ).toBeDefined();
     expect(
       (
         screen.getByRole("link", {
-          name: "Open merge request review",
+          name: "Open pull request review",
         }) as HTMLAnchorElement
       ).getAttribute("href"),
     ).toBe(
-      "https://gitlab.example.com/group/app/-/merge_requests?scope=all&state=opened&source_branch=feature%2Flogin",
+      "https://github.com/example/app/pulls?q=is%3Apr+is%3Aopen+head%3Afeature%2Flogin",
     );
   });
 });

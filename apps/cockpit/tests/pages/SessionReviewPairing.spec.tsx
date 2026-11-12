@@ -3,43 +3,47 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { SessionReviewPairing } from "../../src/review/SessionReviewPairing";
 
 const configured = {
-  baseUrl: "https://gitlab.example.com",
-  projectPath: "group/app",
+  repositoryUrl: "https://github.com/example/app",
   defaultBranch: "feature/login",
 };
+
+const reviewUrlForBranch = (branch: string) =>
+  `https://github.com/example/app/pulls?q=is%3Apr+is%3Aopen+head%3A${encodeURIComponent(branch)}`;
 
 afterEach(cleanup);
 
 describe("SessionReviewPairing", () => {
-  it("shows an empty state and no review links when the GitLab host is unconfigured", () => {
+  it("shows an empty state and no review links when the GitHub repository is unconfigured", () => {
     render(
       <SessionReviewPairing
-        config={{ baseUrl: "", projectPath: "", defaultBranch: "" }}
+        config={{ repositoryUrl: "", defaultBranch: "" }}
       />,
     );
 
-    expect(screen.getByText(/configure the gitlab host/i)).toBeDefined();
+    expect(screen.getByText(/configure the github repository/i)).toBeDefined();
     expect(
-      screen.queryByRole("link", { name: "Open merge request review" }),
+      screen.queryByRole("link", { name: "Open pull request review" }),
     ).toBeNull();
-    expect(screen.queryByRole("link", { name: "Open Web IDE" })).toBeNull();
+    expect(
+      screen.queryByRole("link", { name: "Open GitHub editor" }),
+    ).toBeNull();
   });
 
-  it("deep-links the merge request review and Web IDE for the default branch in new tabs", () => {
+  it("deep-links the pull request review and GitHub editor for the default branch in new tabs", () => {
     render(<SessionReviewPairing config={configured} />);
 
     const reviewLink = screen.getByRole("link", {
-      name: "Open merge request review",
+      name: "Open pull request review",
     }) as HTMLAnchorElement;
     const ideLink = screen.getByRole("link", {
-      name: "Open Web IDE",
+      name: "Open GitHub editor",
     }) as HTMLAnchorElement;
 
     expect(reviewLink.getAttribute("href")).toBe(
-      "https://gitlab.example.com/group/app/-/merge_requests?scope=all&state=opened&source_branch=feature%2Flogin",
+      reviewUrlForBranch("feature/login"),
     );
     expect(ideLink.getAttribute("href")).toBe(
-      "https://gitlab.example.com/-/ide/project/group/app/edit/feature/login/-/",
+      "https://github.dev/example/app/tree/feature%2Flogin",
     );
     expect(reviewLink.getAttribute("target")).toBe("_blank");
     expect(reviewLink.getAttribute("rel")).toContain("noopener");
@@ -57,12 +61,10 @@ describe("SessionReviewPairing", () => {
     expect(
       (
         screen.getByRole("link", {
-          name: "Open merge request review",
+          name: "Open pull request review",
         }) as HTMLAnchorElement
       ).getAttribute("href"),
-    ).toBe(
-      "https://gitlab.example.com/group/app/-/merge_requests?scope=all&state=opened&source_branch=hotfix%2Fcrash",
-    );
+    ).toBe(reviewUrlForBranch("hotfix/crash"));
   });
 
   it("disables the open controls and renders no links when no branch is set", () => {
@@ -71,14 +73,58 @@ describe("SessionReviewPairing", () => {
     );
 
     expect(
-      screen.queryByRole("link", { name: "Open merge request review" }),
+      screen.queryByRole("link", { name: "Open pull request review" }),
     ).toBeNull();
     expect(
       (
         screen.getByRole("button", {
-          name: "Open merge request review",
+          name: "Open pull request review",
         }) as HTMLButtonElement
       ).disabled,
     ).toBe(true);
+  });
+
+  it("disables the open controls and renders no links for an invalid branch", () => {
+    render(<SessionReviewPairing config={configured} />);
+    fireEvent.change(screen.getByLabelText("Review branch"), {
+      target: { value: "odd branch" },
+    });
+
+    expect(
+      screen.queryByRole("link", { name: "Open pull request review" }),
+    ).toBeNull();
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Open GitHub editor",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+  });
+
+  it("renders no links for a repository URL carrying credentials", () => {
+    render(
+      <SessionReviewPairing
+        config={{
+          repositoryUrl: "https://user:token@github.com/example/app",
+          defaultBranch: "main",
+        }}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("link", { name: "Open pull request review" }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("link", { name: "Open GitHub editor" }),
+    ).toBeNull();
+  });
+
+  it("labels the region as GitHub review pairing", () => {
+    render(<SessionReviewPairing config={configured} />);
+
+    expect(
+      screen.getByRole("region", { name: "GitHub review pairing" }),
+    ).toBeDefined();
   });
 });
