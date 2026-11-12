@@ -74,7 +74,7 @@ export const dbApp: AppRegistryEntry = {
   description:
     "Owner-only application attached at the edge and gated by Cloudflare Access.",
   showInCrossSectionNavigation: false,
-  status: "active",
+  status: "retired",
   accessModel: { environment: "private", audience: { kind: "owner" } },
   origin: {
     kind: "external-https",

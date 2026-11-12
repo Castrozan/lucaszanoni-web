@@ -1,17 +1,14 @@
 const requestPathMatchesMountPrefix = (requestPath, mountPrefix) =>
   requestPath.startsWith(mountPrefix) ||
   (mountPrefix.endsWith("/") && requestPath === mountPrefix.slice(0, -1));
-
 const selectRetiredRoute = (requestPath, routingTable) =>
   (routingTable.retiredPrefixes ?? []).find((route) =>
-    requestPath.startsWith(route.prefix),
+    requestPathMatchesMountPrefix(requestPath, route.prefix),
   );
-
 const selectStaticBucketRoute = (requestPath, routingTable) =>
   (routingTable.staticBucketPrefixes ?? []).find((route) =>
     requestPath.startsWith(route.prefix),
   );
-
 const selectApplicationRoute = (requestPath, routingTable) => {
   const routes = [
     ...(routingTable.workerServicePrefixes ?? []),
@@ -22,7 +19,6 @@ const selectApplicationRoute = (requestPath, routingTable) => {
     .sort((left, right) => right.prefix.length - left.prefix.length)
     .find((route) => requestPathMatchesMountPrefix(requestPath, route.prefix));
 };
-
 const buildStaticBucketObjectUrl = (requestUrl, staticBucketRoute) => {
   const objectKeyWithinPrefix = requestUrl.pathname.slice(
     staticBucketRoute.prefix.length,
