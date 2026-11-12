@@ -31,15 +31,9 @@ const CustomDomainApp = (
 export const arrStackApps: readonly ArrStackApp[] = [
   CustomDomainApp("jellyfin", "Jellyfin", 8096, "watch"),
   CustomDomainApp("jellyseerr", "Jellyseerr", 5055, "request"),
-  CustomDomainApp("kavita", "Kavita", 5000, "read"),
   CustomDomainApp("stremio", "Stremio", 43212, "stream"),
   CustomDomainApp("miwayomi", "Miwayomi", 4568, "anime"),
-  CustomDomainApp("radarr", "Radarr", 7878, "radarr"),
-  CustomDomainApp("sonarr", "Sonarr", 8989, "sonarr"),
-  CustomDomainApp("prowlarr", "Prowlarr", 9696, "prowlarr"),
-  CustomDomainApp("bazarr", "Bazarr", 6767, "bazarr"),
   CustomDomainApp("suwayomi", "Suwayomi", 4567, "suwayomi"),
-  CustomDomainApp("qbittorrent", "qBittorrent", 8080, "qbittorrent"),
   CustomDomainApp("readmeabook", "ReadMeABook", 3030, "readmeabook"),
   CustomDomainApp("audiobookshelf", "Audiobookshelf", 13378, "audiobookshelf"),
 ];

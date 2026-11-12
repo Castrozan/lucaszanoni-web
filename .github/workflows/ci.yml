@@ -132,6 +132,7 @@ jobs:
       - cloudflare-access-module-test
       - cloudflare-jarvis-tunnel-module-test
     runs-on: ubuntu-latest
+    environment: production
     concurrency:
       group: cloudflare-production
       cancel-in-progress: false
@@ -145,6 +146,19 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Verify migrated production configuration
+        env:
+          PRODUCTION_TERRAFORM_VARIABLES: ${{ secrets.PRODUCTION_TERRAFORM_VARIABLES }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          EDGE_SHARED_SECRET_VALUE: ${{ secrets.EDGE_SHARED_SECRET_VALUE }}
+          GOOGLE_SSO_CLIENT_ID: ${{ secrets.GOOGLE_SSO_CLIENT_ID }}
+          GOOGLE_SSO_CLIENT_SECRET: ${{ secrets.GOOGLE_SSO_CLIENT_SECRET }}
+          JARVIS_SESSION_TUNNEL_SECRET: ${{ secrets.JARVIS_SESSION_TUNNEL_SECRET }}
+          KIRA_SESSION_TUNNEL_SECRET: ${{ secrets.KIRA_SESSION_TUNNEL_SECRET }}
+          RIN_SESSION_TUNNEL_SECRET: ${{ secrets.RIN_SESSION_TUNNEL_SECRET }}
+          OWNER_ACCOUNT_EMAIL: ${{ secrets.OWNER_ACCOUNT_EMAIL }}
+        run: node deploy/github/verify-production-configuration.mjs
       - name: Deploy private application Workers and edge
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

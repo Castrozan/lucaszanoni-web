@@ -31,7 +31,7 @@ test("production deployment requires every GitHub verification job and only a ma
   }
   assert.match(deployment, /node deploy\/cloudflare\/deploy-site\.mjs/);
   assert.ok(
-    deployment.indexOf("CLOUDFLARE_API_TOKEN:") >
+    deployment.lastIndexOf("CLOUDFLARE_API_TOKEN:") >
       deployment.indexOf("- name: Deploy private application Workers and edge"),
   );
   assert.match(
@@ -67,4 +67,86 @@ test("GitHub verification exercises all deployment contracts and native multi-Wo
       false,
     );
   }
+});
+
+const verificationSecrets = [
+  "PRODUCTION_TERRAFORM_VARIABLES",
+  "CLOUDFLARE_API_TOKEN",
+  "CLOUDFLARE_ACCOUNT_ID",
+  "EDGE_SHARED_SECRET_VALUE",
+  "GOOGLE_SSO_CLIENT_ID",
+  "GOOGLE_SSO_CLIENT_SECRET",
+  "JARVIS_SESSION_TUNNEL_SECRET",
+  "KIRA_SESSION_TUNNEL_SECRET",
+  "RIN_SESSION_TUNNEL_SECRET",
+  "OWNER_ACCOUNT_EMAIL",
+];
+
+function stepNamed(deployment, name) {
+  const start = deployment.indexOf(`- name: ${name}`);
+  assert.notEqual(start, -1, `${name} step exists`);
+  const next = deployment.indexOf("\n      - ", start + 1);
+  return deployment.slice(start, next === -1 ? undefined : next);
+}
+
+test("only the production deployment job uses the main-only production environment", () => {
+  const deploymentStart = workflow.indexOf("\n  deploy-site:");
+  const deployment = workflow.slice(deploymentStart);
+  assert.match(deployment, /\n    environment: production\n/);
+  assert.equal(workflow.match(/^\s+environment:/gm)?.length, 1);
+  assert.equal(
+    workflow.slice(0, deploymentStart).includes("environment:"),
+    false,
+  );
+});
+
+test("production configuration is verified with step-scoped secrets just before deployment", () => {
+  const deployment = workflow.slice(workflow.indexOf("\n  deploy-site:"));
+  const verification = stepNamed(
+    deployment,
+    "Verify migrated production configuration",
+  );
+  assert.match(
+    verification,
+    /run: node deploy\/github\/verify-production-configuration\.mjs/,
+  );
+  for (const secret of verificationSecrets) {
+    assert.match(
+      verification,
+      new RegExp(`${secret}: \\$\\{\\{ secrets\\.${secret} \\}\\}`),
+    );
+  }
+  const deploymentStep = "- name: Deploy private application Workers and edge";
+  assert.ok(
+    deployment.indexOf("- name: Verify migrated production configuration") >
+      deployment.indexOf("- name: Install dependencies"),
+  );
+  assert.equal(
+    deployment.indexOf(`\n      ${deploymentStep}`),
+    deployment.indexOf(verification) + verification.length,
+  );
+});
+
+test("secrets exist only in the two production deployment steps", () => {
+  const deployment = workflow.slice(workflow.indexOf("\n  deploy-site:"));
+  const beforeDeployment = workflow.slice(
+    0,
+    workflow.indexOf("\n  deploy-site:"),
+  );
+  assert.equal(beforeDeployment.includes("secrets."), false);
+  const install = stepNamed(deployment, "Install dependencies");
+  assert.equal(install.includes("secrets."), false);
+  assert.equal(deployment.includes("\n    env:"), false);
+});
+
+test("the unmigrated GCP-backed connector credential workflow stays removed", () => {
+  assert.equal(
+    existsSync(
+      new URL(
+        "../../../.github/workflows/jarvis-emit-connector-credentials.yml",
+        import.meta.url,
+      ),
+    ),
+    false,
+  );
 });

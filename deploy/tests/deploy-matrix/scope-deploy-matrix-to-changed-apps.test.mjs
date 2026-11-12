@@ -84,7 +84,7 @@ test("forces the full matrix when the lockfile, workspace, turbo config, or depl
     "package.json",
     "deploy/cloud-run/roll-service-onto-image-with-health-gated-traffic-migration.sh",
     "deploy/deploy-matrix-from-registry.jq",
-    ".gitlab-ci.yml",
+    ".github/workflows/ci.yml",
   ]) {
     const scoped = scopeDeployMatrixToChangedApps({
       fullMatrixInclude,
@@ -124,6 +124,7 @@ test("the force-full predicate treats only shared global inputs as global, not a
     false,
   );
   assert.equal(changedPathsForceFullDeploy(["apps/shell/package.json"]), false);
+  assert.equal(changedPathsForceFullDeploy([".gitlab-ci.yml"]), false);
   assert.equal(changedPathsForceFullDeploy(["turbo.json"]), true);
   assert.equal(changedPathsForceFullDeploy(["deploy/docker/Dockerfile"]), true);
   assert.equal(changedPathsForceFullDeploy(null), true);

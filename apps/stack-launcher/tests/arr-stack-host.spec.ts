@@ -50,18 +50,18 @@ describe("buildArrStackAppLinks", () => {
     ]);
   });
 
-  it("links administration apps through Cloudflare and directly through Tailscale", () => {
+  it("links Suwayomi through Cloudflare and directly through Tailscale", () => {
     vi.stubEnv("VITE_ARR_STACK_PUBLIC_DOMAIN", "lucaszanoni.com");
     vi.stubEnv("VITE_ARR_STACK_TAILNET_HOST", "100.94.11.81");
 
-    expect(buildArrStackAppLinks(appById("bazarr"))).toEqual([
+    expect(buildArrStackAppLinks(appById("suwayomi"))).toEqual([
       {
         exposure: "cloudflare",
-        url: "https://bazarr.lucaszanoni.com",
+        url: "https://suwayomi.lucaszanoni.com",
       },
       {
         exposure: "tailscale",
-        url: "http://100.94.11.81:6767",
+        url: "http://100.94.11.81:4567",
       },
     ]);
   });
