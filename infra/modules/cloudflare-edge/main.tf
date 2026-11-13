@@ -8,13 +8,6 @@ locals {
         host   = origin_host
       }
     ]
-    staticBucketPrefixes = [
-      for prefix, origin in var.static_bucket_prefix_origins : {
-        prefix          = prefix
-        bucket          = origin.bucket
-        objectKeyPrefix = origin.object_key_prefix
-      }
-    ]
     externalHttpsPrefixes = [
       for prefix, origin in var.external_https_prefix_origins : {
         prefix            = prefix

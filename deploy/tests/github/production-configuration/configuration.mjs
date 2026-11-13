@@ -99,10 +99,7 @@ test("rejects a missing, empty, non-string or mismatched field by name only", as
         verifyProductionConfiguration({
           environment: createEnvironment(
             {
-              PRODUCTION_TERRAFORM_VARIABLES: JSON.stringify({
-                ...configuration,
-                enable_reports_static_gcs_routes: false,
-              }),
+              PRODUCTION_TERRAFORM_VARIABLES: JSON.stringify(configuration),
             },
             {},
           ),
@@ -147,25 +144,4 @@ test("rejects an invalid Cloudflare account identifier before any request", asyn
   assert.equal(error.message, "Cloudflare account identifier is invalid");
   assert.equal(created, false);
   assertNoDisclosure(error);
-});
-
-test("rejects the retired reports static bucket route whenever it is not exactly false", async () => {
-  for (const value of [true, "false", undefined, null]) {
-    const configuration = { ...secretValues };
-    if (value !== undefined)
-      configuration.enable_reports_static_gcs_routes = value;
-    const error = await rejection(
-      verifyProductionConfiguration({
-        environment: createEnvironment({
-          PRODUCTION_TERRAFORM_VARIABLES: JSON.stringify(configuration),
-        }),
-        createReader: () => createReader([googleProvider()]),
-      }),
-    );
-    assert.equal(
-      error.message,
-      "Production configuration must disable the retired reports static bucket routes",
-    );
-    assertNoDisclosure(error);
-  }
 });

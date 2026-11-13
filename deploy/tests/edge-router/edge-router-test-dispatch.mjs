@@ -2,7 +2,6 @@ import edgeRouterWorker from "../../../infra/modules/cloudflare-edge/edge-router
 
 import {
   edgeEnvironment,
-  edgeEnvironmentWithStaticBucketPrefixes,
   edgeEnvironmentWithExternalHttpsPrefixes,
   edgeEnvironmentWithRetiredPrefixes,
   edgeEnvironmentWithSubdomains,
@@ -43,16 +42,6 @@ export const dispatchThroughEdge = (
     requestPathAndQuery,
     incomingHeaders,
     environment,
-  );
-
-export const dispatchThroughEdgeWithStaticBuckets = (
-  requestPathAndQuery,
-  incomingHeaders = {},
-) =>
-  dispatchThroughEdge(
-    requestPathAndQuery,
-    incomingHeaders,
-    edgeEnvironmentWithStaticBucketPrefixes,
   );
 
 export const dispatchThroughEdgeWithExternalHttps = (

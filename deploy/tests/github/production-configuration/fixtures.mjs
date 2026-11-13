@@ -18,7 +18,6 @@ function createEnvironment(overrides = {}, configurationOverrides = {}) {
   const environment = {
     PRODUCTION_TERRAFORM_VARIABLES: JSON.stringify({
       ...secretValues,
-      enable_reports_static_gcs_routes: false,
       ...configurationOverrides,
     }),
     CLOUDFLARE_API_TOKEN: apiToken,

@@ -19,7 +19,6 @@ interface AccountRow {
   cache_read: string;
   output: string;
   cost: string;
-  recalls_suppressed: number;
 }
 
 function buildAccountRows(accounts: AccountView[]): AccountRow[] {
@@ -34,8 +33,6 @@ function buildAccountRows(accounts: AccountView[]): AccountRow[] {
       cache_read: formatTokenCount(tokenTotals.cache_read_input_tokens),
       output: formatTokenCount(tokenTotals.output_tokens),
       cost: `$${Math.round(tokenTotals.cost_usd).toLocaleString("en-US")}`,
-      recalls_suppressed:
-        accountView.memory_recall_savings.suppressed_recall_event_total,
     };
   });
 }
@@ -51,7 +48,6 @@ export function AccountTable({ accounts }: AccountTableProps) {
           <TableHead>cache-read</TableHead>
           <TableHead>output</TableHead>
           <TableHead>cost (notional)</TableHead>
-          <TableHead>recalls suppressed</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -65,7 +61,6 @@ export function AccountTable({ accounts }: AccountTableProps) {
             <TableCell>{row.cache_read}</TableCell>
             <TableCell>{row.output}</TableCell>
             <TableCell>{row.cost}</TableCell>
-            <TableCell>{row.recalls_suppressed}</TableCell>
           </TableRow>
         ))}
       </TableBody>

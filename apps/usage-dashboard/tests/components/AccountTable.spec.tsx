@@ -28,7 +28,10 @@ describe("AccountTable", () => {
     expect(within(row).getByText("9.80M")).toBeTruthy();
     expect(within(row).getByText("8.40K")).toBeTruthy();
     expect(within(row).getByText("$93")).toBeTruthy();
-    expect(within(row).getByText("96")).toBeTruthy();
+    expect(
+      screen.queryByRole("columnheader", { name: "recalls suppressed" }),
+    ).toBeNull();
+    expect(within(row).queryByText("96")).toBeNull();
   });
 
   it("rounds notional cost half-up for the second account", () => {
