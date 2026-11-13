@@ -2,12 +2,11 @@ packages:
   - apps/*
   - packages/*
 allowBuilds:
+  core-js-pure: false
   esbuild: true
   sharp: true
   unrs-resolver: false
   workerd: true
+minimumReleaseAgeStrict: true
 minimumReleaseAgeExclude:
-  - "@ai-sdk/google@3.0.85"
-  - "@ai-sdk/provider-utils@4.0.32"
-  - "@ai-sdk/provider@3.0.12"
   - "@cloudflare/workers-types@5.20261112.1"

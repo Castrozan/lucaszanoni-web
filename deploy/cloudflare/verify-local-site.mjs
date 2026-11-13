@@ -13,6 +13,8 @@ import {
   verifySnapshotDataResponses,
 } from "./local-site/snapshot-data-responses.mjs";
 import { withLocalWorkerRuntime } from "./local-site/worker-runtime.mjs";
+import { createApplicationBuildArguments } from "./application-runtime-profile.mjs";
+import { verifyDynamicApplicationResponses } from "./local-site/dynamic-application-responses.mjs";
 
 const LOCAL_FIXTURE_DATABASE_ID = "00000000-0000-0000-0000-000000000001";
 const SNAPSHOT_READER_BINDING = "SNAPSHOT_READER";
@@ -32,10 +34,12 @@ function findSnapshotReaders(plan) {
   );
 }
 
-function withFixtureProducerSecret(application, writer) {
-  if (application !== writer) return application.configuration;
+function createLocalApplicationConfiguration(application, writer) {
+  const configuration = { ...application.configuration };
+  delete configuration.ai;
+  if (application !== writer) return configuration;
   return {
-    ...application.configuration,
+    ...configuration,
     vars: {
       ...application.configuration.vars,
       INGEST_PRODUCER_SECRET: LOCAL_FIXTURE_PRODUCER_SECRET,
@@ -89,11 +93,12 @@ export async function verifyLocalSite(sourceRegistry = appRegistry) {
     ...process.env,
     CI: "true",
     WRANGLER_SEND_METRICS: "false",
+    NEXT_TELEMETRY_DISABLED: "1",
   };
   for (const application of plan.applications) {
     const result = spawnSync(
       "pnpm",
-      ["--filter", application.source.appPackageName, "build"],
+      createApplicationBuildArguments(application.source),
       {
         cwd: repositoryDirectory,
         env: createApplicationBuildEnvironment(application.source, environment),
@@ -106,18 +111,22 @@ export async function verifyLocalSite(sourceRegistry = appRegistry) {
       );
   }
   const staticApplications = plan.applications.filter(
-    (application) => application.configuration.assets !== undefined,
+    (application) => application.source.buildProfile === "static-spa",
+  );
+  const dynamicApplications = plan.applications.filter(
+    (application) => application.source.buildProfile === "dynamic-service",
   );
   const configurations = [
     plan.edgeConfiguration,
     ...plan.applications.map((application) =>
-      withFixtureProducerSecret(application, writer),
+      createLocalApplicationConfiguration(application, writer),
     ),
   ];
   const checks = await withLocalWorkerRuntime(
     { repositoryDirectory, environment, configurations },
     async ({ origin }) => [
       ...(await verifyStaticApplicationResponses(origin, staticApplications)),
+      ...(await verifyDynamicApplicationResponses(origin, dynamicApplications)),
       ...(await verifySnapshotDataResponses(origin, writer, readers)),
     ],
   );
@@ -129,6 +138,12 @@ export async function verifyLocalSite(sourceRegistry = appRegistry) {
           (application) => application.applicationId,
         ),
         dataWriter: writer.applicationId,
+        dynamicApplications: dynamicApplications.map(
+          (application) => application.applicationId,
+        ),
+        actualModelInference: false,
+        localAiBindingsIntentionallyOmitted: true,
+        ownedRuntimeDisposedAndPrimaryPortReleased: true,
         dataReaders: readers.map((reader) => reader.applicationId),
         checks: checks.length,
         verified: checks,

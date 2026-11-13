@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createHash } from "node:crypto";
-import { createApplicationAssetManifest } from "../../cloudflare/deploy-site.mjs";
+import { createApplicationAssetManifest } from "../../cloudflare/application-build-manifest.mjs";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {

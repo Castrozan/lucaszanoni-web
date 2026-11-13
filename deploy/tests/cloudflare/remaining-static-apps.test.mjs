@@ -117,7 +117,7 @@ test("Workspace resolves the real compute flag and machine endpoint even when th
 test("each remaining static app is its own Worker asset service with public endpoints disabled", () => {
   const plan = planFor(appRegistry);
   const staticApplications = plan.applications.filter(
-    (application) => application.configuration.assets,
+    (application) => application.source.buildProfile === "static-spa",
   );
   assert.deepEqual(
     staticApplications.map((application) => application.applicationId).sort(),
@@ -164,18 +164,20 @@ test("the public shell binds the root route to its Worker and drops only the old
         service.service === "lucaszanoni-shell",
     ),
   );
-  assert.deepEqual(edgeRoutes.workerServicePrefixes, [
-    {
-      prefix: "/engineering/dotfiles/claude/usage/",
-      binding: "APP_USAGE_DASHBOARD",
-    },
-    { prefix: "/engineering/dotfiles/reports/", binding: "APP_REPORTS" },
-    { prefix: "/workspace/", binding: "APP_WORKSPACE" },
-    { prefix: "/cockpit/", binding: "APP_COCKPIT" },
-    { prefix: "/ingest/", binding: "APP_INGEST" },
-    { prefix: "/stack/", binding: "APP_STACK_LAUNCHER" },
-    { prefix: "/", binding: "APP_SHELL" },
-  ]);
+  assert.deepEqual(
+    edgeRoutes.workerServicePrefixes,
+    [
+      ["/engineering/dotfiles/claude/usage/", "APP_USAGE_DASHBOARD"],
+      ["/engineering/dotfiles/reports/", "APP_REPORTS"],
+      ["/dynamic-ia-interfaces/", "APP_DYNAMIC_IA_INTERFACES"],
+      ["/dynamic-ia-canvas/", "APP_DYNAMIC_IA_CANVAS"],
+      ["/workspace/", "APP_WORKSPACE"],
+      ["/cockpit/", "APP_COCKPIT"],
+      ["/ingest/", "APP_INGEST"],
+      ["/stack/", "APP_STACK_LAUNCHER"],
+      ["/", "APP_SHELL"],
+    ].map(([prefix, binding]) => ({ prefix, binding })),
+  );
   assert.deepEqual(edgeRoutes.prefixes, []);
 });
 

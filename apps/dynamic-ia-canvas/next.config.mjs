@@ -1,4 +1,5 @@
 const nextConfig = {
+  distDir: "cloudflare/build/.next",
   transpilePackages: ["@platform/design-system", "@platform/config"],
   basePath: "/dynamic-ia-canvas",
   assetPrefix: "/dynamic-ia-canvas",
@@ -9,7 +10,7 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: "2mb",
+      bodySizeLimit: "16kb",
       allowedOrigins: ["lucaszanoni.com", "lucaszanoni.com.br"],
     },
   },
