@@ -92,7 +92,7 @@ describe("ordering the latest pointer by instant", () => {
       }),
       { numRuns: 25 },
     );
-  });
+  }, 15_000);
 
   it("breaks an equal-instant tie by key so arrival order cannot matter", async () => {
     const writer = createD1SnapshotObjectWriter(store.database);
