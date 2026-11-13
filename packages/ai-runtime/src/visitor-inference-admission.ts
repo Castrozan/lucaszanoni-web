@@ -2,9 +2,19 @@ export type InferenceRateLimiter = Readonly<{
   limit(options: { key: string }): Promise<{ success: boolean }>;
 }>;
 
+export type VisitorInferenceQuotaNamespace = Readonly<{
+  idFromName(name: string): unknown;
+  get(identifier: never): Readonly<{
+    fetch(input: string, init?: RequestInit): Promise<Response>;
+  }>;
+}>;
+
 export type InferenceAdmissionEnvironment = Readonly<{
   INFERENCE_RATE_LIMITER?: InferenceRateLimiter;
+  VISITOR_INFERENCE_QUOTA?: VisitorInferenceQuotaNamespace;
 }>;
+
+const visitorQuotaAdmissionAddress = "https://visitor-inference-quota/admit";
 
 const unidentifiedVisitorKey = "unidentified-visitor";
 const ipv6GroupCount = 8;
@@ -49,12 +59,29 @@ export async function admitVisitorInference(
   visitorAddress: string | null,
 ): Promise<boolean> {
   const limiter = environment?.INFERENCE_RATE_LIMITER;
-  if (!limiter || typeof limiter.limit !== "function") return false;
+  const quotas = environment?.VISITOR_INFERENCE_QUOTA;
+  if (
+    typeof limiter?.limit !== "function" ||
+    typeof quotas?.idFromName !== "function" ||
+    typeof quotas.get !== "function"
+  )
+    return false;
+  const visitorKey = visitorRateLimitKey(visitorAddress);
   try {
-    const outcome = await limiter.limit({
-      key: visitorRateLimitKey(visitorAddress),
+    const burst = await limiter.limit({ key: visitorKey });
+    if (burst?.success !== true) return false;
+    const visitorQuota = quotas.get(quotas.idFromName(visitorKey) as never);
+    const response = await visitorQuota.fetch(visitorQuotaAdmissionAddress, {
+      method: "POST",
     });
-    return outcome?.success === true;
+    if (!response.ok) return false;
+    const outcome: unknown = await response.json();
+    return (
+      typeof outcome === "object" &&
+      outcome !== null &&
+      "admitted" in outcome &&
+      outcome.admitted === true
+    );
   } catch {
     return false;
   }

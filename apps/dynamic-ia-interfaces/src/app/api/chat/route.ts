@@ -30,7 +30,7 @@ const refusalTextByStatus = {
   403: "Cross-site requests are refused.",
   413: "Request body exceeds the allowed size.",
   415: "Content-Type must be application/json.",
-  429: "Too many generation requests. Please wait a minute and try again.",
+  429: "Generation limit reached. Please try again later.",
   503: "Generation unavailable. Please try again later.",
 } as const;
 

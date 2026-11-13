@@ -17,7 +17,7 @@ export type ComponentGenerationOutcome =
   | { status: "refused"; reason: string };
 
 const rateLimitedReason =
-  "Too many generation requests. Please wait a minute and try again.";
+  "Generation limit reached. Please try again later.";
 const unacceptableIntentReason =
   "Describe the component in 1 to 2000 characters.";
 

@@ -90,6 +90,8 @@ async function verifyBoundedChatTransport(origin, application, checks) {
       403,
     ],
     [valid, { "Content-Type": "application/json" }, 503],
+    [valid, { "Content-Type": "application/json" }, 503],
+    [valid, { "Content-Type": "application/json" }, 429],
   ];
   for (const [body, headers, status] of cases) {
     const response = await fetch(`${origin}${application.mountPath}api/chat`, {

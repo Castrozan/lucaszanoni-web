@@ -11,6 +11,25 @@ const INFERENCE_RATE_LIMITER = {
   namespace_id: "1001",
   simple: { limit: 2, period: 60 },
 };
+const VISITOR_INFERENCE_QUOTA_CLASS = "VisitorInferenceQuota";
+const GENERATIVE_AI_BINDINGS = {
+  ai: { binding: "AI" },
+  ratelimits: [INFERENCE_RATE_LIMITER],
+  durable_objects: {
+    bindings: [
+      {
+        name: "VISITOR_INFERENCE_QUOTA",
+        class_name: VISITOR_INFERENCE_QUOTA_CLASS,
+      },
+    ],
+  },
+  migrations: [
+    {
+      tag: "visitor-inference-quota-v1",
+      new_sqlite_classes: [VISITOR_INFERENCE_QUOTA_CLASS],
+    },
+  ],
+};
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -116,7 +135,7 @@ function createCapabilityBindings(
       : {}),
     ...(services.length > 0 ? { services } : {}),
     ...(hasCapability(application, "generative-ai")
-      ? { ai: { binding: "AI" }, ratelimits: [INFERENCE_RATE_LIMITER] }
+      ? GENERATIVE_AI_BINDINGS
       : {}),
   };
 }

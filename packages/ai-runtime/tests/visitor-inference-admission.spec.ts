@@ -2,8 +2,31 @@ import { describe, expect, it, vi } from "vitest";
 import fc from "fast-check";
 import { admitVisitorInference, visitorRateLimitKey } from "../src/index.ts";
 
+function visitorAdmissionEnvironment({
+  burstSuccess = true,
+  quotaResponse = () => Response.json({ admitted: true }),
+}: {
+  burstSuccess?: boolean;
+  quotaResponse?: () => Response;
+} = {}) {
+  const limit = vi.fn(async () => ({ success: burstSuccess }));
+  const quotaFetch = vi.fn(async () => quotaResponse());
+  const idFromName = vi.fn((name: string) => `quota:${name}`);
+  const get = vi.fn(() => ({ fetch: quotaFetch }));
+  return {
+    environment: {
+      INFERENCE_RATE_LIMITER: { limit },
+      VISITOR_INFERENCE_QUOTA: { idFromName, get },
+    },
+    limit,
+    quotaFetch,
+    idFromName,
+    get,
+  };
+}
+
 describe("visitor inference admission", () => {
-  it("refuses every environment without a usable rate limiter", async () => {
+  it("refuses every environment without a usable limiter and quota", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.jsonValue(),
@@ -19,42 +42,71 @@ describe("visitor inference admission", () => {
       ),
       { numRuns: 100 },
     );
+    const { environment } = visitorAdmissionEnvironment();
+    for (const partial of [
+      { INFERENCE_RATE_LIMITER: environment.INFERENCE_RATE_LIMITER },
+      { VISITOR_INFERENCE_QUOTA: environment.VISITOR_INFERENCE_QUOTA },
+    ])
+      await expect(admitVisitorInference(partial, "203.0.113.7")).resolves.toBe(
+        false,
+      );
   });
 
-  it("admits exactly when the limiter admits the visitor's address", async () => {
+  it("admits exactly when both the burst limiter and the visitor quota admit", async () => {
     await fc.assert(
-      fc.asyncProperty(fc.boolean(), fc.ipV4(), async (success, address) => {
-        const limit = vi.fn(async () => ({ success }));
-        await expect(
-          admitVisitorInference({ INFERENCE_RATE_LIMITER: { limit } }, address),
-        ).resolves.toBe(success);
-        expect(limit).toHaveBeenCalledExactlyOnceWith({ key: address });
-      }),
+      fc.asyncProperty(
+        fc.boolean(),
+        fc.boolean(),
+        fc.ipV4(),
+        async (burstSuccess, quotaAdmits, address) => {
+          const { environment, limit, quotaFetch, idFromName } =
+            visitorAdmissionEnvironment({
+              burstSuccess,
+              quotaResponse: () => Response.json({ admitted: quotaAdmits }),
+            });
+          await expect(
+            admitVisitorInference(environment, address),
+          ).resolves.toBe(burstSuccess && quotaAdmits);
+          expect(limit).toHaveBeenCalledExactlyOnceWith({ key: address });
+          if (burstSuccess) {
+            expect(idFromName).toHaveBeenCalledExactlyOnceWith(address);
+            expect(quotaFetch).toHaveBeenCalledOnce();
+          } else expect(quotaFetch).not.toHaveBeenCalled();
+        },
+      ),
       { numRuns: 100 },
     );
   });
 
   it("pools visitors without an address under one shared budget", async () => {
     for (const address of [null, "", "   "]) {
-      const limit = vi.fn(async () => ({ success: true }));
-      await admitVisitorInference(
-        { INFERENCE_RATE_LIMITER: { limit } },
-        address,
-      );
+      const { environment, limit, idFromName } = visitorAdmissionEnvironment();
+      await admitVisitorInference(environment, address);
       expect(limit).toHaveBeenCalledWith({ key: "unidentified-visitor" });
+      expect(idFromName).toHaveBeenCalledWith("unidentified-visitor");
     }
   });
 
-  it("refuses when the limiter fails", async () => {
-    const limit = vi.fn(async () => {
-      throw new Error("limiter unavailable");
-    });
+  it("refuses when the limiter or the quota fails or answers ambiguously", async () => {
+    const failingLimiter = visitorAdmissionEnvironment();
+    failingLimiter.limit.mockRejectedValue(new Error("limiter unavailable"));
     await expect(
-      admitVisitorInference(
-        { INFERENCE_RATE_LIMITER: { limit } },
-        "203.0.113.7",
-      ),
+      admitVisitorInference(failingLimiter.environment, "203.0.113.7"),
     ).resolves.toBe(false);
+    for (const quotaResponse of [
+      () => {
+        throw new Error("quota unavailable");
+      },
+      () => Response.json({ admitted: true }, { status: 500 }),
+      () => Response.json({ admitted: "true" }),
+      () => Response.json(null),
+      () => new Response("admitted"),
+    ]) {
+      const { environment } = visitorAdmissionEnvironment({ quotaResponse });
+      await expect(
+        admitVisitorInference(environment, "203.0.113.7"),
+      ).resolves.toBe(false);
+    }
   });
 });
 

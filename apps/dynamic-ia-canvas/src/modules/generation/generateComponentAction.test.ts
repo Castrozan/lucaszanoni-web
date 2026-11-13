@@ -57,7 +57,7 @@ describe("rate-limited component generation action", () => {
     expect(outcome).toEqual({
       status: "refused",
       reason:
-        "Too many generation requests. Please wait a minute and try again.",
+        "Generation limit reached. Please try again later.",
     });
     expect(composition.generatedIntents).toEqual([]);
   });
