@@ -85,7 +85,8 @@ export const featurePreviews: readonly FeaturePreview[] = [
   {
     routeId: "dynamic-ia-interfaces",
     intentExample: "What's the weather in Tokyo?",
-    sampleCaption: "Gemini selects a UI tool and the app renders it inline.",
+    sampleCaption:
+      "Llama 3.3 on Workers AI selects a UI tool and the app renders it inline.",
     sampleLines: [
       "tool: displayWeatherForecast",
       "Tokyo · 19°C · Overcast",
@@ -96,7 +97,7 @@ export const featurePreviews: readonly FeaturePreview[] = [
     routeId: "dynamic-ia-canvas",
     intentExample: "A pricing card with three tiers",
     sampleCaption:
-      "Gemini writes the component code; it renders on the canvas.",
+      "Llama 3.3 on Workers AI writes the component code; it renders on the canvas.",
     sampleLines: [
       "component: PricingCard",
       "Basic $19 · Pro $49 (recommended) · Enterprise $99",
@@ -160,10 +161,10 @@ export const engineeringContent: EngineeringContent = {
     },
     {
       id: "ai-core",
-      title: "FREE GEMINI AI CORE",
-      body: "The dynamic apps generate UI with Google Gemini 2.5 Flash via the Vercel AI SDK, server-side behind the edge.",
-      evidenceLabel: "generateComponentAction.ts",
-      evidenceHref: `${REPOSITORY_FILE_BASE_URL}/apps/dynamic-ia-canvas/src/modules/generation/generateComponentAction.ts`,
+      title: "FREE WORKERS AI CORE",
+      body: "The dynamic apps generate UI with Llama 3.3 70B on Cloudflare Workers AI via the Vercel AI SDK, server-side behind a per-visitor quota.",
+      evidenceLabel: "ai-runtime/src/index.ts",
+      evidenceHref: `${REPOSITORY_FILE_BASE_URL}/packages/ai-runtime/src/index.ts`,
     },
   ],
 };
