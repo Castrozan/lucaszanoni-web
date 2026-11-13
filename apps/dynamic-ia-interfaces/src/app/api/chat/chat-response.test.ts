@@ -98,7 +98,7 @@ describe("provider-neutral dynamic interface chat", () => {
       }),
     );
     expect(inferenceDeadline).toHaveBeenCalledWith(30_000);
-    expect(generation.stepBudgets).toEqual([3]);
+    expect(generation.stepBudgets).toEqual([1]);
     requestCancellation.abort();
     expect(generation.streamText.mock.calls[0][0].abortSignal.aborted).toBe(
       true,

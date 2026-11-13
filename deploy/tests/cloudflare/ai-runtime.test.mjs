@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import fc from "fast-check";
 import { appRegistry } from "../../../packages/config/src/app-registry.ts";
@@ -85,6 +86,25 @@ test("every inference application shares one visitor rate limit namespace", () =
         Object.hasOwn(application.configuration, "ratelimits"),
         false,
       );
+});
+
+test("local wrangler configurations declare the deployed visitor rate limiter", () => {
+  const plan = createSiteDeploymentPlan(settings, registry, "/repository");
+  for (const applicationId of applicationIds) {
+    const deployed = plan.applications.find(
+      (candidate) => candidate.applicationId === applicationId,
+    ).configuration.ratelimits;
+    const local = JSON.parse(
+      readFileSync(
+        new URL(
+          `../../../apps/${applicationId}/cloudflare/wrangler.json`,
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    ).ratelimits;
+    assert.deepEqual(local, deployed, applicationId);
+  }
 });
 
 test("dynamic snapshot readers retain both the self-reference and read-only data capability", () => {

@@ -24,7 +24,7 @@ export async function createDynamicInterfaceChatResponse(
     instructions: buildDynamicInterfaceSystemPrompt(),
     messages: await convertToModelMessages(messages),
     tools: allRegisteredDynamicInterfaceTools,
-    stopWhen: isStepCount(3),
+    stopWhen: isStepCount(1),
     maxOutputTokens: maximumOutputTokens,
     maxRetries: 0,
     abortSignal: AbortSignal.any([

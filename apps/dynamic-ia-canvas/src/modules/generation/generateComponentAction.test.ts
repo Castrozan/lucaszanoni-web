@@ -24,7 +24,10 @@ vi.mock("@platform/ai-runtime", () => ({
     return composition.admitted;
   },
 }));
-vi.mock("./component-generator", () => ({
+vi.mock("./component-generator", async (importOriginal) => ({
+  isAcceptableUserIntent: (
+    await importOriginal<typeof import("./component-generator")>()
+  ).isAcceptableUserIntent,
   generateComponentWithModel: async (intent: string) => {
     composition.generatedIntents.push(intent);
     return { title: "Example" };
@@ -58,4 +61,17 @@ describe("rate-limited component generation action", () => {
     });
     expect(composition.generatedIntents).toEqual([]);
   });
+
+  it.each(["", "   ", "x".repeat(2001)])(
+    "refuses an unacceptable intent before charging the visitor quota",
+    async (intent) => {
+      const outcome = await generateComponentFromIntent(intent);
+      expect(outcome).toEqual({
+        status: "refused",
+        reason: "Describe the component in 1 to 2000 characters.",
+      });
+      expect(composition.admittedAddresses).toEqual([]);
+      expect(composition.generatedIntents).toEqual([]);
+    },
+  );
 });

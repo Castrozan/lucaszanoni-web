@@ -10,14 +10,20 @@ const maximumUserIntentUtf16Units = 2000;
 const inferenceDeadlineMilliseconds = 30_000;
 const maximumOutputTokens = 2048;
 
+export function isAcceptableUserIntent(
+  userIntent: unknown,
+): userIntent is string {
+  return (
+    typeof userIntent === "string" &&
+    userIntent.trim().length > 0 &&
+    userIntent.length <= maximumUserIntentUtf16Units
+  );
+}
+
 function assertAcceptableUserIntent(
   userIntent: unknown,
 ): asserts userIntent is string {
-  if (
-    typeof userIntent !== "string" ||
-    userIntent.trim().length === 0 ||
-    userIntent.length > maximumUserIntentUtf16Units
-  ) {
+  if (!isAcceptableUserIntent(userIntent)) {
     throw new Error(
       `User intent must be a non-blank string of at most ${maximumUserIntentUtf16Units} UTF-16 code units`,
     );
