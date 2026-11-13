@@ -53,16 +53,19 @@ test("fails before deployment on unsupported bindings, missing adapters and bind
       ),
     /collides/,
   );
-  const dynamic = twoApplicationRegistry().map((application) =>
+  const unsupported = twoApplicationRegistry().map((application) =>
     application.id === "shell"
       ? {
           ...application,
-          source: { ...application.source, buildProfile: "dynamic-service" },
+          source: {
+            ...application.source,
+            buildProfile: "unsupported-profile",
+          },
         }
       : application,
   );
   assert.throws(
-    () => createSiteDeploymentPlan(settings, dynamic, "/repository"),
+    () => createSiteDeploymentPlan(settings, unsupported, "/repository"),
     /static-spa build adapter/,
   );
   const reserved = twoApplicationRegistry().map((application) =>

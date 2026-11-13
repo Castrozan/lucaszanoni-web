@@ -1,15 +1,10 @@
-import {
-  mkdtempSync,
-  readFileSync,
-  readdirSync,
-  rmSync,
-  statSync,
-} from "node:fs";
-import { createHash } from "node:crypto";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { appRegistry } from "../../packages/config/src/app-registry.ts";
+import { createApplicationBuildManifest } from "./application-build-manifest.mjs";
+import { createApplicationBuildArguments } from "./application-runtime-profile.mjs";
 import {
   createApplicationBuildEnvironment,
   createSiteDeploymentPlan,
@@ -27,19 +22,6 @@ import {
   createCloudflareReader,
   verifyPrivateWorker,
 } from "./cloudflare-client.mjs";
-export function createApplicationAssetManifest(directory) {
-  return Object.fromEntries(
-    readdirSync(directory, { recursive: true })
-      .sort()
-      .filter((path) => statSync(join(directory, path)).isFile())
-      .map((path) => [
-        path,
-        createHash("sha256")
-          .update(readFileSync(join(directory, path)))
-          .digest("hex"),
-      ]),
-  );
-}
 
 function readDeploymentAccount(environment) {
   if (environment.CLOUDFLARE_ACCOUNT_ID)
@@ -52,24 +34,6 @@ function readDeploymentAccount(environment) {
   } catch {
     throw new Error("Production deployment configuration is not valid JSON");
   }
-}
-
-function createApplicationBuildManifest(application) {
-  const { configuration } = application;
-  return {
-    applicationId: application.applicationId,
-    ...(configuration.assets
-      ? {
-          assetHashes: createApplicationAssetManifest(
-            configuration.assets.directory,
-          ),
-        }
-      : {
-          workerSha256: createHash("sha256")
-            .update(readFileSync(configuration.main))
-            .digest("hex"),
-        }),
-  };
 }
 
 export async function deploySite({ dryRun = false } = {}) {
@@ -119,7 +83,7 @@ export async function deploySite({ dryRun = false } = {}) {
   }
   for (const application of plan.applications) {
     runPnpmCommand(
-      ["--filter", application.source.appPackageName, "build"],
+      createApplicationBuildArguments(application.source),
       repositoryDirectory,
       createApplicationBuildEnvironment(application.source, environment),
     );

@@ -18,8 +18,12 @@ export function useComponentGenerationLifecycle() {
       updateNodeGenerationStatus(nodeId, "generating");
 
       try {
-        const componentSpecification =
-          await generateComponentFromIntent(userIntent);
+        const outcome = await generateComponentFromIntent(userIntent);
+        if (outcome.status === "refused") {
+          updateNodeError(nodeId, outcome.reason);
+          return;
+        }
+        const componentSpecification = outcome.specification;
 
         updateNodeWithGeneratedComponent(
           nodeId,

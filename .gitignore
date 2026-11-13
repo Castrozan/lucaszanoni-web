@@ -26,3 +26,7 @@ playwright-report/
 .terraform.lock.hcl
 .deep-work/
 HEARTBEAT.md
+.wrangler/
+.dev.vars
+.dev.vars.*
+apps/*/cloudflare/build/

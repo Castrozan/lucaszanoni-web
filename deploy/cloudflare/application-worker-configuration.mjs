@@ -1,10 +1,16 @@
 import { resolve } from "node:path";
+import { createApplicationRuntimeProfile } from "./application-runtime-profile.mjs";
 
 const SNAPSHOT_DATABASE_NAME = "lucaszanoni-site-snapshots";
 const SNAPSHOT_DATABASE_BINDING = "SNAPSHOT_DATABASE";
 const SNAPSHOT_READER_BINDING = "SNAPSHOT_READER";
 const SNAPSHOT_READER_ENTRYPOINT = "SnapshotReader";
 const SNAPSHOT_WRITER_SECRETS = ["INGEST_PRODUCER_SECRET"];
+const INFERENCE_RATE_LIMITER = {
+  name: "INFERENCE_RATE_LIMITER",
+  namespace_id: "1001",
+  simple: { limit: 2, period: 60 },
+};
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -71,6 +77,25 @@ function createCapabilityBindings(
 ) {
   const isWriter = hasCapability(application, "snapshot-ingestion");
   const isReader = hasCapability(application, "snapshot-data");
+  const services = [
+    ...(application.source.buildProfile === "dynamic-service"
+      ? [
+          {
+            binding: "WORKER_SELF_REFERENCE",
+            service: application.target.scriptName,
+          },
+        ]
+      : []),
+    ...(isReader
+      ? [
+          {
+            binding: SNAPSHOT_READER_BINDING,
+            service: snapshotTopology.writerScriptName,
+            entrypoint: SNAPSHOT_READER_ENTRYPOINT,
+          },
+        ]
+      : []),
+  ];
   return {
     ...(isWriter
       ? {
@@ -89,52 +114,10 @@ function createCapabilityBindings(
           ],
         }
       : {}),
-    ...(isReader
-      ? {
-          services: [
-            {
-              binding: SNAPSHOT_READER_BINDING,
-              service: snapshotTopology.writerScriptName,
-              entrypoint: SNAPSHOT_READER_ENTRYPOINT,
-            },
-          ],
-        }
+    ...(services.length > 0 ? { services } : {}),
+    ...(hasCapability(application, "generative-ai")
+      ? { ai: { binding: "AI" }, ratelimits: [INFERENCE_RATE_LIMITER] }
       : {}),
-  };
-}
-
-function createProfileConfiguration(
-  application,
-  settings,
-  repositoryDirectory,
-) {
-  const applicationDirectory = resolve(
-    repositoryDirectory,
-    "apps",
-    application.source.appDirectoryName,
-  );
-  const compatibilityFlags = settings.compatibility_flags ?? [];
-  if (application.source.buildProfile === "worker-service") {
-    return {
-      main: resolve(applicationDirectory, "dist/worker.mjs"),
-      compatibility_flags: [
-        ...new Set([...compatibilityFlags, "nodejs_compat"]),
-      ],
-    };
-  }
-  return {
-    main: resolve(
-      repositoryDirectory,
-      "deploy/cloudflare/static-application-worker.mjs",
-    ),
-    compatibility_flags: compatibilityFlags,
-    assets: {
-      directory: resolve(applicationDirectory, "dist"),
-      binding: "ASSETS",
-      run_worker_first: true,
-      html_handling: "none",
-      not_found_handling: "single-page-application",
-    },
   };
 }
 
@@ -163,7 +146,11 @@ export function createApplicationWorkerDeployment(
         APPLICATION_ID: application.applicationId,
         APPLICATION_MOUNT_PATH: application.mountPath,
       },
-      ...createProfileConfiguration(application, settings, repositoryDirectory),
+      ...createApplicationRuntimeProfile(
+        application,
+        settings,
+        repositoryDirectory,
+      ),
       ...createCapabilityBindings(
         application,
         repositoryDirectory,

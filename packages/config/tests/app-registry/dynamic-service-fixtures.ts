@@ -18,14 +18,8 @@ export const dynamicIaCanvasApp: AppRegistryEntry = {
     publicBuildEnvironmentReferences: {},
   },
   origin: {
-    kind: "cloud-run",
-    cloudRunServiceName: "lucaszanoni-dynamic-ia-canvas",
-    nonSecretEnvironment: {
-      APP_SERVER_ENTRYPOINT_PATH: "server-entrypoint.mjs",
-    },
-    secretEnvironmentReferences: {
-      GOOGLE_GENERATIVE_AI_API_KEY: "dynamic-ia-gemini-api-key",
-    },
+    kind: "cloudflare-worker",
+    scriptName: "lucaszanoni-dynamic-ia-canvas",
   },
 };
 
@@ -47,13 +41,7 @@ export const dynamicIaInterfacesApp: AppRegistryEntry = {
     publicBuildEnvironmentReferences: {},
   },
   origin: {
-    kind: "cloud-run",
-    cloudRunServiceName: "lucaszanoni-dynamic-ia-interfaces",
-    nonSecretEnvironment: {
-      APP_SERVER_ENTRYPOINT_PATH: "server-entrypoint.mjs",
-    },
-    secretEnvironmentReferences: {
-      GOOGLE_GENERATIVE_AI_API_KEY: "dynamic-ia-gemini-api-key",
-    },
+    kind: "cloudflare-worker",
+    scriptName: "lucaszanoni-dynamic-ia-interfaces",
   },
 };

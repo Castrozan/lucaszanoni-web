@@ -52,12 +52,12 @@ export function createSiteDeploymentPlan(
   const bindings = new Set();
   for (const application of applications) {
     if (
-      !["static-spa", "worker-service"].includes(
+      !["static-spa", "worker-service", "dynamic-service"].includes(
         application.source?.buildProfile,
       )
     ) {
       throw new Error(
-        `Application ${application.applicationId} requires a static-spa build adapter or worker-service build adapter`,
+        `Application ${application.applicationId} requires a static-spa build adapter, worker-service build adapter or dynamic-service build adapter`,
       );
     }
     if (application.servingLocation.kind !== "path-prefix") {

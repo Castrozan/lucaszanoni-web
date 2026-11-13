@@ -19,7 +19,7 @@
     "@cloudflare/workers-types": "5.20261112.1",
     "@platform/tsconfig": "workspace:*",
     "@types/node": "^22.0.0",
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.28.2",
     "fast-check": "4.10.2",
     "miniflare": "5.20261006.2-beta",
     "typescript": "^5.7.3",

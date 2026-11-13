@@ -11,9 +11,9 @@ const READINESS_DEADLINE_MILLISECONDS = 60_000;
 const PROCESS_KILL_GRACE_MILLISECONDS = 5_000;
 const LOG_TAIL_CHARACTERS = 32_000;
 
-async function reservePort() {
+async function reservePort(requestedPort = 0) {
   const server = createServer();
-  server.listen(0, "127.0.0.1");
+  server.listen(requestedPort, "127.0.0.1");
   await once(server, "listening");
   const port = server.address().port;
   await new Promise((resolveClosed) => server.close(resolveClosed));
@@ -142,6 +142,7 @@ export async function withLocalWorkerRuntime(options, useRuntime) {
   };
   let worker;
   let workerClosed;
+  let port;
   let spawnError;
   let logs = "";
   try {
@@ -150,7 +151,7 @@ export async function withLocalWorkerRuntime(options, useRuntime) {
       configurations,
     );
     applyLocalMigrations(runtimeOptions, configurations, configurationPaths);
-    const port = await reservePort();
+    port = await reservePort();
     worker = spawnMultiWorkerRuntime(runtimeOptions, port, configurationPaths);
     workerClosed = new Promise((resolveClosed) =>
       worker.once("close", resolveClosed),
@@ -169,7 +170,11 @@ export async function withLocalWorkerRuntime(options, useRuntime) {
     if (logs) console.error(logs);
     throw error;
   } finally {
-    await disposeWorker(worker, workerClosed);
-    rmSync(directory, { recursive: true, force: true });
+    try {
+      await disposeWorker(worker, workerClosed);
+      if (port !== undefined) await reservePort(port);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
   }
 }

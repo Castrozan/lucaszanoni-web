@@ -1,4 +1,5 @@
 const nextConfig = {
+  distDir: "cloudflare/build/.next",
   transpilePackages: ["@platform/design-system", "@platform/config"],
   basePath: "/dynamic-ia-interfaces",
   assetPrefix: "/dynamic-ia-interfaces",
@@ -6,11 +7,6 @@ const nextConfig = {
   skipTrailingSlashRedirect: true,
   eslint: {
     ignoreDuringBuilds: true,
-  },
-  experimental: {
-    serverActions: {
-      bodySizeLimit: "2mb",
-    },
   },
 };
 

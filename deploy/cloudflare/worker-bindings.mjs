@@ -1,6 +1,24 @@
 const OWNED_VARIABLE_NAMES = ["APPLICATION_ID", "APPLICATION_MOUNT_PATH"];
 const DEFAULT_SERVICE_ENVIRONMENT = "production";
 
+function aiBindingMatches(binding, expected) {
+  return (
+    expected !== undefined &&
+    binding.type === "ai" &&
+    binding.name === expected.binding
+  );
+}
+
+function rateLimiterBindingMatches(binding, expected) {
+  return (
+    binding.type === "ratelimit" &&
+    binding.name === expected.name &&
+    binding.namespace_id === expected.namespace_id &&
+    binding.simple?.limit === expected.simple.limit &&
+    binding.simple?.period === expected.simple.period
+  );
+}
+
 export function serviceBindingMatches(binding, expected) {
   return (
     binding.type === "service" &&
@@ -25,6 +43,22 @@ export function assertDeclaredBindingsPresent(
   configuration,
   requiredSecrets = [],
 ) {
+  if (
+    configuration.ai &&
+    !bindings.some((binding) => aiBindingMatches(binding, configuration.ai))
+  ) {
+    throw new Error(
+      `Worker AI binding readback differs for ${configuration.ai.binding}`,
+    );
+  }
+  for (const limiter of configuration.ratelimits ?? []) {
+    if (
+      !bindings.some((binding) => rateLimiterBindingMatches(binding, limiter))
+    )
+      throw new Error(
+        `Worker rate limiter readback differs for ${limiter.name}`,
+      );
+  }
   for (const database of configuration.d1_databases ?? []) {
     if (!bindings.some((binding) => databaseBindingMatches(binding, database)))
       throw new Error(
@@ -47,6 +81,12 @@ export function assertDeclaredBindingsPresent(
 
 function isDeclaredBinding(binding, configuration, requiredSecrets) {
   switch (binding.type) {
+    case "ai":
+      return aiBindingMatches(binding, configuration.ai);
+    case "ratelimit":
+      return (configuration.ratelimits ?? []).some((limiter) =>
+        rateLimiterBindingMatches(binding, limiter),
+      );
     case "assets":
       return binding.name === "ASSETS";
     case "plain_text":

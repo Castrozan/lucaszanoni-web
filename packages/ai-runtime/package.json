@@ -11,11 +11,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/google": "^3.0.85",
-    "ai": "^6.0.0"
+    "@ai-sdk/provider": "4.0.37",
+    "agents": "0.33.0",
+    "ai": "7.0.170"
   },
   "devDependencies": {
+    "@babel/core": "^8.1.2",
     "@platform/tsconfig": "workspace:*",
+    "esbuild": "^0.28.2",
+    "fast-check": "4.10.2",
     "typescript": "^5.7.3",
     "vitest": "^4.1.9"
   }

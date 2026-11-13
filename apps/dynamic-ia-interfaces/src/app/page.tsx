@@ -5,6 +5,7 @@ import { useChat } from "@ai-sdk/react";
 import { useRef, useEffect, useState } from "react";
 import { DynamicInterfaceChatMessage } from "@/conversation/components/dynamic-interface-chat-message";
 import { DynamicInterfaceChatInput } from "@/conversation/components/dynamic-interface-chat-input";
+import { describeGenerationError } from "@/conversation/describe-generation-error";
 
 const chatTransport = new DefaultChatTransport({
   api: "/dynamic-ia-interfaces/api/chat",
@@ -13,12 +14,7 @@ const chatTransport = new DefaultChatTransport({
 export default function DynamicInterfacesHomePage() {
   const [inputValue, setInputValue] = useState("");
 
-  const {
-    messages,
-    sendMessage,
-    status,
-    stop,
-  } = useChat({
+  const { messages, sendMessage, status, stop, error } = useChat({
     transport: chatTransport,
   });
 
@@ -41,9 +37,9 @@ export default function DynamicInterfacesHomePage() {
       className="flex flex-col"
       style={{ height: "calc(100vh - var(--app-status-bar-height, 2rem))" }}
     >
-      <header className="flex items-center justify-between border-b border-border px-6 py-3">
+      <header className="border-border flex items-center justify-between border-b px-6 py-3">
         <div>
-          <h1 className="text-sm font-semibold text-foreground">
+          <h1 className="text-foreground text-sm font-semibold">
             Dynamic IA Interfaces
           </h1>
           <p className="text-muted-foreground text-xs">
@@ -53,7 +49,9 @@ export default function DynamicInterfacesHomePage() {
         <div className="flex items-center gap-2">
           <span
             className={`h-2 w-2 rounded-full ${
-              isCurrentlyStreaming ? "animate-pulse bg-green-400" : "bg-muted-foreground"
+              isCurrentlyStreaming
+                ? "animate-pulse bg-green-400"
+                : "bg-muted-foreground"
             }`}
           />
           <span className="text-muted-foreground text-xs">
@@ -72,15 +70,23 @@ export default function DynamicInterfacesHomePage() {
         ) : (
           <div className="mx-auto max-w-3xl space-y-4 p-6">
             {messages.map((message) => (
-              <DynamicInterfaceChatMessage
-                key={message.id}
-                message={message}
-              />
+              <DynamicInterfaceChatMessage key={message.id} message={message} />
             ))}
             <div ref={messagesEndReference} />
           </div>
         )}
       </main>
+
+      <div className="space-y-1 px-6 pb-2">
+        <p className="text-muted-foreground text-xs">
+          Generated example data, not live weather or measured metrics.
+        </p>
+        {error ? (
+          <p role="alert" className="text-destructive text-xs">
+            {describeGenerationError(error)}
+          </p>
+        ) : null}
+      </div>
 
       <DynamicInterfaceChatInput
         inputValue={inputValue}
@@ -99,7 +105,7 @@ function EmptyConversationWelcomeScreen({
   onSuggestionClick: (text: string) => void;
 }) {
   const suggestionPrompts = [
-    "What's the weather like in Tokyo?",
+    "Show a sample weather card for Tokyo",
     "Show me a sales performance dashboard",
     "Create a contact form",
     "Display a table of top programming languages",
@@ -107,19 +113,19 @@ function EmptyConversationWelcomeScreen({
 
   return (
     <div className="flex h-full flex-col items-center justify-center p-8">
-      <h2 className="mb-2 text-2xl font-bold text-foreground">
+      <h2 className="text-foreground mb-2 text-2xl font-bold">
         Dynamic IA Interfaces
       </h2>
       <p className="text-muted-foreground mb-8 max-w-md text-center text-sm">
-        Tell me what you need and I&apos;ll generate the right interface.
-        Try asking for weather, data tables, dashboards, or forms.
+        Tell me what you need and I&apos;ll generate the right interface. Try
+        asking for weather, data tables, dashboards, or forms.
       </p>
       <div className="grid max-w-lg grid-cols-2 gap-3">
         {suggestionPrompts.map((prompt) => (
           <button
             key={prompt}
             onClick={() => onSuggestionClick(prompt)}
-            className="rounded-lg border border-border bg-muted/20 p-3 text-left text-xs text-muted-foreground transition-colors hover:border-ring hover:text-foreground"
+            className="border-border bg-muted/20 text-muted-foreground hover:border-ring hover:text-foreground rounded-lg border p-3 text-left text-xs transition-colors"
           >
             {prompt}
           </button>

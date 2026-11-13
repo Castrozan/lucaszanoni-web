@@ -16,22 +16,7 @@ const applicationRegistryPath = resolve(
 );
 
 const expectedDeployMatrixFromCommittedRegistry = {
-  include: [
-    {
-      service_name: "lucaszanoni-dynamic-ia-canvas",
-      app_package_name: "@platform/dynamic-ia-canvas",
-      app_directory_name: "dynamic-ia-canvas",
-      app_mount_path: "/dynamic-ia-canvas/",
-      build_profile: "dynamic-service",
-    },
-    {
-      service_name: "lucaszanoni-dynamic-ia-interfaces",
-      app_package_name: "@platform/dynamic-ia-interfaces",
-      app_directory_name: "dynamic-ia-interfaces",
-      app_mount_path: "/dynamic-ia-interfaces/",
-      build_profile: "dynamic-service",
-    },
-  ],
+  include: [],
 };
 
 function deriveDeployMatrixFromRegistryFile() {
@@ -52,7 +37,7 @@ function deriveDeployMatrixFromRegistryValue(registryArrayValue) {
   return JSON.parse(jqStandardOutput);
 }
 
-test("the deploy matrix jq filter reproduces today's hand-authored rows from the committed registry", () => {
+test("the committed registry has no Cloud Run deploy targets", () => {
   assert.deepEqual(
     deriveDeployMatrixFromRegistryFile(),
     expectedDeployMatrixFromCommittedRegistry,
