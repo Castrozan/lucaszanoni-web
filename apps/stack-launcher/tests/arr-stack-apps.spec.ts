@@ -2,16 +2,6 @@ import { describe, expect, it } from "vitest";
 import { arrStackApps } from "../src/launcher/arr-stack-apps";
 
 describe("arr stack apps", () => {
-  it("publishes Miwayomi through its private domain and tailnet port", () => {
-    expect(arrStackApps).toContainEqual({
-      id: "miwayomi",
-      label: "Miwayomi",
-      exposure: "custom-domain",
-      port: 4568,
-      subdomainLabel: "anime",
-    });
-  });
-
   it("publishes Stremio through its ordinary stream routes", () => {
     expect(arrStackApps).toContainEqual({
       id: "stremio",
@@ -31,11 +21,16 @@ describe("arr stack apps", () => {
       ["jellyfin", "watch"],
       ["jellyseerr", "request"],
       ["stremio", "stream"],
-      ["miwayomi", "anime"],
       ["suwayomi", "suwayomi"],
       ["readmeabook", "readmeabook"],
       ["audiobookshelf", "audiobookshelf"],
     ]);
+  });
+
+  it("does not carry Miwayomi now that chise no longer runs it or its anime origin", () => {
+    expect(arrStackApps).not.toContainEqual(
+      expect.objectContaining({ id: "miwayomi" }),
+    );
   });
 
   it("does not carry a dead Homepage tile now that the stack has no port-80 dashboard", () => {

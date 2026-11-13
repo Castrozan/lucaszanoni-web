@@ -35,9 +35,9 @@ describe("StackLauncherPage", () => {
 
     expect(
       screen.getAllByRole("link", { name: /via Cloudflare/ }),
-    ).toHaveLength(7);
+    ).toHaveLength(6);
     expect(screen.getAllByRole("link", { name: /via Tailscale/ })).toHaveLength(
-      7,
+      6,
     );
 
     expect(
@@ -61,13 +61,8 @@ describe("StackLauncherPage", () => {
         .getAttribute("href"),
     ).toBe("http://100.94.11.81:43212");
     expect(
-      screen
-        .getByRole("link", { name: "Miwayomi via Cloudflare" })
-        .getAttribute("href"),
-    ).toBe("https://anime.lucaszanoni.com");
-    expect(
       screen.queryAllByRole("link", {
-        name: /(?:Radarr|Sonarr|Prowlarr|Bazarr|qBittorrent) via/,
+        name: /(?:Radarr|Sonarr|Prowlarr|Bazarr|qBittorrent|Miwayomi) via/,
       }),
     ).toHaveLength(0);
   });
