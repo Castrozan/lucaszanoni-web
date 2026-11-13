@@ -30,10 +30,7 @@ export function createApplicationRuntimeProfile(
   if (application.source.buildProfile === "dynamic-service") {
     return {
       compatibility_date: "2026-10-13",
-      main: resolve(
-        applicationDirectory,
-        "cloudflare/build/.open-next/worker.js",
-      ),
+      main: resolve(applicationDirectory, "cloudflare/worker.mjs"),
       compatibility_flags: [
         ...new Set([
           ...compatibilityFlags,

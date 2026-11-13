@@ -19,6 +19,14 @@ function rateLimiterBindingMatches(binding, expected) {
   );
 }
 
+function durableObjectBindingMatches(binding, expected) {
+  return (
+    binding.type === "durable_object_namespace" &&
+    binding.name === expected.name &&
+    binding.class_name === expected.class_name
+  );
+}
+
 export function serviceBindingMatches(binding, expected) {
   return (
     binding.type === "service" &&
@@ -59,6 +67,16 @@ export function assertDeclaredBindingsPresent(
         `Worker rate limiter readback differs for ${limiter.name}`,
       );
   }
+  for (const durableObject of configuration.durable_objects?.bindings ?? []) {
+    if (
+      !bindings.some((binding) =>
+        durableObjectBindingMatches(binding, durableObject),
+      )
+    )
+      throw new Error(
+        `Worker durable object readback differs for ${durableObject.name}`,
+      );
+  }
   for (const database of configuration.d1_databases ?? []) {
     if (!bindings.some((binding) => databaseBindingMatches(binding, database)))
       throw new Error(
@@ -86,6 +104,10 @@ function isDeclaredBinding(binding, configuration, requiredSecrets) {
     case "ratelimit":
       return (configuration.ratelimits ?? []).some((limiter) =>
         rateLimiterBindingMatches(binding, limiter),
+      );
+    case "durable_object_namespace":
+      return (configuration.durable_objects?.bindings ?? []).some(
+        (durableObject) => durableObjectBindingMatches(binding, durableObject),
       );
     case "assets":
       return binding.name === "ASSETS";

@@ -17,7 +17,7 @@ function createApiCallError(statusCode: number) {
 describe("describeGenerationError", () => {
   it("tells a rate-limited visitor to wait", () => {
     expect(describeGenerationError(createApiCallError(429))).toBe(
-      "Too many generation requests. Please wait a minute and try again.",
+      "Generation limit reached. Please try again later.",
     );
   });
 

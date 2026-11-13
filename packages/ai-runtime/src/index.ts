@@ -20,5 +20,6 @@ export {
   admitVisitorInference,
   type InferenceAdmissionEnvironment,
   type InferenceRateLimiter,
+  type VisitorInferenceQuotaNamespace,
   visitorRateLimitKey,
 } from "./visitor-inference-admission";

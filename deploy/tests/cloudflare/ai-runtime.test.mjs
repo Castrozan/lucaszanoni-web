@@ -25,9 +25,20 @@ const inferenceApplications = appRegistry
     },
   }));
 const registry = [...twoApplicationRegistry(), ...inferenceApplications];
+const visitorQuotaDurableObjects = {
+  bindings: [
+    { name: "VISITOR_INFERENCE_QUOTA", class_name: "VisitorInferenceQuota" },
+  ],
+};
+const visitorQuotaMigrations = [
+  {
+    tag: "visitor-inference-quota-v1",
+    new_sqlite_classes: ["VisitorInferenceQuota"],
+  },
+];
 
 for (const applicationId of applicationIds) {
-  test(`${applicationId} uses a rate-limited native AI binding and storage-free OpenNext adapter`, () => {
+  test(`${applicationId} uses a native AI binding behind a burst limiter and a strict visitor quota`, () => {
     const plan = createSiteDeploymentPlan(settings, registry, "/repository");
     const application = plan.applications.find(
       (candidate) => candidate.applicationId === applicationId,
@@ -43,9 +54,11 @@ for (const applicationId of applicationIds) {
         simple: { limit: 2, period: 60 },
       },
     ]);
+    assert.deepEqual(configuration.durable_objects, visitorQuotaDurableObjects);
+    assert.deepEqual(configuration.migrations, visitorQuotaMigrations);
     assert.equal(
       configuration.main,
-      `/repository/apps/${applicationId}/cloudflare/build/.open-next/worker.js`,
+      `/repository/apps/${applicationId}/cloudflare/worker.mjs`,
     );
     assert.equal(
       configuration.assets.directory,
@@ -61,39 +74,27 @@ for (const applicationId of applicationIds) {
     assert.deepEqual(configuration.services, [
       { binding: "WORKER_SELF_REFERENCE", service: configuration.name },
     ]);
-    for (const key of [
-      "d1_databases",
-      "kv_namespaces",
-      "r2_buckets",
-      "durable_objects",
-    ])
+    for (const key of ["d1_databases", "kv_namespaces", "r2_buckets"])
       assert.equal(Object.hasOwn(configuration, key), false);
     assert.deepEqual(application.requiredSecrets ?? [], []);
     assert.deepEqual(application.accessModel, { environment: "public" });
   });
 }
 
-test("every inference application shares one visitor rate limit namespace", () => {
+test("only inference applications carry the visitor limiter and quota", () => {
   const plan = createSiteDeploymentPlan(settings, registry, "/repository");
-  const limiters = plan.applications
-    .filter((application) => applicationIds.includes(application.applicationId))
-    .map((application) => application.configuration.ratelimits);
-  assert.equal(limiters.length, applicationIds.length);
-  assert.deepEqual(limiters[0], limiters[1]);
   for (const application of plan.applications)
     if (!applicationIds.includes(application.applicationId))
-      assert.equal(
-        Object.hasOwn(application.configuration, "ratelimits"),
-        false,
-      );
+      for (const key of ["ratelimits", "durable_objects", "migrations"])
+        assert.equal(Object.hasOwn(application.configuration, key), false);
 });
 
-test("local wrangler configurations declare the deployed visitor rate limiter", () => {
+test("local wrangler configurations declare the deployed entry, limiter and quota", () => {
   const plan = createSiteDeploymentPlan(settings, registry, "/repository");
   for (const applicationId of applicationIds) {
     const deployed = plan.applications.find(
       (candidate) => candidate.applicationId === applicationId,
-    ).configuration.ratelimits;
+    ).configuration;
     const local = JSON.parse(
       readFileSync(
         new URL(
@@ -102,8 +103,13 @@ test("local wrangler configurations declare the deployed visitor rate limiter", 
         ),
         "utf8",
       ),
-    ).ratelimits;
-    assert.deepEqual(local, deployed, applicationId);
+    );
+    for (const key of ["ratelimits", "durable_objects", "migrations"])
+      assert.deepEqual(local[key], deployed[key], `${applicationId} ${key}`);
+    assert.equal(
+      deployed.main,
+      `/repository/apps/${applicationId}/cloudflare/${local.main}`,
+    );
   }
 });
 
@@ -151,6 +157,13 @@ const configuration = {
       simple: { limit: 2, period: 60 },
     },
   ],
+  durable_objects: visitorQuotaDurableObjects,
+};
+const visitorQuotaBinding = {
+  type: "durable_object_namespace",
+  name: "VISITOR_INFERENCE_QUOTA",
+  class_name: "VisitorInferenceQuota",
+  namespace_id: "0f2ac74b498b48028cb68387c421e279",
 };
 const rateLimiterBinding = {
   type: "ratelimit",
@@ -158,9 +171,14 @@ const rateLimiterBinding = {
   namespace_id: "1001",
   simple: { limit: 2, period: 60 },
 };
-const ownedBindings = Object.entries(configuration.vars).map(
-  ([name, text]) => ({ name, text, type: "plain_text" }),
-);
+const ownedBindings = [
+  ...Object.entries(configuration.vars).map(([name, text]) => ({
+    name,
+    text,
+    type: "plain_text",
+  })),
+  visitorQuotaBinding,
+];
 const application = { applicationId: "native-ai", configuration };
 const readback = (bindings) => async (path) =>
   path.endsWith("/subdomain")
@@ -242,5 +260,33 @@ test("readback rejects a missing or reconfigured visitor rate limiter", async ()
   await assert.rejects(
     verifyPrivateWorker(readback([...ownedBindings, aiBinding]), configuration),
     /rate limiter.*readback/,
+  );
+});
+
+test("readback rejects a missing or reassigned visitor quota", async () => {
+  const declared = [
+    ...ownedBindings.filter((binding) => binding !== visitorQuotaBinding),
+    rateLimiterBinding,
+    { type: "ai", name: "AI" },
+  ];
+  for (const drifted of [
+    { ...visitorQuotaBinding, name: "OTHER_QUOTA" },
+    { ...visitorQuotaBinding, class_name: "OtherQuota" },
+  ])
+    await assert.rejects(
+      verifyPrivateWorker(readback([...declared, drifted]), configuration),
+      /durable object.*readback|unrecognized bindings/,
+    );
+  await assert.rejects(
+    verifyPrivateWorker(readback(declared), configuration),
+    /durable object.*readback/,
+  );
+  assert.throws(
+    () =>
+      assertApplicationWorkerCanBeUpdated(
+        { bindings: [...declared, { ...visitorQuotaBinding, name: "X" }] },
+        application,
+      ),
+    /unrecognized bindings/,
   );
 });
