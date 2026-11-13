@@ -4,6 +4,11 @@ import { BaselinePage } from "../../src/components/BaselinePage";
 import type { AgentEvalsReport } from "../../src/data/agent-evals-report";
 import { baselineReportJsonUrl } from "../../src/data/report-artifact-sources";
 import { agentEvalsReportFixture } from "./baseline/agent-evals-report-fixture";
+import {
+  headingTexts,
+  sectionTitled,
+} from "./baseline/baseline-report-section-queries";
+import { ordinaryTestSuiteFixture } from "./baseline/ordinary-test-suite-fixture";
 
 function stubReportFetch(response: unknown, ok = true) {
   const fetchSpy = vi.fn().mockImplementation((requestedUrl: string) =>
@@ -28,22 +33,6 @@ async function renderLoadedPage(
   return container;
 }
 
-function headingTexts(): string[] {
-  return screen
-    .getAllByRole("heading", { level: 2 })
-    .map((heading) => heading.textContent ?? "");
-}
-
-function sectionTitled(container: HTMLElement, title: string): HTMLElement {
-  const section = Array.from(container.querySelectorAll("section")).find(
-    (candidate) => candidate.querySelector("h2")?.textContent === title,
-  );
-  if (!section) {
-    throw new Error(`no section titled ${title}`);
-  }
-  return section;
-}
-
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
@@ -66,7 +55,7 @@ describe("BaselinePage", () => {
       expect(fetchSpy).toHaveBeenCalledWith(baselineReportJsonUrl),
     );
     expect(baselineReportJsonUrl).toBe(
-      "https://storage.googleapis.com/zg-url-shortener-2026-dotfiles-usage-snapshots/reports/baseline/report.json",
+      "https://lucaszanoni.com/engineering/dotfiles/reports/data/reports/baseline/report.json",
     );
   });
 
@@ -85,14 +74,7 @@ describe("BaselinePage", () => {
       ...agentEvalsReportFixture,
       header: {
         ...agentEvalsReportFixture.header,
-        testSuite: {
-          ranAt: "2026-11-08T02:59:45.372Z",
-          exitCode: 0,
-          tests: 6969,
-          failures: 0,
-          errors: 0,
-          skipped: 103,
-        },
+        testSuite: ordinaryTestSuiteFixture,
       },
     });
     expect(withSuite.textContent).toContain(
@@ -191,7 +173,7 @@ describe("BaselinePage", () => {
     expect(moreDetail?.textContent).toContain("3 files have no case yet");
     expect(moreDetail?.textContent).toContain("2 command-line scripts");
     expect(screen.getByText("full technical report").getAttribute("href")).toBe(
-      "https://storage.googleapis.com/zg-url-shortener-2026-dotfiles-usage-snapshots/reports/baseline/index.html",
+      "https://lucaszanoni.com/engineering/dotfiles/reports/data/reports/baseline/index.html",
     );
   });
 

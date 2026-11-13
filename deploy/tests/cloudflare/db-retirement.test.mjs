@@ -40,7 +40,9 @@ test("the existing deployment adapter projects database retirement while preserv
       },
     ],
   };
-  const plan = createSiteDeploymentPlan(settings, appRegistry, "/repository");
+  const plan = createSiteDeploymentPlan(settings, appRegistry, "/repository", {
+    snapshotDatabaseId: "00000000-0000-0000-0000-000000000001",
+  });
   const deployed = JSON.parse(plan.edgeConfiguration.vars.EDGE_ROUTES);
   assert.deepEqual(deployed.retiredPrefixes, [
     { prefix: "/previously-retired/" },

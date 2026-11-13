@@ -1,3 +1,10 @@
+import type { IngestedSnapshotRecord } from "@platform/ingestion-contracts";
+
+export interface SnapshotWrite {
+  readonly eventObjectKey: string;
+  readonly record: IngestedSnapshotRecord;
+}
+
 export interface SnapshotObjectWriter {
-  writeSnapshotObject(objectKey: string, objectBody: string): Promise<void>;
+  writeSnapshot(snapshotWrite: SnapshotWrite): Promise<void>;
 }

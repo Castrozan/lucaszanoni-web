@@ -1,3 +1,5 @@
+import { respondToSnapshotDataRequest } from "./snapshot-data-response.mjs";
+
 export default {
   async fetch(request, environment) {
     const incomingUrl = new URL(request.url);
@@ -16,6 +18,14 @@ export default {
     }
     if (!incomingUrl.pathname.startsWith(mountPath)) {
       return new Response("Application path not found", { status: 404 });
+    }
+    const snapshotDataResponse = await respondToSnapshotDataRequest(
+      request,
+      environment,
+      mountPath,
+    );
+    if (snapshotDataResponse) {
+      return snapshotDataResponse;
     }
     const assetUrl = new URL(incomingUrl);
     const assetPath = incomingUrl.pathname.slice(mountPath.length - 1);

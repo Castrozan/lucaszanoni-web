@@ -23,6 +23,7 @@
   },
   {
     "id": "usage-dashboard",
+    "capabilities": ["snapshot-data"],
     "mountPath": "/engineering/dotfiles/claude/usage/",
     "navigationLabel": "Claude usage",
     "description": "Live Claude Code token usage and cost across machines.",
@@ -48,6 +49,7 @@
   },
   {
     "id": "reports",
+    "capabilities": ["snapshot-data"],
     "mountPath": "/engineering/dotfiles/reports/",
     "navigationLabel": "Reports",
     "description": "Generated reports hub.",
@@ -94,6 +96,7 @@
   },
   {
     "id": "cockpit",
+    "capabilities": ["snapshot-data"],
     "mountPath": "/cockpit/",
     "navigationLabel": "Cockpit",
     "description": "Owner cockpit landing with quick access, live usage, and data.",
@@ -313,6 +316,7 @@
   },
   {
     "id": "ingest",
+    "capabilities": ["snapshot-ingestion"],
     "mountPath": "/ingest/",
     "navigationLabel": "Ingest",
     "description": "Contract-checked ingestion api that stores producer snapshots under a registered topic.",
@@ -322,20 +326,13 @@
       "environment": "public"
     },
     "origin": {
-      "kind": "cloud-run",
-      "cloudRunServiceName": "lucaszanoni-ingest",
-      "nonSecretEnvironment": {
-        "APP_SERVER_ENTRYPOINT_PATH": "server-entrypoint.mjs",
-        "SNAPSHOT_BUCKET_NAME": "zg-url-shortener-2026-dotfiles-usage-snapshots"
-      },
-      "secretEnvironmentReferences": {
-        "INGEST_PRODUCER_SECRET": "ingest-producer-secret"
-      }
+      "kind": "cloudflare-worker",
+      "scriptName": "lucaszanoni-ingest"
     },
     "source": {
       "appPackageName": "@platform/ingest",
       "appDirectoryName": "ingest",
-      "buildProfile": "dynamic-service",
+      "buildProfile": "worker-service",
       "publicBuildEnvironment": {},
       "publicBuildEnvironmentReferences": {}
     }

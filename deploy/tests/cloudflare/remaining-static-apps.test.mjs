@@ -77,7 +77,9 @@ function findApplication(identifier) {
 }
 
 function planFor(registry) {
-  return createSiteDeploymentPlan(settings, registry, "/repository");
+  return createSiteDeploymentPlan(settings, registry, "/repository", {
+    snapshotDatabaseId: "00000000-0000-0000-0000-000000000001",
+  });
 }
 
 test("the four remaining static apps are canonical Cloudflare Worker targets", () => {
@@ -114,11 +116,14 @@ test("Workspace resolves the real compute flag and machine endpoint even when th
 
 test("each remaining static app is its own Worker asset service with public endpoints disabled", () => {
   const plan = planFor(appRegistry);
+  const staticApplications = plan.applications.filter(
+    (application) => application.configuration.assets,
+  );
   assert.deepEqual(
-    plan.applications.map((application) => application.applicationId).sort(),
+    staticApplications.map((application) => application.applicationId).sort(),
     [...workerApplicationIds].sort(),
   );
-  const assetDirectories = plan.applications.map(
+  const assetDirectories = staticApplications.map(
     (application) => application.configuration.assets.directory,
   );
   assert.equal(new Set(assetDirectories).size, workerApplicationIds.length);
@@ -167,12 +172,11 @@ test("the public shell binds the root route to its Worker and drops only the old
     { prefix: "/engineering/dotfiles/reports/", binding: "APP_REPORTS" },
     { prefix: "/workspace/", binding: "APP_WORKSPACE" },
     { prefix: "/cockpit/", binding: "APP_COCKPIT" },
+    { prefix: "/ingest/", binding: "APP_INGEST" },
     { prefix: "/stack/", binding: "APP_STACK_LAUNCHER" },
     { prefix: "/", binding: "APP_SHELL" },
   ]);
-  assert.deepEqual(edgeRoutes.prefixes, [
-    { prefix: "/ingest/", host: "ingest.run.app" },
-  ]);
+  assert.deepEqual(edgeRoutes.prefixes, []);
 });
 
 test("external API, socket and subdomain routes survive the static app migration", () => {

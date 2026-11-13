@@ -1,4 +1,5 @@
 import type {
+  AppCapability,
   AppOrigin,
   AppRegistryEntry,
   AppServingLocation,
@@ -12,6 +13,7 @@ export interface ApplicationDeployment {
   readonly source?: AppSource;
   readonly accessModel: AppRegistryEntry["accessModel"];
   readonly accessApplicationProvisioning?: AppRegistryEntry["accessApplicationProvisioning"];
+  readonly capabilities?: readonly AppCapability[];
   readonly target: AppOrigin;
 }
 
@@ -35,6 +37,9 @@ export function createDeploymentManifest(
         accessModel: application.accessModel,
         accessApplicationProvisioning:
           application.accessApplicationProvisioning,
+        ...(application.capabilities === undefined
+          ? {}
+          : { capabilities: application.capabilities }),
         target: application.origin,
       }))
       .sort(

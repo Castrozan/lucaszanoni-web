@@ -8,6 +8,7 @@ import {
 import {
   DailyTokensChart,
   buildUsageHeadlineFigures,
+  createUsageSnapshotSource,
   useUsageViewModel,
 } from "@platform/usage-insights";
 import { useOwnerAccessIdentity } from "../identity/use-owner-access-identity";
@@ -15,9 +16,11 @@ import { cockpitQuickAccessBookmarks } from "../layout/cockpit-quick-access-book
 import { CockpitQuickAccessTile } from "../layout/CockpitQuickAccessTile";
 import { UsageKeyFigures } from "../dashboard/UsageKeyFigures";
 
+const COCKPIT_SNAPSHOT_SOURCE = createUsageSnapshotSource("cockpit");
+
 export function CockpitDashboardPage() {
   const ownerAccessIdentity = useOwnerAccessIdentity();
-  const usageViewModelState = useUsageViewModel();
+  const usageViewModelState = useUsageViewModel(COCKPIT_SNAPSHOT_SOURCE);
   const welcomeHeadline = ownerAccessIdentity
     ? `Welcome back, ${ownerAccessIdentity.name}.`
     : "Welcome back.";

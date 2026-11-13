@@ -57,32 +57,3 @@ export const dynamicIaInterfacesApp: AppRegistryEntry = {
     },
   },
 };
-
-export const ingestApp: AppRegistryEntry = {
-  id: "ingest",
-  mountPath: "/ingest/",
-  navigationLabel: "Ingest",
-  description:
-    "Contract-checked ingestion api that stores producer snapshots under a registered topic.",
-  showInCrossSectionNavigation: false,
-  status: "active",
-  accessModel: { environment: "public" },
-  source: {
-    appPackageName: "@platform/ingest",
-    appDirectoryName: "ingest",
-    buildProfile: "dynamic-service",
-    publicBuildEnvironment: {},
-    publicBuildEnvironmentReferences: {},
-  },
-  origin: {
-    kind: "cloud-run",
-    cloudRunServiceName: "lucaszanoni-ingest",
-    nonSecretEnvironment: {
-      APP_SERVER_ENTRYPOINT_PATH: "server-entrypoint.mjs",
-      SNAPSHOT_BUCKET_NAME: "zg-url-shortener-2026-dotfiles-usage-snapshots",
-    },
-    secretEnvironmentReferences: {
-      INGEST_PRODUCER_SECRET: "ingest-producer-secret",
-    },
-  },
-};

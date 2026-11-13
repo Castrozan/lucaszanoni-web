@@ -1,4 +1,8 @@
 import { isDeepStrictEqual } from "node:util";
+import {
+  assertDeclaredBindingsPresent,
+  assertExistingBindingsAreDeclared,
+} from "./worker-bindings.mjs";
 
 export function assertAccessApplicationsUnchanged(
   previousApplications,
@@ -34,7 +38,11 @@ export function createCloudflareReader(accountId, apiToken) {
   };
 }
 
-export async function verifyPrivateWorker(readCloudflare, configuration) {
+export async function verifyPrivateWorker(
+  readCloudflare,
+  configuration,
+  requiredSecrets = [],
+) {
   const basePath = `workers/scripts/${configuration.name}`;
   const settings = await readCloudflare(`${basePath}/settings`);
   const endpoints = await readCloudflare(`${basePath}/subdomain`);
@@ -55,18 +63,11 @@ export async function verifyPrivateWorker(readCloudflare, configuration) {
       );
     }
   }
-  for (const service of configuration.services ?? []) {
-    if (
-      !settings.bindings.some(
-        (binding) =>
-          binding.type === "service" &&
-          binding.name === service.binding &&
-          binding.service === service.service,
-      )
-    ) {
-      throw new Error(`Worker service readback differs for ${service.binding}`);
-    }
-  }
+  assertDeclaredBindingsPresent(
+    settings.bindings,
+    configuration,
+    requiredSecrets,
+  );
   if (
     configuration.assets &&
     !settings.bindings.some(
@@ -86,8 +87,30 @@ export async function verifyPrivateWorker(readCloudflare, configuration) {
   return settings;
 }
 
-export function assertApplicationWorkerCanBeUpdated(settings, applicationId) {
+export async function assertApplicationDatabasesMatch(
+  readCloudflare,
+  applications,
+) {
+  for (const application of applications) {
+    for (const database of application.configuration.d1_databases ?? []) {
+      const observed = await readCloudflare(
+        `d1/database/${database.database_id}`,
+      );
+      if (
+        observed.uuid !== database.database_id ||
+        observed.name !== database.database_name
+      ) {
+        throw new Error(
+          `Application database target differs for ${database.database_name}`,
+        );
+      }
+    }
+  }
+}
+
+export function assertApplicationWorkerCanBeUpdated(settings, application) {
   if (!settings) return;
+  const { applicationId } = application;
   if (
     !settings.bindings.some(
       (binding) =>
@@ -100,16 +123,10 @@ export function assertApplicationWorkerCanBeUpdated(settings, applicationId) {
       `Existing Worker is not owned by application ${applicationId}`,
     );
   }
-  if (
-    settings.bindings.some((binding) =>
-      binding.type === "assets"
-        ? binding.name !== "ASSETS"
-        : binding.type !== "plain_text" ||
-          !["APPLICATION_ID", "APPLICATION_MOUNT_PATH"].includes(binding.name),
-    )
-  ) {
-    throw new Error(
-      `Application ${applicationId} has unrecognized bindings that require inspection`,
-    );
-  }
+  assertExistingBindingsAreDeclared(
+    settings.bindings,
+    applicationId,
+    application.configuration,
+    application.requiredSecrets,
+  );
 }

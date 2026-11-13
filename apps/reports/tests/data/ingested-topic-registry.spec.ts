@@ -12,7 +12,7 @@ describe("REGISTERED_INGESTION_TOPICS", () => {
   it("reads every topic from its own contracted latest snapshot key", () => {
     for (const entry of REGISTERED_INGESTION_TOPICS) {
       expect(entry.source.snapshotUrl).toBe(
-        `https://storage.googleapis.com/zg-url-shortener-2026-dotfiles-usage-snapshots/snapshots/${entry.contract.topic}/latest.json`,
+        `https://lucaszanoni.com/engineering/dotfiles/reports/data/snapshots/${entry.contract.topic}/latest.json`,
       );
     }
   });

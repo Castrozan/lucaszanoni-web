@@ -3,10 +3,8 @@ import {
   buildAuthorizedPost,
   createHandlerUnderTest,
 } from "./ingest-handler-test-harness";
-import {
-  createFailingSnapshotObjectWriter,
-  testBaselineEventFixture,
-} from "./ingest-test-fixtures";
+import { createFailingSnapshotObjectWriter } from "./ingest-test-doubles";
+import { testBaselineEventFixture } from "./ingest-test-fixtures";
 
 describe("refusing an ingest request", () => {
   it("rejects a wrong producer secret and stores nothing", async () => {
@@ -17,7 +15,7 @@ describe("refusing an ingest request", () => {
       presentedProducerSecret: "wrong-secret-value",
     });
     expect(response.statusCode).toBe(401);
-    expect(snapshotObjectWriter.writtenObjects.size).toBe(0);
+    expect(snapshotObjectWriter.writes).toHaveLength(0);
   });
 
   it("rejects a missing producer secret", async () => {
@@ -58,7 +56,7 @@ describe("refusing an ingest request", () => {
     const { handleIngestRequest } = createHandlerUnderTest();
     const response = await handleIngestRequest({
       ...buildAuthorizedPost(),
-      body: "{not json",
+      body: new TextEncoder().encode("{not json"),
     });
     expect(response.statusCode).toBe(400);
   });
@@ -74,7 +72,7 @@ describe("refusing an ingest request", () => {
     );
     expect(response.statusCode).toBe(400);
     expect(response.body["error"]).toMatch(/does not match the contract/);
-    expect(snapshotObjectWriter.writtenObjects.size).toBe(0);
+    expect(snapshotObjectWriter.writes).toHaveLength(0);
   });
 
   it("rejects a payload that violates its topic contract and stores nothing", async () => {
@@ -88,7 +86,7 @@ describe("refusing an ingest request", () => {
     );
     expect(response.statusCode).toBe(400);
     expect(response.body["error"]).toMatch(/passedTests/);
-    expect(snapshotObjectWriter.writtenObjects.size).toBe(0);
+    expect(snapshotObjectWriter.writes).toHaveLength(0);
   });
 
   it("rejects an unknown path", async () => {
@@ -97,6 +95,15 @@ describe("refusing an ingest request", () => {
       buildAuthorizedPost(testBaselineEventFixture, "/engineering/reports/"),
     );
     expect(response.statusCode).toBe(404);
+  });
+
+  it("rejects a body that is not utf-8", async () => {
+    const { handleIngestRequest } = createHandlerUnderTest();
+    const response = await handleIngestRequest({
+      ...buildAuthorizedPost(),
+      body: new Uint8Array([0xff, 0xfe, 0x7b]),
+    });
+    expect(response.statusCode).toBe(400);
   });
 
   it("rejects a read of the topic path", async () => {

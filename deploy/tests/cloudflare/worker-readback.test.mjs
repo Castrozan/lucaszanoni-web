@@ -20,15 +20,27 @@ const applicationSettings = {
   ],
 };
 
+const staticApplication = (applicationId) => ({
+  applicationId,
+  configuration: { assets: { binding: "ASSETS" } },
+});
+
 test("only updates the owned static application and refuses unknown existing capabilities", () => {
   assert.doesNotThrow(() =>
-    assertApplicationWorkerCanBeUpdated(null, "example"),
+    assertApplicationWorkerCanBeUpdated(null, staticApplication("example")),
   );
   assert.doesNotThrow(() =>
-    assertApplicationWorkerCanBeUpdated(applicationSettings, "example"),
+    assertApplicationWorkerCanBeUpdated(
+      applicationSettings,
+      staticApplication("example"),
+    ),
   );
   assert.throws(
-    () => assertApplicationWorkerCanBeUpdated(applicationSettings, "other"),
+    () =>
+      assertApplicationWorkerCanBeUpdated(
+        applicationSettings,
+        staticApplication("other"),
+      ),
     /not owned/,
   );
   for (const binding of [
@@ -40,7 +52,7 @@ test("only updates the owned static application and refuses unknown existing cap
       () =>
         assertApplicationWorkerCanBeUpdated(
           { bindings: [...applicationSettings.bindings, binding] },
-          "example",
+          staticApplication("example"),
         ),
       /unrecognized bindings/,
     );

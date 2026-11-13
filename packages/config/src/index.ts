@@ -73,7 +73,7 @@ export type { AppSource, AppCapability } from "./app-registry/types.ts";
 export type { AppSourceSpec } from "./app-registry/entry-builder.ts";
 
 export {
+  createApplicationSnapshotArtifactLocations,
   createSnapshotArtifactLocations,
-  SNAPSHOT_ARTIFACT_LOCATIONS,
 } from "./snapshot-artifacts.ts";
 export type { SnapshotArtifactLocations } from "./snapshot-artifacts.ts";

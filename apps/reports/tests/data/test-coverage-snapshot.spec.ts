@@ -45,7 +45,7 @@ function recordWithEventOverrides(overrides: Record<string, unknown>) {
 describe("the ingested test coverage snapshot source", () => {
   it("reads the contracted latest object of its own topic", () => {
     expect(testCoverageSnapshotUrl).toBe(
-      "https://storage.googleapis.com/zg-url-shortener-2026-dotfiles-usage-snapshots/snapshots/dotfiles-test-coverage/latest.json",
+      "https://lucaszanoni.com/engineering/dotfiles/reports/data/snapshots/dotfiles-test-coverage/latest.json",
     );
   });
 

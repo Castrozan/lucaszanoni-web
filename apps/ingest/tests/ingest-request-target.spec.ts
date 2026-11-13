@@ -4,6 +4,37 @@ import { resolveIngestRequestTarget } from "../src/ingest-request-target";
 const mountPath = "/ingest/";
 
 describe("resolving what a request is asking the ingest service for", () => {
+  it("maps the mounted health path to health", () => {
+    expect(
+      resolveIngestRequestTarget(mountPath, "GET", "/ingest/livez"),
+    ).toStrictEqual({ kind: "health" });
+    expect(
+      resolveIngestRequestTarget(mountPath, "POST", "/ingest/livez"),
+    ).toStrictEqual({ kind: "method-not-allowed" });
+  });
+
+  it("decodes the object key of an artifact write", () => {
+    expect(
+      resolveIngestRequestTarget(
+        mountPath,
+        "PUT",
+        "/ingest/artifacts/reports%2Fa%2Fb.json",
+      ),
+    ).toStrictEqual({ kind: "artifact", objectKey: "reports/a/b.json" });
+  });
+
+  it("refuses to read an artifact path and malformed encodings", () => {
+    expect(
+      resolveIngestRequestTarget(mountPath, "GET", "/ingest/artifacts/a"),
+    ).toStrictEqual({ kind: "method-not-allowed" });
+    expect(
+      resolveIngestRequestTarget(mountPath, "PUT", "/ingest/artifacts/%E0%A4"),
+    ).toStrictEqual({ kind: "not-found" });
+    expect(
+      resolveIngestRequestTarget(mountPath, "PUT", "/ingest/artifacts/"),
+    ).toStrictEqual({ kind: "not-found" });
+  });
+
   it("answers the container health probe outside the mount path", () => {
     expect(
       resolveIngestRequestTarget(mountPath, "GET", "/livez"),
