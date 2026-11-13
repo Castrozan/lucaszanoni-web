@@ -10,11 +10,11 @@ const retainedMediaIdentifiers = [
   "jellyfin",
   "jellyseerr",
   "stremio",
-  "miwayomi",
   "suwayomi",
   "readmeabook",
   "audiobookshelf",
 ];
+const accessOnlyMediaIdentifiers = ["miwayomi"];
 const removedMediaIdentifiers = [
   "kavita",
   "radarr",
@@ -36,7 +36,7 @@ const readTerraformMediaIdentifiers = () => {
   return [...block[1].matchAll(/^\s*([a-z_]+)\s*=/gm)].map((match) => match[1]);
 };
 
-test("Stack catalog and Terraform media hostnames agree on the retained media applications", () => {
+test("Stack catalog and Terraform media hostnames agree on the retained media applications, keeping the retired anime Access application", () => {
   const catalogIdentifiers = arrStackApps.map((application) => application.id);
   const terraformIdentifiers = readTerraformMediaIdentifiers();
   assert.deepEqual(
@@ -45,8 +45,11 @@ test("Stack catalog and Terraform media hostnames agree on the retained media ap
   );
   assert.deepEqual(
     [...terraformIdentifiers].sort(),
-    [...retainedMediaIdentifiers].sort(),
+    [...retainedMediaIdentifiers, ...accessOnlyMediaIdentifiers].sort(),
   );
+  for (const accessOnly of accessOnlyMediaIdentifiers) {
+    assert.equal(catalogIdentifiers.includes(accessOnly), false);
+  }
   for (const removed of removedMediaIdentifiers) {
     assert.equal(catalogIdentifiers.includes(removed), false);
     assert.equal(terraformIdentifiers.includes(removed), false);
