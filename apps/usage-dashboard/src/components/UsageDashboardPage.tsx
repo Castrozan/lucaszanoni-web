@@ -23,10 +23,11 @@ function LiveStatus({
   errorMessage,
   isLoading,
   lastUpdatedLabel,
+  hasUsageAccounts,
 }: Pick<
   UsageDashboardPageProps,
   "errorMessage" | "isLoading" | "lastUpdatedLabel"
->) {
+> & { hasUsageAccounts: boolean }) {
   const liveStatusClassName =
     "inline-flex items-center gap-2 text-sm text-muted-foreground";
   const statusDotClassName = "inline-block size-2.5 rounded-full";
@@ -46,12 +47,20 @@ function LiveStatus({
       </div>
     );
   }
+  if (!hasUsageAccounts) {
+    return (
+      <div className={liveStatusClassName}>
+        <span className={`${statusDotClassName} bg-status-caution`}></span>
+        <span>no usage snapshots received</span>
+      </div>
+    );
+  }
   return (
     <div className={liveStatusClassName}>
       <span
         className={`${statusDotClassName} animate-live-pulse bg-status-positive`}
       ></span>
-      <span>live · updated {lastUpdatedLabel}</span>
+      <span>connected · fetched {lastUpdatedLabel}</span>
     </div>
   );
 }
@@ -72,16 +81,16 @@ export function UsageDashboardPage({
           errorMessage={errorMessage}
           isLoading={isLoading}
           lastUpdatedLabel={lastUpdatedLabel}
+          hasUsageAccounts={Boolean(viewModel?.summary.account_count)}
         />
       </header>
 
       <p className={ledeClassName}>
-        Claude Code token consumption per account, pulled live from each
-        machine's <code>stats-cache.json</code> snapshot in Cloud Storage. Every
-        account is an opaque salted hash of its id, so the numbers are public
-        but the accounts are not. The headline number is cache-read tokens: on a
-        prompt-cached model they dwarf fresh input and are what actually burns
-        the plan.
+        Private Claude Code usage metadata, collected offline with ccusage and
+        published through authenticated ingestion. Account labels are opaque
+        hashes; prompts and conversations are not published. Historical activity
+        keeps its original source date. Reported costs are not verified billing
+        totals.
       </p>
 
       {errorMessage ? (
@@ -103,11 +112,9 @@ export function UsageDashboardPage({
           <h2 className={sectionHeadingClassName}>Where the tokens go</h2>
           <Card className="gap-0 rounded-lg px-5 py-4">
             <p className="m-0">
-              Claude Code reuses a cached prefix across turns, so almost every
-              token a long session reads is a <b>cache-read</b>, not fresh
-              input. That is why the lever that matters is cutting repeated
-              context, not trimming prompts: the cache-read column below is the
-              cost.
+              <b>Cache-read</b> tokens measure reused context, not fresh input.
+              Compare them with input, output, and cache-creation tokens; token
+              volume alone does not establish cost.
             </p>
           </Card>
 
@@ -115,11 +122,9 @@ export function UsageDashboardPage({
             OpenTelemetry token stream
           </h2>
           <p className={ledeClassName}>
-            A local OpenTelemetry collector on every machine receives Claude
-            Code's <code>claude_code.token.usage</code> metric and writes it to
-            a rotating local file. Each machine folds the aggregated counts
-            (never the account id) into its snapshot, so this is a live,
-            type-resolved view that corroborates the cache-read story above.
+            Optional OpenTelemetry counters provide a separate token-type
+            breakdown when available. Collection times can differ; these
+            counters do not measure billing or memory-recall savings.
           </p>
           <OtelPanel otelMetrics={viewModel.summary.otel_metrics} />
 
@@ -128,11 +133,8 @@ export function UsageDashboardPage({
 
           <h2 className={sectionHeadingClassName}>The memory-recall lever</h2>
           <p className={ledeClassName}>
-            The memory-recall hook injects relevant memory files into a turn,
-            then suppresses the injection when the same set was already shown
-            (dedup), when a per-session budget is spent, or when nothing changed
-            (debounce). Those suppressions are the directly attributable savings
-            folded into each snapshot.
+            This feed does not measure memory-recall savings. Token totals alone
+            cannot attribute a reduction to deduplication, budgets, or debounce.
           </p>
 
           <h2 className={sectionHeadingClassName}>
@@ -140,21 +142,18 @@ export function UsageDashboardPage({
           </h2>
           <Card className="gap-0 rounded-lg px-5 py-4">
             <p className="m-0">
-              A machine carries one current account, and{" "}
-              <code>stats-cache.json</code> is not split by account. A machine
-              that switched accounts attributes its whole local history to the
-              account active now, so the early part of a series can be
-              pre-switch usage. Read the recent slope as the current account's,
-              not the absolute history.
+              Local usage records may span account changes. Each machine labels
+              its export with the current account. Older usage may belong to a
+              previous account; do not read the entire history as one account.
             </p>
           </Card>
         </>
       ) : null}
 
       <footer className="mt-12 border-t border-border pt-5 text-sm text-muted-foreground">
-        Served live from Cloud Run, reading anonymized per-machine snapshots
-        from Cloud Storage that each machine exports with{" "}
-        <code>agents/usage/export_usage_snapshot.py</code> &middot;{" "}
+        Served by private Cloudflare Workers from D1-backed per-machine
+        snapshots. Authenticated producers publish metadata through the
+        ingestion API. &middot;{" "}
         <a className="text-primary" href={baselineReportUrl}>
           agent instructions report
         </a>
