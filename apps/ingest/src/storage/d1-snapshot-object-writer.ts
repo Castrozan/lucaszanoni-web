@@ -1,11 +1,28 @@
+import {
+  DOTFILES_QUALITY_OVERVIEW_TOPIC,
+  type IngestedSnapshotRecord,
+  type QualityOverviewPayload,
+} from "@platform/ingestion-contracts";
 import type { SnapshotObjectWriter } from "../snapshot-object-writer";
 import type { SnapshotDatabase } from "./snapshot-database";
 import {
   buildLatestPointerStatement,
   buildObjectWriteStatements,
 } from "./stored-object-statements";
+import { buildSupersededOverviewReportTreeDeletions } from "./superseded-overview-report-trees";
 
 const EVENT_CONTENT_TYPE = "application/json";
+
+function buildReportRetentionStatements(
+  database: SnapshotDatabase,
+  record: IngestedSnapshotRecord,
+): D1PreparedStatement[] {
+  if (record.event.topic !== DOTFILES_QUALITY_OVERVIEW_TOPIC) {
+    return [];
+  }
+  const { workflow } = record.event.payload as QualityOverviewPayload;
+  return buildSupersededOverviewReportTreeDeletions(database, workflow);
+}
 
 export function createD1SnapshotObjectWriter(
   database: SnapshotDatabase,
@@ -31,6 +48,7 @@ export function createD1SnapshotObjectWriter(
           eventObjectKey,
           producedAtEpoch,
         ),
+        ...buildReportRetentionStatements(database, record),
       ]);
     },
   };
