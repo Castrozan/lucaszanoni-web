@@ -4,7 +4,6 @@ import {
   reportsOriginHost,
   edgeSharedSecretHeaderName,
   edgeSharedSecretValue,
-  reportsStaticBucketName,
   aliasRedirectCanonicalHost,
   aliasRedirectStatusCode,
   trustedExternalOriginHost,
@@ -29,36 +28,6 @@ export const edgeEnvironment = {
       {
         prefix: "/reports/",
         host: reportsOriginHost,
-      },
-    ],
-  }),
-  EDGE_SHARED_SECRET_HEADER_NAME: edgeSharedSecretHeaderName,
-  EDGE_SHARED_SECRET: edgeSharedSecretValue,
-};
-
-export const edgeEnvironmentWithStaticBucketPrefixes = {
-  EDGE_ROUTES: JSON.stringify({
-    shell: shellOriginHost,
-    prefixes: [
-      {
-        prefix: "/engineering/dotfiles/claude/usage/",
-        host: usageOriginHost,
-      },
-      {
-        prefix: "/reports/",
-        host: reportsOriginHost,
-      },
-    ],
-    staticBucketPrefixes: [
-      {
-        prefix: "/reports/baseline/",
-        bucket: reportsStaticBucketName,
-        objectKeyPrefix: "reports/baseline/",
-      },
-      {
-        prefix: "/reports/coverage/",
-        bucket: reportsStaticBucketName,
-        objectKeyPrefix: "reports/coverage/",
       },
     ],
   }),

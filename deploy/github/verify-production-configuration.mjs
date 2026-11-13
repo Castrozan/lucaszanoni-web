@@ -56,14 +56,6 @@ function assertFieldsMatchEnvironmentSecrets(configuration, environment) {
   }
 }
 
-function assertRetiredReportsBucketRouteDisabled(configuration) {
-  if (configuration.enable_reports_static_gcs_routes !== false) {
-    throw new Error(
-      "Production configuration must disable the retired reports static bucket routes",
-    );
-  }
-}
-
 function assertGoogleIdentityProviderMatches(providers, googleClientId) {
   const googleProviders = Array.isArray(providers)
     ? providers.filter((provider) => provider?.type === "google")
@@ -106,7 +98,6 @@ export async function verifyProductionConfiguration({
     environment.PRODUCTION_TERRAFORM_VARIABLES ?? "",
   );
   assertFieldsMatchEnvironmentSecrets(configuration, environment);
-  assertRetiredReportsBucketRouteDisabled(configuration);
   if (
     !CLOUDFLARE_ACCOUNT_IDENTIFIER.test(configuration.cloudflare_account_id)
   ) {

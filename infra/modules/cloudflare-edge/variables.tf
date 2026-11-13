@@ -34,15 +34,6 @@ variable "prefix_origin_hosts" {
   description = "Map of edge path prefix to the Cloud Run host that serves it. The Worker selects the longest matching application prefix and falls back to the shell origin when none match."
 }
 
-variable "static_bucket_prefix_origins" {
-  type = map(object({
-    bucket            = string
-    object_key_prefix = string
-  }))
-  default     = {}
-  description = "Map of edge path prefix to a public GCS bucket origin that serves it as pre-rendered static content. The Worker matches these prefixes before the Cloud Run prefixes and fetches the bucket object directly without the shared-secret header, resolving a trailing-slash request to the prefix's index.html. Empty by default; populated only once the static reports artifacts are re-homed to the bucket."
-}
-
 variable "external_https_prefix_origins" {
   type = map(object({
     origin_host         = string

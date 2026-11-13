@@ -1,84 +1,61 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import {
-  reportsOriginHost,
-  reportsStaticBucketName,
-  edgeSharedSecretHeaderName,
-  edgeSharedSecretValue,
-} from "./edge-router-test-constants.mjs";
-import { dispatchThroughEdgeWithStaticBuckets } from "./edge-router-test-dispatch.mjs";
+import edgeRouterWorker from "../../../infra/modules/cloudflare-edge/edge-router-worker.mjs";
 
-test("the reports baseline prefix routes to the public GCS bucket origin", async () => {
-  const { capturedOriginRequest } =
-    await dispatchThroughEdgeWithStaticBuckets("/reports/baseline/");
-  assert.equal(
-    new URL(capturedOriginRequest.url).hostname,
-    "storage.googleapis.com",
-  );
-});
+const reportsMountPrefix = "/engineering/dotfiles/reports/";
+const retiredBucketFixtureName = "retired-reports-fixture";
+const routingWithRetiredBucketFields = {
+  prefixes: [],
+  workerServicePrefixes: [
+    { prefix: reportsMountPrefix, binding: "APP_REPORTS" },
+  ],
+  staticBucketPrefixes: ["coverage/", "baseline/"].map((segment) => ({
+    prefix: reportsMountPrefix + segment,
+    bucket: retiredBucketFixtureName,
+    objectKeyPrefix: "reports/" + segment,
+  })),
+};
+const reportsRequestSuffixes = [
+  "",
+  "coverage/",
+  "coverage",
+  "coverage/index.html?refresh=1",
+  "coverage/assets/report.css",
+  "baseline/",
+  "baseline",
+  "baseline/index.html",
+  "data/reports/coverage/index.html",
+];
 
-test("the reports baseline root resolves to the bucket index.html object", async () => {
-  const { capturedOriginRequest } =
-    await dispatchThroughEdgeWithStaticBuckets("/reports/baseline/");
-  assert.equal(
-    new URL(capturedOriginRequest.url).pathname,
-    `/${reportsStaticBucketName}/reports/baseline/index.html`,
-  );
-});
+const dispatchToCanonicalReportsWorker = async (requestUrl) => {
+  let forwardedUrl;
+  const originalGlobalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("Network fetch to a retired origin is forbidden");
+  };
+  try {
+    const edgeResponse = await edgeRouterWorker.fetch(new Request(requestUrl), {
+      EDGE_ROUTES: JSON.stringify(routingWithRetiredBucketFields),
+      APP_REPORTS: {
+        async fetch(receivedRequest) {
+          forwardedUrl = receivedRequest.url;
+          return new Response("owned-report");
+        },
+      },
+    });
+    return { responseBody: await edgeResponse.text(), forwardedUrl };
+  } finally {
+    globalThis.fetch = originalGlobalFetch;
+  }
+};
 
-test("a nested reports baseline asset maps to its bucket object key", async () => {
-  const { capturedOriginRequest } = await dispatchThroughEdgeWithStaticBuckets(
-    "/reports/baseline/assets/app.css",
-  );
-  assert.equal(
-    new URL(capturedOriginRequest.url).pathname,
-    `/${reportsStaticBucketName}/reports/baseline/assets/app.css`,
-  );
-});
-
-test("the reports coverage prefix resolves to the bucket coverage index", async () => {
-  const { capturedOriginRequest } =
-    await dispatchThroughEdgeWithStaticBuckets("/reports/coverage/");
-  assert.equal(
-    new URL(capturedOriginRequest.url).pathname,
-    `/${reportsStaticBucketName}/reports/coverage/index.html`,
-  );
-});
-
-test("a static bucket request omits the shared secret header", async () => {
-  const { capturedOriginRequest } =
-    await dispatchThroughEdgeWithStaticBuckets("/reports/coverage/");
-  assert.equal(
-    capturedOriginRequest.headers.get(edgeSharedSecretHeaderName),
-    null,
-  );
-});
-
-test("the reports SPA root still routes to the reports Cloud Run origin with the secret header", async () => {
-  const { capturedOriginRequest } =
-    await dispatchThroughEdgeWithStaticBuckets("/reports/");
-  assert.equal(new URL(capturedOriginRequest.url).hostname, reportsOriginHost);
-  assert.equal(
-    capturedOriginRequest.headers.get(edgeSharedSecretHeaderName),
-    edgeSharedSecretValue,
-  );
-});
-
-test("a reports baseline path without its trailing slash falls back to the reports SPA origin", async () => {
-  const { capturedOriginRequest } =
-    await dispatchThroughEdgeWithStaticBuckets("/reports/baseline");
-  assert.equal(new URL(capturedOriginRequest.url).hostname, reportsOriginHost);
-});
-
-test("a static bucket request preserves the query string", async () => {
-  const { capturedOriginRequest } = await dispatchThroughEdgeWithStaticBuckets(
-    "/reports/coverage/index.html?refresh=1",
-  );
-  const forwardedOriginUrl = new URL(capturedOriginRequest.url);
-  assert.equal(
-    forwardedOriginUrl.pathname,
-    `/${reportsStaticBucketName}/reports/coverage/index.html`,
-  );
-  assert.equal(forwardedOriginUrl.search, "?refresh=1");
-});
+for (const suffix of reportsRequestSuffixes) {
+  test(`canonical Reports Worker owns ${suffix} despite retired bucket settings`, async () => {
+    const requestUrl = "https://lucaszanoni.com" + reportsMountPrefix + suffix;
+    const { responseBody, forwardedUrl } =
+      await dispatchToCanonicalReportsWorker(requestUrl);
+    assert.equal(responseBody, "owned-report");
+    assert.equal(forwardedUrl, requestUrl);
+  });
+}

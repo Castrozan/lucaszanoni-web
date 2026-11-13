@@ -49,16 +49,10 @@ variable "enable_dotcom_canonical" {
   description = "Whether lucaszanoni.com is the canonical edge domain with lucaszanoni.com.br reduced to a permanent redirect alias. Defaults off so the live edge keeps serving the .com.br zone unchanged; flipped on only after the Cloudflare API token is widened to include the lucaszanoni.com zone, since the serving-zone resources cannot be written there until then."
 }
 
-variable "enable_reports_static_gcs_routes" {
-  type        = bool
-  default     = false
-  description = "Whether the edge serves /engineering/dotfiles/reports/coverage/ from the public GCS bucket. Defaults off so the route stays dark until the dotfiles pipeline has published the generated coverage tree to the bucket; while off the Worker falls that path through to the reports SPA, so flipping it is the only behavior change."
-}
-
 variable "reports_static_bucket_name" {
   type        = string
   default     = "zg-url-shortener-2026-dotfiles-usage-snapshots"
-  description = "Public GCS bucket holding the re-homed reports baseline and coverage trees under the reports/ prefix. Already public for the usage dashboard's client-side snapshot fetch, so naming it here exposes no new identifier."
+  description = "Retired snapshot bucket identifier retained for existing IAM configuration; not used by current site routing, ingestion, or publication."
 }
 
 variable "edge_shared_secret_value" {

@@ -108,12 +108,6 @@ module "edge" {
     for app in local.app_registry : "APP_${upper(replace(app.id, "-", "_"))}" => app.origin.scriptName
     if app.origin.kind == "cloudflare-worker" && app.status == "active"
   }
-  static_bucket_prefix_origins = var.enable_reports_static_gcs_routes ? {
-    "/engineering/dotfiles/reports/coverage/" = {
-      bucket            = var.reports_static_bucket_name
-      object_key_prefix = "reports/coverage/"
-    }
-  } : {}
   external_https_prefix_origins = merge(
     local.external_https_prefix_origins,
     local.cockpit_session_external_https_origins

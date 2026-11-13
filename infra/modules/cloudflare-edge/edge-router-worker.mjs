@@ -5,10 +5,6 @@ const selectRetiredRoute = (requestPath, routingTable) =>
   (routingTable.retiredPrefixes ?? []).find((route) =>
     requestPathMatchesMountPrefix(requestPath, route.prefix),
   );
-const selectStaticBucketRoute = (requestPath, routingTable) =>
-  (routingTable.staticBucketPrefixes ?? []).find((route) =>
-    requestPath.startsWith(route.prefix),
-  );
 const selectApplicationRoute = (requestPath, routingTable) => {
   const routes = [
     ...(routingTable.workerServicePrefixes ?? []),
@@ -18,20 +14,6 @@ const selectApplicationRoute = (requestPath, routingTable) => {
   return routes
     .sort((left, right) => right.prefix.length - left.prefix.length)
     .find((route) => requestPathMatchesMountPrefix(requestPath, route.prefix));
-};
-const buildStaticBucketObjectUrl = (requestUrl, staticBucketRoute) => {
-  const objectKeyWithinPrefix = requestUrl.pathname.slice(
-    staticBucketRoute.prefix.length,
-  );
-  const objectKey = `${staticBucketRoute.objectKeyPrefix}${objectKeyWithinPrefix}`;
-  const objectKeyWithDirectoryIndex = objectKey.endsWith("/")
-    ? `${objectKey}index.html`
-    : objectKey;
-
-  const objectUrl = new URL(requestUrl);
-  objectUrl.hostname = "storage.googleapis.com";
-  objectUrl.pathname = `/${staticBucketRoute.bucket}/${objectKeyWithDirectoryIndex}`;
-  return objectUrl;
 };
 
 const selectExternalHttpsRoute = (requestPath, routingTable) =>
@@ -136,18 +118,6 @@ export default {
         status: 410,
         headers: { "Content-Type": "text/plain; charset=utf-8" },
       });
-    }
-
-    const staticBucketRoute = selectStaticBucketRoute(
-      incomingUrl.pathname,
-      routingTable,
-    );
-    if (staticBucketRoute) {
-      const objectUrl = buildStaticBucketObjectUrl(
-        incomingUrl,
-        staticBucketRoute,
-      );
-      return fetch(new Request(objectUrl, request));
     }
 
     const externalHttpsRoute = selectExternalHttpsRoute(

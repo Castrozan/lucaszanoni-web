@@ -8,6 +8,41 @@ import {
   twoApplicationRegistry,
 } from "./fixtures.mjs";
 
+test("rendered routing configuration drops retired bucket overrides without mutating source settings", () => {
+  const routing = {
+    ...routes,
+    staticBucketPrefixes: [
+      {
+        prefix: "/engineering/dotfiles/reports/coverage/",
+        bucket: "retired-reports-fixture",
+        objectKeyPrefix: "reports/coverage/",
+      },
+    ],
+  };
+  const current = {
+    ...settings,
+    bindings: settings.bindings.map((binding) =>
+      binding.name === "EDGE_ROUTES"
+        ? { ...binding, text: JSON.stringify(routing) }
+        : binding,
+    ),
+  };
+  const before = structuredClone(current);
+  const plan = createSiteDeploymentPlan(
+    current,
+    twoApplicationRegistry(),
+    "/repository",
+  );
+  assert.equal(
+    Object.hasOwn(
+      JSON.parse(plan.edgeConfiguration.vars.EDGE_ROUTES),
+      "staticBucketPrefixes",
+    ),
+    false,
+  );
+  assert.deepEqual(current, before);
+});
+
 test("deploys any number of independent static apps without Cockpit-specific code", () => {
   const plan = createSiteDeploymentPlan(
     settings,
