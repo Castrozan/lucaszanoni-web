@@ -17,7 +17,6 @@ interface StatCard {
 
 function buildStatCards(summary: UsageSummary): StatCard[] {
   const tokenTotals = summary.token_totals;
-  const savings = summary.memory_recall_savings;
   return [
     {
       label: "accounts tracked",
@@ -27,22 +26,12 @@ function buildStatCards(summary: UsageSummary): StatCard[] {
     {
       label: "cache-read tokens",
       value: formatTokenCount(tokenTotals.cache_read_input_tokens),
-      subtitle: "the dominant cost driver",
+      subtitle: "reused input context",
     },
     {
       label: "cache-read share",
       value: `${cacheReadSharePercent(tokenTotals)}%`,
       subtitle: "of all input-side tokens",
-    },
-    {
-      label: "recall events suppressed",
-      value: String(savings.suppressed_recall_event_total),
-      subtitle: "budget + debounce + dedup",
-    },
-    {
-      label: "dedup chars saved",
-      value: formatTokenCount(savings.dedup_suppressed_character_total),
-      subtitle: "duplicate recalls stopped",
     },
   ];
 }

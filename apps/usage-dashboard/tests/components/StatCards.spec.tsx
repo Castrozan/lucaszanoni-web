@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { StatCards } from "../../src/components/StatCards";
+import { UsageAggregationService } from "@platform/snapshot-data";
 import { sampleUsageViewModel } from "../test-fixtures/usage-view-model-fixture";
 
 afterEach(cleanup);
@@ -17,7 +18,7 @@ function cardFor(label: string): HTMLElement {
 describe("StatCards", () => {
   it("renders one card per headline summary metric", () => {
     render(<StatCards summary={sampleUsageViewModel.summary} />);
-    expect(document.querySelectorAll("[data-slot='card']")).toHaveLength(5);
+    expect(document.querySelectorAll("[data-slot='card']")).toHaveLength(3);
   });
 
   it("shows the account and machine counts", () => {
@@ -35,13 +36,18 @@ describe("StatCards", () => {
     expect(within(cardFor("cache-read share")).getByText("99.3%")).toBeTruthy();
   });
 
-  it("surfaces the memory-recall suppression totals", () => {
-    render(<StatCards summary={sampleUsageViewModel.summary} />);
-    expect(
-      within(cardFor("recall events suppressed")).getByText("96"),
-    ).toBeTruthy();
-    expect(
-      within(cardFor("dedup chars saved")).getByText("184.00K"),
-    ).toBeTruthy();
-  });
+  it.each([
+    sampleUsageViewModel.summary,
+    new UsageAggregationService().buildUsageViewModel([
+      { schema_version: 1, account_label: "fixture", machine_label: "fixture" },
+    ]).summary,
+  ])(
+    "does not promote absent or legacy savings counters into measurements",
+    (summary) => {
+      render(<StatCards summary={summary} />);
+      expect(screen.queryByText("recall events suppressed")).toBeNull();
+      expect(screen.queryByText("dedup chars saved")).toBeNull();
+      expect(screen.queryByText("the dominant cost driver")).toBeNull();
+    },
+  );
 });

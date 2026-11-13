@@ -45,7 +45,7 @@ export function buildReportHubCards(): ReportHubCard[] {
       id: "usage",
       title: "token usage across accounts",
       description:
-        "Claude Code token consumption per account, anonymized to opaque labels and pulled from each machine's stats-cache. Cache-read tokens are the headline cost.",
+        "Private Claude Code token metadata collected offline with ccusage and published by authenticated producers. Costs are not verified billing totals; opaque labels reflect each machine's current account.",
       href: USAGE_DASHBOARD_MOUNT_PATH,
     },
     {

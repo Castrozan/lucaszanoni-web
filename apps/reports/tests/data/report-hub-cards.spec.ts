@@ -15,6 +15,17 @@ describe("buildReportHubCards", () => {
     ]);
   });
 
+  it("identifies the private offline producer without claiming token volume establishes cost", () => {
+    const description = buildReportHubCards().find(
+      (card) => card.id === "usage",
+    )?.description;
+    expect(description?.toLowerCase()).toContain("private");
+    expect(description).toContain("ccusage");
+    expect(description).toContain("not verified billing totals");
+    expect(description).not.toContain("stats-cache");
+    expect(description).not.toContain("headline cost");
+  });
+
   it("counts the topics card off the contract registry rather than typing the number", () => {
     const cards = buildReportHubCards();
     const topicsCard = cards.find((card) => card.id === "topics");
