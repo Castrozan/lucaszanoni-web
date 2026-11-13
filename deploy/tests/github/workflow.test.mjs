@@ -69,6 +69,12 @@ test("GitHub verification exercises all deployment contracts and native multi-Wo
   }
 });
 
+test("CI bounds package concurrency without overriding project test workers", () => {
+  const testStep = stepNamed(workflow, "Test");
+  assert.match(testStep, /run: pnpm exec turbo run test --concurrency=2\s*$/m);
+  assert.doesNotMatch(testStep, /--maxWorkers(?:=|\s)/);
+});
+
 const verificationSecrets = [
   "PRODUCTION_TERRAFORM_VARIABLES",
   "CLOUDFLARE_API_TOKEN",
