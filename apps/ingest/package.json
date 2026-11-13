@@ -5,11 +5,10 @@
   "type": "module",
   "files": [
     "dist",
-    "server-entrypoint.mjs"
+    "migrations"
   ],
   "scripts": {
-    "build": "esbuild src/server.ts --bundle --platform=node --format=esm --target=node22 --outfile=dist/server.mjs",
-    "start": "node server-entrypoint.mjs",
+    "build": "esbuild src/worker/entrypoint.ts --bundle --platform=neutral --conditions=workerd,worker,browser --main-fields=module,main --format=esm --target=es2022 --external:cloudflare:* --external:node:* --outfile=dist/worker.mjs",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
@@ -17,9 +16,12 @@
     "@platform/ingestion-contracts": "workspace:*"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "5.20261112.1",
     "@platform/tsconfig": "workspace:*",
     "@types/node": "^22.0.0",
     "esbuild": "^0.25.0",
+    "fast-check": "4.10.2",
+    "miniflare": "5.20261006.2-beta",
     "typescript": "^5.7.3",
     "vitest": "^4.1.9"
   }

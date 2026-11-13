@@ -94,8 +94,10 @@ describe("the dashboard opens on the numbers, not on the links", () => {
     expect(screen.getByText("12M")).toBeTruthy();
     const snapshotRequests = vi
       .mocked(globalThis.fetch)
-      .mock.calls.filter(([requestUrl]) =>
-        String(requestUrl).includes("storage.googleapis.com"),
+      .mock.calls.filter(
+        ([requestUrl]) =>
+          String(requestUrl) ===
+          "https://lucaszanoni.com/cockpit/data/aggregate/machine-usage-snapshots.json",
       );
     expect(snapshotRequests).toHaveLength(1);
   });

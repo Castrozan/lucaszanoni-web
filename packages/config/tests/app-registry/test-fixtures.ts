@@ -2,7 +2,6 @@ import type { AppRegistryEntry } from "../../src/app-registry/types";
 import {
   dynamicIaCanvasApp,
   dynamicIaInterfacesApp,
-  ingestApp,
 } from "./dynamic-service-fixtures";
 import {
   terminalSessionApp,
@@ -30,6 +29,7 @@ export const shellApp: AppRegistryEntry = {
 
 export const usageDashboardApp: AppRegistryEntry = {
   id: "usage-dashboard",
+  capabilities: ["snapshot-data"],
   mountPath: "/engineering/dotfiles/claude/usage/",
   navigationLabel: "Claude usage",
   description: "Live Claude Code token usage and cost across machines.",
@@ -51,6 +51,7 @@ export const usageDashboardApp: AppRegistryEntry = {
 
 export const reportsApp: AppRegistryEntry = {
   id: "reports",
+  capabilities: ["snapshot-data"],
   mountPath: "/engineering/dotfiles/reports/",
   navigationLabel: "Reports",
   description: "Generated reports hub.",
@@ -87,6 +88,7 @@ export const dbApp: AppRegistryEntry = {
 
 export const cockpitApp: AppRegistryEntry = {
   id: "cockpit",
+  capabilities: ["snapshot-data"],
   mountPath: "/cockpit/",
   navigationLabel: "Cockpit",
   description: "Owner cockpit landing with quick access, live usage, and data.",
@@ -132,7 +134,27 @@ export const workspaceApp: AppRegistryEntry = {
   origin: { kind: "cloudflare-worker", scriptName: "lucaszanoni-workspace" },
 };
 
-export { dynamicIaCanvasApp, dynamicIaInterfacesApp, ingestApp };
+export { dynamicIaCanvasApp, dynamicIaInterfacesApp };
+
+export const ingestApp: AppRegistryEntry = {
+  id: "ingest",
+  capabilities: ["snapshot-ingestion"],
+  mountPath: "/ingest/",
+  navigationLabel: "Ingest",
+  description:
+    "Contract-checked ingestion api that stores producer snapshots under a registered topic.",
+  showInCrossSectionNavigation: false,
+  status: "active",
+  accessModel: { environment: "public" },
+  source: {
+    appPackageName: "@platform/ingest",
+    appDirectoryName: "ingest",
+    buildProfile: "worker-service",
+    publicBuildEnvironment: {},
+    publicBuildEnvironmentReferences: {},
+  },
+  origin: { kind: "cloudflare-worker", scriptName: "lucaszanoni-ingest" },
+};
 
 export const stackLauncherApp: AppRegistryEntry = {
   id: "stack-launcher",

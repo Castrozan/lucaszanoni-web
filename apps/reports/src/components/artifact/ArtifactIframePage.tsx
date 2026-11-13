@@ -44,7 +44,7 @@ export function ArtifactIframePage({
       <div className="relative flex-1 overflow-hidden rounded-lg border border-border bg-surface">
         {loadState === "loading" && (
           <div className="absolute inset-0 grid place-items-center px-6 text-center text-sm text-muted-foreground">
-            Loading the latest artifact from the public bucket.
+            Loading the latest private artifact.
           </div>
         )}
         {loadState === "error" && (

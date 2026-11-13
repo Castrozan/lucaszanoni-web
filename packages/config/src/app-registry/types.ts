@@ -1,6 +1,12 @@
 export type AppLifecycleStatus = "active" | "retired";
 
-export type AppBuildProfile = "static-spa" | "dynamic-service";
+export const APP_BUILD_PROFILES = [
+  "static-spa",
+  "dynamic-service",
+  "worker-service",
+] as const;
+
+export type AppBuildProfile = (typeof APP_BUILD_PROFILES)[number];
 
 export type AppExternalOriginPathRewrite = "preserve" | "strip-mount-path";
 
@@ -33,7 +39,13 @@ export type AppAccessApplicationProvisioning =
       readonly parentMountPath: string;
     };
 
-export type AppCapability = "generative-ai";
+export const APP_CAPABILITIES = [
+  "generative-ai",
+  "snapshot-ingestion",
+  "snapshot-data",
+] as const;
+
+export type AppCapability = (typeof APP_CAPABILITIES)[number];
 
 export interface AppSource {
   readonly appPackageName: string;

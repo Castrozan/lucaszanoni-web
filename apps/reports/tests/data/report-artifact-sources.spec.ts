@@ -8,19 +8,19 @@ import {
 describe("report artifact sources", () => {
   it("points the bucket base url at the public reports prefix", () => {
     expect(reportArtifactsBaseUrl).toBe(
-      "https://storage.googleapis.com/zg-url-shortener-2026-dotfiles-usage-snapshots/reports/",
+      "https://lucaszanoni.com/engineering/dotfiles/reports/data/reports/",
     );
   });
 
   it("derives the baseline artifact url under the reports prefix", () => {
     expect(baselineArtifactUrl).toBe(
-      "https://storage.googleapis.com/zg-url-shortener-2026-dotfiles-usage-snapshots/reports/baseline/index.html",
+      "https://lucaszanoni.com/engineering/dotfiles/reports/data/reports/baseline/index.html",
     );
   });
 
   it("derives the coverage artifact url under the reports prefix", () => {
     expect(coverageArtifactUrl).toBe(
-      "https://storage.googleapis.com/zg-url-shortener-2026-dotfiles-usage-snapshots/reports/coverage/index.html",
+      "https://lucaszanoni.com/engineering/dotfiles/reports/data/reports/coverage/index.html",
     );
   });
 });

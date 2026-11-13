@@ -6,10 +6,7 @@ import {
   type UsageViewModel,
   type SnapshotSourceConfiguration,
 } from "@platform/snapshot-data";
-import {
-  LIVE_REFRESH_INTERVAL_MILLISECONDS,
-  USAGE_SNAPSHOT_SOURCE,
-} from "./usage-snapshot-source";
+import { LIVE_REFRESH_INTERVAL_MILLISECONDS } from "./usage-snapshot-source";
 
 const usageAggregationService = new UsageAggregationService();
 
@@ -21,7 +18,7 @@ export interface UsageDashboardState {
 }
 
 export function useUsageViewModel(
-  source: SnapshotSourceConfiguration = USAGE_SNAPSHOT_SOURCE,
+  source: SnapshotSourceConfiguration,
 ): UsageDashboardState {
   const usageSnapshotsQuery = useQuery({
     queryKey: ["usage-snapshots", source.snapshotUrl],

@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
-import {
-  assertPrivateApplicationAccess,
-  createSiteDeploymentPlan,
-} from "../../../cloudflare/application-deployment.mjs";
+import { createSiteDeploymentPlan } from "../../../cloudflare/application-deployment.mjs";
+import { assertPrivateApplicationAccess } from "../../../cloudflare/private-application-access.mjs";
 import { appRegistry, settings } from "./fixtures.mjs";
 
 test("active production deploys the registry through Cloudflare without GCP authentication or apply", () => {

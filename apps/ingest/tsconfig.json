@@ -2,7 +2,7 @@
   "extends": "@platform/tsconfig/base.json",
   "compilerOptions": {
     "lib": ["ES2023"],
-    "types": ["node"],
+    "types": ["@cloudflare/workers-types", "node"],
     "noEmit": true
   },
   "include": ["src", "tests"]

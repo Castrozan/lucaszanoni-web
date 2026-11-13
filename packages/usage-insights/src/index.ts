@@ -1,6 +1,6 @@
 export {
   LIVE_REFRESH_INTERVAL_MILLISECONDS,
-  USAGE_SNAPSHOT_SOURCE,
+  createUsageSnapshotSource,
 } from "./usage-snapshot-source";
 export {
   useUsageViewModel,

@@ -1,4 +1,4 @@
-import overviewSchema from "./generated/verdr-overview-v1.schema.json";
+import overviewSchema from "./generated/verdr-overview-v1.schema.json" with { type: "json" };
 
 export const qualityOverviewPayloadSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",

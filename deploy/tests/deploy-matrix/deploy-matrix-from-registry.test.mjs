@@ -31,13 +31,6 @@ const expectedDeployMatrixFromCommittedRegistry = {
       app_mount_path: "/dynamic-ia-interfaces/",
       build_profile: "dynamic-service",
     },
-    {
-      service_name: "lucaszanoni-ingest",
-      app_package_name: "@platform/ingest",
-      app_directory_name: "ingest",
-      app_mount_path: "/ingest/",
-      build_profile: "dynamic-service",
-    },
   ],
 };
 

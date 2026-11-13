@@ -3,7 +3,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { ArtifactIframePage } from "../../src/components/artifact/ArtifactIframePage";
 
 const artifactUrl =
-  "https://storage.googleapis.com/zg-url-shortener-2026-dotfiles-usage-snapshots/reports/baseline/index.html";
+  "https://lucaszanoni.com/engineering/dotfiles/reports/data/reports/baseline/index.html";
 
 function renderArtifactPage() {
   return render(

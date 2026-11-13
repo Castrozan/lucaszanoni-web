@@ -1,4 +1,3 @@
-import { parseIngestedSnapshotRecord } from "@platform/ingestion-contracts";
 import { describe, expect, it } from "vitest";
 import {
   buildAuthorizedPost,
@@ -16,7 +15,8 @@ describe("accepting a contracted ingest request", () => {
       method: "GET",
       pathname: "/livez",
       presentedProducerSecret: undefined,
-      body: "",
+      contentType: undefined,
+      body: new Uint8Array(0),
     });
     expect(response.statusCode).toBe(200);
   });
@@ -33,28 +33,28 @@ describe("accepting a contracted ingest request", () => {
     });
   });
 
-  it("stores the accepted event under both the event key and the latest key", async () => {
+  it("hands the writer one write carrying the event key and the received record", async () => {
     const { handleIngestRequest, snapshotObjectWriter } =
       createHandlerUnderTest();
     await handleIngestRequest(buildAuthorizedPost());
-    expect(
-      [...snapshotObjectWriter.writtenObjects.keys()].sort(),
-    ).toStrictEqual([expectedEventObjectKey, expectedLatestObjectKey].sort());
-    expect(
-      snapshotObjectWriter.writtenObjects.get(expectedEventObjectKey),
-    ).toBe(snapshotObjectWriter.writtenObjects.get(expectedLatestObjectKey));
+    expect(snapshotObjectWriter.writes).toStrictEqual([
+      {
+        eventObjectKey: expectedEventObjectKey,
+        record: { receivedAt, event: testBaselineEventFixture },
+      },
+    ]);
   });
 
-  it("stores a snapshot record the contracts package can read back", async () => {
-    const { handleIngestRequest, snapshotObjectWriter } =
-      createHandlerUnderTest();
-    await handleIngestRequest(buildAuthorizedPost());
-    const storedBody = snapshotObjectWriter.writtenObjects.get(
-      expectedLatestObjectKey,
-    );
-    const record = parseIngestedSnapshotRecord(JSON.parse(storedBody ?? ""));
-    expect(record.receivedAt).toBe(receivedAt);
-    expect(record.event).toStrictEqual(testBaselineEventFixture);
+  it("maps the mounted health path to the health probe", async () => {
+    const { handleIngestRequest } = createHandlerUnderTest();
+    const response = await handleIngestRequest({
+      method: "GET",
+      pathname: "/ingest/livez",
+      presentedProducerSecret: undefined,
+      contentType: undefined,
+      body: new Uint8Array(0),
+    });
+    expect(response.statusCode).toBe(200);
   });
 
   it("names the event object after the producer when the event carries no commit", async () => {
@@ -63,8 +63,10 @@ describe("accepting a contracted ingest request", () => {
     const { source: _discardedSource, ...eventWithoutSource } =
       testBaselineEventFixture;
     await handleIngestRequest(buildAuthorizedPost(eventWithoutSource));
-    expect([...snapshotObjectWriter.writtenObjects.keys()]).toContain(
+    expect(
+      snapshotObjectWriter.writes.map((write) => write.eventObjectKey),
+    ).toStrictEqual([
       "snapshots/dotfiles-test-baseline/events/2026-07-24T03:26:24.774Z-dotfiles-github-actions.json",
-    );
+    ]);
   });
 });

@@ -4,7 +4,7 @@ import { INGESTION_TOPIC_CONTRACTS } from "@platform/ingestion-contracts";
 import { TopicsPage } from "../../src/components/TopicsPage";
 
 const baselineSnapshotUrl =
-  "https://storage.googleapis.com/zg-url-shortener-2026-dotfiles-usage-snapshots/snapshots/dotfiles-test-baseline/latest.json";
+  "https://lucaszanoni.com/engineering/dotfiles/reports/data/snapshots/dotfiles-test-baseline/latest.json";
 
 const ingestedBaselineRecord = {
   receivedAt: "2026-07-24T03:26:30.000Z",
@@ -129,13 +129,11 @@ describe("TopicsPage", () => {
   it("keeps malformed records distinct from missing snapshots", async () => {
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValue({
-          ok: true,
-          status: 200,
-          json: async () => ({ invalid: true }),
-        }),
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({ invalid: true }),
+      }),
     );
     render(<TopicsPage />);
     await waitFor(() =>

@@ -161,9 +161,11 @@ jobs:
         run: node deploy/github/verify-production-configuration.mjs
       - name: Deploy private application Workers and edge
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_SITE_DEPLOY_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_SITE_HOSTNAME: lucaszanoni.com
+          CLOUDFLARE_SNAPSHOT_DATABASE_ID: ${{ vars.CLOUDFLARE_SNAPSHOT_DATABASE_ID }}
+          INGEST_PRODUCER_SECRET: ${{ secrets.INGEST_PRODUCER_SECRET }}
           COCKPIT_WORKSPACE_MACHINES: ${{ secrets.COCKPIT_WORKSPACE_MACHINES }}
           ARR_STACK_TAILNET_HOST: ${{ secrets.ARR_STACK_TAILNET_HOST }}
         run: node deploy/cloudflare/deploy-site.mjs

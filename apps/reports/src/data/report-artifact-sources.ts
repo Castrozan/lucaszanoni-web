@@ -1,9 +1,12 @@
-import { SNAPSHOT_ARTIFACT_LOCATIONS } from "@platform/config";
+import { createApplicationSnapshotArtifactLocations } from "@platform/config";
+
+const reportsSnapshotArtifactLocations =
+  createApplicationSnapshotArtifactLocations("reports");
 
 export const artifactStoreBaseUrl =
-  SNAPSHOT_ARTIFACT_LOCATIONS.artifactStoreBaseUrl;
+  reportsSnapshotArtifactLocations.artifactStoreBaseUrl;
 export const reportArtifactsBaseUrl =
-  SNAPSHOT_ARTIFACT_LOCATIONS.reportArtifactsBaseUrl;
+  reportsSnapshotArtifactLocations.reportArtifactsBaseUrl;
 export const baselineArtifactUrl = new URL(
   "baseline/index.html",
   reportArtifactsBaseUrl,

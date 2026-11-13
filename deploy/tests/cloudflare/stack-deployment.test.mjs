@@ -2,15 +2,15 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { appRegistry } from "../../../packages/config/src/app-registry.ts";
 import {
-  assertPrivateApplicationAccess,
   createApplicationBuildEnvironment,
   createSiteDeploymentPlan,
 } from "../../cloudflare/application-deployment.mjs";
+import { assertPrivateApplicationAccess } from "../../cloudflare/private-application-access.mjs";
 
 const stackRoutingApplicationIds = ["cockpit", "stack-launcher"];
-const stackRoutingRegistry = appRegistry.filter((application) =>
-  stackRoutingApplicationIds.includes(application.id),
-);
+const stackRoutingRegistry = appRegistry
+  .filter((application) => stackRoutingApplicationIds.includes(application.id))
+  .map((application) => ({ ...application, capabilities: [] }));
 
 const routes = {
   shell: "shell.run.app",

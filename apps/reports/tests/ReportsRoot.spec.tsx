@@ -25,7 +25,7 @@ describe("ReportsRoot routing", () => {
     );
     const iframe = container.querySelector("iframe");
     expect(iframe?.getAttribute("src")).toBe(
-      "https://storage.googleapis.com/zg-url-shortener-2026-dotfiles-usage-snapshots/reports/coverage/index.html",
+      "https://lucaszanoni.com/engineering/dotfiles/reports/data/reports/coverage/index.html",
     );
     expect(screen.queryByText("dotfiles reports")).toBeNull();
   });

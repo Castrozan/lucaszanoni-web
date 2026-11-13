@@ -1,5 +1,9 @@
 import type { AppCapability, AppSource } from "./types.ts";
-import { AppRegistryValidationError } from "./types.ts";
+import {
+  APP_BUILD_PROFILES,
+  APP_CAPABILITIES,
+  AppRegistryValidationError,
+} from "./types.ts";
 import {
   asObjectRecord,
   rejectUnknownKeys,
@@ -65,7 +69,7 @@ export function parseSource(
     buildProfile: requireOneOf(
       record,
       "buildProfile",
-      ["static-spa", "dynamic-service"] as const,
+      APP_BUILD_PROFILES,
       `${context} source`,
     ),
     publicBuildEnvironment,
@@ -80,7 +84,7 @@ export function parseCapabilities(
   if (value === undefined) return undefined;
   if (
     !Array.isArray(value) ||
-    value.some((capability) => capability !== "generative-ai") ||
+    value.some((capability) => !APP_CAPABILITIES.includes(capability)) ||
     new Set(value).size !== value.length
   ) {
     throw new AppRegistryValidationError(

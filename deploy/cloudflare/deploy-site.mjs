@@ -4,26 +4,29 @@ import {
   readdirSync,
   rmSync,
   statSync,
-  writeFileSync,
 } from "node:fs";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { spawnSync } from "node:child_process";
 import { appRegistry } from "../../packages/config/src/app-registry.ts";
 import {
-  assertPrivateApplicationAccess,
   createApplicationBuildEnvironment,
   createSiteDeploymentPlan,
 } from "./application-deployment.mjs";
+import { assertPrivateApplicationAccess } from "./private-application-access.mjs";
+import {
+  assertRequiredSecretsPresent,
+  createWorkerDeployer,
+  runPnpmCommand,
+} from "./worker-deployment-execution.mjs";
 import {
   assertApplicationWorkerCanBeUpdated,
+  assertApplicationDatabasesMatch,
   assertAccessApplicationsUnchanged,
   createCloudflareReader,
   verifyPrivateWorker,
 } from "./cloudflare-client.mjs";
-
 export function createApplicationAssetManifest(directory) {
   return Object.fromEntries(
     readdirSync(directory, { recursive: true })
@@ -51,16 +54,22 @@ function readDeploymentAccount(environment) {
   }
 }
 
-function runCommand(argumentsList, repositoryDirectory, environment) {
-  const result = spawnSync("pnpm", argumentsList, {
-    cwd: repositoryDirectory,
-    env: environment,
-    stdio: "inherit",
-  });
-  if (result.status !== 0)
-    throw new Error(
-      `Deployment command failed: pnpm ${argumentsList.slice(0, 3).join(" ")}`,
-    );
+function createApplicationBuildManifest(application) {
+  const { configuration } = application;
+  return {
+    applicationId: application.applicationId,
+    ...(configuration.assets
+      ? {
+          assetHashes: createApplicationAssetManifest(
+            configuration.assets.directory,
+          ),
+        }
+      : {
+          workerSha256: createHash("sha256")
+            .update(readFileSync(configuration.main))
+            .digest("hex"),
+        }),
+  };
 }
 
 export async function deploySite({ dryRun = false } = {}) {
@@ -86,7 +95,10 @@ export async function deploySite({ dryRun = false } = {}) {
     settings,
     appRegistry,
     repositoryDirectory,
+    { snapshotDatabaseId: process.env.CLOUDFLARE_SNAPSHOT_DATABASE_ID },
   );
+  assertRequiredSecretsPresent(plan.applications, environment);
+  await assertApplicationDatabasesMatch(readCloudflare, plan.applications);
   const requiresPrivateAccess = plan.applications.some(
     (application) => application.accessModel.environment !== "public",
   );
@@ -103,49 +115,38 @@ export async function deploySite({ dryRun = false } = {}) {
       `workers/scripts/${application.configuration.name}/settings`,
       { allowMissing: true },
     );
-    assertApplicationWorkerCanBeUpdated(existing, application.applicationId);
+    assertApplicationWorkerCanBeUpdated(existing, application);
   }
   for (const application of plan.applications) {
-    runCommand(
+    runPnpmCommand(
       ["--filter", application.source.appPackageName, "build"],
       repositoryDirectory,
       createApplicationBuildEnvironment(application.source, environment),
     );
-    console.log(
-      JSON.stringify({
-        applicationId: application.applicationId,
-        assetHashes: createApplicationAssetManifest(
-          application.configuration.assets.directory,
-        ),
-      }),
-    );
+    console.log(JSON.stringify(createApplicationBuildManifest(application)));
   }
   const configurationDirectory = mkdtempSync(
     join(tmpdir(), "site-cloudflare-"),
   );
   try {
-    const deployWorker = (configuration, index) => {
-      const configurationPath = join(configurationDirectory, `${index}.json`);
-      writeFileSync(configurationPath, JSON.stringify(configuration), {
-        mode: 0o600,
-      });
-      runCommand(
-        [
-          "exec",
-          "wrangler",
-          "deploy",
-          "--config",
-          configurationPath,
-          ...(dryRun ? ["--dry-run"] : []),
-        ],
-        repositoryDirectory,
-        environment,
-      );
-    };
+    const deployWorker = createWorkerDeployer({
+      repositoryDirectory,
+      environment,
+      configurationDirectory,
+      dryRun,
+    });
     for (const [index, application] of plan.applications.entries()) {
-      deployWorker(application.configuration, index);
+      deployWorker(
+        application.configuration,
+        index,
+        application.requiredSecrets,
+      );
       if (!dryRun)
-        await verifyPrivateWorker(readCloudflare, application.configuration);
+        await verifyPrivateWorker(
+          readCloudflare,
+          application.configuration,
+          application.requiredSecrets,
+        );
     }
     deployWorker(plan.edgeConfiguration, "edge");
     if (!dryRun) {
@@ -189,7 +190,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const argumentsList = process.argv.slice(2);
   if (argumentsList.includes("--help")) {
     console.log(
-      "Usage: node deploy/cloudflare/deploy-site.mjs [--dry-run]\nBuilds registry-owned static apps, deploys private Workers, then publishes edge service bindings. Requires CLOUDFLARE_API_TOKEN, CLOUDFLARE_SITE_HOSTNAME for private apps, and CLOUDFLARE_ACCOUNT_ID or the production variables file. Existing non-Cloudflare targets and Access policies are not modified.",
+      "Usage: node deploy/cloudflare/deploy-site.mjs [--dry-run]\nBuilds registry-owned application profiles, deploys private Workers, then publishes edge service bindings. Requires CLOUDFLARE_API_TOKEN, CLOUDFLARE_SNAPSHOT_DATABASE_ID and INGEST_PRODUCER_SECRET when snapshot ingestion is registered, CLOUDFLARE_SITE_HOSTNAME for private apps, and CLOUDFLARE_ACCOUNT_ID or the production variables file. Existing non-Cloudflare targets and Access policies are not modified.",
     );
   } else {
     if (argumentsList.some((argument) => argument !== "--dry-run"))

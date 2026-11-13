@@ -1,5 +1,3 @@
-import type { SnapshotObjectWriter } from "../src/snapshot-object-writer";
-
 export const testBaselineEventFixture = {
   topic: "dotfiles-test-baseline",
   schemaVersion: 1,
@@ -136,27 +134,3 @@ export const testBaselineEventFixture = {
     ],
   },
 };
-
-export interface RecordingSnapshotObjectWriter extends SnapshotObjectWriter {
-  readonly writtenObjects: Map<string, string>;
-}
-
-export function createRecordingSnapshotObjectWriter(): RecordingSnapshotObjectWriter {
-  const writtenObjects = new Map<string, string>();
-  return {
-    writtenObjects,
-    async writeSnapshotObject(objectKey: string, objectBody: string) {
-      writtenObjects.set(objectKey, objectBody);
-    },
-  };
-}
-
-export function createFailingSnapshotObjectWriter(
-  failureMessage: string,
-): SnapshotObjectWriter {
-  return {
-    async writeSnapshotObject() {
-      throw new Error(failureMessage);
-    },
-  };
-}

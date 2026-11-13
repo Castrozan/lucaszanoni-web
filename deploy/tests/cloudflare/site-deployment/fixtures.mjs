@@ -6,6 +6,7 @@ export const appRegistry = canonicalRegistry
   .filter((application) =>
     ["shell", "cockpit", "reports"].includes(application.id),
   )
+  .map((application) => ({ ...application, capabilities: [] }))
   .map((application) =>
     syntheticCloudRunOriginApplicationIds.includes(application.id)
       ? {

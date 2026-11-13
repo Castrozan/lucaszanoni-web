@@ -3,11 +3,16 @@ import {
   createDeploymentManifest,
   createPublicBuildEnvironment,
 } from "../../packages/config/src/app-registry/deployment-manifest.ts";
+import {
+  createApplicationWorkerDeployment,
+  resolveSnapshotTopology,
+} from "./application-worker-configuration.mjs";
 
 export function createSiteDeploymentPlan(
   settings,
   registry,
   repositoryDirectory,
+  runtimeConfiguration = {},
 ) {
   const allowedBindingTypes = new Set([
     "plain_text",
@@ -40,14 +45,19 @@ export function createSiteDeploymentPlan(
       ...application,
       binding: `APP_${application.applicationId.replace(/-/g, "_").toUpperCase()}`,
     }));
+  const snapshotTopology = resolveSnapshotTopology(
+    manifest.applications,
+    runtimeConfiguration,
+  );
   const bindings = new Set();
   for (const application of applications) {
     if (
-      !application.source ||
-      application.source.buildProfile !== "static-spa"
+      !["static-spa", "worker-service"].includes(
+        application.source?.buildProfile,
+      )
     ) {
       throw new Error(
-        `Application ${application.applicationId} requires a static-spa build adapter`,
+        `Application ${application.applicationId} requires a static-spa build adapter or worker-service build adapter`,
       );
     }
     if (application.servingLocation.kind !== "path-prefix") {
@@ -136,41 +146,21 @@ export function createSiteDeploymentPlan(
     binding: application.binding,
   }));
   variables.EDGE_ROUTES = JSON.stringify(routingTable);
+  const deployments = applications.map((application) =>
+    createApplicationWorkerDeployment(
+      application,
+      settings,
+      repositoryDirectory,
+      snapshotTopology,
+    ),
+  );
+  const isWriter = (deployment) =>
+    deployment.applicationId === snapshotTopology?.writerApplicationId;
   return {
-    applications: applications.map((application) => ({
-      applicationId: application.applicationId,
-      source: application.source,
-      mountPath: application.mountPath,
-      accessModel: application.accessModel,
-      accessApplicationProvisioning: application.accessApplicationProvisioning,
-      configuration: {
-        name: application.target.scriptName,
-        main: resolve(
-          repositoryDirectory,
-          "deploy/cloudflare/static-application-worker.mjs",
-        ),
-        compatibility_date: settings.compatibility_date,
-        compatibility_flags: settings.compatibility_flags ?? [],
-        workers_dev: false,
-        preview_urls: false,
-        vars: {
-          APPLICATION_ID: application.applicationId,
-          APPLICATION_MOUNT_PATH: application.mountPath,
-        },
-        assets: {
-          directory: resolve(
-            repositoryDirectory,
-            "apps",
-            application.source.appDirectoryName,
-            "dist",
-          ),
-          binding: "ASSETS",
-          run_worker_first: true,
-          html_handling: "none",
-          not_found_handling: "single-page-application",
-        },
-      },
-    })),
+    applications: [
+      ...deployments.filter(isWriter),
+      ...deployments.filter((deployment) => !isWriter(deployment)),
+    ],
     edgeConfiguration: {
       name: "lucaszanoni-edge-router",
       main: resolve(
@@ -193,55 +183,4 @@ export function createApplicationBuildEnvironment(source, environment) {
     ...environment,
     ...createPublicBuildEnvironment(source, environment),
   };
-}
-
-export function assertPrivateApplicationAccess(
-  applications,
-  accessApplications,
-  siteHostname,
-) {
-  for (const application of applications) {
-    if (application.accessModel.environment === "public") continue;
-    if (
-      !siteHostname ||
-      new URL(`https://${siteHostname}`).hostname !== siteHostname
-    ) {
-      throw new Error(
-        "CLOUDFLARE_SITE_HOSTNAME must identify the private application's Access perimeter",
-      );
-    }
-    const path =
-      application.accessApplicationProvisioning?.kind ===
-      "inherited-from-parent-path"
-        ? application.accessApplicationProvisioning.parentMountPath
-        : application.mountPath;
-    const expectedDomain = `${siteHostname}${path === "/" ? "" : path.slice(0, -1)}`;
-    const gate = accessApplications.find(
-      (candidate) =>
-        candidate.domain === expectedDomain && candidate.type === "self_hosted",
-    );
-    if (
-      !gate ||
-      !gate.policies?.some((policy) => policy.decision === "allow") ||
-      gate.policies.some((policy) => policy.decision === "bypass")
-    ) {
-      throw new Error(
-        `Application ${application.applicationId} requires an existing non-bypass Access application at ${expectedDomain}`,
-      );
-    }
-    const applicationDomain = `${siteHostname}${application.mountPath === "/" ? "" : application.mountPath.slice(0, -1)}`;
-    if (
-      accessApplications.some(
-        (candidate) =>
-          candidate.domain.length >= expectedDomain.length &&
-          (candidate.domain === applicationDomain ||
-            applicationDomain.startsWith(`${candidate.domain}/`)) &&
-          candidate.policies?.some((policy) => policy.decision === "bypass"),
-      )
-    ) {
-      throw new Error(
-        `Application ${application.applicationId} would inherit an Access bypass`,
-      );
-    }
-  }
 }
