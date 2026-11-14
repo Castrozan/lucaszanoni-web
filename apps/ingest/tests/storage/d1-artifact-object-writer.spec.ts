@@ -3,6 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createD1ArtifactObjectWriter } from "../../src/storage/d1-artifact-object-writer";
 import { createD1SnapshotObjectReader } from "../../src/storage/d1-snapshot-object-reader";
 import { openLocalD1Store, type LocalD1Store } from "./local-d1-store";
+import { storePaddedObject } from "./padded-stored-object";
 import { patternedBytes } from "./patterned-bytes";
 
 let store: LocalD1Store;
@@ -113,11 +114,14 @@ describe("round-tripping artifact bytes through D1", () => {
       new TextEncoder().encode("{}"),
       "application/json",
     );
-    await writeReport(
-      "reports/current.json",
-      patternedBytes(2_500_000, 1),
-      "application/json",
-    );
+    await storePaddedObject(store.database, {
+      objectKey: "reports/current.json",
+      objectKind: "report",
+      leadingText: "",
+      paddingByteCount: 2_500_000,
+      trailingText: "",
+    });
+    expect(await chunkCountOf("reports/current.json")).toBe(3);
     await writeReport(
       "reports/current.json",
       new TextEncoder().encode("[1]"),

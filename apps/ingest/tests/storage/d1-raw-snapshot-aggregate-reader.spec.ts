@@ -6,7 +6,11 @@ import {
 import { createD1ArtifactObjectWriter } from "../../src/storage/d1-artifact-object-writer";
 import { createD1SnapshotObjectReader } from "../../src/storage/d1-snapshot-object-reader";
 import { openLocalD1Store, type LocalD1Store } from "./local-d1-store";
-import { patternedBytes } from "./patterned-bytes";
+import {
+  paddedObjectText,
+  storePaddedObject,
+  type PaddedStoredObject,
+} from "./padded-stored-object";
 
 let store: LocalD1Store;
 
@@ -74,24 +78,30 @@ describe("combining stored raw snapshots", () => {
   });
 
   it("joins a raw snapshot spanning several chunks without altering a byte", async () => {
-    const padding = "x".repeat(2_300_000);
-    const snapshot = `{"schema_version":1,"account_label":"a","machine_label":"m","model_usage_totals":{},"daily_model_tokens":[],"padding":"${padding}"}`;
-    await writeArtifact(
-      "raw-snapshot",
-      "snapshots/a-m.json",
-      new TextEncoder().encode(snapshot),
-    );
+    const snapshot: PaddedStoredObject = {
+      objectKey: "snapshots/a-m.json",
+      objectKind: "raw-snapshot",
+      leadingText:
+        '{"schema_version":1,"account_label":"a","machine_label":"m","model_usage_totals":{},"daily_model_tokens":[],"padding":"',
+      paddingByteCount: 2_300_000,
+      trailingText: '"}',
+    };
+    await storePaddedObject(store.database, snapshot);
     const aggregate = await readAggregate();
-    expect(new TextDecoder().decode(aggregate?.body)).toBe(`[${snapshot}]`);
+    expect(new TextDecoder().decode(aggregate?.body)).toBe(
+      `[${paddedObjectText(snapshot)}]`,
+    );
   });
 
   it("refuses an aggregate over eight million stored bytes rather than truncating", async () => {
     for (const label of ["a", "b", "c"]) {
-      await writeArtifact(
-        "raw-snapshot",
-        `snapshots/${label}-m.json`,
-        patternedBytes(2_700_000, 5),
-      );
+      await storePaddedObject(store.database, {
+        objectKey: `snapshots/${label}-m.json`,
+        objectKind: "raw-snapshot",
+        leadingText: "",
+        paddingByteCount: 2_700_000,
+        trailingText: "",
+      });
     }
     await expect(readAggregate()).rejects.toBeInstanceOf(
       AggregateTooLargeError,
