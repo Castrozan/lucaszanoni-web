@@ -19,7 +19,7 @@ export function AboutAtriumSection() {
       <p className="mb-12 max-w-[52rem] font-mono text-[13px] leading-[1.6] tracking-[0.5px] text-muted-foreground">
         One Cloudflare edge fronts many independently deployed micro-frontends,
         all defined by a single registry that drives routing, infrastructure,
-        the deploy matrix, and this page.
+        and this page.
       </p>
       <div className="grid gap-6 md:grid-cols-3">
         {platformFeatures.map((feature) => (

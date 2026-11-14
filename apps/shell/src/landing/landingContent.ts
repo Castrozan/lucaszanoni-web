@@ -127,7 +127,7 @@ const REPOSITORY_FILE_BASE_URL =
 export const engineeringContent: EngineeringContent = {
   heading: "HOW THIS SITE BUILDS ITSELF",
   subtitle:
-    "The same app-registry.json that drives Terraform, the deploy matrix, and the edge worker also assembles this page. Every claim below links to the code.",
+    "The same app-registry.json that drives Terraform, the Cloudflare deploy, and the edge worker also assembles this page. Every claim below links to the code.",
   registryTableCaption:
     "Rendered live from packages/config/src/app-registry.json — the platform's single source of truth.",
   narrativeCards: [
@@ -139,23 +139,9 @@ export const engineeringContent: EngineeringContent = {
       evidenceHref: `${REPOSITORY_FILE_BASE_URL}/infra/modules/cloudflare-edge/edge-router-worker.mjs`,
     },
     {
-      id: "scale-to-zero",
-      title: "SCALE-TO-ZERO CLOUD RUN",
-      body: "Every in-repo service runs with min_instance_count set to zero, so an idle app costs nothing to keep online.",
-      evidenceLabel: "serverless-cloud-run-app/main.tf",
-      evidenceHref: `${REPOSITORY_FILE_BASE_URL}/infra/modules/serverless-cloud-run-app/main.tf`,
-    },
-    {
-      id: "keyless-cd",
-      title: "KEYLESS CD VIA OIDC",
-      body: "Deploys authenticate to Google Cloud through Workload Identity Federation, so no service-account key is stored.",
-      evidenceLabel: "deploy-infrastructure.yml",
-      evidenceHref: `${REPOSITORY_FILE_BASE_URL}/.github/workflows/deploy-infrastructure.yml`,
-    },
-    {
       id: "registry-ssot",
       title: "REGISTRY AS SINGLE SOURCE OF TRUTH",
-      body: "One JSON array defines every app; routing, infrastructure, the deploy matrix, access policy, and this page all derive from it.",
+      body: "One JSON array defines every app; routing, infrastructure, access policy, and this page all derive from it.",
       evidenceLabel: "app-registry.json",
       evidenceHref: `${REPOSITORY_FILE_BASE_URL}/packages/config/src/app-registry.json`,
     },

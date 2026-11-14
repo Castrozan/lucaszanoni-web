@@ -17,7 +17,6 @@ export interface AppSourceSpec {
 
 export type AppOriginSpec =
   | { readonly kind: "cloudflare-worker" }
-  | { readonly kind: "cloud-run" }
   | {
       readonly kind: "external-https";
       readonly originHost: string;
@@ -48,13 +47,6 @@ function buildOrigin(id: string, origin: AppOriginSpec): AppOrigin {
   switch (origin.kind) {
     case "cloudflare-worker":
       return { kind: origin.kind, scriptName: `lucaszanoni-${id}` };
-    case "cloud-run":
-      return {
-        kind: origin.kind,
-        cloudRunServiceName: `lucaszanoni-${id}`,
-        nonSecretEnvironment: {},
-        secretEnvironmentReferences: {},
-      };
     case "external-https":
     case "static-gcs-bucket":
       return { ...origin };
@@ -65,10 +57,7 @@ export function buildAppRegistryEntry(
   input: AppRegistryEntryBuilderInput,
 ): AppRegistryEntry {
   const origin = buildOrigin(input.id, input.origin);
-  if (
-    (origin.kind === "cloud-run" || origin.kind === "cloudflare-worker") &&
-    !input.source
-  ) {
+  if (origin.kind === "cloudflare-worker" && !input.source) {
     throw new AppRegistryValidationError(
       `app ${input.id} origin ${origin.kind} requires repository source`,
     );

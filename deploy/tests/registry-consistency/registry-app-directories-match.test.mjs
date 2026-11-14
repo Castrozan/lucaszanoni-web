@@ -35,7 +35,7 @@ function readAppDirectoryInventory() {
     }));
 }
 
-function inRepoCloudRunEntry(id, appDirectoryName, appPackageName) {
+function inRepoWorkerEntry(id, appDirectoryName, appPackageName) {
   return {
     id,
     mountPath: "/",
@@ -48,10 +48,8 @@ function inRepoCloudRunEntry(id, appDirectoryName, appPackageName) {
       publicBuildEnvironmentReferences: {},
     },
     origin: {
-      kind: "cloud-run",
-      cloudRunServiceName: `lucaszanoni-${id}`,
-      nonSecretEnvironment: {},
-      secretEnvironmentReferences: {},
+      kind: "cloudflare-worker",
+      scriptName: `lucaszanoni-${id}`,
     },
   };
 }
@@ -79,7 +77,7 @@ test("the committed registry and the apps directories are mutually consistent", 
 });
 
 test("repository directory ownership is independent of hosting target", () => {
-  const entry = inRepoCloudRunEntry("shell", "shell", "@platform/shell");
+  const entry = inRepoWorkerEntry("shell", "shell", "@platform/shell");
   const inventory = [
     { directoryName: "shell", packageName: "@platform/shell" },
   ];
@@ -127,7 +125,7 @@ test("repository directory ownership is independent of hosting target", () => {
 test("flags an in-repo entry whose app directory is missing", () => {
   assert.deepEqual(
     findRegistryAppDirectoryInconsistencies(
-      [inRepoCloudRunEntry("shell", "shell", "@platform/shell")],
+      [inRepoWorkerEntry("shell", "shell", "@platform/shell")],
       [],
     ),
     [
@@ -143,7 +141,7 @@ test("flags an in-repo entry whose app directory is missing", () => {
 test("flags an in-repo entry whose app directory package name diverges", () => {
   assert.deepEqual(
     findRegistryAppDirectoryInconsistencies(
-      [inRepoCloudRunEntry("shell", "shell", "@platform/shell")],
+      [inRepoWorkerEntry("shell", "shell", "@platform/shell")],
       [{ directoryName: "shell", packageName: "@platform/renamed" }],
     ),
     [
@@ -161,7 +159,7 @@ test("flags an in-repo entry whose app directory package name diverges", () => {
 test("flags an apps directory that no in-repo entry claims", () => {
   assert.deepEqual(
     findRegistryAppDirectoryInconsistencies(
-      [inRepoCloudRunEntry("shell", "shell", "@platform/shell")],
+      [inRepoWorkerEntry("shell", "shell", "@platform/shell")],
       [
         { directoryName: "shell", packageName: "@platform/shell" },
         {
@@ -198,7 +196,7 @@ test("flags a non-in-repo entry that nonetheless owns an apps directory", () => 
 });
 
 test("does not flag a non-in-repo id that collides with an in-repo app directory the in-repo entry owns", () => {
-  const inRepo = inRepoCloudRunEntry(
+  const inRepo = inRepoWorkerEntry(
     "reports-app",
     "reports",
     "@platform/reports",
@@ -221,7 +219,7 @@ test("accepts a non-in-repo entry that owns no apps directory", () => {
   assert.deepEqual(
     findRegistryAppDirectoryInconsistencies(
       [
-        inRepoCloudRunEntry("shell", "shell", "@platform/shell"),
+        inRepoWorkerEntry("shell", "shell", "@platform/shell"),
         externalHttpsEntry("private-portal"),
       ],
       [{ directoryName: "shell", packageName: "@platform/shell" }],

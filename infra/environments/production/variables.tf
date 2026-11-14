@@ -19,24 +19,6 @@ variable "canonical_domain_name" {
   description = "Primary public domain for the platform. When enable_dotcom_canonical is on, the edge serves this zone and the domain_name zone is reduced to a permanent redirect alias pointing here."
 }
 
-variable "dynamic_ia_canvas_container_image" {
-  type        = string
-  description = "Fully qualified Artifact Registry image for the dynamic-ia-canvas service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."
-  default     = "us-docker.pkg.dev/cloudrun/container/hello"
-}
-
-variable "dynamic_ia_interfaces_container_image" {
-  type        = string
-  description = "Fully qualified Artifact Registry image for the dynamic-ia-interfaces service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."
-  default     = "us-docker.pkg.dev/cloudrun/container/hello"
-}
-
-variable "ingest_container_image" {
-  type        = string
-  description = "Fully qualified Artifact Registry image for the ingest service. Real app images are pushed out-of-band by CD; Terraform ignores image drift, so this seeds the first revision only."
-  default     = "us-docker.pkg.dev/cloudrun/container/hello"
-}
-
 variable "enable_cloudflare_edge" {
   type        = bool
   default     = false
@@ -49,27 +31,15 @@ variable "enable_dotcom_canonical" {
   description = "Whether lucaszanoni.com is the canonical edge domain with lucaszanoni.com.br reduced to a permanent redirect alias. Defaults off so the live edge keeps serving the .com.br zone unchanged; flipped on only after the Cloudflare API token is widened to include the lucaszanoni.com zone, since the serving-zone resources cannot be written there until then."
 }
 
-variable "reports_static_bucket_name" {
-  type        = string
-  default     = "zg-url-shortener-2026-dotfiles-usage-snapshots"
-  description = "Retired snapshot bucket identifier retained for existing IAM configuration; not used by current site routing, ingestion, or publication."
-}
-
 variable "edge_shared_secret_value" {
   type        = string
   sensitive   = true
-  description = "Shared secret the Cloudflare edge injects and each Cloud Run service requires before serving."
+  description = "Shared secret the Cloudflare edge injects into requests it proxies to an owned origin host."
 }
 
 variable "cloudflare_account_id" {
   type        = string
   description = "Cloudflare account that owns the lucaszanoni.com.br zone. Supplied at apply time via TF_VAR_cloudflare_account_id; never committed, to keep account identifiers out of the public repo."
-}
-
-variable "runtime_service_account_email" {
-  type        = string
-  default     = "lucaszanoni-web-runtime@zg-url-shortener-2026.iam.gserviceaccount.com"
-  description = "Shared Cloud Run runtime identity for the platform services, owned by the GCP federation state."
 }
 
 variable "owner_account_email" {

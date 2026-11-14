@@ -13,7 +13,7 @@ const existingEntry = buildAppRegistryEntry({
   status: "active",
   accessModel: { environment: "public" },
   source: { buildProfile: "static-spa" },
-  origin: { kind: "cloud-run" },
+  origin: { kind: "cloudflare-worker" },
 });
 
 const existingDocument = `${JSON.stringify([existingEntry], null, 2)}\n`;
@@ -88,7 +88,7 @@ describe("appendEntryToRegistryDocument", () => {
         audience: { kind: "shared", audienceKey: "" },
       },
       source: { buildProfile: "static-spa" },
-      origin: { kind: "cloud-run" },
+      origin: { kind: "cloudflare-worker" },
     });
     expect(() =>
       appendEntryToRegistryDocument(

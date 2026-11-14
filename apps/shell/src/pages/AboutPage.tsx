@@ -18,9 +18,9 @@ export function AboutPage() {
           Atrium is the platform behind lucaszanoni.com: one Cloudflare edge
           that fronts many independently deployed micro-frontends. A single
           registry defines every app, and from it the platform derives routing,
-          infrastructure, the deploy matrix, access policy, and the pages you
-          are reading. The result is a site you can grow one app at a time
-          without redeploying the rest.
+          infrastructure, access policy, and the pages you are reading. The
+          result is a site you can grow one app at a time without redeploying
+          the rest.
         </p>
         <EngineeringSection />
       </main>

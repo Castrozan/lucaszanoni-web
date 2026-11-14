@@ -36,10 +36,7 @@ export function resolveAccessModel(answers: AddAppAnswers): AppAccessModel {
 }
 
 export function resolveOriginSpec(answers: AddAppAnswers): AppOriginSpec {
-  if (
-    answers.originKind === "cloudflare-worker" ||
-    answers.originKind === "cloud-run"
-  ) {
+  if (answers.originKind === "cloudflare-worker") {
     return { kind: answers.originKind };
   }
   if (answers.originKind === "external-https") {
@@ -64,10 +61,7 @@ export function resolveSourceSpec(
   if (answers.buildProfile !== undefined) {
     return { buildProfile: answers.buildProfile };
   }
-  if (
-    answers.originKind === "cloud-run" ||
-    answers.originKind === "cloudflare-worker"
-  ) {
+  if (answers.originKind === "cloudflare-worker") {
     return { buildProfile: "static-spa" };
   }
   return undefined;

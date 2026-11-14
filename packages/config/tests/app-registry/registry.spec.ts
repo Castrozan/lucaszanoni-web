@@ -81,14 +81,11 @@ describe("application registry json schema", () => {
     },
   );
 
-  it.each(["in-repo-cloud-run", "in-repo-worker-assets"])(
-    "rejects obsolete origin %s",
-    (kind) => {
-      expect(
-        validate([{ ...shellApp, origin: { ...shellApp.origin, kind } }]),
-      ).toBe(false);
-    },
-  );
+  it.each(["in-repo-worker-assets"])("rejects obsolete origin %s", (kind) => {
+    expect(
+      validate([{ ...shellApp, origin: { ...shellApp.origin, kind } }]),
+    ).toBe(false);
+  });
 
   it.each(
     ["generative-ai", ["unsupported"], ["generative-ai", "generative-ai"]].map(
@@ -98,21 +95,19 @@ describe("application registry json schema", () => {
     expect(validate([{ ...shellApp, capabilities }])).toBe(false);
   });
 
-  it.each([
-    "appPackageName",
-    "appDirectoryName",
-    "buildProfile",
-    "cloudRunServiceName",
-  ])("rejects obsolete Worker target field %s", (field) => {
-    expect(
-      validate([
-        {
-          ...cockpitApp,
-          origin: { ...cockpitApp.origin, [field]: "obsolete" },
-        },
-      ]),
-    ).toBe(false);
-  });
+  it.each(["appPackageName", "appDirectoryName", "buildProfile"])(
+    "rejects obsolete Worker target field %s",
+    (field) => {
+      expect(
+        validate([
+          {
+            ...cockpitApp,
+            origin: { ...cockpitApp.origin, [field]: "obsolete" },
+          },
+        ]),
+      ).toBe(false);
+    },
+  );
 
   it("accepts an explicit unique AI capability", () => {
     expect(validate([{ ...shellApp, capabilities: ["generative-ai"] }])).toBe(

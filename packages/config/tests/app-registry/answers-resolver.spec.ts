@@ -17,7 +17,7 @@ const baseAnswers: AddAppAnswers = {
   showInCrossSectionNavigation: true,
   status: "active",
   accessModelChoice: "public",
-  originKind: "cloud-run",
+  originKind: "cloudflare-worker",
 };
 
 describe("resolveAccessModel", () => {
@@ -63,10 +63,10 @@ describe("resolveOriginSpec", () => {
     expect(
       resolveOriginSpec({
         ...baseAnswers,
-        originKind: "cloud-run",
+        originKind: "cloudflare-worker",
         buildProfile: "dynamic-service",
       }),
-    ).toEqual({ kind: "cloud-run" });
+    ).toEqual({ kind: "cloudflare-worker" });
     expect(
       resolveSourceSpec({ ...baseAnswers, buildProfile: "dynamic-service" }),
     ).toEqual({ buildProfile: "dynamic-service" });
@@ -74,8 +74,8 @@ describe("resolveOriginSpec", () => {
 
   it("falls back to the static-spa build profile when omitted", () => {
     expect(
-      resolveOriginSpec({ ...baseAnswers, originKind: "cloud-run" }),
-    ).toEqual({ kind: "cloud-run" });
+      resolveOriginSpec({ ...baseAnswers, originKind: "cloudflare-worker" }),
+    ).toEqual({ kind: "cloudflare-worker" });
     expect(resolveSourceSpec(baseAnswers)).toEqual({
       buildProfile: "static-spa",
     });
@@ -139,19 +139,18 @@ describe("resolveOriginSpec", () => {
 });
 
 describe("resolveSourceSpec", () => {
-  it("keeps source independent of either deployment provider", () => {
-    for (const originKind of ["cloud-run", "cloudflare-worker"] as const) {
-      expect(resolveOriginSpec({ ...baseAnswers, originKind })).toEqual({
-        kind: originKind,
-      });
-      expect(
-        resolveSourceSpec({
-          ...baseAnswers,
-          originKind,
-          buildProfile: "dynamic-service",
-        }),
-      ).toEqual({ buildProfile: "dynamic-service" });
-    }
+  it("keeps source independent of the deployment provider", () => {
+    const originKind = "cloudflare-worker";
+    expect(resolveOriginSpec({ ...baseAnswers, originKind })).toEqual({
+      kind: originKind,
+    });
+    expect(
+      resolveSourceSpec({
+        ...baseAnswers,
+        originKind,
+        buildProfile: "dynamic-service",
+      }),
+    ).toEqual({ buildProfile: "dynamic-service" });
   });
 
   it.each(["external-https", "static-gcs-bucket"] as const)(

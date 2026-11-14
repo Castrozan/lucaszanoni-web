@@ -13,7 +13,6 @@
   <img src="https://img.shields.io/badge/Tailwind_4-C9CBFF?style=for-the-badge&labelColor=302D41&logo=tailwindcss&logoColor=D9E0EE" alt="Tailwind CSS">
   <img src="https://img.shields.io/badge/Turborepo-F2CDCD?style=for-the-badge&labelColor=302D41&logo=turborepo&logoColor=D9E0EE" alt="Turborepo">
   <img src="https://img.shields.io/badge/Cloudflare_Workers-FAB387?style=for-the-badge&labelColor=302D41&logo=cloudflare&logoColor=D9E0EE" alt="Cloudflare Workers">
-  <img src="https://img.shields.io/badge/Cloud_Run-89B4FA?style=for-the-badge&labelColor=302D41&logo=googlecloud&logoColor=D9E0EE" alt="Google Cloud Run">
   <img src="https://img.shields.io/badge/OpenTofu-CBA6F7?style=for-the-badge&labelColor=302D41&logo=opentofu&logoColor=D9E0EE" alt="OpenTofu">
 </p>
 
@@ -34,7 +33,7 @@ Micro-frontends live in `apps/` and shared code in `packages/`. The registry at 
 
 ## 🏗️ Architecture
 
-Every request lands on the edge Worker. It matches a path prefix or subdomain and forwards to the origin the registry declares for that app. Private static apps are deployed as separate private Cloudflare Workers and reached through standard service bindings; they have no public route of their own, and Cloudflare Access runs before a protected request reaches the Worker. Each app owns its own asset namespace, and deeper external API or WebSocket routes retain precedence over an app's mount. Apps that are not migrated keep their existing targets, such as Cloud Run, a static bucket or an external HTTPS origin.
+Every request lands on the edge Worker. It matches a path prefix or subdomain and forwards to the origin the registry declares for that app. Private static apps are deployed as separate private Cloudflare Workers and reached through standard service bindings; they have no public route of their own, and Cloudflare Access runs before a protected request reaches the Worker. Each app owns its own asset namespace, and deeper external API or WebSocket routes retain precedence over an app's mount. Apps that are not migrated keep their existing targets, such as a static bucket or an external HTTPS origin.
 
 The cockpit reaches each machine over that machine's own cloudflared tunnel using the session-bridge routes declared in the edge configuration.
 

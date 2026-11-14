@@ -1,29 +1,6 @@
 locals {
   app_registry = jsondecode(file("${path.root}/../../../packages/config/src/app-registry.json"))
 
-  in_repo_cloud_run_apps = {
-    for app in local.app_registry :
-    app.id => app
-    if app.origin.kind == "cloud-run"
-  }
-
-  in_repo_app_container_images = {
-    "dynamic-ia-canvas"     = var.dynamic_ia_canvas_container_image
-    "dynamic-ia-interfaces" = var.dynamic_ia_interfaces_container_image
-    ingest                  = var.ingest_container_image
-  }
-
-  root_app_id = one([
-    for app in local.app_registry : app.id
-    if app.mountPath == "/"
-  ])
-
-  prefix_origin_hosts = {
-    for app_id, app in local.in_repo_cloud_run_apps :
-    app.mountPath => module.in_repo_cloud_run_app[app_id].origin_host
-    if app.mountPath != "/" && try(app.servingLocation.kind, "path-prefix") != "subdomain"
-  }
-
   external_https_apps = {
     for app in local.app_registry :
     app.id => app
@@ -63,11 +40,7 @@ locals {
   subdomain_apps = {
     for app in local.app_registry :
     app.servingLocation.subdomainLabel => {
-      origin_host = (
-        app.origin.kind == "cloud-run"
-        ? module.in_repo_cloud_run_app[app.id].origin_host
-        : app.origin.originHost
-      )
+      origin_host = app.origin.originHost
       origin_kind = app.origin.kind
       trusted     = try(app.origin.trusted, false)
     }
@@ -77,29 +50,13 @@ locals {
   edge_serving_domain = var.enable_dotcom_canonical ? var.canonical_domain_name : var.domain_name
 }
 
-module "in_repo_cloud_run_app" {
-  source   = "../../modules/serverless-cloud-run-app"
-  for_each = local.in_repo_cloud_run_apps
-
-  project_id                             = var.project_id
-  region                                 = var.region
-  service_name                           = each.value.origin.cloudRunServiceName
-  container_image                        = local.in_repo_app_container_images[each.key]
-  runtime_service_account_email          = var.runtime_service_account_email
-  mount_path                             = each.value.mountPath
-  edge_shared_secret_value               = var.edge_shared_secret_value
-  non_secret_environment_variables       = each.value.origin.nonSecretEnvironment
-  secret_environment_variable_references = each.value.origin.secretEnvironmentReferences
-}
-
 module "edge" {
   source = "../../modules/cloudflare-edge"
   count  = var.enable_cloudflare_edge ? 1 : 0
 
   zone_name             = local.edge_serving_domain
   cloudflare_account_id = var.cloudflare_account_id
-  shell_origin_host     = try(module.in_repo_cloud_run_app[local.root_app_id].origin_host, null)
-  prefix_origin_hosts   = local.prefix_origin_hosts
+  prefix_origin_hosts   = {}
   worker_service_prefixes = {
     for app in local.app_registry : app.mountPath => "APP_${upper(replace(app.id, "-", "_"))}"
     if app.origin.kind == "cloudflare-worker" && app.status == "active"

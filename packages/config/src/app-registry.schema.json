@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://lucaszanoni.com/schemas/app-registry.schema.json",
   "title": "Platform application registry",
-  "description": "The single declarative source of truth every consumer derives from: typed loader, Terraform, and the deploy matrix.",
+  "description": "The single declarative source of truth every consumer derives from: typed loader, Terraform, and the Cloudflare deploy.",
   "type": "array",
   "items": {
     "$ref": "#/definitions/appRegistryEntry"
@@ -108,7 +108,7 @@
                 "type": "object",
                 "properties": {
                   "kind": {
-                    "enum": ["cloud-run", "cloudflare-worker"]
+                    "enum": ["cloudflare-worker"]
                   }
                 },
                 "required": ["kind"]
@@ -246,37 +246,6 @@
             "scriptName": {
               "type": "string",
               "minLength": 1
-            }
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "kind",
-            "cloudRunServiceName",
-            "nonSecretEnvironment",
-            "secretEnvironmentReferences"
-          ],
-          "properties": {
-            "kind": {
-              "const": "cloud-run"
-            },
-            "cloudRunServiceName": {
-              "type": "string",
-              "minLength": 1
-            },
-            "nonSecretEnvironment": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
-            },
-            "secretEnvironmentReferences": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
             }
           }
         },

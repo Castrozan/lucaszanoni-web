@@ -13,7 +13,7 @@ export const cockpitSignalPathDocument: SystemDocument = {
         id: "browser",
         label: "This browser",
         detail:
-          "The cockpit single page app, served as static files from Cloud Run under the site domain.",
+          "The cockpit single page app, served as static files from a Cloudflare Worker under the site domain.",
       },
       {
         id: "access",
