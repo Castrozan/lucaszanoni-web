@@ -3,7 +3,7 @@ import { test } from "node:test";
 import edgeRouterWorker from "../../../infra/modules/cloudflare-edge/edge-router-worker.mjs";
 import staticApplicationWorker from "../../cloudflare/static-application-worker.mjs";
 
-function createEnvironment({ rootService = false } = {}) {
+function createEnvironment() {
   const assetRequests = [];
   const applicationEnvironment = (id, mountPath) => ({
     APPLICATION_MOUNT_PATH: mountPath,
@@ -20,11 +20,9 @@ function createEnvironment({ rootService = false } = {}) {
     assetRequests,
     environment: {
       EDGE_ROUTES: JSON.stringify({
-        shell: rootService ? null : "shell.example.run.app",
-        prefixes: [{ prefix: "/reports/", host: "reports.example.run.app" }],
         workerServicePrefixes: [
           { prefix: "/cockpit/", binding: "APP_COCKPIT" },
-          ...(rootService ? [{ prefix: "/", binding: "APP_SHELL" }] : []),
+          { prefix: "/", binding: "APP_SHELL" },
         ],
         externalHttpsPrefixes: [
           {
@@ -83,12 +81,11 @@ test("canonicalizes the bare app mount while preserving the query", async () => 
 });
 
 test("isolates public and private fallbacks even with an encoded namespace path", async () => {
-  const { environment, assetRequests } = createEnvironment({
-    rootService: true,
-  });
+  const { environment, assetRequests } = createEnvironment();
   for (const [path, id] of [
     ["/", "shell"],
     ["/about", "shell"],
+    ["/cockpit-other/", "shell"],
     ["/cockpit/docs", "cockpit"],
     ["/%63ockpit/index.html", "shell"],
   ]) {
@@ -101,52 +98,36 @@ test("isolates public and private fallbacks even with an encoded namespace path"
   }
 });
 
-for (const path of [
-  "/cockpit-other/",
-  "/reports/",
-  "/cockpit/terminal-session/attach",
-]) {
-  test(`preserves the upstream protocol and most-specific route for ${path}`, async () => {
-    const { environment, assetRequests } = createEnvironment({
-      rootService: path === "/reports/",
-    });
-    const originalFetch = globalThis.fetch;
-    let upstreamRequest;
-    globalThis.fetch = async (request) => {
-      upstreamRequest = request;
-      return new Response("upstream");
-    };
-    try {
-      const response = await edgeRouterWorker.fetch(
-        new Request(`https://lucaszanoni.com${path}`, {
-          headers: {
-            Upgrade: "websocket",
-            "Cf-Access-Jwt-Assertion": "identity",
-          },
-        }),
-        environment,
-      );
-      assert.equal(await response.text(), "upstream");
-      assert.equal(assetRequests.length, 0);
-      assert.equal(
-        new URL(upstreamRequest.url).hostname,
-        path.includes("terminal-session")
-          ? "bridge.example.com"
-          : path === "/reports/"
-            ? "reports.example.run.app"
-            : "shell.example.run.app",
-      );
-      assert.equal(upstreamRequest.headers.get("Upgrade"), "websocket");
-      if (path.includes("terminal-session"))
-        assert.equal(
-          upstreamRequest.headers.get("Cf-Access-Jwt-Assertion"),
-          "identity",
-        );
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
-  });
-}
+test("a nested external route under a private app keeps the upgrade and identity headers", async () => {
+  const { environment, assetRequests } = createEnvironment();
+  const originalFetch = globalThis.fetch;
+  let upstreamRequest;
+  globalThis.fetch = async (request) => {
+    upstreamRequest = request;
+    return new Response("upstream");
+  };
+  try {
+    const response = await edgeRouterWorker.fetch(
+      new Request("https://lucaszanoni.com/cockpit/terminal-session/attach", {
+        headers: {
+          Upgrade: "websocket",
+          "Cf-Access-Jwt-Assertion": "identity",
+        },
+      }),
+      environment,
+    );
+    assert.equal(await response.text(), "upstream");
+    assert.equal(assetRequests.length, 0);
+    assert.equal(new URL(upstreamRequest.url).hostname, "bridge.example.com");
+    assert.equal(upstreamRequest.headers.get("Upgrade"), "websocket");
+    assert.equal(
+      upstreamRequest.headers.get("Cf-Access-Jwt-Assertion"),
+      "identity",
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
 
 test("fails closed when a declared app service is absent", async () => {
   const { environment } = createEnvironment();

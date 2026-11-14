@@ -23,7 +23,6 @@ export const appRegistry = canonicalRegistry
   );
 
 export const routes = {
-  workerAssetsPrefixes: [{ prefix: "/cockpit/" }],
   externalHttpsPrefixes: [
     { prefix: "/cockpit/terminal-session/", originHost: "bridge.example.com" },
   ],

@@ -5,7 +5,6 @@ import edgeWorker from "../../../infra/modules/cloudflare-edge/edge-router-worke
 import { createSiteDeploymentPlan } from "../../cloudflare/application-deployment.mjs";
 
 const routing = {
-  prefixes: [],
   externalHttpsPrefixes: [{ prefix: "/db/", originHost: "example.com" }],
   workerServicePrefixes: [{ prefix: "/", binding: "APP_SHELL" }],
   retiredPrefixes: [{ prefix: "/db/" }],

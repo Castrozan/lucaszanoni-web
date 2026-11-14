@@ -1,13 +1,6 @@
 locals {
   edge_routing_table = {
-    shell                 = var.shell_origin_host
     workerServicePrefixes = [for prefix, binding in var.worker_service_prefixes : { prefix = prefix, binding = binding }]
-    prefixes = [
-      for prefix, origin_host in var.prefix_origin_hosts : {
-        prefix = prefix
-        host   = origin_host
-      }
-    ]
     externalHttpsPrefixes = [
       for prefix, origin in var.external_https_prefix_origins : {
         prefix            = prefix
@@ -26,7 +19,6 @@ locals {
       for label, app in var.subdomain_apps : {
         host       = "${label}.${var.zone_name}"
         originHost = app.origin_host
-        originKind = app.origin_kind
         trusted    = app.trusted
       }
     ]

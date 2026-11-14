@@ -2,8 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  shellOriginHost,
-  reportsOriginHost,
+  shellServiceBinding,
+  reportsServiceBinding,
   retiredApplicationMountPrefix,
 } from "./edge-router-test-constants.mjs";
 import { dispatchThroughEdgeWithRetired } from "./edge-router-test-dispatch.mjs";
@@ -29,13 +29,12 @@ test("a retired application mount is never forwarded to any origin", async () =>
   assert.equal(capturedOriginRequest, undefined);
 });
 
-test("an active prefix still routes to its Cloud Run origin alongside a retired mount", async () => {
-  const { capturedOriginRequest } =
-    await dispatchThroughEdgeWithRetired("/reports/");
-  assert.equal(new URL(capturedOriginRequest.url).hostname, reportsOriginHost);
+test("an active prefix still routes to its service alongside a retired mount", async () => {
+  const { servingBinding } = await dispatchThroughEdgeWithRetired("/reports/");
+  assert.equal(servingBinding, reportsServiceBinding);
 });
 
-test("the shell root still routes to the shell origin alongside a retired mount", async () => {
-  const { capturedOriginRequest } = await dispatchThroughEdgeWithRetired("/");
-  assert.equal(new URL(capturedOriginRequest.url).hostname, shellOriginHost);
+test("the shell root still routes to the shell service alongside a retired mount", async () => {
+  const { servingBinding } = await dispatchThroughEdgeWithRetired("/");
+  assert.equal(servingBinding, shellServiceBinding);
 });

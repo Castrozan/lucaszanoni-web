@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  shellOriginHost,
+  shellServiceBinding,
   aliasRedirectCanonicalHost,
   aliasRedirectStatusCode,
 } from "./edge-router-test-constants.mjs";
@@ -47,21 +47,19 @@ test("the alias redirect answers at the edge without forwarding to any origin", 
   assert.equal(capturedOriginRequest, undefined);
 });
 
-test("a request already on the canonical host is served by the origin, not redirected", async () => {
-  const { capturedOriginRequest, edgeResponse } =
-    await dispatchThroughEdgeFromHost(
-      aliasRedirectCanonicalHost,
-      "/",
-      {},
-      edgeEnvironmentWithAliasRedirect,
-    );
+test("a request already on the canonical host is served by its service, not redirected", async () => {
+  const { servingBinding, edgeResponse } = await dispatchThroughEdgeFromHost(
+    aliasRedirectCanonicalHost,
+    "/",
+    {},
+    edgeEnvironmentWithAliasRedirect,
+  );
   assert.equal(edgeResponse.status, 200);
-  assert.equal(new URL(capturedOriginRequest.url).hostname, shellOriginHost);
+  assert.equal(servingBinding, shellServiceBinding);
 });
 
-test("a routing table without an alias redirect serves the origin normally", async () => {
-  const { capturedOriginRequest, edgeResponse } =
-    await dispatchThroughEdge("/");
+test("a routing table without an alias redirect serves the service normally", async () => {
+  const { servingBinding, edgeResponse } = await dispatchThroughEdge("/");
   assert.equal(edgeResponse.status, 200);
-  assert.equal(new URL(capturedOriginRequest.url).hostname, shellOriginHost);
+  assert.equal(servingBinding, shellServiceBinding);
 });

@@ -70,7 +70,7 @@ export async function verifyLocalSite(sourceRegistry = appRegistry) {
       {
         name: "EDGE_ROUTES",
         type: "plain_text",
-        text: JSON.stringify({ shell: null, prefixes: [] }),
+        text: JSON.stringify({}),
       },
     ],
   };

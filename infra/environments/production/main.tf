@@ -41,7 +41,6 @@ locals {
     for app in local.app_registry :
     app.servingLocation.subdomainLabel => {
       origin_host = app.origin.originHost
-      origin_kind = app.origin.kind
       trusted     = try(app.origin.trusted, false)
     }
     if try(app.servingLocation.kind, "path-prefix") == "subdomain"
@@ -56,7 +55,6 @@ module "edge" {
 
   zone_name             = local.edge_serving_domain
   cloudflare_account_id = var.cloudflare_account_id
-  prefix_origin_hosts   = {}
   worker_service_prefixes = {
     for app in local.app_registry : app.mountPath => "APP_${upper(replace(app.id, "-", "_"))}"
     if app.origin.kind == "cloudflare-worker" && app.status == "active"

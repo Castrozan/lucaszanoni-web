@@ -1,6 +1,6 @@
-export const shellOriginHost = "lucaszanoni-shell.example.run.app";
-export const usageOriginHost = "lucaszanoni-usage-dashboard.example.run.app";
-export const reportsOriginHost = "lucaszanoni-reports.example.run.app";
+export const shellServiceBinding = "APP_SHELL";
+export const usageServiceBinding = "APP_USAGE_DASHBOARD";
+export const reportsServiceBinding = "APP_REPORTS";
 export const edgeSharedSecretHeaderName = "X-Edge-Auth";
 export const edgeSharedSecretValue = "edge-router-test-secret-2f6a9c";
 
@@ -12,8 +12,6 @@ export const multiSegmentBaseExternalOriginHost = "deep.internal.example";
 export const multiSegmentForwardedBasePath = "/api/";
 export const cloudflareAccessJwtAssertionHeaderName = "Cf-Access-Jwt-Assertion";
 export const retiredApplicationMountPrefix = "/engineering/legacy/";
-export const subdomainInRepoServingHost = "internal.lucaszanoni.com.br";
-export const subdomainInRepoOriginHost = "lucaszanoni-internal.example.run.app";
 export const subdomainUntrustedExternalServingHost =
   "vendor.lucaszanoni.com.br";
 export const subdomainTrustedExternalServingHost = "partner.lucaszanoni.com.br";

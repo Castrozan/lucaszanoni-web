@@ -3,8 +3,6 @@ mock_provider "cloudflare" {}
 variables {
   zone_name                = "lucaszanoni.test"
   cloudflare_account_id    = "0000000000000000000000000000abcd"
-  shell_origin_host        = "shell.example.test"
-  prefix_origin_hosts      = {}
   edge_shared_secret_value = "test-edge-secret"
 }
 
@@ -33,13 +31,11 @@ run "one_proxied_host_and_route_per_subdomain_app" {
   variables {
     subdomain_apps = {
       ledger = {
-        origin_host = "lucaszanoni-ledger.example.run.app"
-        origin_kind = "cloud-run"
+        origin_host = "ledger.external.example"
         trusted     = true
       }
       db = {
         origin_host = "db.external.example"
-        origin_kind = "external-https"
         trusted     = false
       }
     }
@@ -76,12 +72,12 @@ run "one_proxied_host_and_route_per_subdomain_app" {
   }
 
   assert {
-    condition     = strcontains([for binding in cloudflare_workers_script.edge_router.bindings : binding.text if binding.name == "EDGE_ROUTES"][0], "\"host\":\"ledger.lucaszanoni.test\",\"originHost\":\"lucaszanoni-ledger.example.run.app\",\"originKind\":\"cloud-run\",\"trusted\":true")
-    error_message = "an in-repo subdomain app must route by host to its own cloud run origin with the shared-secret-bearing origin kind"
+    condition     = strcontains([for binding in cloudflare_workers_script.edge_router.bindings : binding.text if binding.name == "EDGE_ROUTES"][0], "\"host\":\"ledger.lucaszanoni.test\",\"originHost\":\"ledger.external.example\",\"trusted\":true")
+    error_message = "a trusted subdomain app must route by host to its own external origin marked trusted so the worker forwards its identity assertion"
   }
 
   assert {
-    condition     = strcontains([for binding in cloudflare_workers_script.edge_router.bindings : binding.text if binding.name == "EDGE_ROUTES"][0], "\"host\":\"db.lucaszanoni.test\",\"originHost\":\"db.external.example\",\"originKind\":\"external-https\",\"trusted\":false")
+    condition     = strcontains([for binding in cloudflare_workers_script.edge_router.bindings : binding.text if binding.name == "EDGE_ROUTES"][0], "\"host\":\"db.lucaszanoni.test\",\"originHost\":\"db.external.example\",\"trusted\":false")
     error_message = "an external-https subdomain app must route by host to its external origin marked untrusted so the worker strips its identity assertion"
   }
 }

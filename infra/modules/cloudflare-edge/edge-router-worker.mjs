@@ -5,16 +5,10 @@ const selectRetiredRoute = (requestPath, routingTable) =>
   (routingTable.retiredPrefixes ?? []).find((route) =>
     requestPathMatchesMountPrefix(requestPath, route.prefix),
   );
-const selectApplicationRoute = (requestPath, routingTable) => {
-  const routes = [
-    ...(routingTable.workerServicePrefixes ?? []),
-    ...routingTable.prefixes,
-    ...(routingTable.shell ? [{ prefix: "/", host: routingTable.shell }] : []),
-  ];
-  return routes
+const selectApplicationRoute = (requestPath, routingTable) =>
+  [...(routingTable.workerServicePrefixes ?? [])]
     .sort((left, right) => right.prefix.length - left.prefix.length)
     .find((route) => requestPathMatchesMountPrefix(requestPath, route.prefix));
-};
 
 const selectExternalHttpsRoute = (requestPath, routingTable) =>
   (routingTable.externalHttpsPrefixes ?? []).find((route) =>
@@ -96,18 +90,9 @@ export default {
       subdomainOriginUrl.hostname = subdomainRoute.originHost;
       const subdomainOriginRequest = new Request(subdomainOriginUrl, request);
       stripCloudflareAccessSessionCookies(subdomainOriginRequest);
-      if (subdomainRoute.originKind === "cloud-run") {
-        subdomainOriginRequest.headers.set(
-          env.EDGE_SHARED_SECRET_HEADER_NAME,
-          env.EDGE_SHARED_SECRET,
-        );
-      } else {
-        subdomainOriginRequest.headers.delete(
-          env.EDGE_SHARED_SECRET_HEADER_NAME,
-        );
-        if (!subdomainRoute.trusted) {
-          subdomainOriginRequest.headers.delete("Cf-Access-Jwt-Assertion");
-        }
+      subdomainOriginRequest.headers.delete(env.EDGE_SHARED_SECRET_HEADER_NAME);
+      if (!subdomainRoute.trusted) {
+        subdomainOriginRequest.headers.delete("Cf-Access-Jwt-Assertion");
       }
       return fetch(subdomainOriginRequest);
     }
@@ -147,24 +132,12 @@ export default {
         status: 503,
       });
     }
-    if (applicationRoute.binding) {
-      const applicationService = env[applicationRoute.binding];
-      if (!applicationService) {
-        return new Response("Application service is not bound", {
-          status: 503,
-        });
-      }
-      return applicationService.fetch(request);
+    const applicationService = env[applicationRoute.binding];
+    if (!applicationService) {
+      return new Response("Application service is not bound", {
+        status: 503,
+      });
     }
-    const originUrl = new URL(request.url);
-    originUrl.hostname = applicationRoute.host;
-
-    const originRequest = new Request(originUrl, request);
-    originRequest.headers.set(
-      env.EDGE_SHARED_SECRET_HEADER_NAME,
-      env.EDGE_SHARED_SECRET,
-    );
-
-    return fetch(originRequest);
+    return applicationService.fetch(request);
   },
 };

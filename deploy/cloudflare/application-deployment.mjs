@@ -73,18 +73,6 @@ export function createSiteDeploymentPlan(
       throw new Error(`Duplicate application binding ${binding}`);
     bindings.add(binding);
   }
-  const mountPaths = new Set(
-    applications.map((application) => application.mountPath),
-  );
-  if (
-    (routingTable.workerAssetsPrefixes ?? []).some(
-      (route) => !mountPaths.has(route.prefix),
-    )
-  ) {
-    throw new Error(
-      "Unowned edge asset routes require inspection before deployment",
-    );
-  }
   const previousServiceBindings = new Set(
     (routingTable.workerServicePrefixes ?? []).map((route) => route.binding),
   );
@@ -136,18 +124,8 @@ export function createSiteDeploymentPlan(
       )
       .map((application) => ({ prefix: application.mountPath })),
   ];
-  if (
-    (routingTable.prefixes ?? []).length > 0 ||
-    routingTable.shell ||
-    (routingTable.subdomains ?? []).some(
-      (route) => route.originKind === "cloud-run",
-    )
-  ) {
-    throw new Error(
-      "Host-proxy edge routes require inspection before deployment",
-    );
-  }
-  delete routingTable.workerAssetsPrefixes;
+  delete routingTable.prefixes;
+  delete routingTable.shell;
   routingTable.workerServicePrefixes = applications.map((application) => ({
     prefix: application.mountPath,
     binding: application.binding,
