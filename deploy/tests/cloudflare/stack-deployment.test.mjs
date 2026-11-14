@@ -13,11 +13,6 @@ const stackRoutingRegistry = appRegistry
   .map((application) => ({ ...application, capabilities: [] }));
 
 const routes = {
-  shell: "shell.run.app",
-  prefixes: [
-    { prefix: "/stack/", host: "stack.run.app" },
-    { prefix: "/reports/", host: "reports.run.app" },
-  ],
   workerServicePrefixes: [{ prefix: "/cockpit/", binding: "APP_COCKPIT" }],
   externalHttpsPrefixes: [
     { prefix: "/cockpit/terminal-session/", originHost: "bridge.example.com" },
@@ -58,7 +53,7 @@ test("Stack retains its source, URL and owner-only audience behind a private Wor
   );
 });
 
-test("Stack replaces only its Cloud Run route and owns an isolated private asset service", () => {
+test("Stack owns an isolated private asset service", () => {
   const before = structuredClone(settings);
   const plan = createSiteDeploymentPlan(
     settings,
@@ -81,9 +76,6 @@ test("Stack replaces only its Cloud Run route and owns an isolated private asset
   assert.equal(stack.configuration.vars.APPLICATION_MOUNT_PATH, "/stack/");
   assert.equal(Object.hasOwn(plan.edgeConfiguration, "assets"), false);
   const actual = JSON.parse(plan.edgeConfiguration.vars.EDGE_ROUTES);
-  assert.deepEqual(actual.prefixes, [
-    { prefix: "/reports/", host: "reports.run.app" },
-  ]);
   assert.deepEqual(actual.workerServicePrefixes, [
     { prefix: "/cockpit/", binding: "APP_COCKPIT" },
     { prefix: "/stack/", binding: "APP_STACK_LAUNCHER" },
@@ -102,7 +94,7 @@ test("Stack replaces only its Cloud Run route and owns an isolated private asset
         service.service === "lucaszanoni-cockpit",
     ),
   );
-  for (const key of ["shell", "externalHttpsPrefixes", "subdomains"])
+  for (const key of ["externalHttpsPrefixes", "subdomains"])
     assert.deepEqual(actual[key], routes[key]);
   assert.deepEqual(settings, before);
   assert.throws(

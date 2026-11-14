@@ -23,7 +23,8 @@ test("deploys any number of independent static apps without Cockpit-specific cod
     { binding: "APP_SHELL", service: "lucaszanoni-shell" },
   ]);
   const updatedRoutes = JSON.parse(plan.edgeConfiguration.vars.EDGE_ROUTES);
-  assert.equal(updatedRoutes.shell, null);
+  assert.equal(Object.hasOwn(updatedRoutes, "shell"), false);
+  assert.equal(Object.hasOwn(updatedRoutes, "prefixes"), false);
   assert.deepEqual(updatedRoutes.workerServicePrefixes, [
     { prefix: "/cockpit/", binding: "APP_COCKPIT" },
     { prefix: "/", binding: "APP_SHELL" },
@@ -72,12 +73,7 @@ test("preserves unrelated HTTP, API, subdomain, secret-header and current input 
     "/repository",
   ).edgeConfiguration;
   const actual = JSON.parse(configuration.vars.EDGE_ROUTES);
-  for (const key of [
-    "prefixes",
-    "externalHttpsPrefixes",
-    "subdomains",
-    "shell",
-  ])
+  for (const key of ["externalHttpsPrefixes", "subdomains"])
     assert.deepEqual(actual[key], routes[key]);
   assert.equal(
     configuration.vars.EDGE_SHARED_SECRET_HEADER_NAME,
@@ -129,4 +125,59 @@ test("retirement removes the app service and declares Gone without removing unre
     [{ prefix: "/archived-external/" }, { prefix: "/cockpit/" }],
   );
   assert.deepEqual(plan.edgeConfiguration.services, []);
+});
+
+for (const [description, hostProxyRoutes] of [
+  [
+    "an unowned host prefix",
+    { prefixes: [{ prefix: "/old/", host: "old.example.com" }] },
+  ],
+  ["a shell host", { shell: "shell.example.com" }],
+  [
+    "a subdomain carrying the shared secret",
+    { subdomains: [{ host: "media.example.com", originKind: "cloud-run" }] },
+  ],
+]) {
+  test(`refuses to deploy over ${description}`, () => {
+    const current = {
+      ...settings,
+      bindings: settings.bindings.map((binding) =>
+        binding.name === "EDGE_ROUTES"
+          ? {
+              ...binding,
+              text: JSON.stringify({ ...routes, ...hostProxyRoutes }),
+            }
+          : binding,
+      ),
+    };
+    assert.throws(
+      () =>
+        createSiteDeploymentPlan(
+          current,
+          twoApplicationRegistry(),
+          "/repository",
+        ),
+      /Host-proxy edge routes require inspection/,
+    );
+  });
+}
+
+test("accepts and drops empty host-proxy fields left by the edge module", () => {
+  const current = {
+    ...settings,
+    bindings: settings.bindings.map((binding) =>
+      binding.name === "EDGE_ROUTES"
+        ? {
+            ...binding,
+            text: JSON.stringify({ ...routes, shell: null, prefixes: [] }),
+          }
+        : binding,
+    ),
+  };
+  const deployedRoutes = JSON.parse(
+    createSiteDeploymentPlan(current, twoApplicationRegistry(), "/repository")
+      .edgeConfiguration.vars.EDGE_ROUTES,
+  );
+  assert.equal(Object.hasOwn(deployedRoutes, "shell"), false);
+  assert.equal(Object.hasOwn(deployedRoutes, "prefixes"), false);
 });

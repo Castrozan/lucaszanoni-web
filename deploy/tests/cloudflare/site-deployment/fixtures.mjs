@@ -1,6 +1,6 @@
 import { appRegistry as canonicalRegistry } from "../../../../packages/config/src/app-registry.ts";
 
-const syntheticCloudRunOriginApplicationIds = ["shell", "reports"];
+const syntheticExternalOriginApplicationIds = ["shell", "reports"];
 
 export const appRegistry = canonicalRegistry
   .filter((application) =>
@@ -8,22 +8,21 @@ export const appRegistry = canonicalRegistry
   )
   .map((application) => ({ ...application, capabilities: [] }))
   .map((application) =>
-    syntheticCloudRunOriginApplicationIds.includes(application.id)
+    syntheticExternalOriginApplicationIds.includes(application.id)
       ? {
           ...application,
           origin: {
-            kind: "cloud-run",
-            cloudRunServiceName: `lucaszanoni-${application.id}`,
-            nonSecretEnvironment: {},
-            secretEnvironmentReferences: {},
+            kind: "external-https",
+            originHost: `${application.id}.example.com`,
+            pathRewrite: "preserve",
+            forwardedBasePath: "",
+            trusted: false,
           },
         }
       : application,
   );
 
 export const routes = {
-  shell: "shell.run.app",
-  prefixes: [{ prefix: "/reports/", host: "reports.run.app" }],
   workerAssetsPrefixes: [{ prefix: "/cockpit/" }],
   externalHttpsPrefixes: [
     { prefix: "/cockpit/terminal-session/", originHost: "bridge.example.com" },
