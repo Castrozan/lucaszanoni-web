@@ -5,7 +5,9 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./visitor-inference-quota": "./src/visitor-inference-quota.ts"
+    "./visitor-inference-quota": "./src/visitor-inference-quota.ts",
+    "./public-generation-request": "./src/public-generation-request.ts",
+    "./public-generation-worker": "./src/public-generation-worker.ts"
   },
   "scripts": {
     "test": "vitest run",
