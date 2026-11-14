@@ -14,19 +14,34 @@ export const dispatchThroughEdgeFromHost = async (
   environment = edgeEnvironment,
 ) => {
   let capturedOriginRequest;
+  let servingBinding;
   const originalGlobalFetch = globalThis.fetch;
   globalThis.fetch = async (originRequest) => {
     capturedOriginRequest = originRequest;
     return new Response("origin-response-body", { status: 200 });
   };
+  const recordingServiceBindings = Object.fromEntries(
+    JSON.parse(environment.EDGE_ROUTES).workerServicePrefixes.map(
+      ({ binding }) => [
+        binding,
+        {
+          fetch: async (serviceRequest) => {
+            servingBinding = binding;
+            capturedOriginRequest = serviceRequest;
+            return new Response("service-response-body", { status: 200 });
+          },
+        },
+      ],
+    ),
+  );
   try {
     const edgeResponse = await edgeRouterWorker.fetch(
       new Request(`https://${requestHost}${requestPathAndQuery}`, {
         headers: incomingHeaders,
       }),
-      environment,
+      { ...recordingServiceBindings, ...environment },
     );
-    return { capturedOriginRequest, edgeResponse };
+    return { capturedOriginRequest, servingBinding, edgeResponse };
   } finally {
     globalThis.fetch = originalGlobalFetch;
   }

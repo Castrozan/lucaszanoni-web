@@ -10,13 +10,7 @@ variable "cloudflare_account_id" {
 variable "proxied_placeholder_origin_ip" {
   type        = string
   default     = "192.0.2.1"
-  description = "Documentation-range placeholder address for the proxied apex record. The edge Worker intercepts every request on the zone route and fetches the matching Cloud Run origin, so this address is never dialed; it exists only to anchor the orange-cloud proxy on the apex hostname."
-}
-
-variable "shell_origin_host" {
-  type        = string
-  default     = null
-  description = "Owned HTTPS host that answers the root prefix when no root Worker is configured."
+  description = "Documentation-range placeholder address for the proxied apex record. The edge Worker intercepts every request on the zone route and serves it from a bound Worker or an external origin, so this address is never dialed; it exists only to anchor the orange-cloud proxy on the apex hostname."
 }
 
 variable "worker_service_prefixes" {
@@ -29,11 +23,6 @@ variable "worker_services" {
   default = {}
 }
 
-variable "prefix_origin_hosts" {
-  type        = map(string)
-  description = "Map of edge path prefix to the Cloud Run host that serves it. The Worker selects the longest matching application prefix and falls back to the shell origin when none match."
-}
-
 variable "external_https_prefix_origins" {
   type = map(object({
     origin_host         = string
@@ -42,7 +31,7 @@ variable "external_https_prefix_origins" {
     trusted             = bool
   }))
   default     = {}
-  description = "Map of edge path prefix to an external HTTPS origin hosted outside this repo. The Worker matches these prefixes after the static-bucket prefixes and before the Cloud Run prefixes, rewrites the host to the external origin, strips any inbound copy of the in-repo shared-secret header, and never injects the shared-secret header. path_rewrite preserve forwards the path unchanged; strip-mount-path replaces the matched prefix with forwarded_base_path, which must be empty or both start and end with a slash. A trusted origin receives the forwarded Cloudflare Access identity assertion header; an untrusted origin has that header stripped and is edge-gated only. Because the Worker runs after Cloudflare Access and cannot tell an Access-injected assertion from a client-supplied one, trusted may be set only for a route already gated by a Cloudflare Access application that overwrites any client-supplied assertion; marking an origin trusted before its Access gate exists would forward a client-forged identity. Empty by default; populated once an external-https app is registered."
+  description = "Map of edge path prefix to an external HTTPS origin hosted outside this repo. The Worker matches these prefixes after the retired prefixes and before the Worker service prefixes, rewrites the host to the external origin, and strips any inbound copy of the shared-secret header. path_rewrite preserve forwards the path unchanged; strip-mount-path replaces the matched prefix with forwarded_base_path, which must be empty or both start and end with a slash. A trusted origin receives the forwarded Cloudflare Access identity assertion header; an untrusted origin has that header stripped and is edge-gated only. Because the Worker runs after Cloudflare Access and cannot tell an Access-injected assertion from a client-supplied one, trusted may be set only for a route already gated by a Cloudflare Access application that overwrites any client-supplied assertion; marking an origin trusted before its Access gate exists would forward a client-forged identity. Empty by default; populated once an external-https app is registered."
 }
 
 variable "retired_prefixes" {
@@ -54,11 +43,10 @@ variable "retired_prefixes" {
 variable "subdomain_apps" {
   type = map(object({
     origin_host = string
-    origin_kind = string
     trusted     = bool
   }))
   default     = {}
-  description = "Apps the registry serves on their own subdomain instead of a shared path prefix, keyed by the DNS label. For each entry the module stands up a proxied A record at <label>.<zone_name>, attaches the same edge Worker via a per-subdomain route, and adds the subdomain to the Worker routing table so the Worker selects the app's origin by request hostname instead of by path prefix; a genuinely untrusted app thus gets its own origin and cookie jar instead of sharing the apex same-origin scope. origin_host is the host the Worker forwards the subdomain's whole request to; origin_kind is cloud-run for an origin that receives the injected shared secret or external-https for one that never does and whose forwarded Cloudflare Access identity is gated by trusted exactly as the path-prefix external routes are. The Worker strips the apex Cloudflare Access session cookies from every subdomain request regardless of kind, so the apex login never leaks into an isolated subdomain. Empty by default, so no subdomain hostnames exist until an app sets its registry servingLocation to subdomain."
+  description = "Apps the registry serves on their own subdomain instead of a shared path prefix, keyed by the DNS label. For each entry the module stands up a proxied A record at <label>.<zone_name>, attaches the same edge Worker via a per-subdomain route, and adds the subdomain to the Worker routing table so the Worker selects the app's origin by request hostname instead of by path prefix; a genuinely untrusted app thus gets its own origin and cookie jar instead of sharing the apex same-origin scope. origin_host is the external HTTPS host the Worker forwards the subdomain's whole request to without the shared-secret header; its forwarded Cloudflare Access identity is gated by trusted exactly as the path-prefix external routes are. The Worker strips the apex Cloudflare Access session cookies from every subdomain request regardless of kind, so the apex login never leaks into an isolated subdomain. Empty by default, so no subdomain hostnames exist until an app sets its registry servingLocation to subdomain."
 }
 
 variable "edge_shared_secret_header_name" {

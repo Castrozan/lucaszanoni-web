@@ -1,7 +1,7 @@
 import {
-  shellOriginHost,
-  usageOriginHost,
-  reportsOriginHost,
+  shellServiceBinding,
+  usageServiceBinding,
+  reportsServiceBinding,
   edgeSharedSecretHeaderName,
   edgeSharedSecretValue,
   aliasRedirectCanonicalHost,
@@ -11,150 +11,75 @@ import {
   multiSegmentBaseExternalOriginHost,
   multiSegmentForwardedBasePath,
   retiredApplicationMountPrefix,
-  subdomainInRepoServingHost,
-  subdomainInRepoOriginHost,
   subdomainUntrustedExternalServingHost,
   subdomainTrustedExternalServingHost,
 } from "./edge-router-test-constants.mjs";
 
-export const edgeEnvironment = {
-  EDGE_ROUTES: JSON.stringify({
-    shell: shellOriginHost,
-    prefixes: [
-      {
-        prefix: "/engineering/dotfiles/claude/usage/",
-        host: usageOriginHost,
-      },
-      {
-        prefix: "/reports/",
-        host: reportsOriginHost,
-      },
-    ],
-  }),
+const workerServicePrefixes = [
+  { prefix: "/", binding: shellServiceBinding },
+  {
+    prefix: "/engineering/dotfiles/claude/usage/",
+    binding: usageServiceBinding,
+  },
+  { prefix: "/reports/", binding: reportsServiceBinding },
+];
+
+const createEdgeEnvironment = (additionalRoutes = {}) => ({
+  EDGE_ROUTES: JSON.stringify({ workerServicePrefixes, ...additionalRoutes }),
   EDGE_SHARED_SECRET_HEADER_NAME: edgeSharedSecretHeaderName,
   EDGE_SHARED_SECRET: edgeSharedSecretValue,
-};
+});
 
-export const edgeEnvironmentWithAliasRedirect = {
-  EDGE_ROUTES: JSON.stringify({
-    shell: shellOriginHost,
-    prefixes: [
-      {
-        prefix: "/engineering/dotfiles/claude/usage/",
-        host: usageOriginHost,
-      },
-      {
-        prefix: "/reports/",
-        host: reportsOriginHost,
-      },
-    ],
-    aliasRedirect: {
-      canonicalHost: aliasRedirectCanonicalHost,
-      statusCode: aliasRedirectStatusCode,
+export const edgeEnvironment = createEdgeEnvironment();
+
+export const edgeEnvironmentWithAliasRedirect = createEdgeEnvironment({
+  aliasRedirect: {
+    canonicalHost: aliasRedirectCanonicalHost,
+    statusCode: aliasRedirectStatusCode,
+  },
+});
+
+export const edgeEnvironmentWithRetiredPrefixes = createEdgeEnvironment({
+  retiredPrefixes: [{ prefix: retiredApplicationMountPrefix }],
+});
+
+export const edgeEnvironmentWithExternalHttpsPrefixes = createEdgeEnvironment({
+  externalHttpsPrefixes: [
+    {
+      prefix: "/private/",
+      originHost: trustedExternalOriginHost,
+      pathRewrite: "strip-mount-path",
+      forwardedBasePath: "/",
+      trusted: true,
     },
-  }),
-  EDGE_SHARED_SECRET_HEADER_NAME: edgeSharedSecretHeaderName,
-  EDGE_SHARED_SECRET: edgeSharedSecretValue,
-};
+    {
+      prefix: "/vendor/",
+      originHost: untrustedExternalOriginHost,
+      pathRewrite: "preserve",
+      forwardedBasePath: "",
+      trusted: false,
+    },
+    {
+      prefix: "/app/",
+      originHost: multiSegmentBaseExternalOriginHost,
+      pathRewrite: "strip-mount-path",
+      forwardedBasePath: multiSegmentForwardedBasePath,
+      trusted: true,
+    },
+  ],
+});
 
-export const edgeEnvironmentWithRetiredPrefixes = {
-  EDGE_ROUTES: JSON.stringify({
-    shell: shellOriginHost,
-    prefixes: [
-      {
-        prefix: "/engineering/dotfiles/claude/usage/",
-        host: usageOriginHost,
-      },
-      {
-        prefix: "/reports/",
-        host: reportsOriginHost,
-      },
-    ],
-    retiredPrefixes: [
-      {
-        prefix: retiredApplicationMountPrefix,
-      },
-    ],
-  }),
-  EDGE_SHARED_SECRET_HEADER_NAME: edgeSharedSecretHeaderName,
-  EDGE_SHARED_SECRET: edgeSharedSecretValue,
-};
-
-export const edgeEnvironmentWithExternalHttpsPrefixes = {
-  EDGE_ROUTES: JSON.stringify({
-    shell: shellOriginHost,
-    prefixes: [
-      {
-        prefix: "/engineering/dotfiles/claude/usage/",
-        host: usageOriginHost,
-      },
-      {
-        prefix: "/reports/",
-        host: reportsOriginHost,
-      },
-    ],
-    externalHttpsPrefixes: [
-      {
-        prefix: "/private/",
-        originHost: trustedExternalOriginHost,
-        pathRewrite: "strip-mount-path",
-        forwardedBasePath: "/",
-        trusted: true,
-      },
-      {
-        prefix: "/vendor/",
-        originHost: untrustedExternalOriginHost,
-        pathRewrite: "preserve",
-        forwardedBasePath: "",
-        trusted: false,
-      },
-      {
-        prefix: "/app/",
-        originHost: multiSegmentBaseExternalOriginHost,
-        pathRewrite: "strip-mount-path",
-        forwardedBasePath: multiSegmentForwardedBasePath,
-        trusted: true,
-      },
-    ],
-  }),
-  EDGE_SHARED_SECRET_HEADER_NAME: edgeSharedSecretHeaderName,
-  EDGE_SHARED_SECRET: edgeSharedSecretValue,
-};
-
-export const edgeEnvironmentWithSubdomains = {
-  EDGE_ROUTES: JSON.stringify({
-    shell: shellOriginHost,
-    prefixes: [
-      {
-        prefix: "/engineering/dotfiles/claude/usage/",
-        host: usageOriginHost,
-      },
-      {
-        prefix: "/reports/",
-        host: reportsOriginHost,
-      },
-    ],
-    subdomains: [
-      {
-        host: subdomainInRepoServingHost,
-        originHost: subdomainInRepoOriginHost,
-        originKind: "cloud-run",
-        trusted: true,
-      },
-      {
-        host: subdomainUntrustedExternalServingHost,
-        originHost: untrustedExternalOriginHost,
-        originKind: "external-https",
-        trusted: false,
-      },
-      {
-        host: subdomainTrustedExternalServingHost,
-        originHost: trustedExternalOriginHost,
-        originKind: "external-https",
-        trusted: true,
-      },
-    ],
-  }),
-  EDGE_SHARED_SECRET_HEADER_NAME: edgeSharedSecretHeaderName,
-  EDGE_SHARED_SECRET: edgeSharedSecretValue,
-};
+export const edgeEnvironmentWithSubdomains = createEdgeEnvironment({
+  subdomains: [
+    {
+      host: subdomainUntrustedExternalServingHost,
+      originHost: untrustedExternalOriginHost,
+      trusted: false,
+    },
+    {
+      host: subdomainTrustedExternalServingHost,
+      originHost: trustedExternalOriginHost,
+      trusted: true,
+    },
+  ],
+});

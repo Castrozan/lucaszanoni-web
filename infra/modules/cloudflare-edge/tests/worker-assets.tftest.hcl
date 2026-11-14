@@ -3,8 +3,6 @@ mock_provider "cloudflare" {}
 variables {
   zone_name                = "lucaszanoni.test"
   cloudflare_account_id    = "0000000000000000000000000000abcd"
-  shell_origin_host        = "shell.example.test"
-  prefix_origin_hosts      = {}
   edge_shared_secret_value = "test-edge-secret"
   worker_service_prefixes  = { "/cockpit/" = "APP_COCKPIT" }
   worker_services          = { APP_COCKPIT = "lucaszanoni-cockpit" }

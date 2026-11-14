@@ -29,7 +29,6 @@ test("deploys any number of independent static apps without Cockpit-specific cod
     { prefix: "/cockpit/", binding: "APP_COCKPIT" },
     { prefix: "/", binding: "APP_SHELL" },
   ]);
-  assert.equal(Object.hasOwn(updatedRoutes, "workerAssetsPrefixes"), false);
 });
 
 test("keeps public and private asset stores isolated and disables public Worker URLs", () => {
@@ -127,42 +126,7 @@ test("retirement removes the app service and declares Gone without removing unre
   assert.deepEqual(plan.edgeConfiguration.services, []);
 });
 
-for (const [description, hostProxyRoutes] of [
-  [
-    "an unowned host prefix",
-    { prefixes: [{ prefix: "/old/", host: "old.example.com" }] },
-  ],
-  ["a shell host", { shell: "shell.example.com" }],
-  [
-    "a subdomain carrying the shared secret",
-    { subdomains: [{ host: "media.example.com", originKind: "cloud-run" }] },
-  ],
-]) {
-  test(`refuses to deploy over ${description}`, () => {
-    const current = {
-      ...settings,
-      bindings: settings.bindings.map((binding) =>
-        binding.name === "EDGE_ROUTES"
-          ? {
-              ...binding,
-              text: JSON.stringify({ ...routes, ...hostProxyRoutes }),
-            }
-          : binding,
-      ),
-    };
-    assert.throws(
-      () =>
-        createSiteDeploymentPlan(
-          current,
-          twoApplicationRegistry(),
-          "/repository",
-        ),
-      /Host-proxy edge routes require inspection/,
-    );
-  });
-}
-
-test("keeps the empty host-proxy fields the deployed router still reads", () => {
+test("drops the host-proxy fields the router no longer reads", () => {
   const current = {
     ...settings,
     bindings: settings.bindings.map((binding) =>
@@ -178,6 +142,6 @@ test("keeps the empty host-proxy fields the deployed router still reads", () => 
     createSiteDeploymentPlan(current, twoApplicationRegistry(), "/repository")
       .edgeConfiguration.vars.EDGE_ROUTES,
   );
-  assert.equal(deployedRoutes.shell, null);
-  assert.deepEqual(deployedRoutes.prefixes, []);
+  assert.equal(Object.hasOwn(deployedRoutes, "shell"), false);
+  assert.equal(Object.hasOwn(deployedRoutes, "prefixes"), false);
 });

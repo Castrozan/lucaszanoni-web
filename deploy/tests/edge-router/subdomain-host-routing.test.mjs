@@ -2,13 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  shellOriginHost,
-  reportsOriginHost,
+  shellServiceBinding,
+  reportsServiceBinding,
   edgeSharedSecretHeaderName,
-  edgeSharedSecretValue,
   cloudflareAccessJwtAssertionHeaderName,
-  subdomainInRepoServingHost,
-  subdomainInRepoOriginHost,
   subdomainUntrustedExternalServingHost,
   subdomainTrustedExternalServingHost,
   untrustedExternalOriginHost,
@@ -19,36 +16,14 @@ import {
   dispatchThroughEdgeApexWithSubdomains,
 } from "./edge-router-test-dispatch.mjs";
 
-test("an in-repo subdomain host routes to its own cloud run origin", async () => {
+test("an external subdomain forwards the request path and query untouched", async () => {
   const { capturedOriginRequest } = await dispatchThroughEdgeFromSubdomainHost(
-    subdomainInRepoServingHost,
-    "/dashboard/widget",
-  );
-  assert.equal(
-    new URL(capturedOriginRequest.url).hostname,
-    subdomainInRepoOriginHost,
-  );
-});
-
-test("an in-repo subdomain forwards the request path and query untouched", async () => {
-  const { capturedOriginRequest } = await dispatchThroughEdgeFromSubdomainHost(
-    subdomainInRepoServingHost,
+    subdomainTrustedExternalServingHost,
     "/dashboard/widget?refresh=1",
   );
   const forwardedOriginUrl = new URL(capturedOriginRequest.url);
   assert.equal(forwardedOriginUrl.pathname, "/dashboard/widget");
   assert.equal(forwardedOriginUrl.search, "?refresh=1");
-});
-
-test("an in-repo subdomain origin receives the injected edge shared secret", async () => {
-  const { capturedOriginRequest } = await dispatchThroughEdgeFromSubdomainHost(
-    subdomainInRepoServingHost,
-    "/dashboard",
-  );
-  assert.equal(
-    capturedOriginRequest.headers.get(edgeSharedSecretHeaderName),
-    edgeSharedSecretValue,
-  );
 });
 
 test("an external subdomain host routes to its own external origin", async () => {
@@ -87,7 +62,7 @@ test("a client-supplied edge auth header is stripped before reaching an external
 
 test("apex cloudflare access cookies never reach a subdomain origin while other cookies survive", async () => {
   const { capturedOriginRequest } = await dispatchThroughEdgeFromSubdomainHost(
-    subdomainInRepoServingHost,
+    subdomainTrustedExternalServingHost,
     "/dashboard",
     {
       Cookie:
@@ -138,35 +113,32 @@ test("a trusted external subdomain receives the forwarded access identity assert
 });
 
 test("a subdomain host bypasses apex path-prefix matching entirely", async () => {
-  const { capturedOriginRequest } = await dispatchThroughEdgeFromSubdomainHost(
-    subdomainInRepoServingHost,
-    "/reports/quality",
-  );
+  const { capturedOriginRequest, servingBinding } =
+    await dispatchThroughEdgeFromSubdomainHost(
+      subdomainTrustedExternalServingHost,
+      "/reports/quality",
+    );
   assert.equal(
     new URL(capturedOriginRequest.url).hostname,
-    subdomainInRepoOriginHost,
+    trustedExternalOriginHost,
   );
-  assert.notEqual(
-    new URL(capturedOriginRequest.url).hostname,
-    reportsOriginHost,
-  );
+  assert.equal(servingBinding, undefined);
 });
 
 test("apex path-prefix routing is unchanged when subdomains are configured", async () => {
-  const { capturedOriginRequest } =
+  const { servingBinding } =
     await dispatchThroughEdgeApexWithSubdomains("/reports/quality");
-  assert.equal(new URL(capturedOriginRequest.url).hostname, reportsOriginHost);
+  assert.equal(servingBinding, reportsServiceBinding);
 });
 
 test("the apex root still routes to the shell when subdomains are configured", async () => {
-  const { capturedOriginRequest } =
-    await dispatchThroughEdgeApexWithSubdomains("/");
-  assert.equal(new URL(capturedOriginRequest.url).hostname, shellOriginHost);
+  const { servingBinding } = await dispatchThroughEdgeApexWithSubdomains("/");
+  assert.equal(servingBinding, shellServiceBinding);
 });
 
 test("the origin response is returned to the client unchanged from a subdomain route", async () => {
   const { edgeResponse } = await dispatchThroughEdgeFromSubdomainHost(
-    subdomainInRepoServingHost,
+    subdomainUntrustedExternalServingHost,
     "/dashboard",
   );
   assert.equal(edgeResponse.status, 200);

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  shellOriginHost,
+  shellServiceBinding,
   edgeSharedSecretHeaderName,
   trustedExternalOriginHost,
   untrustedExternalOriginHost,
@@ -101,7 +101,7 @@ test("an untrusted external origin never receives the access identity assertion"
   );
 });
 
-test("an external prefix is matched before the cloud run fallback", async () => {
+test("an external prefix is matched before the shell service fallback", async () => {
   const { capturedOriginRequest } =
     await dispatchThroughEdgeWithExternalHttps("/private/anything");
   assert.equal(
@@ -110,14 +110,10 @@ test("an external prefix is matched before the cloud run fallback", async () => 
   );
 });
 
-test("a path that no external prefix matches still routes to the cloud run shell with the shared secret", async () => {
-  const { capturedOriginRequest } =
+test("a path that no external prefix matches still routes to the shell service", async () => {
+  const { servingBinding } =
     await dispatchThroughEdgeWithExternalHttps("/about/contact");
-  assert.equal(new URL(capturedOriginRequest.url).hostname, shellOriginHost);
-  assert.notEqual(
-    capturedOriginRequest.headers.get(edgeSharedSecretHeaderName),
-    null,
-  );
+  assert.equal(servingBinding, shellServiceBinding);
 });
 
 test("a client-supplied in-repo auth header is stripped before reaching the external origin", async () => {

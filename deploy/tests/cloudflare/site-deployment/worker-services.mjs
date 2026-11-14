@@ -16,7 +16,7 @@ const settings = {
     {
       name: "EDGE_ROUTES",
       type: "plain_text",
-      text: JSON.stringify({ prefixes: [] }),
+      text: JSON.stringify({}),
     },
   ],
 };
