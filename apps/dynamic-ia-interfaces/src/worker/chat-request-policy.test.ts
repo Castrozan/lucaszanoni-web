@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import fc from "fast-check";
-import { POST } from "./route";
+import type { PublicGenerationEnvironment } from "@platform/ai-runtime/public-generation-worker";
+import { respondToChatRequest } from "./chat-request";
 
 const composition = vi.hoisted(() => ({
   modelCalls: 0,
@@ -30,15 +31,19 @@ vi.mock("./chat-response", () => ({
   },
 }));
 
-vi.mock("@opennextjs/cloudflare", () => ({
-  getCloudflareContext: () => ({ env: { AI: { run: () => undefined } } }),
-}));
-
 const message = {
   id: "input-1",
   role: "user",
   parts: [{ type: "text", text: "Create a sample status card" }],
 };
+
+const testEnvironment = {
+  AI: { run: () => undefined },
+} as unknown as PublicGenerationEnvironment;
+
+function respondWithTestEnvironment(input: Request) {
+  return respondToChatRequest(input, testEnvironment);
+}
 
 function request(body: string, extraHeaders: Record<string, string> = {}) {
   return new Request(
@@ -65,7 +70,7 @@ beforeEach(() => {
 
 describe("bounded private chat requests", () => {
   it("accepts the real client transport envelope", async () => {
-    const response = await POST(
+    const response = await respondWithTestEnvironment(
       request(
         JSON.stringify({
           id: "chat-1",
@@ -80,7 +85,7 @@ describe("bounded private chat requests", () => {
   });
 
   it("charges the visitor's address against the inference rate limit", async () => {
-    await POST(
+    await respondWithTestEnvironment(
       request(JSON.stringify({ messages: [message] }), {
         "cf-connecting-ip": "203.0.113.7",
       }),
@@ -90,7 +95,7 @@ describe("bounded private chat requests", () => {
 
   it("refuses a rate-limited visitor with 429 before composing a model", async () => {
     composition.admitted = false;
-    const response = await POST(
+    const response = await respondWithTestEnvironment(
       request(JSON.stringify({ messages: [message] })),
     );
     expect(response.status).toBe(429);
@@ -99,7 +104,7 @@ describe("bounded private chat requests", () => {
   });
 
   it("refuses malformed JSON before composing a model", async () => {
-    const response = await POST(request("{"));
+    const response = await respondWithTestEnvironment(request("{"));
     expect(response.status).toBe(400);
     expectNoInference();
   });
@@ -113,7 +118,7 @@ describe("bounded private chat requests", () => {
         async (contentType) => {
           const input = request(JSON.stringify({ messages: [message] }));
           input.headers.set("content-type", contentType);
-          const response = await POST(input);
+          const response = await respondWithTestEnvironment(input);
           expect(response.status).toBe(415);
           expectNoInference();
         },
@@ -125,13 +130,13 @@ describe("bounded private chat requests", () => {
   it("rejects cross-site browser posts before inference", async () => {
     const input = request(JSON.stringify({ messages: [message] }));
     input.headers.set("sec-fetch-site", "cross-site");
-    const response = await POST(input);
+    const response = await respondWithTestEnvironment(input);
     expect(response.status).toBe(403);
     expectNoInference();
   });
 
   it("bounds actual streamed bytes without trusting content length", async () => {
-    const response = await POST(
+    const response = await respondWithTestEnvironment(
       request(
         JSON.stringify({
           messages: [message],
@@ -155,7 +160,7 @@ describe("bounded private chat requests", () => {
         composition.modelCalls = 0;
         composition.chatCalls = 0;
         const body = JSON.stringify({ messages });
-        const response = await POST(request(body));
+        const response = await respondWithTestEnvironment(request(body));
         expect(response.status).toBe(
           new TextEncoder().encode(body).byteLength > 32_768 ? 413 : 400,
         );
@@ -196,7 +201,9 @@ describe("bounded private chat requests", () => {
   ])(
     "refuses excessive history, client instructions and file fetches",
     async (payload) => {
-      const response = await POST(request(JSON.stringify(payload)));
+      const response = await respondWithTestEnvironment(
+        request(JSON.stringify(payload)),
+      );
       expect(response.status).toBe(400);
       expectNoInference();
     },

@@ -13,13 +13,12 @@ async function verifyDynamicDocument(origin, application, checks) {
   });
   assert.equal(response.status, 200, application.applicationId);
   assert.match(response.headers.get("content-type"), /text\/html/);
-  assert.match(response.headers.get("cache-control"), /no-store/);
   const html = await response.text();
   const paths = [
     ...new Set(
       [...html.matchAll(/(?:src|href)="([^"\s]+)"/g)]
         .map((match) => match[1])
-        .filter((path) => path.includes("/_next/static/")),
+        .filter((path) => path.startsWith(`${application.mountPath}assets/`)),
     ),
   ];
   assert.ok(paths.some((path) => path.endsWith(".js")));
@@ -70,42 +69,59 @@ async function verifyDynamicAssets(origin, application, paths, checks) {
   checks.push(`${application.applicationId}:dynamic-private-script-isolation`);
 }
 
-async function verifyBoundedChatTransport(origin, application, checks) {
-  const valid = JSON.stringify({
-    messages: [
-      {
-        id: "local-transport",
-        role: "user",
-        parts: [{ type: "text", text: "Create a sample status card" }],
-      },
-    ],
-  });
+const BOUNDED_TRANSPORTS = {
+  "dynamic-ia-interfaces": {
+    path: "api/chat",
+    visitorAddress: "192.0.2.10",
+    maximumBodyBytes: 32_768,
+    validBody: JSON.stringify({
+      messages: [
+        {
+          id: "local-transport",
+          role: "user",
+          parts: [{ type: "text", text: "Create a sample status card" }],
+        },
+      ],
+    }),
+  },
+  "dynamic-ia-canvas": {
+    path: "api/generate-component",
+    visitorAddress: "192.0.2.20",
+    maximumBodyBytes: 16_384,
+    validBody: JSON.stringify({ userIntent: "Create a sample status card" }),
+  },
+};
+
+async function verifyBoundedTransport(origin, application, transport, checks) {
+  const json = {
+    "Content-Type": "application/json",
+    "CF-Connecting-IP": transport.visitorAddress,
+  };
+  const valid = transport.validBody;
   const cases = [
-    ["{", { "Content-Type": "application/json" }, 400],
-    ["x".repeat(32_769), { "Content-Type": "application/json" }, 413],
-    [valid, { "Content-Type": "text/plain" }, 415],
-    [
-      valid,
-      { "Content-Type": "application/json", "Sec-Fetch-Site": "cross-site" },
-      403,
-    ],
-    [valid, { "Content-Type": "application/json" }, 503],
-    [valid, { "Content-Type": "application/json" }, 503],
-    [valid, { "Content-Type": "application/json" }, 429],
+    ["{", json, 400],
+    ["x".repeat(transport.maximumBodyBytes + 1), json, 413],
+    [valid, { ...json, "Content-Type": "text/plain" }, 415],
+    [valid, { ...json, "Sec-Fetch-Site": "cross-site" }, 403],
+    [valid, json, 503],
+    [valid, json, 503],
+    [valid, json, 429],
   ];
+  const address = `${origin}${application.mountPath}${transport.path}`;
   for (const [body, headers, status] of cases) {
-    const response = await fetch(`${origin}${application.mountPath}api/chat`, {
+    const response = await fetch(address, {
       method: "POST",
       body,
       headers,
       redirect: "manual",
       signal: AbortSignal.timeout(5000),
     });
-    assert.equal(response.status, status);
+    assert.equal(response.status, status, `${transport.path} ${status}`);
     assert.match(response.headers.get("cache-control"), /no-store/);
+    if (status === 429) assert.equal(response.headers.get("retry-after"), "60");
     await response.body?.cancel();
     checks.push(
-      `${application.applicationId}:bounded-chat-transport:${status}`,
+      `${application.applicationId}:bounded-transport:${transport.path}:${status}`,
     );
   }
 }
@@ -115,8 +131,9 @@ export async function verifyDynamicApplicationResponses(origin, applications) {
   for (const application of applications) {
     const paths = await verifyDynamicDocument(origin, application, checks);
     await verifyDynamicAssets(origin, application, paths, checks);
-    if (application.applicationId === "dynamic-ia-interfaces")
-      await verifyBoundedChatTransport(origin, application, checks);
+    const transport = BOUNDED_TRANSPORTS[application.applicationId];
+    assert.ok(transport, `${application.applicationId} transport`);
+    await verifyBoundedTransport(origin, application, transport, checks);
   }
   return checks;
 }

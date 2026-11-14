@@ -1,9 +1,7 @@
 import type { ComponentType } from "react";
 import type { ZodType } from "zod";
 
-export interface ComponentCatalogEntry<
-  PropsSchema extends ZodType = ZodType,
-> {
+export interface ComponentCatalogEntry<PropsSchema extends ZodType = ZodType> {
   readonly catalogEntryName: string;
   readonly catalogEntryDescription: string;
   readonly propsValidationSchema: PropsSchema;

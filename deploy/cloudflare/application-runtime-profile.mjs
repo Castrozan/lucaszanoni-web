@@ -1,11 +1,7 @@
 import { resolve } from "node:path";
 
 export function createApplicationBuildArguments(source) {
-  return [
-    "--filter",
-    source.appPackageName,
-    source.buildProfile === "dynamic-service" ? "build:worker" : "build",
-  ];
+  return ["--filter", source.appPackageName, "build"];
 }
 
 export function createApplicationRuntimeProfile(
@@ -30,7 +26,7 @@ export function createApplicationRuntimeProfile(
   if (application.source.buildProfile === "dynamic-service") {
     return {
       compatibility_date: "2026-10-13",
-      main: resolve(applicationDirectory, "cloudflare/worker.mjs"),
+      main: resolve(applicationDirectory, "dist/worker.mjs"),
       compatibility_flags: [
         ...new Set([
           ...compatibilityFlags,
@@ -39,11 +35,11 @@ export function createApplicationRuntimeProfile(
         ]),
       ],
       assets: {
-        directory: resolve(
-          applicationDirectory,
-          "cloudflare/build/.open-next/assets",
-        ),
+        directory: resolve(applicationDirectory, "dist/client"),
         binding: "ASSETS",
+        run_worker_first: true,
+        html_handling: "none",
+        not_found_handling: "single-page-application",
       },
     };
   }

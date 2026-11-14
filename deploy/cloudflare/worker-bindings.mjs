@@ -38,6 +38,14 @@ export function serviceBindingMatches(binding, expected) {
   );
 }
 
+function isRetiredOpenNextSelfReference(binding, configuration) {
+  return (
+    binding.type === "service" &&
+    binding.name === "WORKER_SELF_REFERENCE" &&
+    binding.service === configuration.name
+  );
+}
+
 export function databaseBindingMatches(binding, expected) {
   return (
     binding.type === "d1" &&
@@ -120,8 +128,11 @@ function isDeclaredBinding(binding, configuration, requiredSecrets) {
         databaseBindingMatches(binding, database),
       );
     case "service":
-      return (configuration.services ?? []).some((service) =>
-        serviceBindingMatches(binding, service),
+      return (
+        isRetiredOpenNextSelfReference(binding, configuration) ||
+        (configuration.services ?? []).some((service) =>
+          serviceBindingMatches(binding, service),
+        )
       );
     default:
       return false;

@@ -1,8 +1,6 @@
-"use client";
-
 import { useCanvasStore } from "@/modules/canvas/canvasStore";
 import { useCallback } from "react";
-import { generateComponentFromIntent } from "./generateComponentAction";
+import { requestComponentGeneration } from "./requestComponentGeneration";
 
 export function useComponentGenerationLifecycle() {
   const updateNodeGenerationStatus = useCanvasStore(
@@ -18,7 +16,7 @@ export function useComponentGenerationLifecycle() {
       updateNodeGenerationStatus(nodeId, "generating");
 
       try {
-        const outcome = await generateComponentFromIntent(userIntent);
+        const outcome = await requestComponentGeneration(userIntent);
         if (outcome.status === "refused") {
           updateNodeError(nodeId, outcome.reason);
           return;

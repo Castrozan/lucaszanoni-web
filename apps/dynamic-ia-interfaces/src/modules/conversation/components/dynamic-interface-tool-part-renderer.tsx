@@ -16,10 +16,18 @@ const toolNameToOutputComponentMap: Record<
   string,
   React.ComponentType<Record<string, unknown>>
 > = {
-  displayWeatherForecast: WeatherForecastCard as React.ComponentType<Record<string, unknown>>,
-  displayDataTable: DataTableDisplay as React.ComponentType<Record<string, unknown>>,
-  displayMetricsDashboard: MetricsDashboardDisplay as React.ComponentType<Record<string, unknown>>,
-  displayDynamicForm: DynamicFormDisplay as React.ComponentType<Record<string, unknown>>,
+  displayWeatherForecast: WeatherForecastCard as React.ComponentType<
+    Record<string, unknown>
+  >,
+  displayDataTable: DataTableDisplay as React.ComponentType<
+    Record<string, unknown>
+  >,
+  displayMetricsDashboard: MetricsDashboardDisplay as React.ComponentType<
+    Record<string, unknown>
+  >,
+  displayDynamicForm: DynamicFormDisplay as React.ComponentType<
+    Record<string, unknown>
+  >,
 };
 
 export function DynamicInterfaceToolPartRenderer({

@@ -1,5 +1,3 @@
-"use client";
-
 import { useRef, useEffect } from "react";
 
 interface ChatInputProps {
@@ -37,7 +35,7 @@ export function DynamicInterfaceChatInput({
   }
 
   return (
-    <div className="border-t border-border bg-background p-4">
+    <div className="border-border bg-background border-t p-4">
       <div className="mx-auto flex max-w-3xl items-end gap-2">
         <textarea
           ref={textareaReference}
@@ -46,12 +44,12 @@ export function DynamicInterfaceChatInput({
           onKeyDown={handleKeyboardSubmit}
           placeholder="Describe the interface you need..."
           rows={1}
-          className="flex-1 resize-none rounded-lg border border-border bg-input px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+          className="border-border bg-input text-foreground placeholder:text-muted-foreground focus:ring-ring flex-1 resize-none rounded-lg border px-4 py-3 text-sm focus:ring-1 focus:outline-none"
         />
         {isStreaming ? (
           <button
             onClick={onStop}
-            className="rounded-lg bg-destructive px-4 py-3 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg px-4 py-3 text-sm font-medium transition-colors"
           >
             Stop
           </button>
@@ -59,7 +57,7 @@ export function DynamicInterfaceChatInput({
           <button
             onClick={onSubmit}
             disabled={!inputValue.trim()}
-            className="rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-3 text-sm font-medium transition-colors disabled:opacity-50"
           >
             Send
           </button>

@@ -6,7 +6,10 @@ export interface StructuredComponentOutput {
 
 export interface StructuredComponentOutputWithLifecycle {
   readonly componentOutput: StructuredComponentOutput;
-  readonly currentLifecyclePhase: "input-available" | "output-available" | "output-error";
+  readonly currentLifecyclePhase:
+    | "input-available"
+    | "output-available"
+    | "output-error";
   readonly toolCallIdentifier: string;
   readonly errorMessage?: string;
 }

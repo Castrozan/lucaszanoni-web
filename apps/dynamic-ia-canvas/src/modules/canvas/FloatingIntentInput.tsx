@@ -1,5 +1,3 @@
-"use client";
-
 import { useComponentGenerationLifecycle } from "@/modules/generation/useComponentGenerationLifecycle";
 import { Send } from "lucide-react";
 import { useCallback, useState } from "react";

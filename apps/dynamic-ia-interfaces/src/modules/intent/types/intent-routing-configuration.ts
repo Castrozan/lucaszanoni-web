@@ -14,9 +14,10 @@ export interface IntentRouteDefinition {
   readonly associatedToolDefinition: ToolDefinitionWithSchema;
 }
 
-export const DEFAULT_INTENT_ROUTING_CONFIGURATION: IntentRoutingConfiguration = {
-  registeredIntentRoutes: [],
-  confidenceThresholdForDirectRouting: 0.85,
-  confidenceThresholdForLlmValidation: 0.5,
-  maximumClarificationAttempts: 3,
-};
+export const DEFAULT_INTENT_ROUTING_CONFIGURATION: IntentRoutingConfiguration =
+  {
+    registeredIntentRoutes: [],
+    confidenceThresholdForDirectRouting: 0.85,
+    confidenceThresholdForLlmValidation: 0.5,
+    maximumClarificationAttempts: 3,
+  };

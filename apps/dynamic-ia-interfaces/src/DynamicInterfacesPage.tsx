@@ -1,5 +1,3 @@
-"use client";
-
 import { DefaultChatTransport } from "ai";
 import { useChat } from "@ai-sdk/react";
 import { useRef, useEffect, useState } from "react";
@@ -8,7 +6,7 @@ import { DynamicInterfaceChatInput } from "@/conversation/components/dynamic-int
 import { describeGenerationError } from "@/conversation/describe-generation-error";
 
 const chatTransport = new DefaultChatTransport({
-  api: "/dynamic-ia-interfaces/api/chat",
+  api: `${import.meta.env.BASE_URL}api/chat`,
 });
 
 export default function DynamicInterfacesHomePage() {
