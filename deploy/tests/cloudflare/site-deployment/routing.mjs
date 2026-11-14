@@ -162,7 +162,7 @@ for (const [description, hostProxyRoutes] of [
   });
 }
 
-test("accepts and drops empty host-proxy fields left by the edge module", () => {
+test("keeps the empty host-proxy fields the deployed router still reads", () => {
   const current = {
     ...settings,
     bindings: settings.bindings.map((binding) =>
@@ -178,6 +178,6 @@ test("accepts and drops empty host-proxy fields left by the edge module", () => 
     createSiteDeploymentPlan(current, twoApplicationRegistry(), "/repository")
       .edgeConfiguration.vars.EDGE_ROUTES,
   );
-  assert.equal(Object.hasOwn(deployedRoutes, "shell"), false);
-  assert.equal(Object.hasOwn(deployedRoutes, "prefixes"), false);
+  assert.equal(deployedRoutes.shell, null);
+  assert.deepEqual(deployedRoutes.prefixes, []);
 });

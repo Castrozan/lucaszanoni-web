@@ -147,8 +147,6 @@ export function createSiteDeploymentPlan(
       "Host-proxy edge routes require inspection before deployment",
     );
   }
-  delete routingTable.prefixes;
-  delete routingTable.shell;
   delete routingTable.workerAssetsPrefixes;
   routingTable.workerServicePrefixes = applications.map((application) => ({
     prefix: application.mountPath,
