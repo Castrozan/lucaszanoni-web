@@ -23,11 +23,6 @@ export type AppOriginSpec =
       readonly pathRewrite: AppExternalOriginPathRewrite;
       readonly forwardedBasePath: string;
       readonly trusted: boolean;
-    }
-  | {
-      readonly kind: "static-gcs-bucket";
-      readonly bucketName: string;
-      readonly objectKeyPrefix: string;
     };
 
 export interface AppRegistryEntryBuilderInput {
@@ -48,7 +43,6 @@ function buildOrigin(id: string, origin: AppOriginSpec): AppOrigin {
     case "cloudflare-worker":
       return { kind: origin.kind, scriptName: `lucaszanoni-${id}` };
     case "external-https":
-    case "static-gcs-bucket":
       return { ...origin };
   }
 }

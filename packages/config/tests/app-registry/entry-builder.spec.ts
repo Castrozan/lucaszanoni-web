@@ -4,7 +4,6 @@ import {
   type AppRegistryEntryBuilderInput,
 } from "../../src/app-registry/entry-builder";
 import { parseAppRegistry } from "../../src/app-registry/parser";
-import { AppRegistryValidationError } from "../../src/app-registry/types";
 
 const baseInput: AppRegistryEntryBuilderInput = {
   id: "ledger",
@@ -124,40 +123,5 @@ describe("buildAppRegistryEntry", () => {
       trusted: true,
     });
     expect(parseAppRegistry([entry])).toEqual([entry]);
-  });
-
-  it("builds a static-gcs-bucket origin and round-trips through the parser", () => {
-    const entry = buildAppRegistryEntry({
-      ...baseInput,
-      id: "downloads",
-      mountPath: "/downloads/",
-      accessModel: { environment: "public" },
-      origin: {
-        kind: "static-gcs-bucket",
-        bucketName: "lucaszanoni-downloads",
-        objectKeyPrefix: "public/",
-      },
-    });
-    expect(entry.origin).toEqual({
-      kind: "static-gcs-bucket",
-      bucketName: "lucaszanoni-downloads",
-      objectKeyPrefix: "public/",
-    });
-    expect(parseAppRegistry([entry])).toEqual([entry]);
-  });
-
-  it("does not coerce the access model, so the parser still rejects a gated static bucket", () => {
-    const entry = buildAppRegistryEntry({
-      ...baseInput,
-      id: "downloads",
-      mountPath: "/downloads/",
-      accessModel: { environment: "private", audience: { kind: "owner" } },
-      origin: {
-        kind: "static-gcs-bucket",
-        bucketName: "lucaszanoni-downloads",
-        objectKeyPrefix: "",
-      },
-    });
-    expect(() => parseAppRegistry([entry])).toThrow(AppRegistryValidationError);
   });
 });

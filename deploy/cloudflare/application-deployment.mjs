@@ -141,7 +141,6 @@ export function createSiteDeploymentPlan(
   );
   if (mountPaths.has("/")) routingTable.shell = null;
   delete routingTable.workerAssetsPrefixes;
-  delete routingTable.staticBucketPrefixes;
   routingTable.workerServicePrefixes = applications.map((application) => ({
     prefix: application.mountPath,
     binding: application.binding,

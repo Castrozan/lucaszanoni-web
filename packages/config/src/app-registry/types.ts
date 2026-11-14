@@ -66,11 +66,6 @@ export type AppOrigin =
       readonly pathRewrite: AppExternalOriginPathRewrite;
       readonly forwardedBasePath: string;
       readonly trusted: boolean;
-    }
-  | {
-      readonly kind: "static-gcs-bucket";
-      readonly bucketName: string;
-      readonly objectKeyPrefix: string;
     };
 
 export interface AppRegistryEntry {

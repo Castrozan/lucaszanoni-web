@@ -85,7 +85,6 @@ test("repository directory ownership is independent of hosting target", () => {
     entry.origin,
     { kind: "cloudflare-worker", scriptName: "lucaszanoni-shell" },
     externalHttpsEntry("shell").origin,
-    { kind: "static-gcs-bucket", bucketName: "shell", objectKeyPrefix: "" },
   ]) {
     assert.deepEqual(
       findRegistryAppDirectoryInconsistencies(

@@ -27,9 +27,11 @@ const appendedEntry = buildAppRegistryEntry({
   status: "active",
   accessModel: { environment: "public" },
   origin: {
-    kind: "static-gcs-bucket",
-    bucketName: "lucaszanoni-downloads",
-    objectKeyPrefix: "",
+    kind: "external-https",
+    originHost: "downloads.example.test",
+    pathRewrite: "preserve",
+    forwardedBasePath: "",
+    trusted: false,
   },
 });
 

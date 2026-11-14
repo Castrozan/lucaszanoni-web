@@ -6,11 +6,14 @@ import { shellApp } from "./test-fixtures";
 describe("parseAppRegistry origin variants", () => {
   const baseEntry = shellApp;
 
-  it("rejects an unknown origin kind", () => {
-    expect(() =>
-      parseAppRegistry([{ ...baseEntry, origin: { kind: "carrier-pigeon" } }]),
-    ).toThrow(AppRegistryValidationError);
-  });
+  it.each(["carrier-pigeon", "static-gcs-bucket"])(
+    "rejects the unknown origin kind %s",
+    (kind) => {
+      expect(() =>
+        parseAppRegistry([{ ...baseEntry, origin: { kind } }]),
+      ).toThrow(AppRegistryValidationError);
+    },
+  );
 
   it("rejects an origin carrying a property from another variant", () => {
     expect(() =>
@@ -21,37 +24,6 @@ describe("parseAppRegistry origin variants", () => {
         },
       ]),
     ).toThrow(AppRegistryValidationError);
-  });
-
-  it("rejects a private-environment static bucket origin", () => {
-    expect(() =>
-      parseAppRegistry([
-        {
-          ...baseEntry,
-          accessModel: { environment: "private", audience: { kind: "owner" } },
-          origin: {
-            kind: "static-gcs-bucket",
-            bucketName: "some-bucket",
-            objectKeyPrefix: "prefix/",
-          },
-        },
-      ]),
-    ).toThrow(AppRegistryValidationError);
-  });
-
-  it("accepts a static bucket origin with an empty object key prefix", () => {
-    expect(() =>
-      parseAppRegistry([
-        {
-          ...baseEntry,
-          origin: {
-            kind: "static-gcs-bucket",
-            bucketName: "some-bucket",
-            objectKeyPrefix: "",
-          },
-        },
-      ]),
-    ).not.toThrow();
   });
 
   it("accepts an external-https origin with an empty forwarded base path", () => {

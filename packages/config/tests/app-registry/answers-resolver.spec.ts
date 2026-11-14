@@ -111,31 +111,6 @@ describe("resolveOriginSpec", () => {
       trusted: false,
     });
   });
-
-  it("maps every explicit static-gcs-bucket field", () => {
-    expect(
-      resolveOriginSpec({
-        ...baseAnswers,
-        originKind: "static-gcs-bucket",
-        staticBucketName: "lucaszanoni-downloads",
-        staticObjectKeyPrefix: "public/",
-      }),
-    ).toEqual({
-      kind: "static-gcs-bucket",
-      bucketName: "lucaszanoni-downloads",
-      objectKeyPrefix: "public/",
-    });
-  });
-
-  it("falls back to every static-gcs-bucket default when fields are omitted", () => {
-    expect(
-      resolveOriginSpec({ ...baseAnswers, originKind: "static-gcs-bucket" }),
-    ).toEqual({
-      kind: "static-gcs-bucket",
-      bucketName: "",
-      objectKeyPrefix: "",
-    });
-  });
 });
 
 describe("resolveSourceSpec", () => {
@@ -153,19 +128,17 @@ describe("resolveSourceSpec", () => {
     ).toEqual({ buildProfile: "dynamic-service" });
   });
 
-  it.each(["external-https", "static-gcs-bucket"] as const)(
-    "omits source for %s without local build answers",
-    (originKind) => {
-      expect(resolveSourceSpec({ ...baseAnswers, originKind })).toBeUndefined();
-      expect(
-        resolveSourceSpec({
-          ...baseAnswers,
-          originKind,
-          buildProfile: "static-spa",
-        }),
-      ).toEqual({ buildProfile: "static-spa" });
-    },
-  );
+  it("omits source for external-https without local build answers", () => {
+    const originKind = "external-https";
+    expect(resolveSourceSpec({ ...baseAnswers, originKind })).toBeUndefined();
+    expect(
+      resolveSourceSpec({
+        ...baseAnswers,
+        originKind,
+        buildProfile: "static-spa",
+      }),
+    ).toEqual({ buildProfile: "static-spa" });
+  });
 });
 
 describe("the answers to registry entry path", () => {
