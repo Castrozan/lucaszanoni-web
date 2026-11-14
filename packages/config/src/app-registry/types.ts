@@ -61,12 +61,6 @@ export type AppOrigin =
       readonly scriptName: string;
     }
   | {
-      readonly kind: "cloud-run";
-      readonly cloudRunServiceName: string;
-      readonly nonSecretEnvironment: Readonly<Record<string, string>>;
-      readonly secretEnvironmentReferences: Readonly<Record<string, string>>;
-    }
-  | {
       readonly kind: "external-https";
       readonly originHost: string;
       readonly pathRewrite: AppExternalOriginPathRewrite;

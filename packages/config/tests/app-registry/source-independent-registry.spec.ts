@@ -1,21 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { parseAppRegistry } from "../../src/app-registry/parser";
 import { AppRegistryValidationError } from "../../src/app-registry/types";
-import type { AppRegistryEntry } from "../../src/app-registry/types";
 import { cockpitApp, shellApp } from "./test-fixtures";
 
-const cloudRunShellApp: AppRegistryEntry = {
-  ...shellApp,
-  origin: {
-    kind: "cloud-run",
-    cloudRunServiceName: "lucaszanoni-shell",
-    nonSecretEnvironment: {},
-    secretEnvironmentReferences: {},
-  },
-};
-
 describe("Worker static assets", () => {
-  it("preserves the private owner policy without a Cloud Run origin", () => {
+  it("preserves the private owner policy on a Worker origin", () => {
     const [application] = parseAppRegistry([cockpitApp]);
     expect(application?.origin).toEqual({
       kind: "cloudflare-worker",
@@ -27,22 +16,10 @@ describe("Worker static assets", () => {
     });
   });
 
-  it("rejects obsolete Cloud Run fields on an asset origin", () => {
+  it("rejects duplicate source directories across entries", () => {
     expect(() =>
       parseAppRegistry([
-        {
-          ...cockpitApp,
-          origin: { ...cockpitApp.origin, cloudRunServiceName: "obsolete" },
-        },
-      ]),
-    ).toThrow(/cloudRunServiceName/);
-  });
-
-  it("rejects duplicate source directories across hosting providers", () => {
-    expect(cloudRunShellApp.origin.kind).not.toBe(cockpitApp.origin.kind);
-    expect(() =>
-      parseAppRegistry([
-        cloudRunShellApp,
+        shellApp,
         {
           ...cockpitApp,
           source: { ...shellApp.source },
@@ -53,17 +30,12 @@ describe("Worker static assets", () => {
 });
 
 describe("source-independent registry contract", () => {
-  it.each(["cloud-run", "cloudflare-worker"] as const)(
-    "requires source for %s",
-    (kind) => {
-      const application = kind === "cloud-run" ? cloudRunShellApp : cockpitApp;
-      expect(application.origin.kind).toBe(kind);
-      const { source: _source, ...entry } = application;
-      expect(() => parseAppRegistry([entry])).toThrow(
-        /requires repository source/,
-      );
-    },
-  );
+  it("requires source for a Worker origin", () => {
+    const { source: _source, ...entry } = cockpitApp;
+    expect(() => parseAppRegistry([entry])).toThrow(
+      /requires repository source/,
+    );
+  });
 
   it.each(
     [
@@ -87,7 +59,7 @@ describe("source-independent registry contract", () => {
         ...shellApp.source,
         publicBuildEnvironmentReferences: { NEXT_PUBLIC_KEY: 42 },
       },
-      { ...shellApp.source, cloudRunServiceName: "misplaced" },
+      { ...shellApp.source, misplacedField: "misplaced" },
     ].map((source) => ({ source })),
   )("rejects malformed source $source", ({ source }) => {
     expect(() => parseAppRegistry([{ ...shellApp, source }])).toThrow(
@@ -105,16 +77,11 @@ describe("source-independent registry contract", () => {
     );
   });
 
-  it.each(["in-repo-cloud-run", "in-repo-worker-assets"])(
-    "rejects obsolete origin %s",
-    (kind) => {
-      expect(() =>
-        parseAppRegistry([
-          { ...shellApp, origin: { ...shellApp.origin, kind } },
-        ]),
-      ).toThrow(/kind/);
-    },
-  );
+  it.each(["in-repo-worker-assets"])("rejects obsolete origin %s", (kind) => {
+    expect(() =>
+      parseAppRegistry([{ ...shellApp, origin: { ...shellApp.origin, kind } }]),
+    ).toThrow(/kind/);
+  });
 
   it.each(["appPackageName", "appDirectoryName", "buildProfile"])(
     "rejects source field %s on the target",
@@ -139,20 +106,5 @@ describe("source-independent registry contract", () => {
         },
       ]),
     ).toThrow(/scriptName/);
-  });
-
-  it("preserves source and capabilities across a hosting provider swap", () => {
-    const [original] = parseAppRegistry([
-      { ...cloudRunShellApp, capabilities: ["generative-ai"] },
-    ]);
-    const [swapped] = parseAppRegistry([
-      {
-        ...original,
-        origin: { kind: "cloudflare-worker", scriptName: "lucaszanoni-shell" },
-      },
-    ]);
-    expect(swapped?.origin.kind).not.toBe(original?.origin.kind);
-    expect(swapped?.source).toEqual(original?.source);
-    expect(swapped?.capabilities).toEqual(original?.capabilities);
   });
 });

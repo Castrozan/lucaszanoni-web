@@ -60,27 +60,6 @@ describe("parseAppRegistry", () => {
     ).toThrow(/mountPath/);
   });
 
-  it("rejects duplicate cloud run service names across in-repo entries", () => {
-    const sharedCloudRunOrigin = {
-      kind: "cloud-run",
-      cloudRunServiceName: "lucaszanoni-shell",
-      nonSecretEnvironment: {},
-      secretEnvironmentReferences: {},
-    } as const;
-    expect(() =>
-      parseAppRegistry([
-        { ...baseEntry, origin: sharedCloudRunOrigin },
-        {
-          ...baseEntry,
-          id: "shell-clone",
-          mountPath: "/clone/",
-          source: { ...baseEntry.source, appDirectoryName: "shell-clone" },
-          origin: sharedCloudRunOrigin,
-        },
-      ]),
-    ).toThrow(/cloudRunServiceName/);
-  });
-
   it("rejects duplicate app directory names across in-repo entries", () => {
     expect(() =>
       parseAppRegistry([

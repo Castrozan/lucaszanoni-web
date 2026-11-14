@@ -15,34 +15,29 @@ const baseInput: AppRegistryEntryBuilderInput = {
   status: "active",
   accessModel: { environment: "public" },
   source: { buildProfile: "static-spa" },
-  origin: { kind: "cloud-run" },
+  origin: { kind: "cloudflare-worker" },
 };
 
 describe("buildAppRegistryEntry", () => {
-  it.each(["cloud-run", "cloudflare-worker"] as const)(
-    "derives identical source for %s",
-    (kind) => {
-      const entry = buildAppRegistryEntry({
-        ...baseInput,
-        origin: { kind },
-        capabilities: ["generative-ai"],
-      });
-      expect(entry.source).toEqual({
-        appPackageName: "@platform/ledger",
-        appDirectoryName: "ledger",
-        buildProfile: "static-spa",
-        publicBuildEnvironment: {},
-        publicBuildEnvironmentReferences: {},
-      });
-      expect(entry.capabilities).toEqual(["generative-ai"]);
-      expect(parseAppRegistry([entry])).toEqual([entry]);
-      if (kind === "cloudflare-worker")
-        expect(entry.origin).toEqual({
-          kind,
-          scriptName: "lucaszanoni-ledger",
-        });
-    },
-  );
+  it("derives source and the Worker origin from the id", () => {
+    const entry = buildAppRegistryEntry({
+      ...baseInput,
+      capabilities: ["generative-ai"],
+    });
+    expect(entry.source).toEqual({
+      appPackageName: "@platform/ledger",
+      appDirectoryName: "ledger",
+      buildProfile: "static-spa",
+      publicBuildEnvironment: {},
+      publicBuildEnvironmentReferences: {},
+    });
+    expect(entry.capabilities).toEqual(["generative-ai"]);
+    expect(parseAppRegistry([entry])).toEqual([entry]);
+    expect(entry.origin).toEqual({
+      kind: "cloudflare-worker",
+      scriptName: "lucaszanoni-ledger",
+    });
+  });
 
   it("preserves explicit public build settings on source", () => {
     const source = {
@@ -55,22 +50,12 @@ describe("buildAppRegistryEntry", () => {
     ).toMatchObject(source);
   });
 
-  it("derives the in-repo cloud run origin fields from the id", () => {
-    const entry = buildAppRegistryEntry(baseInput);
-    expect(entry.origin).toEqual({
-      kind: "cloud-run",
-      cloudRunServiceName: "lucaszanoni-ledger",
-      nonSecretEnvironment: {},
-      secretEnvironmentReferences: {},
-    });
-  });
-
   it("carries the dynamic-service build profile through unchanged", () => {
     const entry = buildAppRegistryEntry({
       ...baseInput,
       source: { buildProfile: "dynamic-service" },
     });
-    expect(entry.origin.kind).toBe("cloud-run");
+    expect(entry.origin.kind).toBe("cloudflare-worker");
     expect(entry.source?.buildProfile).toBe("dynamic-service");
   });
 

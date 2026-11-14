@@ -1,8 +1,4 @@
-import type {
-  AppOrigin,
-  AppRegistryEntry,
-  AppServingLocation,
-} from "./types.ts";
+import type { AppRegistryEntry, AppServingLocation } from "./types.ts";
 import { AppRegistryValidationError } from "./types.ts";
 import {
   asObjectRecord,
@@ -84,10 +80,7 @@ function parseAppRegistryEntry(
   const accessModel = parseAccessModel(record["accessModel"], context);
   const origin = parseOrigin(record["origin"], context);
   const source = parseSource(record["source"], context);
-  if (
-    (origin.kind === "cloud-run" || origin.kind === "cloudflare-worker") &&
-    !source
-  ) {
+  if (origin.kind === "cloudflare-worker" && !source) {
     throw new AppRegistryValidationError(
       `${context} origin ${origin.kind} requires repository source`,
     );
@@ -141,18 +134,6 @@ function assertUnique(values: readonly string[], label: string): void {
   }
 }
 
-function collectCloudRunOrigins(
-  entries: readonly AppRegistryEntry[],
-): readonly Extract<AppOrigin, { kind: "cloud-run" }>[] {
-  const origins: Extract<AppOrigin, { kind: "cloud-run" }>[] = [];
-  for (const entry of entries) {
-    if (entry.origin.kind === "cloud-run") {
-      origins.push(entry.origin);
-    }
-  }
-  return origins;
-}
-
 function collectSubdomainLabels(
   entries: readonly AppRegistryEntry[],
 ): readonly string[] {
@@ -177,11 +158,6 @@ export function parseAppRegistry(value: unknown): readonly AppRegistryEntry[] {
   assertUnique(
     entries.map((entry) => entry.mountPath),
     "mountPath",
-  );
-  const cloudRunOrigins = collectCloudRunOrigins(entries);
-  assertUnique(
-    cloudRunOrigins.map((origin) => origin.cloudRunServiceName),
-    "cloudRunServiceName",
   );
   assertUnique(
     entries.flatMap((entry) =>

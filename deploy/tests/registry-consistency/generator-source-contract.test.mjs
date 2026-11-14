@@ -24,14 +24,12 @@ test("new app generation defaults to the free static Worker workflow", () => {
     addAppPrompts.find((prompt) => prompt.name === "buildProfile").choices,
     ["static-spa"],
   );
-  for (const originKind of ["cloudflare-worker", "cloud-run"]) {
-    const actions = generatorDefinition().actions({
-      originKind,
-      buildProfile: "static-spa",
-    });
-    assert.ok(actions.some((action) => action.type === "appendRegistryEntry"));
-    assert.ok(actions.some((action) => action.type === "addMany"));
-  }
+  const actions = generatorDefinition().actions({
+    originKind: "cloudflare-worker",
+    buildProfile: "static-spa",
+  });
+  assert.ok(actions.some((action) => action.type === "appendRegistryEntry"));
+  assert.ok(actions.some((action) => action.type === "addMany"));
 });
 
 test("unsupported dynamic templates fail before any registry mutation", () => {
