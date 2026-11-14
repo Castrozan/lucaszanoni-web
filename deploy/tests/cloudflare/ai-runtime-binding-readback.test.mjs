@@ -71,25 +71,22 @@ test("preflight accepts only the declared native inference binding name", () => 
   );
 });
 
-test("preflight tolerates only the retired OpenNext self-reference to its own script", () => {
-  const withSelfReference = (service) => ({
-    bindings: [
-      ...ownedBindings,
-      rateLimiterBinding,
-      { type: "ai", name: "AI" },
-      { type: "service", name: "WORKER_SELF_REFERENCE", service },
-    ],
-  });
-  assert.doesNotThrow(() =>
-    assertApplicationWorkerCanBeUpdated(
-      withSelfReference(configuration.name),
-      application,
-    ),
-  );
+test("preflight rejects the retired OpenNext self-reference binding", () => {
   assert.throws(
     () =>
       assertApplicationWorkerCanBeUpdated(
-        withSelfReference("another-worker"),
+        {
+          bindings: [
+            ...ownedBindings,
+            rateLimiterBinding,
+            { type: "ai", name: "AI" },
+            {
+              type: "service",
+              name: "WORKER_SELF_REFERENCE",
+              service: configuration.name,
+            },
+          ],
+        },
         application,
       ),
     /unrecognized bindings/,
