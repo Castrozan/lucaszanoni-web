@@ -43,16 +43,6 @@ const workerApplicationIds = [
 ];
 
 const routes = {
-  shell: null,
-  prefixes: [
-    {
-      prefix: "/engineering/dotfiles/claude/usage/",
-      host: "usage-dashboard.run.app",
-    },
-    { prefix: "/engineering/dotfiles/reports/", host: "reports.run.app" },
-    { prefix: "/workspace/", host: "workspace.run.app" },
-    { prefix: "/ingest/", host: "ingest.run.app" },
-  ],
   externalHttpsPrefixes: [
     { prefix: "/cockpit/terminal-session/", originHost: "bridge.example.com" },
   ],
@@ -148,10 +138,10 @@ test("each remaining static app is its own Worker asset service with public endp
   }
 });
 
-test("the public shell binds the root route to its Worker and drops only the old Cloud Run route fixtures", () => {
+test("the public shell binds the root route to its Worker", () => {
   const plan = planFor(appRegistry);
   const edgeRoutes = JSON.parse(plan.edgeConfiguration.vars.EDGE_ROUTES);
-  assert.equal(edgeRoutes.shell, null);
+  assert.equal(Object.hasOwn(edgeRoutes, "shell"), false);
   assert.ok(
     plan.edgeConfiguration.services.some(
       (service) =>
@@ -173,7 +163,7 @@ test("the public shell binds the root route to its Worker and drops only the old
       ["/", "APP_SHELL"],
     ].map(([prefix, binding]) => ({ prefix, binding })),
   );
-  assert.deepEqual(edgeRoutes.prefixes, []);
+  assert.equal(Object.hasOwn(edgeRoutes, "prefixes"), false);
 });
 
 test("external API, socket and subdomain routes survive the static app migration", () => {

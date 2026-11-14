@@ -136,10 +136,17 @@ export function createSiteDeploymentPlan(
       )
       .map((application) => ({ prefix: application.mountPath })),
   ];
-  routingTable.prefixes = routingTable.prefixes.filter(
-    (route) => !mountPaths.has(route.prefix),
-  );
-  if (mountPaths.has("/")) routingTable.shell = null;
+  if (
+    (routingTable.prefixes ?? []).length > 0 ||
+    routingTable.shell ||
+    (routingTable.subdomains ?? []).some(
+      (route) => route.originKind === "cloud-run",
+    )
+  ) {
+    throw new Error(
+      "Host-proxy edge routes require inspection before deployment",
+    );
+  }
   delete routingTable.workerAssetsPrefixes;
   routingTable.workerServicePrefixes = applications.map((application) => ({
     prefix: application.mountPath,
