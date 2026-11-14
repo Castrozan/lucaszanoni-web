@@ -18,8 +18,6 @@ export interface AddAppAnswers {
   externalPathRewrite?: "preserve" | "strip-mount-path";
   externalForwardedBasePath?: string;
   externalTrusted?: boolean;
-  staticBucketName?: string;
-  staticObjectKeyPrefix?: string;
 }
 
 export function resolveAccessModel(answers: AddAppAnswers): AppAccessModel {
@@ -39,19 +37,12 @@ export function resolveOriginSpec(answers: AddAppAnswers): AppOriginSpec {
   if (answers.originKind === "cloudflare-worker") {
     return { kind: answers.originKind };
   }
-  if (answers.originKind === "external-https") {
-    return {
-      kind: "external-https",
-      originHost: answers.externalOriginHost ?? "",
-      pathRewrite: answers.externalPathRewrite ?? "preserve",
-      forwardedBasePath: answers.externalForwardedBasePath ?? "",
-      trusted: answers.externalTrusted ?? false,
-    };
-  }
   return {
-    kind: "static-gcs-bucket",
-    bucketName: answers.staticBucketName ?? "",
-    objectKeyPrefix: answers.staticObjectKeyPrefix ?? "",
+    kind: "external-https",
+    originHost: answers.externalOriginHost ?? "",
+    pathRewrite: answers.externalPathRewrite ?? "preserve",
+    forwardedBasePath: answers.externalForwardedBasePath ?? "",
+    trusted: answers.externalTrusted ?? false,
   };
 }
 

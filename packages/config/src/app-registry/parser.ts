@@ -15,7 +15,6 @@ import {
   parseAccessApplicationProvisioning,
   parseAccessModel,
 } from "./access-parsers.ts";
-import { belongsToPrivateEnvironment } from "./access-environment.ts";
 import { parseOrigin } from "./origin-parser.ts";
 import { parseCapabilities, parseSource } from "./source-parser.ts";
 
@@ -83,14 +82,6 @@ function parseAppRegistryEntry(
   if (origin.kind === "cloudflare-worker" && !source) {
     throw new AppRegistryValidationError(
       `${context} origin ${origin.kind} requires repository source`,
-    );
-  }
-  if (
-    origin.kind === "static-gcs-bucket" &&
-    belongsToPrivateEnvironment(accessModel)
-  ) {
-    throw new AppRegistryValidationError(
-      `${context} with a static-gcs-bucket origin must use a public access model because the bucket object url bypasses edge auth`,
     );
   }
   return {

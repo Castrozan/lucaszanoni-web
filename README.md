@@ -33,7 +33,7 @@ Micro-frontends live in `apps/` and shared code in `packages/`. The registry at 
 
 ## 🏗️ Architecture
 
-Every request lands on the edge Worker. It matches a path prefix or subdomain and forwards to the origin the registry declares for that app. Private static apps are deployed as separate private Cloudflare Workers and reached through standard service bindings; they have no public route of their own, and Cloudflare Access runs before a protected request reaches the Worker. Each app owns its own asset namespace, and deeper external API or WebSocket routes retain precedence over an app's mount. Apps that are not migrated keep their existing targets, such as a static bucket or an external HTTPS origin.
+Every request lands on the edge Worker. It matches a path prefix or subdomain and forwards to the origin the registry declares for that app. Private static apps are deployed as separate private Cloudflare Workers and reached through standard service bindings; they have no public route of their own, and Cloudflare Access runs before a protected request reaches the Worker. Each app owns its own asset namespace, and deeper external API or WebSocket routes retain precedence over an app's mount. Apps hosted outside this repository are reached through an external HTTPS origin.
 
 The cockpit reaches each machine over that machine's own cloudflared tunnel using the session-bridge routes declared in the edge configuration.
 

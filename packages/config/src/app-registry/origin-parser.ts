@@ -7,7 +7,6 @@ import {
   requireForwardedBasePath,
   requireOneOf,
   requireString,
-  requireStringAllowEmpty,
 } from "./field-parsers.ts";
 
 export function parseOrigin(value: unknown, context: string): AppOrigin {
@@ -15,7 +14,7 @@ export function parseOrigin(value: unknown, context: string): AppOrigin {
   const kind = requireOneOf(
     record,
     "kind",
-    ["cloudflare-worker", "external-https", "static-gcs-bucket"] as const,
+    ["cloudflare-worker", "external-https"] as const,
     `${context} origin`,
   );
   switch (kind) {
@@ -50,21 +49,6 @@ export function parseOrigin(value: unknown, context: string): AppOrigin {
           `${context} origin`,
         ),
         trusted: requireBoolean(record, "trusted", `${context} origin`),
-      };
-    case "static-gcs-bucket":
-      rejectUnknownKeys(
-        record,
-        ["kind", "bucketName", "objectKeyPrefix"],
-        `${context} origin`,
-      );
-      return {
-        kind,
-        bucketName: requireString(record, "bucketName", `${context} origin`),
-        objectKeyPrefix: requireStringAllowEmpty(
-          record,
-          "objectKeyPrefix",
-          `${context} origin`,
-        ),
       };
   }
 }

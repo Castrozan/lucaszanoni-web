@@ -128,15 +128,15 @@ describe("application registry json schema", () => {
     expect(validate([withoutAccessModel])).toBe(false);
   });
 
-  it("rejects a static bucket origin paired with a private-environment access model", () => {
+  it("rejects the removed static bucket origin kind", () => {
     const staticBucketEntry = {
-      id: "private-bucket-app",
-      mountPath: "/private/bucket/",
-      navigationLabel: "Private bucket app",
+      id: "bucket-app",
+      mountPath: "/bucket/",
+      navigationLabel: "Bucket app",
       description: "An app served directly from a bucket.",
       showInCrossSectionNavigation: false,
       status: "active",
-      accessModel: { environment: "private", audience: { kind: "owner" } },
+      accessModel: { environment: "public" },
       origin: {
         kind: "static-gcs-bucket",
         bucketName: "some-bucket",

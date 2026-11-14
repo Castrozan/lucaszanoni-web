@@ -74,35 +74,6 @@
       "allOf": [
         {
           "if": {
-            "required": ["origin"],
-            "properties": {
-              "origin": {
-                "required": ["kind"],
-                "properties": {
-                  "kind": {
-                    "const": "static-gcs-bucket"
-                  }
-                },
-                "type": "object"
-              }
-            }
-          },
-          "then": {
-            "properties": {
-              "accessModel": {
-                "required": ["environment"],
-                "properties": {
-                  "environment": {
-                    "const": "public"
-                  }
-                },
-                "type": "object"
-              }
-            }
-          }
-        },
-        {
-          "if": {
             "properties": {
               "origin": {
                 "type": "object",
@@ -275,23 +246,6 @@
             },
             "trusted": {
               "type": "boolean"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["kind", "bucketName", "objectKeyPrefix"],
-          "properties": {
-            "kind": {
-              "const": "static-gcs-bucket"
-            },
-            "bucketName": {
-              "type": "string",
-              "minLength": 1
-            },
-            "objectKeyPrefix": {
-              "type": "string"
             }
           }
         }

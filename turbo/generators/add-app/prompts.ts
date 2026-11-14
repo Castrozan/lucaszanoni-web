@@ -65,10 +65,7 @@ export const addAppPrompts: PlopTypes.PromptQuestion[] = [
     type: "list",
     name: "originKind",
     message: "Origin kind",
-    choices: (answers: AddAppAnswers) =>
-      answers.accessModelChoice === "public"
-        ? ["cloudflare-worker", "external-https", "static-gcs-bucket"]
-        : ["cloudflare-worker", "external-https"],
+    choices: ["cloudflare-worker", "external-https"],
     default: "cloudflare-worker",
   },
   {
@@ -115,22 +112,5 @@ export const addAppPrompts: PlopTypes.PromptQuestion[] = [
     message: "Is the external origin trusted to receive the edge auth header?",
     default: false,
     when: (answers: AddAppAnswers) => answers.originKind === "external-https",
-  },
-  {
-    type: "input",
-    name: "staticBucketName",
-    message: "GCS bucket name",
-    when: (answers: AddAppAnswers) =>
-      answers.originKind === "static-gcs-bucket",
-    validate: (value: string) =>
-      value.trim().length > 0 || "bucket name is required",
-  },
-  {
-    type: "input",
-    name: "staticObjectKeyPrefix",
-    message: "GCS object key prefix (may be empty)",
-    default: "",
-    when: (answers: AddAppAnswers) =>
-      answers.originKind === "static-gcs-bucket",
   },
 ];
