@@ -97,11 +97,6 @@ test("the four remaining static apps are canonical Cloudflare Worker targets", (
     assert.equal(application.source.appDirectoryName, expected.id);
     assert.equal(application.source.buildProfile, "static-spa");
   }
-  const remainingCloudRunIds = appRegistry
-    .filter((application) => application.origin.kind === "cloud-run")
-    .map((application) => application.id);
-  for (const identifier of remainingStaticApplicationIds)
-    assert.equal(remainingCloudRunIds.includes(identifier), false);
 });
 
 test("Workspace resolves the real compute flag and machine endpoint even when the caller supplies false", () => {

@@ -11,10 +11,7 @@ function publicEntry(id, mountPath, healthProbePath) {
     mountPath,
     status: "active",
     accessModel: { environment: "public" },
-    origin: {
-      kind: "in-repo-cloud-run",
-      cloudRunServiceName: `lucaszanoni-${id}`,
-    },
+    origin: { kind: "cloudflare-worker" },
     ...(healthProbePath === undefined ? {} : { healthProbePath }),
   };
 }
@@ -36,10 +33,7 @@ function retiredEntry(id, mountPath) {
     mountPath,
     status: "retired",
     accessModel: { environment: "public" },
-    origin: {
-      kind: "in-repo-cloud-run",
-      cloudRunServiceName: `lucaszanoni-${id}`,
-    },
+    origin: { kind: "cloudflare-worker" },
   };
 }
 
@@ -94,10 +88,7 @@ test("treats a missing status as active so a legacy entry without status is stil
     id: "shell",
     mountPath: "/",
     accessModel: { environment: "public" },
-    origin: {
-      kind: "in-repo-cloud-run",
-      cloudRunServiceName: "lucaszanoni-shell",
-    },
+    origin: { kind: "cloudflare-worker" },
   };
   assert.deepEqual(deriveUptimeProbeTargets([entryWithoutStatus]), [
     { id: "shell", mountPath: "/", probePath: "/", healthyStatuses: [200] },
