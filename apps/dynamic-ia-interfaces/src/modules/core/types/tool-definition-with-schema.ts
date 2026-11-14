@@ -8,8 +8,8 @@ export interface ToolDefinitionWithSchema<
   readonly toolDescription: string;
   readonly inputValidationSchema: InputSchema;
   readonly outputValidationSchema: OutputSchema;
-  readonly requiresUserApproval: boolean | ((input: unknown) => Promise<boolean>);
-  readonly executeToolAction: (
-    input: unknown,
-  ) => Promise<unknown>;
+  readonly requiresUserApproval:
+    | boolean
+    | ((input: unknown) => Promise<boolean>);
+  readonly executeToolAction: (input: unknown) => Promise<unknown>;
 }

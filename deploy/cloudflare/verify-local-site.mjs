@@ -93,7 +93,6 @@ export async function verifyLocalSite(sourceRegistry = appRegistry) {
     ...process.env,
     CI: "true",
     WRANGLER_SEND_METRICS: "false",
-    NEXT_TELEMETRY_DISABLED: "1",
   };
   for (const application of plan.applications) {
     const result = spawnSync(

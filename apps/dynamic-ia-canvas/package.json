@@ -4,17 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "build:worker": "opennextjs-cloudflare build --openNextConfigPath cloudflare/open-next.config.ts --config cloudflare/wrangler.json",
-    "start": "wrangler dev --config cloudflare/wrangler.json",
-    "lint": "eslint .",
+    "dev": "vite",
+    "build": "vite build && esbuild src/worker/entrypoint.ts --bundle --platform=neutral --conditions=workerd,worker,browser --main-fields=module,main --format=esm --target=es2022 --external:cloudflare:* --external:node:* --outfile=dist/worker.mjs",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write 'src/**/*.{ts,tsx}'",
     "format:check": "prettier --check 'src/**/*.{ts,tsx}'",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@platform/ai-runtime": "workspace:*",
@@ -24,7 +20,6 @@
     "ai": "^7.0.170",
     "clsx": "^2.1.0",
     "lucide-react": "^0.400.0",
-    "next": "^15.5.29",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-error-boundary": "^5.0.0",
@@ -34,23 +29,21 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "1.20.17",
-    "@playwright/test": "^1.48.0",
-    "@tailwindcss/postcss": "^4.2.2",
-    "@testing-library/react": "^16.0.0",
+    "@platform/tsconfig": "workspace:*",
+    "@tailwindcss/vite": "^4.3.1",
+    "@testing-library/react": "^16.1.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@vitejs/plugin-react": "^5.2.0",
-    "eslint": "^9.0.0",
-    "eslint-config-next": "^16.2.1",
+    "@vitejs/plugin-react": "^6.0.2",
+    "esbuild": "^0.28.2",
     "fast-check": "4.10.2",
-    "jsdom": "^25.0.0",
-    "postcss": "^8.4.0",
+    "jsdom": "^25.0.1",
     "prettier": "^3.4.0",
     "prettier-plugin-tailwindcss": "^0.6.0",
-    "tailwindcss": "^4.0.0",
+    "tailwindcss": "^4.3.1",
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "vite": "^8.0.16",
+    "vitest": "^4.1.9"
   }
 }

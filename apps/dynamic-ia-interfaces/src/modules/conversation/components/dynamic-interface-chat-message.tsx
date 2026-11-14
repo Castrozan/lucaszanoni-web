@@ -9,13 +9,11 @@ export function DynamicInterfaceChatMessage({ message }: ChatMessageProps) {
   const isUserMessage = message.role === "user";
 
   return (
-    <div
-      className={`flex ${isUserMessage ? "justify-end" : "justify-start"}`}
-    >
+    <div className={`flex ${isUserMessage ? "justify-end" : "justify-start"}`}>
       <div
         className={`max-w-[85%] ${
           isUserMessage
-            ? "rounded-2xl rounded-br-sm bg-primary px-4 py-2 text-primary-foreground"
+            ? "bg-primary text-primary-foreground rounded-2xl rounded-br-sm px-4 py-2"
             : "space-y-3"
         }`}
       >

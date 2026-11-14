@@ -97,14 +97,6 @@ function createCapabilityBindings(
   const isWriter = hasCapability(application, "snapshot-ingestion");
   const isReader = hasCapability(application, "snapshot-data");
   const services = [
-    ...(application.source.buildProfile === "dynamic-service"
-      ? [
-          {
-            binding: "WORKER_SELF_REFERENCE",
-            service: application.target.scriptName,
-          },
-        ]
-      : []),
     ...(isReader
       ? [
           {

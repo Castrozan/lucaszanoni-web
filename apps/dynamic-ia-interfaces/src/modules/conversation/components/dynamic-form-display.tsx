@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import type { DisplayDynamicFormToolOutput } from "@/intent/tools/display-dynamic-form-tool";
 
@@ -9,7 +7,9 @@ export function DynamicFormDisplay({
   fields,
   submitButtonLabel,
 }: DisplayDynamicFormToolOutput) {
-  const [formValues, setFormValues] = useState<Record<string, string | boolean>>(
+  const [formValues, setFormValues] = useState<
+    Record<string, string | boolean>
+  >(
     Object.fromEntries(
       fields.map((field) => [
         field.fieldName,
@@ -36,7 +36,7 @@ export function DynamicFormDisplay({
         </p>
         <button
           onClick={() => setIsSubmitted(false)}
-          className="text-muted-foreground mt-3 text-xs underline hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground mt-3 text-xs underline"
         >
           Submit another response
         </button>
@@ -45,9 +45,9 @@ export function DynamicFormDisplay({
   }
 
   return (
-    <div className="w-full max-w-md overflow-hidden rounded-lg border border-border">
-      <div className="border-b border-border px-4 py-3">
-        <h3 className="text-sm font-medium text-foreground">{title}</h3>
+    <div className="border-border w-full max-w-md overflow-hidden rounded-lg border">
+      <div className="border-border border-b px-4 py-3">
+        <h3 className="text-foreground text-sm font-medium">{title}</h3>
         <p className="text-muted-foreground mt-1 text-xs">{description}</p>
       </div>
 
@@ -65,7 +65,7 @@ export function DynamicFormDisplay({
 
         <button
           type="submit"
-          className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-md px-4 py-2 text-sm font-medium transition-colors"
         >
           {submitButtonLabel}
         </button>
@@ -90,12 +90,10 @@ function DynamicFormField({
           type="checkbox"
           checked={value === true}
           onChange={(event) => onValueChange(event.target.checked)}
-          className="rounded border-border"
+          className="border-border rounded"
         />
-        <span className="text-sm text-foreground">{field.fieldLabel}</span>
-        {field.required && (
-          <span className="text-destructive text-xs">*</span>
-        )}
+        <span className="text-foreground text-sm">{field.fieldLabel}</span>
+        {field.required && <span className="text-destructive text-xs">*</span>}
       </label>
     );
   }
@@ -111,7 +109,7 @@ function DynamicFormField({
           value={typeof value === "string" ? value : ""}
           onChange={(event) => onValueChange(event.target.value)}
           required={field.required}
-          className="w-full rounded-md border border-border bg-input px-3 py-2 text-sm text-foreground"
+          className="border-border bg-input text-foreground w-full rounded-md border px-3 py-2 text-sm"
         >
           <option value="">{field.placeholder}</option>
           {field.options?.map((option) => (
@@ -137,7 +135,7 @@ function DynamicFormField({
           placeholder={field.placeholder}
           required={field.required}
           rows={3}
-          className="w-full rounded-md border border-border bg-input px-3 py-2 text-sm text-foreground"
+          className="border-border bg-input text-foreground w-full rounded-md border px-3 py-2 text-sm"
         />
       </div>
     );
@@ -155,7 +153,7 @@ function DynamicFormField({
         onChange={(event) => onValueChange(event.target.value)}
         placeholder={field.placeholder}
         required={field.required}
-        className="w-full rounded-md border border-border bg-input px-3 py-2 text-sm text-foreground"
+        className="border-border bg-input text-foreground w-full rounded-md border px-3 py-2 text-sm"
       />
     </div>
   );

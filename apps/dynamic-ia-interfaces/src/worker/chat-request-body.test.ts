@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import fc from "fast-check";
-import { POST } from "./route";
+import type { PublicGenerationEnvironment } from "@platform/ai-runtime/public-generation-worker";
+import { respondToChatRequest } from "./chat-request";
 
 const composition = vi.hoisted(() => ({
   modelCalls: 0,
@@ -13,15 +14,20 @@ vi.mock("@platform/ai-runtime", () => ({
   },
   admitVisitorInference: async () => true,
 }));
-vi.mock("@opennextjs/cloudflare", () => ({
-  getCloudflareContext: () => ({ env: { AI: { run: () => undefined } } }),
-}));
 vi.mock("./chat-response", () => ({
   createDynamicInterfaceChatResponse: async (messages: unknown[]) => {
     composition.messages = messages;
     return new Response("unit-test-stream");
   },
 }));
+
+const testEnvironment = {
+  AI: { run: () => undefined },
+} as unknown as PublicGenerationEnvironment;
+
+function respondWithTestEnvironment(input: Request) {
+  return respondToChatRequest(input, testEnvironment);
+}
 
 function envelope(text: string, extra = "") {
   return JSON.stringify({
@@ -87,7 +93,7 @@ describe("bounded chat wire format", () => {
               bytes.slice(index * chunkSize, (index + 1) * chunkSize),
           );
           const input = streamingRequest(chunks);
-          const response = await POST(input);
+          const response = await respondWithTestEnvironment(input);
           expect(response.status).toBe(200);
           expect(composition.modelCalls).toBe(1);
           expect(composition.messages).toMatchObject([
@@ -107,7 +113,7 @@ describe("bounded chat wire format", () => {
       expect(body.byteLength).toBeGreaterThan(32_768);
       const cancelled = vi.fn();
       const input = streamingRequest([body], true, cancelled);
-      const response = await POST(input);
+      const response = await respondWithTestEnvironment(input);
       expect(response.status).toBe(413);
       expect(composition.modelCalls).toBe(0);
       expect(cancelled).toHaveBeenCalledOnce();
@@ -120,7 +126,7 @@ describe("bounded chat wire format", () => {
     const input = streamingRequest([new Uint8Array(32_769)], true, () =>
       Promise.reject(new Error("cancel unavailable")),
     );
-    const response = await POST(input);
+    const response = await respondWithTestEnvironment(input);
     expect(response.status).toBe(413);
     expect(composition.modelCalls).toBe(0);
     expect(input.body?.locked).toBe(false);
@@ -132,7 +138,7 @@ describe("bounded chat wire format", () => {
     );
     const suffix = new TextEncoder().encode('"}]}]}');
     const input = streamingRequest([prefix, new Uint8Array([0xff]), suffix]);
-    const response = await POST(input);
+    const response = await respondWithTestEnvironment(input);
     expect(response.status).toBe(400);
     expect(composition.modelCalls).toBe(0);
     expect(input.body?.locked).toBe(false);

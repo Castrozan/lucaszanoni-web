@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import fc from "fast-check";
 import { MockLanguageModelV4 } from "ai/test";
@@ -20,7 +21,9 @@ const specification = {
   tier: "freeform",
 };
 
-beforeEach(() => generation.generateText.mockReset());
+beforeEach(() => {
+  generation.generateText.mockReset();
+});
 afterEach(() => vi.restoreAllMocks());
 
 describe("provider-neutral component generation", () => {

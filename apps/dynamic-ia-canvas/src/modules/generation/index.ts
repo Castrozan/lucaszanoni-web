@@ -1,2 +1,2 @@
-export { generateComponentFromIntent } from "./generateComponentAction";
+export { requestComponentGeneration } from "./requestComponentGeneration";
 export { useComponentGenerationLifecycle } from "./useComponentGenerationLifecycle";

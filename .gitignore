@@ -29,4 +29,3 @@ HEARTBEAT.md
 .wrangler/
 .dev.vars
 .dev.vars.*
-apps/*/cloudflare/build/

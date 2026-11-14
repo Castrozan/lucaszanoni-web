@@ -1,5 +1,3 @@
-"use client";
-
 import type { Node } from "@xyflow/react";
 import {
   Background,

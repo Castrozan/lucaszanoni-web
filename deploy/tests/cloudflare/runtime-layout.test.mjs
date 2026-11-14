@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 import { appRegistry } from "../../../packages/config/src/app-registry.ts";
@@ -14,33 +14,23 @@ const repositoryDirectory = fileURLToPath(
 );
 
 for (const applicationId of ["dynamic-ia-canvas", "dynamic-ia-interfaces"]) {
-  test(`${applicationId} keeps native, framework and deployment output paths aligned`, async () => {
+  test(`${applicationId} keeps native build and deployment output paths aligned`, async () => {
     const applicationDirectory = resolve(
       repositoryDirectory,
       "apps",
       applicationId,
     );
-    const next = (
+    const viteConfiguration = (
       await import(
         new URL(
-          `../../../apps/${applicationId}/next.config.mjs`,
+          `../../../apps/${applicationId}/vite.config.ts`,
           import.meta.url,
         )
       )
     ).default;
-    const adapter = (
-      await import(
-        new URL(
-          `../../../apps/${applicationId}/cloudflare/open-next.config.ts`,
-          import.meta.url,
-        )
-      )
-    ).default;
-    const configurationPath = resolve(
-      applicationDirectory,
-      "cloudflare/wrangler.json",
-    );
-    const configuration = JSON.parse(readFileSync(configurationPath, "utf8"));
+    const buildScript = JSON.parse(
+      readFileSync(resolve(applicationDirectory, "package.json"), "utf8"),
+    ).scripts.build;
     const application = appRegistry.find(
       (candidate) => candidate.id === applicationId,
     );
@@ -49,19 +39,13 @@ for (const applicationId of ["dynamic-ia-canvas", "dynamic-ia-interfaces"]) {
       { compatibility_date: "2024-11-01" },
       repositoryDirectory,
     );
-    assert.equal(next.distDir, `${adapter.buildOutputPath}/.next`);
+    assert.equal(viteConfiguration.base, application.mountPath);
     assert.equal(
-      resolve(dirname(configurationPath), configuration.main),
-      profile.main,
-    );
-    assert.equal(
-      resolve(dirname(configurationPath), configuration.assets.directory),
+      resolve(applicationDirectory, viteConfiguration.build.outDir),
       profile.assets.directory,
     );
-    assert.equal(configuration.compatibility_date, profile.compatibility_date);
-    assert.deepEqual(configuration.ai, { binding: "AI" });
-    assert.equal(configuration.workers_dev, false);
-    assert.equal(configuration.preview_urls, false);
+    const workerOutput = buildScript.match(/--outfile=(\S+)/)?.[1];
+    assert.equal(resolve(applicationDirectory, workerOutput), profile.main);
   });
 }
 
@@ -69,7 +53,7 @@ test("both rollout and native verification use the declared profile build comman
   const commands = {
     "static-spa": "build",
     "worker-service": "build",
-    "dynamic-service": "build:worker",
+    "dynamic-service": "build",
   };
   for (const [buildProfile, command] of Object.entries(commands)) {
     assert.deepEqual(

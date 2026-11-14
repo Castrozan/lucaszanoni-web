@@ -1,5 +1,3 @@
-"use client";
-
 import type { CanvasComponentNodeData } from "@/core";
 import { SandboxedComponentRenderer } from "@/modules/sandbox/SandboxedComponentRenderer";
 import { NodeResizer } from "@xyflow/react";

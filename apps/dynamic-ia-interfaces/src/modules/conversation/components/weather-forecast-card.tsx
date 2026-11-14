@@ -19,14 +19,14 @@ export function WeatherForecastCard({
   forecast,
 }: DisplayWeatherForecastToolOutput) {
   return (
-    <div className="w-full max-w-md overflow-hidden rounded-lg border border-border bg-muted/30">
+    <div className="border-border bg-muted/30 w-full max-w-md overflow-hidden rounded-lg border">
       <div className="bg-gradient-to-br from-blue-900/40 to-indigo-900/40 p-5">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-lg font-medium text-foreground">{location}</h3>
+            <h3 className="text-foreground text-lg font-medium">{location}</h3>
             <p className="text-muted-foreground text-sm">{condition}</p>
           </div>
-          <span className="text-4xl font-light text-foreground">
+          <span className="text-foreground text-4xl font-light">
             {temperature}°C
           </span>
         </div>
@@ -43,7 +43,7 @@ export function WeatherForecastCard({
         />
       </div>
 
-      <div className="border-t border-border px-4 py-3">
+      <div className="border-border border-t px-4 py-3">
         <div className="flex justify-between gap-2">
           {forecast.map((day) => (
             <ForecastDayColumn
@@ -60,17 +60,11 @@ export function WeatherForecastCard({
   );
 }
 
-function WeatherDetailItem({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function WeatherDetailItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-muted-foreground text-xs">{label}</p>
-      <p className="text-sm font-medium text-foreground">{value}</p>
+      <p className="text-foreground text-sm font-medium">{value}</p>
     </div>
   );
 }
@@ -89,8 +83,10 @@ function ForecastDayColumn({
   return (
     <div className="flex flex-col items-center gap-1 text-center">
       <span className="text-muted-foreground text-xs">{day}</span>
-      <span className="text-xs">{condition === "Sunny" ? "☀️" : condition === "Rainy" ? "🌧️" : "☁️"}</span>
-      <span className="text-xs font-medium text-foreground">{high}°</span>
+      <span className="text-xs">
+        {condition === "Sunny" ? "☀️" : condition === "Rainy" ? "🌧️" : "☁️"}
+      </span>
+      <span className="text-foreground text-xs font-medium">{high}°</span>
       <span className="text-muted-foreground text-xs">{low}°</span>
     </div>
   );
