@@ -1,0 +1,79 @@
+name: terraform-state-import
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: plan shows the generated imports without persisting them; import writes them into the R2 state
+        type: choice
+        options:
+          - plan
+          - import
+        default: plan
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-production
+  cancel-in-progress: false
+
+jobs:
+  import-production-state:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      TERRAFORM_WORKING_DIRECTORY: infra/environments/production
+      TERRAFORM_STATE_BUCKET: lucaszanoni-web-terraform-state
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      TF_IN_AUTOMATION: "true"
+      TF_INPUT: "false"
+      TF_VAR_enable_cloudflare_edge: ${{ vars.ENABLE_CLOUDFLARE_EDGE || 'false' }}
+      TF_VAR_enable_dotcom_canonical: ${{ vars.ENABLE_DOTCOM_CANONICAL || 'false' }}
+      TF_VAR_enable_jarvis_session_tunnel: ${{ vars.ENABLE_JARVIS_SESSION_TUNNEL || 'false' }}
+      TF_VAR_enable_kira_session_tunnel: ${{ vars.ENABLE_KIRA_SESSION_TUNNEL || 'false' }}
+      TF_VAR_enable_rin_session_tunnel: ${{ vars.ENABLE_RIN_SESSION_TUNNEL || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.11.8
+          tofu_wrapper: false
+      - name: Probe R2 and ensure the state bucket
+        run: node deploy/terraform-state/prepare-r2-state-backend.mjs "$TERRAFORM_STATE_BUCKET"
+      - name: Write production variables
+        env:
+          PRODUCTION_TERRAFORM_VARIABLES: ${{ secrets.PRODUCTION_TERRAFORM_VARIABLES }}
+        run: |
+          umask 077
+          printf '%s' "$PRODUCTION_TERRAFORM_VARIABLES" > "$RUNNER_TEMP/production.tfvars.json"
+          echo "PRODUCTION_VARIABLES_FILE=$RUNNER_TEMP/production.tfvars.json" >> "$GITHUB_ENV"
+      - name: Initialize the R2 backend
+        run: tofu -chdir="$TERRAFORM_WORKING_DIRECTORY" init -input=false -no-color > /dev/null
+      - name: Plan without imports to list declared resources
+        run: |
+          tofu -chdir="$TERRAFORM_WORKING_DIRECTORY" plan -input=false -no-color -var-file="$PRODUCTION_VARIABLES_FILE" -out="$RUNNER_TEMP/discovery.tfplan" > /dev/null
+          tofu -chdir="$TERRAFORM_WORKING_DIRECTORY" show -json "$RUNNER_TEMP/discovery.tfplan" > "$RUNNER_TEMP/discovery-plan.json"
+          node deploy/terraform-state/plan-action-summary.mjs "$RUNNER_TEMP/discovery-plan.json"
+      - name: Discover live import targets
+        run: node deploy/terraform-state/discover-import-targets.mjs "$RUNNER_TEMP/discovery-plan.json" "$TERRAFORM_WORKING_DIRECTORY/generated-imports.tf" "$RUNNER_TEMP/import-targets.json"
+      - name: Plan with generated imports
+        run: |
+          tofu -chdir="$TERRAFORM_WORKING_DIRECTORY" plan -input=false -no-color -var-file="$PRODUCTION_VARIABLES_FILE" -out="$RUNNER_TEMP/import.tfplan" > /dev/null
+          tofu -chdir="$TERRAFORM_WORKING_DIRECTORY" show -json "$RUNNER_TEMP/import.tfplan" > "$RUNNER_TEMP/import-plan.json"
+          node deploy/terraform-state/plan-action-summary.mjs "$RUNNER_TEMP/import-plan.json" --forbid-live-changes
+      - name: Write imports into state without changing Cloudflare
+        if: inputs.mode == 'import'
+        run: |
+          rm "$TERRAFORM_WORKING_DIRECTORY/generated-imports.tf"
+          node deploy/terraform-state/import-state-targets.mjs "$TERRAFORM_WORKING_DIRECTORY" "$PRODUCTION_VARIABLES_FILE" "$RUNNER_TEMP/import-targets.json"
+      - name: Plan against the imported state
+        if: inputs.mode == 'import'
+        run: |
+          tofu -chdir="$TERRAFORM_WORKING_DIRECTORY" plan -input=false -no-color -var-file="$PRODUCTION_VARIABLES_FILE" -out="$RUNNER_TEMP/final.tfplan" > /dev/null
+          tofu -chdir="$TERRAFORM_WORKING_DIRECTORY" show -json "$RUNNER_TEMP/final.tfplan" > "$RUNNER_TEMP/final-plan.json"
+          node deploy/terraform-state/plan-action-summary.mjs "$RUNNER_TEMP/final-plan.json" --forbid-live-changes
