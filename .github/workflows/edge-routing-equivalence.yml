@@ -1,0 +1,30 @@
+name: edge-routing-equivalence
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  compare-live-edge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Compare the repository edge router with the live Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ENABLE_DOTCOM_CANONICAL: ${{ vars.ENABLE_DOTCOM_CANONICAL }}
+          ENABLE_KIRA_SESSION_TUNNEL: ${{ vars.ENABLE_KIRA_SESSION_TUNNEL }}
+          ENABLE_RIN_SESSION_TUNNEL: ${{ vars.ENABLE_RIN_SESSION_TUNNEL }}
+        run: node deploy/edge-router/verify-live-edge-equivalence.mjs
