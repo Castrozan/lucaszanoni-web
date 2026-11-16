@@ -49,7 +49,7 @@ The repo is a pnpm workspace driven by Turborepo, and it splits into three areas
 
 **`packages/`** holds the shared code that the apps import. `packages/config/src/app-registry.json` is the single source of truth for which apps exist, where they mount, and how they are served; its schema and types live beside it under `packages/config/src/`. CI and the deploy entry points read from it.
 
-**`infra/`** holds the Terraform and OpenTofu modules for the Cloudflare edge and Access audiences, the retained Google Cloud resources and the per-machine Cloudflare Tunnels. `infra/environments/production/` also provisions Google Cloud and keeps a GCS backend, so it is not a Cloudflare-only deployment command. Alongside these, `.github/workflows/` carries the CI and deploy pipelines and `docs/` carries the maintainer guides.
+**`infra/`** holds the Terraform and OpenTofu modules for the Cloudflare edge and Access audiences and the per-machine Cloudflare Tunnels. `infra/environments/production/` keeps local state; its previous remote state was deleted, so existing Cloudflare resources must be imported before an apply. Alongside these, `.github/workflows/` carries the CI and deploy pipelines and `docs/` carries the maintainer guides.
 
 ---
 

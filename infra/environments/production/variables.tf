@@ -1,13 +1,3 @@
-variable "project_id" {
-  type    = string
-  default = "zg-url-shortener-2026"
-}
-
-variable "region" {
-  type    = string
-  default = "southamerica-east1"
-}
-
 variable "domain_name" {
   type    = string
   default = "lucaszanoni.com.br"
@@ -22,7 +12,7 @@ variable "canonical_domain_name" {
 variable "enable_cloudflare_edge" {
   type        = bool
   default     = false
-  description = "Whether to provision the Cloudflare zone and edge rulesets. Defaults off so the GCP services apply keyless without the Cloudflare token; flipped on once the token is minted, with no domain cutover until Phase 6."
+  description = "Whether to provision the Cloudflare zone and edge rulesets. Defaults off so a plan runs without the Cloudflare token."
 }
 
 variable "enable_dotcom_canonical" {
