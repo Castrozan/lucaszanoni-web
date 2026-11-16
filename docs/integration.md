@@ -21,7 +21,7 @@ Background: [Workers static assets](https://developers.cloudflare.com/workers/st
    - Ingest already owns a `SnapshotObjectWriter`. Replace its concrete writer where the server is composed, without changing ingestion protocols.
    - `packages/ai-runtime` owns the model factory, and both AI apps consume the AI SDK `LanguageModel` interface. Do not call paid model APIs to test a refactor.
 
-7. **Do not mistake the infra command for a Cloudflare deploy.** `infra/environments/production` also provisions Google Cloud and keeps a GCS backend, so it is not a Cloudflare-only command. Do not activate billing, run a broad Terraform apply, create secrets with `gcloud`, or upgrade a paid plan as part of this migration. Targets that are not Cloudflare Workers remain unchanged.
+7. **Do not mistake the infra command for a Cloudflare deploy.** `infra/environments/production` owns live Cloudflare Access, edge and tunnel resources and has no remote state, so an apply without importing them first would try to recreate them. Do not run a broad Terraform apply or upgrade a paid plan as part of this migration. Targets that are not Cloudflare Workers remain unchanged.
 
 ## What this guide does not establish
 
