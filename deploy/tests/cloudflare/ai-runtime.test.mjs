@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { appRegistry } from "../../../packages/config/src/app-registry.ts";
 import { createSiteDeploymentPlan } from "../../cloudflare/application-deployment.mjs";
 import {
-  settings,
+  edgeProductionConfiguration,
   twoApplicationRegistry,
 } from "./site-deployment/fixtures.mjs";
 
@@ -33,7 +33,11 @@ const visitorQuotaMigrations = [
 
 for (const applicationId of applicationIds) {
   test(`${applicationId} uses a native AI binding behind a burst limiter and a strict visitor quota`, () => {
-    const plan = createSiteDeploymentPlan(settings, registry, "/repository");
+    const plan = createSiteDeploymentPlan(
+      edgeProductionConfiguration,
+      registry,
+      "/repository",
+    );
     const application = plan.applications.find(
       (candidate) => candidate.applicationId === applicationId,
     );
@@ -80,7 +84,11 @@ for (const applicationId of applicationIds) {
 }
 
 test("only inference applications carry the visitor limiter and quota", () => {
-  const plan = createSiteDeploymentPlan(settings, registry, "/repository");
+  const plan = createSiteDeploymentPlan(
+    edgeProductionConfiguration,
+    registry,
+    "/repository",
+  );
   for (const application of plan.applications)
     if (!applicationIds.includes(application.applicationId))
       for (const key of ["ratelimits", "durable_objects", "migrations"])
@@ -104,9 +112,14 @@ test("dynamic snapshot readers carry only the read-only data capability", () => 
     ),
     writer,
   ];
-  const plan = createSiteDeploymentPlan(settings, withReader, "/repository", {
-    snapshotDatabaseId: "0b6f6a5e-3c2d-4a8e-9f10-1234567890ab",
-  });
+  const plan = createSiteDeploymentPlan(
+    edgeProductionConfiguration,
+    withReader,
+    "/repository",
+    {
+      snapshotDatabaseId: "0b6f6a5e-3c2d-4a8e-9f10-1234567890ab",
+    },
+  );
   const configuration = plan.applications.find(
     (application) => application.applicationId === "dynamic-ia-canvas",
   ).configuration;

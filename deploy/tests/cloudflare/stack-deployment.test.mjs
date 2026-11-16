@@ -6,27 +6,18 @@ import {
   createSiteDeploymentPlan,
 } from "../../cloudflare/application-deployment.mjs";
 import { assertPrivateApplicationAccess } from "../../cloudflare/private-application-access.mjs";
+import { createEdgeProductionConfiguration } from "../../edge-router/edge-production-configuration.mjs";
 
 const stackRoutingApplicationIds = ["cockpit", "stack-launcher"];
 const stackRoutingRegistry = appRegistry
   .filter((application) => stackRoutingApplicationIds.includes(application.id))
   .map((application) => ({ ...application, capabilities: [] }));
 
-const routes = {
-  workerServicePrefixes: [{ prefix: "/cockpit/", binding: "APP_COCKPIT" }],
-  externalHttpsPrefixes: [
-    { prefix: "/cockpit/terminal-session/", originHost: "bridge.example.com" },
-  ],
-  subdomains: [{ host: "media.example.com" }],
-};
-const settings = {
-  compatibility_date: "2024-11-01",
-  bindings: [
-    { name: "EDGE_ROUTES", type: "plain_text", text: JSON.stringify(routes) },
-    { name: "APP_COCKPIT", type: "service", service: "lucaszanoni-cockpit" },
-    { name: "EDGE_SHARED_SECRET", type: "secret_text" },
-  ],
-};
+const edgeProductionConfiguration = createEdgeProductionConfiguration({
+  dotcomCanonical: true,
+  kiraSessionTunnel: false,
+  rinSessionTunnel: false,
+});
 
 test("Stack retains its source, URL and owner-only audience behind a private Worker", () => {
   const stack = appRegistry.find(
@@ -54,9 +45,8 @@ test("Stack retains its source, URL and owner-only audience behind a private Wor
 });
 
 test("Stack owns an isolated private asset service", () => {
-  const before = structuredClone(settings);
   const plan = createSiteDeploymentPlan(
-    settings,
+    edgeProductionConfiguration,
     stackRoutingRegistry,
     "/repository",
   );
@@ -94,9 +84,6 @@ test("Stack owns an isolated private asset service", () => {
         service.service === "lucaszanoni-cockpit",
     ),
   );
-  for (const key of ["externalHttpsPrefixes", "subdomains"])
-    assert.deepEqual(actual[key], routes[key]);
-  assert.deepEqual(settings, before);
   assert.throws(
     () => assertPrivateApplicationAccess([stack], [], "lucaszanoni.com"),
     /requires an existing/,

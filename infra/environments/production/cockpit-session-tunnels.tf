@@ -1,32 +1,3 @@
-locals {
-  cockpit_session_external_https_origins = merge(
-    {
-      "/cockpit/lifecycle" = {
-        origin_host         = "jarvis-session-origin.${local.edge_serving_domain}"
-        path_rewrite        = "preserve"
-        forwarded_base_path = ""
-        trusted             = false
-      }
-    },
-    var.enable_kira_session_tunnel ? {
-      "/cockpit/kira-session/" = {
-        origin_host         = one(module.kira_session_tunnel[*].origin_hostname)
-        path_rewrite        = "strip-mount-path"
-        forwarded_base_path = "/cockpit/"
-        trusted             = false
-      }
-    } : {},
-    var.enable_rin_session_tunnel ? {
-      "/cockpit/rin-session/" = {
-        origin_host         = one(module.rin_session_tunnel[*].origin_hostname)
-        path_rewrite        = "strip-mount-path"
-        forwarded_base_path = "/cockpit/"
-        trusted             = false
-      }
-    } : {}
-  )
-}
-
 module "jarvis_session_tunnel" {
   source = "../../modules/cloudflare-jarvis-tunnel"
   count  = var.enable_jarvis_session_tunnel ? 1 : 0

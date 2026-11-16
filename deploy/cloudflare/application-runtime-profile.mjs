@@ -6,7 +6,7 @@ export function createApplicationBuildArguments(source) {
 
 export function createApplicationRuntimeProfile(
   application,
-  settings,
+  workerRuntime,
   repositoryDirectory,
 ) {
   const applicationDirectory = resolve(
@@ -14,7 +14,7 @@ export function createApplicationRuntimeProfile(
     "apps",
     application.source.appDirectoryName,
   );
-  const compatibilityFlags = settings.compatibility_flags ?? [];
+  const compatibilityFlags = workerRuntime.compatibility_flags ?? [];
   if (application.source.buildProfile === "worker-service") {
     return {
       main: resolve(applicationDirectory, "dist/worker.mjs"),

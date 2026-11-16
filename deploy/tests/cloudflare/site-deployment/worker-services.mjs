@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createSiteDeploymentPlan } from "../../../cloudflare/application-deployment.mjs";
 import { assertRequiredSecretsPresent } from "../../../cloudflare/worker-deployment-execution.mjs";
+import { edgeProductionConfiguration } from "./fixtures.mjs";
 
 const databaseId = "0b6f6a5e-3c2d-4a8e-9f10-1234567890ab";
 const owner = { environment: "private", audience: { kind: "owner" } };
@@ -9,18 +10,6 @@ const shared = {
   environment: "private",
   audience: { kind: "shared", audienceKey: "family" },
 };
-const settings = {
-  compatibility_date: "2024-11-01",
-  compatibility_flags: ["nodejs_compat"],
-  bindings: [
-    {
-      name: "EDGE_ROUTES",
-      type: "plain_text",
-      text: JSON.stringify({}),
-    },
-  ],
-};
-
 const base = (id, profile, accessModel, capabilities = []) => ({
   id,
   mountPath: `/${id}/`,
@@ -46,7 +35,12 @@ const writer = (id = "ingest") =>
 const reader = (id = "viewer", access = owner) =>
   base(id, "static-spa", access, ["snapshot-data"]);
 const plan = (registry, runtime = { snapshotDatabaseId: databaseId }) =>
-  createSiteDeploymentPlan(settings, registry, "/repository", runtime);
+  createSiteDeploymentPlan(
+    edgeProductionConfiguration,
+    registry,
+    "/repository",
+    runtime,
+  );
 
 test("a generic worker-service needs no database or secret and keeps nodejs_compat unique", () => {
   const [application] = plan(

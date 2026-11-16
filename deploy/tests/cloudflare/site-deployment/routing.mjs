@@ -3,14 +3,13 @@ import { test } from "node:test";
 import { createSiteDeploymentPlan } from "../../../cloudflare/application-deployment.mjs";
 import {
   appRegistry,
-  routes,
-  settings,
+  edgeProductionConfiguration,
   twoApplicationRegistry,
 } from "./fixtures.mjs";
 
 test("deploys any number of independent static apps without Cockpit-specific code", () => {
   const plan = createSiteDeploymentPlan(
-    settings,
+    edgeProductionConfiguration,
     twoApplicationRegistry(),
     "/repository",
   );
@@ -33,12 +32,12 @@ test("deploys any number of independent static apps without Cockpit-specific cod
 
 test("keeps public and private asset stores isolated and disables public Worker URLs", () => {
   const plan = createSiteDeploymentPlan(
-    settings,
+    edgeProductionConfiguration,
     twoApplicationRegistry(),
     "/repository",
   );
   assert.equal(Object.hasOwn(plan.edgeConfiguration, "assets"), false);
-  assert.equal(plan.edgeConfiguration.keep_vars, true);
+  assert.equal(plan.edgeConfiguration.keep_vars, false);
   for (const configuration of [
     ...plan.applications.map((application) => application.configuration),
     plan.edgeConfiguration,
@@ -64,84 +63,57 @@ test("keeps public and private asset stores isolated and disables public Worker 
   }
 });
 
-test("preserves unrelated HTTP, API, subdomain, secret-header and current input state", () => {
-  const originalSettings = structuredClone(settings);
+test("computes the edge router entirely from the repository without mutating its inputs", () => {
+  const originalConfiguration = structuredClone(edgeProductionConfiguration);
   const configuration = createSiteDeploymentPlan(
-    settings,
+    edgeProductionConfiguration,
     appRegistry,
     "/repository",
   ).edgeConfiguration;
-  const actual = JSON.parse(configuration.vars.EDGE_ROUTES);
-  for (const key of ["externalHttpsPrefixes", "subdomains"])
-    assert.deepEqual(actual[key], routes[key]);
+  assert.equal(configuration.name, "lucaszanoni-edge-router");
+  assert.equal(
+    configuration.main,
+    "/repository/deploy/edge-router/edge-router-worker.mjs",
+  );
+  assert.equal(configuration.compatibility_date, "2024-11-01");
+  assert.deepEqual(configuration.compatibility_flags, []);
+  assert.deepEqual(Object.keys(configuration.vars).sort(), [
+    "EDGE_ROUTES",
+    "EDGE_SHARED_SECRET_HEADER_NAME",
+  ]);
   assert.equal(
     configuration.vars.EDGE_SHARED_SECRET_HEADER_NAME,
     "X-Edge-Auth",
   );
-  assert.deepEqual(settings, originalSettings);
+  assert.deepEqual(edgeProductionConfiguration, originalConfiguration);
   assert.deepEqual(
-    createSiteDeploymentPlan(settings, appRegistry, "/repository"),
-    createSiteDeploymentPlan(settings, appRegistry, "/repository"),
+    createSiteDeploymentPlan(
+      edgeProductionConfiguration,
+      appRegistry,
+      "/repository",
+    ),
+    createSiteDeploymentPlan(
+      edgeProductionConfiguration,
+      appRegistry,
+      "/repository",
+    ),
   );
 });
 
-test("retirement removes the app service and declares Gone without removing unrelated retired paths", () => {
-  const deployed = createSiteDeploymentPlan(
-    settings,
-    appRegistry,
-    "/repository",
-  ).edgeConfiguration;
-  const routing = JSON.parse(deployed.vars.EDGE_ROUTES);
-  routing.retiredPrefixes = [{ prefix: "/archived-external/" }];
-  const current = {
-    ...settings,
-    bindings: [
-      ...settings.bindings.filter(
-        (binding) =>
-          binding.name !== "EDGE_ROUTES" && binding.type !== "assets",
-      ),
-      {
-        name: "EDGE_ROUTES",
-        type: "plain_text",
-        text: JSON.stringify(routing),
-      },
-      { name: "APP_COCKPIT", type: "service", service: "lucaszanoni-cockpit" },
-    ],
-  };
+test("retirement removes the app service and declares Gone", () => {
   const retiredRegistry = appRegistry.map((application) =>
     application.id === "cockpit"
       ? { ...application, status: "retired" }
       : application,
   );
   const plan = createSiteDeploymentPlan(
-    current,
+    edgeProductionConfiguration,
     retiredRegistry,
     "/repository",
   );
+  const routing = JSON.parse(plan.edgeConfiguration.vars.EDGE_ROUTES);
   assert.equal(plan.applications.length, 0);
-  assert.deepEqual(
-    JSON.parse(plan.edgeConfiguration.vars.EDGE_ROUTES).retiredPrefixes,
-    [{ prefix: "/archived-external/" }, { prefix: "/cockpit/" }],
-  );
+  assert.deepEqual(routing.retiredPrefixes, [{ prefix: "/cockpit/" }]);
+  assert.deepEqual(routing.workerServicePrefixes, []);
   assert.deepEqual(plan.edgeConfiguration.services, []);
-});
-
-test("drops the host-proxy fields the router no longer reads", () => {
-  const current = {
-    ...settings,
-    bindings: settings.bindings.map((binding) =>
-      binding.name === "EDGE_ROUTES"
-        ? {
-            ...binding,
-            text: JSON.stringify({ ...routes, shell: null, prefixes: [] }),
-          }
-        : binding,
-    ),
-  };
-  const deployedRoutes = JSON.parse(
-    createSiteDeploymentPlan(current, twoApplicationRegistry(), "/repository")
-      .edgeConfiguration.vars.EDGE_ROUTES,
-  );
-  assert.equal(Object.hasOwn(deployedRoutes, "shell"), false);
-  assert.equal(Object.hasOwn(deployedRoutes, "prefixes"), false);
 });

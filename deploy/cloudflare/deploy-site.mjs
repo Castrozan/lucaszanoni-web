@@ -22,6 +22,9 @@ import {
   createCloudflareReader,
   verifyPrivateWorker,
 } from "./cloudflare-client.mjs";
+import { readEdgeProductionConfiguration } from "../edge-router/edge-production-configuration.mjs";
+import { compareEdgeWorkerSettings } from "../edge-router/edge-worker-settings-comparison.mjs";
+import { EDGE_WORKER_SECRETS } from "../edge-router/edge-worker-configuration.mjs";
 
 function readDeploymentAccount(environment) {
   if (environment.CLOUDFLARE_ACCOUNT_ID)
@@ -52,16 +55,19 @@ export async function deploySite({ dryRun = false } = {}) {
     WRANGLER_SEND_METRICS: "false",
   };
   const readCloudflare = createCloudflareReader(accountId, apiToken);
-  const settings = await readCloudflare(
-    "workers/scripts/lucaszanoni-edge-router/settings",
-  );
   const plan = createSiteDeploymentPlan(
-    settings,
+    readEdgeProductionConfiguration(environment),
     appRegistry,
     repositoryDirectory,
     { snapshotDatabaseId: process.env.CLOUDFLARE_SNAPSHOT_DATABASE_ID },
   );
-  assertRequiredSecretsPresent(plan.applications, environment);
+  assertRequiredSecretsPresent(
+    [
+      ...plan.applications,
+      { applicationId: "edge-router", requiredSecrets: EDGE_WORKER_SECRETS },
+    ],
+    environment,
+  );
   await assertApplicationDatabasesMatch(readCloudflare, plan.applications);
   const requiresPrivateAccess = plan.applications.some(
     (application) => application.accessModel.environment !== "public",
@@ -112,12 +118,22 @@ export async function deploySite({ dryRun = false } = {}) {
           application.requiredSecrets,
         );
     }
-    deployWorker(plan.edgeConfiguration, "edge");
+    deployWorker(plan.edgeConfiguration, "edge", EDGE_WORKER_SECRETS);
     if (!dryRun) {
       const updatedSettings = await verifyPrivateWorker(
         readCloudflare,
         plan.edgeConfiguration,
+        EDGE_WORKER_SECRETS,
       );
+      const { differingKeys } = compareEdgeWorkerSettings(
+        plan.edgeConfiguration,
+        EDGE_WORKER_SECRETS,
+        updatedSettings,
+      );
+      if (differingKeys.length > 0)
+        throw new Error(
+          `Edge router readback differs from the repository: ${differingKeys.join(", ")}`,
+        );
       if (requiresPrivateAccess) {
         assertAccessApplicationsUnchanged(
           accessApplications,
@@ -126,20 +142,6 @@ export async function deploySite({ dryRun = false } = {}) {
         console.log(
           `Verified Access configuration unchanged for ${accessApplications.length} applications`,
         );
-      }
-      for (const binding of settings.bindings.filter(
-        (binding) => binding.type === "secret_text",
-      )) {
-        if (
-          !updatedSettings.bindings.some(
-            (updated) =>
-              updated.name === binding.name && updated.type === "secret_text",
-          )
-        ) {
-          throw new Error(
-            `Existing edge secret binding was not retained: ${binding.name}`,
-          );
-        }
       }
     }
     console.log(
@@ -154,7 +156,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const argumentsList = process.argv.slice(2);
   if (argumentsList.includes("--help")) {
     console.log(
-      "Usage: node deploy/cloudflare/deploy-site.mjs [--dry-run]\nBuilds registry-owned application profiles, deploys private Workers, then publishes edge service bindings. Requires CLOUDFLARE_API_TOKEN, CLOUDFLARE_SNAPSHOT_DATABASE_ID and INGEST_PRODUCER_SECRET when snapshot ingestion is registered, CLOUDFLARE_SITE_HOSTNAME for private apps, and CLOUDFLARE_ACCOUNT_ID or the production variables file. Existing non-Cloudflare targets and Access policies are not modified.",
+      "Usage: node deploy/cloudflare/deploy-site.mjs [--dry-run]\nBuilds registry-owned application profiles, deploys private Workers, then publishes the edge router with its routing table, service bindings and shared secret computed from the repository. Requires CLOUDFLARE_API_TOKEN, EDGE_SHARED_SECRET, ENABLE_DOTCOM_CANONICAL, ENABLE_KIRA_SESSION_TUNNEL and ENABLE_RIN_SESSION_TUNNEL, CLOUDFLARE_SNAPSHOT_DATABASE_ID and INGEST_PRODUCER_SECRET when snapshot ingestion is registered, CLOUDFLARE_SITE_HOSTNAME for private apps, and CLOUDFLARE_ACCOUNT_ID or the production variables file. Existing non-Cloudflare targets and Access policies are not modified.",
     );
   } else {
     if (argumentsList.some((argument) => argument !== "--dry-run"))

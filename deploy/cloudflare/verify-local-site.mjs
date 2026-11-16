@@ -7,6 +7,7 @@ import {
   createApplicationBuildEnvironment,
   createSiteDeploymentPlan,
 } from "./application-deployment.mjs";
+import { createEdgeProductionConfiguration } from "../edge-router/edge-production-configuration.mjs";
 import { verifyStaticApplicationResponses } from "./local-site/static-application-responses.mjs";
 import {
   LOCAL_FIXTURE_PRODUCER_SECRET,
@@ -64,18 +65,12 @@ export async function verifyLocalSite(sourceRegistry = appRegistry) {
         scriptName: `lucaszanoni-${application.id}`,
       },
     }));
-  const settings = {
-    compatibility_date: "2024-11-01",
-    bindings: [
-      {
-        name: "EDGE_ROUTES",
-        type: "plain_text",
-        text: JSON.stringify({}),
-      },
-    ],
-  };
   const plan = createSiteDeploymentPlan(
-    settings,
+    createEdgeProductionConfiguration({
+      dotcomCanonical: false,
+      kiraSessionTunnel: false,
+      rinSessionTunnel: false,
+    }),
     registry,
     repositoryDirectory,
     {

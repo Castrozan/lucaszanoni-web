@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { appRegistry } from "../../../packages/config/src/app-registry.ts";
-import edgeWorker from "../../../infra/modules/cloudflare-edge/edge-router-worker.mjs";
+import edgeWorker from "../../edge-router/edge-router-worker.mjs";
 import { createSiteDeploymentPlan } from "../../cloudflare/application-deployment.mjs";
+import { createEdgeProductionConfiguration } from "../../edge-router/edge-production-configuration.mjs";
 
 const routing = {
   externalHttpsPrefixes: [{ prefix: "/db/", originHost: "example.com" }],
@@ -25,31 +26,21 @@ test("the unused database placeholder is retired without changing its private pe
   });
 });
 
-test("the existing deployment adapter projects database retirement while preserving unrelated routes", () => {
-  const settings = {
-    compatibility_date: "2024-11-01",
-    bindings: [
-      {
-        name: "EDGE_ROUTES",
-        type: "plain_text",
-        text: JSON.stringify({
-          ...routing,
-          retiredPrefixes: [{ prefix: "/previously-retired/" }],
-        }),
-      },
-    ],
-  };
-  const plan = createSiteDeploymentPlan(settings, appRegistry, "/repository", {
-    snapshotDatabaseId: "00000000-0000-0000-0000-000000000001",
-  });
+test("the deployment adapter projects database retirement ahead of its external origin", () => {
+  const plan = createSiteDeploymentPlan(
+    createEdgeProductionConfiguration({
+      dotcomCanonical: true,
+      kiraSessionTunnel: false,
+      rinSessionTunnel: false,
+    }),
+    appRegistry,
+    "/repository",
+    { snapshotDatabaseId: "00000000-0000-0000-0000-000000000001" },
+  );
   const deployed = JSON.parse(plan.edgeConfiguration.vars.EDGE_ROUTES);
-  assert.deepEqual(deployed.retiredPrefixes, [
-    { prefix: "/previously-retired/" },
-    { prefix: "/db/" },
-  ]);
-  assert.deepEqual(
-    deployed.externalHttpsPrefixes,
-    routing.externalHttpsPrefixes,
+  assert.deepEqual(deployed.retiredPrefixes, [{ prefix: "/db/" }]);
+  assert.ok(
+    deployed.externalHttpsPrefixes.some((route) => route.prefix === "/db/"),
   );
   assert.equal(
     plan.applications.some((application) => application.applicationId === "db"),

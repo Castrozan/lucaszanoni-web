@@ -5,7 +5,7 @@ import {
   summarizePlanActions,
 } from "../../terraform-state/plan-action-summary.mjs";
 
-test("summarizes imports and drift while flagging any live create, replace or destroy", () => {
+test("summarizes imports, drift and state-only forgets while flagging any live create, replace or destroy", () => {
   const change = (address, actions, extra = {}) => ({
     address,
     mode: "managed",
@@ -22,6 +22,7 @@ test("summarizes imports and drift while flagging any live create, replace or de
       change("a.created", ["create"]),
       change("a.replaced", ["delete", "create"]),
       change("a.destroyed", ["delete"]),
+      change("a.forgotten", ["forget"]),
       { address: "data.x", mode: "data", change: { actions: ["read"] } },
     ],
   };
@@ -32,6 +33,7 @@ test("summarizes imports and drift while flagging any live create, replace or de
     create: 1,
     replace: 1,
     destroy: 1,
+    forget: 1,
   });
   assert.deepEqual(
     summary.violations.map(({ address }) => address),
@@ -39,9 +41,10 @@ test("summarizes imports and drift while flagging any live create, replace or de
   );
   const formatted = formatPlanActionSummary(summary);
   assert.match(formatted, /import-with-update a\.drifted \[content\]/);
+  assert.match(formatted, /^forget a\.forgotten$/m);
   assert.match(
     formatted,
-    /Plan summary: create=1 destroy=1 import=1 import-with-update=1 replace=1$/,
+    /Plan summary: create=1 destroy=1 forget=1 import=1 import-with-update=1 replace=1$/,
   );
   assert.doesNotMatch(formatted, /old|new/);
 });

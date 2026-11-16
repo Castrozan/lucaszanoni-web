@@ -2,12 +2,7 @@ import { isDeepStrictEqual } from "node:util";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-export const forbiddenActionCategories = [
-  "create",
-  "replace",
-  "destroy",
-  "forget",
-];
+export const forbiddenActionCategories = ["create", "replace", "destroy"];
 
 function categorizeChange(change) {
   const actions = change.change.actions.join(",");

@@ -21,7 +21,6 @@ const liveObjects = {
     { id: "record-apex", name: "example.test", type: "A" },
   ],
   [`zones/${zoneId}/settings/ssl`]: { id: "ssl", value: "strict" },
-  [`accounts/${accountId}/workers/scripts/edge-router/settings`]: {},
   [`zones/${zoneId}/workers/routes`]: [
     { id: "route-catch-all", pattern: "example.test/*" },
     { id: "route-other", pattern: "other.example.test/*" },
@@ -67,14 +66,6 @@ const declaredResources = [
     {
       zone_id: zoneId,
       setting_id: "ssl",
-    },
-  ),
-  creation(
-    "module.edge[0].cloudflare_workers_script.edge_router",
-    "cloudflare_workers_script",
-    {
-      account_id: accountId,
-      script_name: "edge-router",
     },
   ),
   creation(
@@ -131,7 +122,6 @@ test("resolves every declared resource to its provider import identifier", async
     [
       `${zoneId}/record-apex`,
       `${zoneId}/ssl`,
-      `${accountId}/edge-router`,
       `${zoneId}/route-catch-all`,
       `${accountId}/policy-cockpit`,
       `accounts/${accountId}/app-cockpit`,
@@ -140,7 +130,7 @@ test("resolves every declared resource to its provider import identifier", async
     ],
   );
   assert.match(
-    renderImportBlocks(targets.slice(5, 6)),
+    renderImportBlocks(targets.slice(4, 5)),
     /^import \{\n  to = module\.access\[0\]\.cloudflare_zero_trust_access_application\.app\["cockpit"\]\n  id = "accounts\/account-synthetic\/app-cockpit"\n\}\n$/,
   );
 });

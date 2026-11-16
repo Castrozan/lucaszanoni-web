@@ -136,7 +136,7 @@ export const engineeringContent: EngineeringContent = {
       title: "ONE DATA-DRIVEN EDGE WORKER",
       body: "A single Cloudflare Worker routes every app from an EDGE_ROUTES binding, with no per-app code and no hardcoded routes.",
       evidenceLabel: "edge-router-worker.mjs",
-      evidenceHref: `${REPOSITORY_FILE_BASE_URL}/infra/modules/cloudflare-edge/edge-router-worker.mjs`,
+      evidenceHref: `${REPOSITORY_FILE_BASE_URL}/deploy/edge-router/edge-router-worker.mjs`,
     },
     {
       id: "registry-ssot",
