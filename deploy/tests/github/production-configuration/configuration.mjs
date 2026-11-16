@@ -15,7 +15,7 @@ import {
   assertNoDisclosure,
 } from "./fixtures.mjs";
 
-test("maps all eight canonical fields to their named environment secrets", () => {
+test("maps all seven canonical fields to their named environment secrets", () => {
   assert.deepEqual(
     productionConfigurationFields.map(({ field, secretName }) => [
       field,
@@ -23,7 +23,6 @@ test("maps all eight canonical fields to their named environment secrets", () =>
     ]),
     [
       ["cloudflare_account_id", "CLOUDFLARE_ACCOUNT_ID"],
-      ["edge_shared_secret_value", "EDGE_SHARED_SECRET_VALUE"],
       ["google_sso_client_id", "GOOGLE_SSO_CLIENT_ID"],
       ["google_sso_client_secret", "GOOGLE_SSO_CLIENT_SECRET"],
       ["jarvis_session_tunnel_secret", "JARVIS_SESSION_TUNNEL_SECRET"],
@@ -44,7 +43,7 @@ test("accepts synthetic configuration and reads the identity providers with one 
       return createReader([googleProvider()], requests);
     },
   });
-  assert.deepEqual(result, { fieldCount: 8, identityMatched: true });
+  assert.deepEqual(result, { fieldCount: 7, identityMatched: true });
   assert.deepEqual(requests, ["access/identity_providers"]);
 });
 

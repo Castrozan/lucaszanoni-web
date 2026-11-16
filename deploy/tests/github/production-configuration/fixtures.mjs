@@ -4,7 +4,6 @@ import { productionConfigurationFields } from "../../../github/verify-production
 const accountId = "0123456789abcdef0123456789abcdef";
 const secretValues = {
   cloudflare_account_id: accountId,
-  edge_shared_secret_value: "synthetic-edge-secret-4d1f",
   google_sso_client_id: "synthetic-client-id.apps.example.test",
   google_sso_client_secret: "synthetic-client-secret-77aa",
   jarvis_session_tunnel_secret: "synthetic-jarvis-secret-12bc",

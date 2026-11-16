@@ -3,10 +3,6 @@ import { createCloudflareReader } from "../cloudflare/cloudflare-client.mjs";
 
 export const productionConfigurationFields = [
   { field: "cloudflare_account_id", secretName: "CLOUDFLARE_ACCOUNT_ID" },
-  {
-    field: "edge_shared_secret_value",
-    secretName: "EDGE_SHARED_SECRET_VALUE",
-  },
   { field: "google_sso_client_id", secretName: "GOOGLE_SSO_CLIENT_ID" },
   {
     field: "google_sso_client_secret",

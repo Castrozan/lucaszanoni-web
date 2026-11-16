@@ -1,0 +1,35 @@
+name: strip-edge-tfvars-field
+
+on:
+  workflow_dispatch:
+    inputs:
+      recipient_certificate:
+        description: Base64 PEM certificate that receives the encrypted configuration
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  strip:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Encrypt the configuration without the edge field
+        env:
+          PRODUCTION_TERRAFORM_VARIABLES: ${{ secrets.PRODUCTION_TERRAFORM_VARIABLES }}
+          RECIPIENT_CERTIFICATE: ${{ inputs.recipient_certificate }}
+        run: |
+          umask 077
+          printf '%s' "$PRODUCTION_TERRAFORM_VARIABLES" > "$RUNNER_TEMP/original.json"
+          jq -e 'has("edge_shared_secret_value")' "$RUNNER_TEMP/original.json" > /dev/null
+          jq -c 'del(.edge_shared_secret_value)' "$RUNNER_TEMP/original.json" > "$RUNNER_TEMP/stripped.json"
+          jq -r 'keys | join(" ")' "$RUNNER_TEMP/stripped.json"
+          printf '%s' "$RECIPIENT_CERTIFICATE" | base64 -d > "$RUNNER_TEMP/recipient.pem"
+          openssl cms -encrypt -aes256 -binary -outform DER -in "$RUNNER_TEMP/stripped.json" -out stripped.cms "$RUNNER_TEMP/recipient.pem"
+          rm -f "$RUNNER_TEMP/original.json" "$RUNNER_TEMP/stripped.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stripped-configuration
+          path: stripped.cms
+          retention-days: 1
