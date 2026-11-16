@@ -21,12 +21,6 @@ variable "enable_dotcom_canonical" {
   description = "Whether lucaszanoni.com is the canonical edge domain with lucaszanoni.com.br reduced to a permanent redirect alias. Defaults off so the live edge keeps serving the .com.br zone unchanged; flipped on only after the Cloudflare API token is widened to include the lucaszanoni.com zone, since the serving-zone resources cannot be written there until then."
 }
 
-variable "edge_shared_secret_value" {
-  type        = string
-  sensitive   = true
-  description = "Shared secret the Cloudflare edge injects into requests it proxies to an owned origin host."
-}
-
 variable "cloudflare_account_id" {
   type        = string
   description = "Cloudflare account that owns the lucaszanoni.com.br zone. Supplied at apply time via TF_VAR_cloudflare_account_id; never committed, to keep account identifiers out of the public repo."

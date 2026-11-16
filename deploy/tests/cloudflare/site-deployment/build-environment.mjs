@@ -4,7 +4,11 @@ import {
   createApplicationBuildEnvironment,
   createSiteDeploymentPlan,
 } from "../../../cloudflare/application-deployment.mjs";
-import { appRegistry, settings, twoApplicationRegistry } from "./fixtures.mjs";
+import {
+  appRegistry,
+  edgeProductionConfiguration,
+  twoApplicationRegistry,
+} from "./fixtures.mjs";
 
 test("retains declared public build settings without enabling simulated production sessions", () => {
   const source = appRegistry.find(
@@ -22,37 +26,7 @@ test("retains declared public build settings without enabling simulated producti
   assert.equal(environment.VITE_COCKPIT_REAL_COMPUTE, "true");
 });
 
-test("fails before deployment on unsupported bindings, missing adapters and binding collisions", () => {
-  assert.throws(
-    () =>
-      createSiteDeploymentPlan(
-        {
-          ...settings,
-          bindings: [
-            ...settings.bindings,
-            { name: "DATA", type: "kv_namespace" },
-          ],
-        },
-        appRegistry,
-        "/repository",
-      ),
-    /Unrecognized/,
-  );
-  assert.throws(
-    () =>
-      createSiteDeploymentPlan(
-        {
-          ...settings,
-          bindings: [
-            ...settings.bindings,
-            { name: "APP_COCKPIT", type: "secret_text" },
-          ],
-        },
-        appRegistry,
-        "/repository",
-      ),
-    /collides/,
-  );
+test("fails before deployment on missing adapters and an edge router overwrite", () => {
   const unsupported = twoApplicationRegistry().map((application) =>
     application.id === "shell"
       ? {
@@ -65,7 +39,12 @@ test("fails before deployment on unsupported bindings, missing adapters and bind
       : application,
   );
   assert.throws(
-    () => createSiteDeploymentPlan(settings, unsupported, "/repository"),
+    () =>
+      createSiteDeploymentPlan(
+        edgeProductionConfiguration,
+        unsupported,
+        "/repository",
+      ),
     /static-spa build adapter/,
   );
   const reserved = twoApplicationRegistry().map((application) =>
@@ -80,7 +59,12 @@ test("fails before deployment on unsupported bindings, missing adapters and bind
       : application,
   );
   assert.throws(
-    () => createSiteDeploymentPlan(settings, reserved, "/repository"),
+    () =>
+      createSiteDeploymentPlan(
+        edgeProductionConfiguration,
+        reserved,
+        "/repository",
+      ),
     /overwrite/,
   );
 });

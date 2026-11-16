@@ -1,9 +1,8 @@
 mock_provider "cloudflare" {}
 
 variables {
-  zone_name                = "lucaszanoni.test"
-  cloudflare_account_id    = "0000000000000000000000000000abcd"
-  edge_shared_secret_value = "test-edge-secret"
+  zone_name             = "lucaszanoni.test"
+  cloudflare_account_id = "0000000000000000000000000000abcd"
 }
 
 run "no_subdomain_resources_when_apps_absent" {
@@ -11,39 +10,30 @@ run "no_subdomain_resources_when_apps_absent" {
 
   assert {
     condition     = length(cloudflare_dns_record.subdomain_proxied) == 0
-    error_message = "an empty subdomain app map must provision no subdomain dns records so the apex-only deployment stays byte-identical"
+    error_message = "an empty subdomain label set must provision no subdomain dns records so the apex-only deployment stays byte-identical"
   }
 
   assert {
     condition     = length(cloudflare_workers_route.edge_router_subdomain) == 0
-    error_message = "an empty subdomain app map must provision no subdomain worker routes"
+    error_message = "an empty subdomain label set must provision no subdomain worker routes"
   }
 
   assert {
-    condition     = strcontains([for binding in cloudflare_workers_script.edge_router.bindings : binding.text if binding.name == "EDGE_ROUTES"][0], "\"subdomains\":[]")
-    error_message = "an empty subdomain app map must still emit an empty subdomains routing-table section so the worker reads a defined list"
+    condition     = cloudflare_workers_route.edge_router_catch_all.script == "lucaszanoni-edge-router"
+    error_message = "the apex route must attach the CI-deployed edge router by script name"
   }
 }
 
-run "one_proxied_host_and_route_per_subdomain_app" {
+run "one_proxied_host_and_route_per_subdomain_label" {
   command = plan
 
   variables {
-    subdomain_apps = {
-      ledger = {
-        origin_host = "ledger.external.example"
-        trusted     = true
-      }
-      db = {
-        origin_host = "db.external.example"
-        trusted     = false
-      }
-    }
+    subdomain_labels = ["ledger", "db"]
   }
 
   assert {
     condition     = length(cloudflare_dns_record.subdomain_proxied) == 2
-    error_message = "each subdomain app must provision exactly one proxied dns record"
+    error_message = "each subdomain label must provision exactly one proxied dns record"
   }
 
   assert {
@@ -58,7 +48,7 @@ run "one_proxied_host_and_route_per_subdomain_app" {
 
   assert {
     condition     = length(cloudflare_workers_route.edge_router_subdomain) == 2
-    error_message = "each subdomain app must attach the edge worker via exactly one route"
+    error_message = "each subdomain label must attach the edge worker via exactly one route"
   }
 
   assert {
@@ -67,17 +57,25 @@ run "one_proxied_host_and_route_per_subdomain_app" {
   }
 
   assert {
-    condition     = cloudflare_workers_route.edge_router_subdomain["db"].script == cloudflare_workers_script.edge_router.script_name
+    condition     = cloudflare_workers_route.edge_router_subdomain["db"].script == cloudflare_workers_route.edge_router_catch_all.script
     error_message = "the subdomain route must point at the same edge router script as the apex route"
   }
+}
 
-  assert {
-    condition     = strcontains([for binding in cloudflare_workers_script.edge_router.bindings : binding.text if binding.name == "EDGE_ROUTES"][0], "\"host\":\"ledger.lucaszanoni.test\",\"originHost\":\"ledger.external.example\",\"trusted\":true")
-    error_message = "a trusted subdomain app must route by host to its own external origin marked trusted so the worker forwards its identity assertion"
+run "alias_zone_attaches_the_same_router" {
+  command = plan
+
+  variables {
+    alias_zone_name = "lucaszanoni.alias.test"
   }
 
   assert {
-    condition     = strcontains([for binding in cloudflare_workers_script.edge_router.bindings : binding.text if binding.name == "EDGE_ROUTES"][0], "\"host\":\"db.lucaszanoni.test\",\"originHost\":\"db.external.example\",\"trusted\":false")
-    error_message = "an external-https subdomain app must route by host to its external origin marked untrusted so the worker strips its identity assertion"
+    condition     = cloudflare_workers_route.edge_router_alias_catch_all[0].pattern == "lucaszanoni.alias.test/*"
+    error_message = "the alias zone route must cover the entire alias zone"
+  }
+
+  assert {
+    condition     = cloudflare_workers_route.edge_router_alias_catch_all[0].script == "lucaszanoni-edge-router"
+    error_message = "the alias zone must attach the same CI-deployed edge router"
   }
 }

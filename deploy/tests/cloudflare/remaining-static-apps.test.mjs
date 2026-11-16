@@ -5,6 +5,7 @@ import {
   createApplicationBuildEnvironment,
   createSiteDeploymentPlan,
 } from "../../cloudflare/application-deployment.mjs";
+import { createEdgeProductionConfiguration } from "../../edge-router/edge-production-configuration.mjs";
 
 const remainingStaticApplications = [
   {
@@ -42,34 +43,25 @@ const workerApplicationIds = [
   "stack-launcher",
 ];
 
-const routes = {
-  externalHttpsPrefixes: [
-    { prefix: "/cockpit/terminal-session/", originHost: "bridge.example.com" },
-  ],
-  subdomains: [{ host: "media.example.com" }],
-};
-
-const settings = {
-  compatibility_date: "2024-11-01",
-  bindings: [
-    { name: "EDGE_ROUTES", type: "plain_text", text: JSON.stringify(routes) },
-    { name: "EDGE_SHARED_SECRET", type: "secret_text" },
-    {
-      name: "EDGE_SHARED_SECRET_HEADER_NAME",
-      type: "plain_text",
-      text: "X-Edge-Auth",
-    },
-  ],
-};
+const edgeProductionConfiguration = createEdgeProductionConfiguration({
+  dotcomCanonical: true,
+  kiraSessionTunnel: true,
+  rinSessionTunnel: true,
+});
 
 function findApplication(identifier) {
   return appRegistry.find((application) => application.id === identifier);
 }
 
 function planFor(registry) {
-  return createSiteDeploymentPlan(settings, registry, "/repository", {
-    snapshotDatabaseId: "00000000-0000-0000-0000-000000000001",
-  });
+  return createSiteDeploymentPlan(
+    edgeProductionConfiguration,
+    registry,
+    "/repository",
+    {
+      snapshotDatabaseId: "00000000-0000-0000-0000-000000000001",
+    },
+  );
 }
 
 test("the four remaining static apps are canonical Cloudflare Worker targets", () => {
@@ -166,16 +158,28 @@ test("the public shell binds the root route to its Worker", () => {
   assert.equal(Object.hasOwn(edgeRoutes, "prefixes"), false);
 });
 
-test("external API, socket and subdomain routes survive the static app migration", () => {
+test("registry external origins and cockpit session tunnels route through the edge", () => {
   const edgeRoutes = JSON.parse(
     planFor(appRegistry).edgeConfiguration.vars.EDGE_ROUTES,
   );
   assert.deepEqual(
-    edgeRoutes.externalHttpsPrefixes,
-    routes.externalHttpsPrefixes,
+    edgeRoutes.externalHttpsPrefixes.map(
+      (route) => `${route.prefix} ${route.originHost} ${route.pathRewrite}`,
+    ),
+    [
+      "/cockpit/kira-session/ kira-session-origin.lucaszanoni.com strip-mount-path",
+      "/cockpit/lifecycle jarvis-session-origin.lucaszanoni.com preserve",
+      "/cockpit/rin-session/ rin-session-origin.lucaszanoni.com strip-mount-path",
+      "/cockpit/terminal-session/ jarvis-session-origin.lucaszanoni.com preserve",
+      "/db/ example.com preserve",
+    ],
   );
-  assert.deepEqual(edgeRoutes.subdomains, routes.subdomains);
-  assert.deepEqual(
+  assert.deepEqual(edgeRoutes.subdomains, []);
+  assert.deepEqual(edgeRoutes.aliasRedirect, {
+    canonicalHost: "lucaszanoni.com",
+    statusCode: 301,
+  });
+  assert.equal(
     planFor(appRegistry).edgeConfiguration.vars.EDGE_SHARED_SECRET_HEADER_NAME,
     "X-Edge-Auth",
   );

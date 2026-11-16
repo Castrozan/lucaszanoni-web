@@ -133,6 +133,28 @@ test("production configuration is verified with step-scoped secrets just before 
   );
 });
 
+test("the edge deploy receives its shared secret and production routing flags from the production environment", () => {
+  const deployment = workflow.slice(workflow.indexOf("\n  deploy-site:"));
+  const deploymentStep = stepNamed(
+    deployment,
+    "Deploy private application Workers and edge",
+  );
+  assert.match(
+    deploymentStep,
+    /EDGE_SHARED_SECRET: \$\{\{ secrets\.EDGE_SHARED_SECRET_VALUE \}\}/,
+  );
+  for (const flag of [
+    "ENABLE_DOTCOM_CANONICAL",
+    "ENABLE_KIRA_SESSION_TUNNEL",
+    "ENABLE_RIN_SESSION_TUNNEL",
+  ]) {
+    assert.match(
+      deploymentStep,
+      new RegExp(`${flag}: \\$\\{\\{ vars\\.${flag} \\}\\}`),
+    );
+  }
+});
+
 test("secrets exist only in the two production deployment steps", () => {
   const deployment = workflow.slice(workflow.indexOf("\n  deploy-site:"));
   const beforeDeployment = workflow.slice(

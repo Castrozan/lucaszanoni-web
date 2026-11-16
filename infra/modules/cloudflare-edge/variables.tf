@@ -13,58 +13,14 @@ variable "proxied_placeholder_origin_ip" {
   description = "Documentation-range placeholder address for the proxied apex record. The edge Worker intercepts every request on the zone route and serves it from a bound Worker or an external origin, so this address is never dialed; it exists only to anchor the orange-cloud proxy on the apex hostname."
 }
 
-variable "worker_service_prefixes" {
-  type    = map(string)
-  default = {}
-}
-
-variable "worker_services" {
-  type    = map(string)
-  default = {}
-}
-
-variable "external_https_prefix_origins" {
-  type = map(object({
-    origin_host         = string
-    path_rewrite        = string
-    forwarded_base_path = string
-    trusted             = bool
-  }))
-  default     = {}
-  description = "Map of edge path prefix to an external HTTPS origin hosted outside this repo. The Worker matches these prefixes after the retired prefixes and before the Worker service prefixes, rewrites the host to the external origin, and strips any inbound copy of the shared-secret header. path_rewrite preserve forwards the path unchanged; strip-mount-path replaces the matched prefix with forwarded_base_path, which must be empty or both start and end with a slash. A trusted origin receives the forwarded Cloudflare Access identity assertion header; an untrusted origin has that header stripped and is edge-gated only. Because the Worker runs after Cloudflare Access and cannot tell an Access-injected assertion from a client-supplied one, trusted may be set only for a route already gated by a Cloudflare Access application that overwrites any client-supplied assertion; marking an origin trusted before its Access gate exists would forward a client-forged identity. Empty by default; populated once an external-https app is registered."
-}
-
-variable "retired_prefixes" {
-  type        = list(string)
+variable "subdomain_labels" {
+  type        = set(string)
   default     = []
-  description = "Edge path prefixes whose application has been retired in the app registry. The Worker matches these prefixes immediately after the alias redirect and before every origin lookup, answering each with a 410 Gone instead of silently falling through to the shell SPA. Empty by default; populated from the registry whenever an app's status is set to retired, so a removed app stops masquerading as a live route."
+  description = "DNS labels of the apps the registry serves on their own subdomain instead of a shared path prefix. For each label the module stands up a proxied A record at <label>.<zone_name> and attaches the edge Worker via a per-subdomain route; CI deploys the Worker and its host-based routing table. Empty by default, so no subdomain hostnames exist until an app sets its registry servingLocation to subdomain."
 }
 
-variable "subdomain_apps" {
-  type = map(object({
-    origin_host = string
-    trusted     = bool
-  }))
-  default     = {}
-  description = "Apps the registry serves on their own subdomain instead of a shared path prefix, keyed by the DNS label. For each entry the module stands up a proxied A record at <label>.<zone_name>, attaches the same edge Worker via a per-subdomain route, and adds the subdomain to the Worker routing table so the Worker selects the app's origin by request hostname instead of by path prefix; a genuinely untrusted app thus gets its own origin and cookie jar instead of sharing the apex same-origin scope. origin_host is the external HTTPS host the Worker forwards the subdomain's whole request to without the shared-secret header; its forwarded Cloudflare Access identity is gated by trusted exactly as the path-prefix external routes are. The Worker strips the apex Cloudflare Access session cookies from every subdomain request regardless of kind, so the apex login never leaks into an isolated subdomain. Empty by default, so no subdomain hostnames exist until an app sets its registry servingLocation to subdomain."
-}
-
-variable "edge_shared_secret_header_name" {
-  type    = string
-  default = "X-Edge-Auth"
-}
-
-variable "edge_shared_secret_value" {
-  type      = string
-  sensitive = true
-}
-
-variable "alias_redirect" {
-  type = object({
-    zone_name      = string
-    canonical_host = string
-    status_code    = number
-  })
+variable "alias_zone_name" {
+  type        = string
   default     = null
-  description = "Optional alias zone whose every request the edge Worker permanently redirects to the canonical host, path and query preserved. When set, the module attaches the same Worker to the alias zone via its own proxied apex record and route, and injects the redirect into the routing table; null leaves the alias unmanaged. Re-homing the redirect onto the Worker keeps it within the Workers Routes and Scripts token scope, avoiding the Dynamic Redirect ruleset permission group."
+  description = "Optional alias zone the edge Worker permanently redirects to the canonical host. When set, the module attaches the same Worker to the alias zone via its own proxied apex record and route; CI deploys the redirect itself in the Worker routing table. Null leaves the alias unmanaged."
 }

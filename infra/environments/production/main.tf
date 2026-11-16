@@ -1,23 +1,6 @@
 locals {
   app_registry = jsondecode(file("${path.root}/../../../packages/config/src/app-registry.json"))
 
-  external_https_apps = {
-    for app in local.app_registry :
-    app.id => app
-    if app.origin.kind == "external-https"
-  }
-
-  external_https_prefix_origins = {
-    for app_id, app in local.external_https_apps :
-    app.mountPath => {
-      origin_host         = app.origin.originHost
-      path_rewrite        = app.origin.pathRewrite
-      forwarded_base_path = app.origin.forwardedBasePath
-      trusted             = app.origin.trusted
-    }
-    if try(app.servingLocation.kind, "path-prefix") != "subdomain"
-  }
-
   private_registry_applications = {
     for app in local.app_registry :
     app.id => {
@@ -32,19 +15,10 @@ locals {
     if app.accessModel.environment != "public" && try(app.accessApplicationProvisioning.kind, "dedicated") != "inherited-from-parent-path"
   }
 
-  retired_app_mount_prefixes = [
-    for app in local.app_registry : app.mountPath
-    if try(app.status, "active") == "retired"
-  ]
-
-  subdomain_apps = {
-    for app in local.app_registry :
-    app.servingLocation.subdomainLabel => {
-      origin_host = app.origin.originHost
-      trusted     = try(app.origin.trusted, false)
-    }
+  subdomain_labels = toset([
+    for app in local.app_registry : app.servingLocation.subdomainLabel
     if try(app.servingLocation.kind, "path-prefix") == "subdomain"
-  }
+  ])
 
   edge_serving_domain = var.enable_dotcom_canonical ? var.canonical_domain_name : var.domain_name
 }
@@ -55,26 +29,8 @@ module "edge" {
 
   zone_name             = local.edge_serving_domain
   cloudflare_account_id = var.cloudflare_account_id
-  worker_service_prefixes = {
-    for app in local.app_registry : app.mountPath => "APP_${upper(replace(app.id, "-", "_"))}"
-    if app.origin.kind == "cloudflare-worker" && app.status == "active"
-  }
-  worker_services = {
-    for app in local.app_registry : "APP_${upper(replace(app.id, "-", "_"))}" => app.origin.scriptName
-    if app.origin.kind == "cloudflare-worker" && app.status == "active"
-  }
-  external_https_prefix_origins = merge(
-    local.external_https_prefix_origins,
-    local.cockpit_session_external_https_origins
-  )
-  retired_prefixes         = local.retired_app_mount_prefixes
-  subdomain_apps           = local.subdomain_apps
-  edge_shared_secret_value = var.edge_shared_secret_value
-  alias_redirect = var.enable_dotcom_canonical ? {
-    zone_name      = var.domain_name
-    canonical_host = var.canonical_domain_name
-    status_code    = 301
-  } : null
+  subdomain_labels      = local.subdomain_labels
+  alias_zone_name       = var.enable_dotcom_canonical ? var.domain_name : null
 }
 
 module "access" {

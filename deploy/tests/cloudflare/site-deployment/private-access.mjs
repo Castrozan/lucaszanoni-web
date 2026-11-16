@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { readFileSync } from "node:fs";
 import { createSiteDeploymentPlan } from "../../../cloudflare/application-deployment.mjs";
 import { assertPrivateApplicationAccess } from "../../../cloudflare/private-application-access.mjs";
-import { appRegistry, settings } from "./fixtures.mjs";
+import { appRegistry, edgeProductionConfiguration } from "./fixtures.mjs";
 
 test("active production deploys the registry through Cloudflare without GCP authentication or apply", () => {
   const production = readFileSync(
@@ -19,7 +19,7 @@ test("active production deploys the registry through Cloudflare without GCP auth
 
 test("private apps require an existing non-bypass Access perimeter before rollout", () => {
   const applications = createSiteDeploymentPlan(
-    settings,
+    edgeProductionConfiguration,
     appRegistry,
     "/repository",
   ).applications;
@@ -52,7 +52,7 @@ test("private apps require an existing non-bypass Access perimeter before rollou
 
 test("private routing preserves deliberate public child exceptions but cannot inherit a bypass", () => {
   const application = createSiteDeploymentPlan(
-    settings,
+    edgeProductionConfiguration,
     appRegistry,
     "/repository",
   ).applications[0];

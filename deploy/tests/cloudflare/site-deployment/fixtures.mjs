@@ -1,4 +1,5 @@
 import { appRegistry as canonicalRegistry } from "../../../../packages/config/src/app-registry.ts";
+import { createEdgeProductionConfiguration } from "../../../edge-router/edge-production-configuration.mjs";
 
 const syntheticExternalOriginApplicationIds = ["shell", "reports"];
 
@@ -22,25 +23,11 @@ export const appRegistry = canonicalRegistry
       : application,
   );
 
-export const routes = {
-  externalHttpsPrefixes: [
-    { prefix: "/cockpit/terminal-session/", originHost: "bridge.example.com" },
-  ],
-  subdomains: [{ host: "media.example.com" }],
-};
-export const settings = {
-  compatibility_date: "2024-11-01",
-  bindings: [
-    { name: "EDGE_ROUTES", type: "plain_text", text: JSON.stringify(routes) },
-    { name: "EDGE_SHARED_SECRET", type: "secret_text" },
-    {
-      name: "EDGE_SHARED_SECRET_HEADER_NAME",
-      type: "plain_text",
-      text: "X-Edge-Auth",
-    },
-    { name: "ASSETS", type: "assets" },
-  ],
-};
+export const edgeProductionConfiguration = createEdgeProductionConfiguration({
+  dotcomCanonical: true,
+  kiraSessionTunnel: true,
+  rinSessionTunnel: true,
+});
 
 export function twoApplicationRegistry() {
   return appRegistry.map((application) =>

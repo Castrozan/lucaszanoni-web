@@ -1,32 +1,5 @@
 locals {
-  edge_routing_table = {
-    workerServicePrefixes = [for prefix, binding in var.worker_service_prefixes : { prefix = prefix, binding = binding }]
-    externalHttpsPrefixes = [
-      for prefix, origin in var.external_https_prefix_origins : {
-        prefix            = prefix
-        originHost        = origin.origin_host
-        pathRewrite       = origin.path_rewrite
-        forwardedBasePath = origin.forwarded_base_path
-        trusted           = origin.trusted
-      }
-    ]
-    retiredPrefixes = [
-      for prefix in var.retired_prefixes : {
-        prefix = prefix
-      }
-    ]
-    subdomains = [
-      for label, app in var.subdomain_apps : {
-        host       = "${label}.${var.zone_name}"
-        originHost = app.origin_host
-        trusted    = app.trusted
-      }
-    ]
-    aliasRedirect = var.alias_redirect == null ? null : {
-      canonicalHost = var.alias_redirect.canonical_host
-      statusCode    = var.alias_redirect.status_code
-    }
-  }
+  edge_router_script_name = "lucaszanoni-edge-router"
 }
 
 data "cloudflare_zone" "this" {
@@ -59,48 +32,25 @@ resource "cloudflare_zone_setting" "always_use_https" {
   value      = "on"
 }
 
-resource "cloudflare_workers_script" "edge_router" {
-  account_id         = var.cloudflare_account_id
-  script_name        = "lucaszanoni-edge-router"
-  content            = file("${path.module}/edge-router-worker.mjs")
-  main_module        = "worker.js"
-  compatibility_date = "2024-11-01"
-  keep_assets        = false
+removed {
+  from = cloudflare_workers_script.edge_router
 
-  bindings = concat([
-    {
-      name = "EDGE_ROUTES"
-      type = "plain_text"
-      text = jsonencode(local.edge_routing_table)
-    },
-    {
-      name = "EDGE_SHARED_SECRET_HEADER_NAME"
-      type = "plain_text"
-      text = var.edge_shared_secret_header_name
-    },
-    {
-      name = "EDGE_SHARED_SECRET"
-      type = "secret_text"
-      text = var.edge_shared_secret_value
-    },
-    ], [for binding, service in var.worker_services : {
-      name    = binding
-      type    = "service"
-      service = service
-  }])
+  lifecycle {
+    destroy = false
+  }
 }
 
 resource "cloudflare_workers_route" "edge_router_catch_all" {
   zone_id = data.cloudflare_zone.this.id
   pattern = "${var.zone_name}/*"
-  script  = cloudflare_workers_script.edge_router.script_name
+  script  = local.edge_router_script_name
 }
 
 resource "cloudflare_dns_record" "subdomain_proxied" {
-  for_each = var.subdomain_apps
+  for_each = var.subdomain_labels
 
   zone_id = data.cloudflare_zone.this.id
-  name    = "${each.key}.${var.zone_name}"
+  name    = "${each.value}.${var.zone_name}"
   type    = "A"
   content = var.proxied_placeholder_origin_ip
   proxied = true
@@ -108,18 +58,18 @@ resource "cloudflare_dns_record" "subdomain_proxied" {
 }
 
 resource "cloudflare_workers_route" "edge_router_subdomain" {
-  for_each = var.subdomain_apps
+  for_each = var.subdomain_labels
 
   zone_id = data.cloudflare_zone.this.id
-  pattern = "${each.key}.${var.zone_name}/*"
-  script  = cloudflare_workers_script.edge_router.script_name
+  pattern = "${each.value}.${var.zone_name}/*"
+  script  = local.edge_router_script_name
 }
 
 data "cloudflare_zone" "alias" {
-  count = var.alias_redirect == null ? 0 : 1
+  count = var.alias_zone_name == null ? 0 : 1
 
   filter = {
-    name = var.alias_redirect.zone_name
+    name = var.alias_zone_name
     account = {
       id = var.cloudflare_account_id
     }
@@ -127,10 +77,10 @@ data "cloudflare_zone" "alias" {
 }
 
 resource "cloudflare_dns_record" "alias_apex_proxied" {
-  count = var.alias_redirect == null ? 0 : 1
+  count = var.alias_zone_name == null ? 0 : 1
 
   zone_id = data.cloudflare_zone.alias[0].id
-  name    = var.alias_redirect.zone_name
+  name    = var.alias_zone_name
   type    = "A"
   content = var.proxied_placeholder_origin_ip
   proxied = true
@@ -138,9 +88,9 @@ resource "cloudflare_dns_record" "alias_apex_proxied" {
 }
 
 resource "cloudflare_workers_route" "edge_router_alias_catch_all" {
-  count = var.alias_redirect == null ? 0 : 1
+  count = var.alias_zone_name == null ? 0 : 1
 
   zone_id = data.cloudflare_zone.alias[0].id
-  pattern = "${var.alias_redirect.zone_name}/*"
-  script  = cloudflare_workers_script.edge_router.script_name
+  pattern = "${var.alias_zone_name}/*"
+  script  = local.edge_router_script_name
 }

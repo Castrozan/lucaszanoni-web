@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import edgeRouterWorker from "../../../infra/modules/cloudflare-edge/edge-router-worker.mjs";
+import edgeRouterWorker from "../../edge-router/edge-router-worker.mjs";
 import staticApplicationWorker from "../../cloudflare/static-application-worker.mjs";
 
 function createEnvironment() {

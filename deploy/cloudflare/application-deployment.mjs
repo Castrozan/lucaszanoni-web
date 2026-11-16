@@ -1,4 +1,3 @@
-import { resolve } from "node:path";
 import {
   createDeploymentManifest,
   createPublicBuildEnvironment,
@@ -7,48 +6,29 @@ import {
   createApplicationWorkerDeployment,
   resolveSnapshotTopology,
 } from "./application-worker-configuration.mjs";
+import {
+  EDGE_ROUTER_SCRIPT_NAME,
+  EDGE_WORKER_COMPATIBILITY_DATE,
+} from "../edge-router/edge-production-configuration.mjs";
+import { createEdgeWorkerConfiguration } from "../edge-router/edge-worker-configuration.mjs";
 
-export function createSiteDeploymentPlan(
-  settings,
-  registry,
-  repositoryDirectory,
-  runtimeConfiguration = {},
-) {
-  const allowedBindingTypes = new Set([
-    "plain_text",
-    "secret_text",
-    "assets",
-    "service",
-  ]);
-  if (
-    settings.bindings.some((binding) => !allowedBindingTypes.has(binding.type))
-  ) {
-    throw new Error(
-      "Unrecognized Worker bindings require inspection before deployment",
-    );
-  }
-  const variables = Object.fromEntries(
-    settings.bindings
-      .filter((binding) => binding.type === "plain_text")
-      .map((binding) => [binding.name, binding.text]),
-  );
-  if (!variables.EDGE_ROUTES || !settings.compatibility_date) {
-    throw new Error(
-      "Existing edge routing and compatibility settings are required",
-    );
-  }
-  const routingTable = JSON.parse(variables.EDGE_ROUTES);
-  const manifest = createDeploymentManifest(registry);
-  const applications = manifest.applications
-    .filter((application) => application.target.kind === "cloudflare-worker")
+const EDGE_WORKER_RUNTIME = {
+  compatibility_date: EDGE_WORKER_COMPATIBILITY_DATE,
+  compatibility_flags: [],
+};
+
+export function selectWorkerApplications(registry) {
+  return createDeploymentManifest(registry)
+    .applications.filter(
+      (application) => application.target.kind === "cloudflare-worker",
+    )
     .map((application) => ({
       ...application,
       binding: `APP_${application.applicationId.replace(/-/g, "_").toUpperCase()}`,
     }));
-  const snapshotTopology = resolveSnapshotTopology(
-    manifest.applications,
-    runtimeConfiguration,
-  );
+}
+
+function assertWorkerApplicationsDeployable(applications) {
   const bindings = new Set();
   for (const application of applications) {
     if (
@@ -65,76 +45,32 @@ export function createSiteDeploymentPlan(
         `Application ${application.applicationId} requires a subdomain deployment adapter`,
       );
     }
-    if (application.target.scriptName === "lucaszanoni-edge-router") {
+    if (application.target.scriptName === EDGE_ROUTER_SCRIPT_NAME) {
       throw new Error("Application workers cannot overwrite the edge router");
     }
-    const binding = application.binding;
-    if (bindings.has(binding))
-      throw new Error(`Duplicate application binding ${binding}`);
-    bindings.add(binding);
+    if (bindings.has(application.binding))
+      throw new Error(`Duplicate application binding ${application.binding}`);
+    bindings.add(application.binding);
   }
-  const previousServiceBindings = new Set(
-    (routingTable.workerServicePrefixes ?? []).map((route) => route.binding),
+}
+
+export function createSiteDeploymentPlan(
+  edgeProductionConfiguration,
+  registry,
+  repositoryDirectory,
+  runtimeConfiguration = {},
+) {
+  const manifest = createDeploymentManifest(registry);
+  const applications = selectWorkerApplications(registry);
+  assertWorkerApplicationsDeployable(applications);
+  const snapshotTopology = resolveSnapshotTopology(
+    manifest.applications,
+    runtimeConfiguration,
   );
-  const services = settings.bindings
-    .filter(
-      (binding) =>
-        binding.type === "service" &&
-        !previousServiceBindings.has(binding.name),
-    )
-    .map((binding) => ({
-      binding: binding.name,
-      service: binding.service,
-      ...(binding.environment ? { environment: binding.environment } : {}),
-      ...(binding.entrypoint ? { entrypoint: binding.entrypoint } : {}),
-    }));
-  for (const application of applications) {
-    if (
-      settings.bindings.some(
-        (binding) =>
-          binding.name === application.binding &&
-          !previousServiceBindings.has(binding.name),
-      )
-    ) {
-      throw new Error(
-        `Application binding ${application.binding} collides with an existing binding`,
-      );
-    }
-    services.push({
-      binding: application.binding,
-      service: application.target.scriptName,
-    });
-  }
-  const registryMountPaths = new Set(
-    registry
-      .filter(
-        (application) => application.servingLocation?.kind !== "subdomain",
-      )
-      .map((application) => application.mountPath),
-  );
-  routingTable.retiredPrefixes = [
-    ...(routingTable.retiredPrefixes ?? []).filter(
-      (route) => !registryMountPaths.has(route.prefix),
-    ),
-    ...registry
-      .filter(
-        (application) =>
-          application.status === "retired" &&
-          application.servingLocation?.kind !== "subdomain",
-      )
-      .map((application) => ({ prefix: application.mountPath })),
-  ];
-  delete routingTable.prefixes;
-  delete routingTable.shell;
-  routingTable.workerServicePrefixes = applications.map((application) => ({
-    prefix: application.mountPath,
-    binding: application.binding,
-  }));
-  variables.EDGE_ROUTES = JSON.stringify(routingTable);
   const deployments = applications.map((application) =>
     createApplicationWorkerDeployment(
       application,
-      settings,
+      EDGE_WORKER_RUNTIME,
       repositoryDirectory,
       snapshotTopology,
     ),
@@ -146,20 +82,12 @@ export function createSiteDeploymentPlan(
       ...deployments.filter(isWriter),
       ...deployments.filter((deployment) => !isWriter(deployment)),
     ],
-    edgeConfiguration: {
-      name: "lucaszanoni-edge-router",
-      main: resolve(
-        repositoryDirectory,
-        "infra/modules/cloudflare-edge/edge-router-worker.mjs",
-      ),
-      compatibility_date: settings.compatibility_date,
-      compatibility_flags: settings.compatibility_flags ?? [],
-      workers_dev: false,
-      preview_urls: false,
-      keep_vars: true,
-      vars: variables,
-      services,
-    },
+    edgeConfiguration: createEdgeWorkerConfiguration({
+      registry,
+      workerApplications: applications,
+      configuration: edgeProductionConfiguration,
+      repositoryDirectory,
+    }),
   };
 }
 

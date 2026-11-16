@@ -46,15 +46,6 @@ const importIdentifierResolvers = {
       return `${planned.zone_id}/${planned.setting_id}`;
     },
   },
-  cloudflare_workers_script: {
-    attributes: ["account_id", "script_name"],
-    async resolve(cloudflareApi, planned) {
-      await cloudflareApi.get(
-        `accounts/${planned.account_id}/workers/scripts/${planned.script_name}/settings`,
-      );
-      return `${planned.account_id}/${planned.script_name}`;
-    },
-  },
   cloudflare_workers_route: {
     attributes: ["zone_id", "pattern"],
     async resolve(cloudflareApi, planned, address) {

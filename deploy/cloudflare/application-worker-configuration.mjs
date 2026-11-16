@@ -134,7 +134,7 @@ function createCapabilityBindings(
 
 export function createApplicationWorkerDeployment(
   application,
-  settings,
+  workerRuntime,
   repositoryDirectory,
   snapshotTopology,
 ) {
@@ -150,7 +150,7 @@ export function createApplicationWorkerDeployment(
     ...(requiredSecrets.length > 0 ? { requiredSecrets } : {}),
     configuration: {
       name: application.target.scriptName,
-      compatibility_date: settings.compatibility_date,
+      compatibility_date: workerRuntime.compatibility_date,
       workers_dev: false,
       preview_urls: false,
       vars: {
@@ -159,7 +159,7 @@ export function createApplicationWorkerDeployment(
       },
       ...createApplicationRuntimeProfile(
         application,
-        settings,
+        workerRuntime,
         repositoryDirectory,
       ),
       ...createCapabilityBindings(
