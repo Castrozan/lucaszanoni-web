@@ -22,8 +22,8 @@ jobs:
         run: |
           umask 077
           printf '%s' "$PRODUCTION_TERRAFORM_VARIABLES" > "$RUNNER_TEMP/original.json"
-          jq -e 'has("edge_shared_secret_value")' "$RUNNER_TEMP/original.json" > /dev/null
-          jq -c 'del(.edge_shared_secret_value)' "$RUNNER_TEMP/original.json" > "$RUNNER_TEMP/stripped.json"
+          jq -e 'has("enable_reports_static_gcs_routes")' "$RUNNER_TEMP/original.json" > /dev/null
+          jq -c 'del(.edge_shared_secret_value, .enable_reports_static_gcs_routes)' "$RUNNER_TEMP/original.json" > "$RUNNER_TEMP/stripped.json"
           jq -r 'keys | join(" ")' "$RUNNER_TEMP/stripped.json"
           printf '%s' "$RECIPIENT_CERTIFICATE" | base64 -d > "$RUNNER_TEMP/recipient.pem"
           openssl cms -encrypt -aes256 -binary -outform DER -in "$RUNNER_TEMP/stripped.json" -out stripped.cms "$RUNNER_TEMP/recipient.pem"
