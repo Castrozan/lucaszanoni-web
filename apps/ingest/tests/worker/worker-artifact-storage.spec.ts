@@ -40,7 +40,19 @@ describe("storing artifacts through the Worker", () => {
       objectKind: "raw-snapshot",
       contentType: "application/json",
       byteLength: new TextEncoder().encode(rawSnapshotText).byteLength,
+      storage: {
+        rowsRead: expect.any(Number),
+        rowsWritten: expect.any(Number),
+      },
     });
+    const replay = await putArtifact(
+      runtime,
+      "reports/engineering/index.html",
+      "<p>ação</p>",
+      { "content-type": "text/html; charset=utf-8" },
+    );
+    expect(replay.status).toBe(202);
+    expect(await replay.json()).toMatchObject({ storage: { rowsWritten: 0 } });
     const storedReport = await readThroughReader(
       runtime,
       "reports/engineering/index.html",

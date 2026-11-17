@@ -19,13 +19,18 @@ ON CONFLICT(object_key) DO UPDATE SET
   object_kind = excluded.object_kind,
   content_type = excluded.content_type,
   byte_length = excluded.byte_length,
-  chunk_count = excluded.chunk_count`;
+  chunk_count = excluded.chunk_count
+WHERE snapshot_objects.object_kind IS NOT excluded.object_kind
+  OR snapshot_objects.content_type IS NOT excluded.content_type
+  OR snapshot_objects.byte_length IS NOT excluded.byte_length
+  OR snapshot_objects.chunk_count IS NOT excluded.chunk_count`;
 
-const DELETE_CHUNKS_SQL =
-  "DELETE FROM snapshot_object_chunks WHERE object_key = ?1";
+const DELETE_EXCESS_CHUNKS_SQL =
+  "DELETE FROM snapshot_object_chunks WHERE object_key = ?1 AND chunk_index >= ?2";
 
-const INSERT_CHUNK_SQL =
-  "INSERT INTO snapshot_object_chunks (object_key, chunk_index, bytes) VALUES (?1, ?2, ?3)";
+const UPSERT_CHUNK_SQL = `INSERT INTO snapshot_object_chunks (object_key, chunk_index, bytes) VALUES (?1, ?2, ?3)
+ON CONFLICT(object_key, chunk_index) DO UPDATE SET bytes = excluded.bytes
+WHERE snapshot_object_chunks.bytes IS NOT excluded.bytes`;
 
 const INSERT_IMMUTABLE_CHUNK_SQL = `INSERT INTO snapshot_object_chunks (object_key, chunk_index, bytes)
 SELECT ?1, ?2, ?3
@@ -40,7 +45,7 @@ ON CONFLICT(topic) DO UPDATE SET
 WHERE excluded.produced_at_epoch > snapshot_latest.produced_at_epoch
   OR (
     excluded.produced_at_epoch = snapshot_latest.produced_at_epoch
-    AND excluded.event_object_key >= snapshot_latest.event_object_key
+    AND excluded.event_object_key > snapshot_latest.event_object_key
   )`;
 
 export function buildObjectWriteStatements(
@@ -65,10 +70,14 @@ export function buildObjectWriteStatements(
       ),
     ...(immutable
       ? []
-      : [database.prepare(DELETE_CHUNKS_SQL).bind(objectWrite.objectKey)]),
+      : [
+          database
+            .prepare(DELETE_EXCESS_CHUNKS_SQL)
+            .bind(objectWrite.objectKey, chunks.length),
+        ]),
     ...chunks.map((chunk, chunkIndex) =>
       database
-        .prepare(immutable ? INSERT_IMMUTABLE_CHUNK_SQL : INSERT_CHUNK_SQL)
+        .prepare(immutable ? INSERT_IMMUTABLE_CHUNK_SQL : UPSERT_CHUNK_SQL)
         .bind(objectWrite.objectKey, chunkIndex, chunk.slice().buffer),
     ),
   ];

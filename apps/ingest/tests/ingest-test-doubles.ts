@@ -41,6 +41,7 @@ export function createRecordingArtifactObjectWriter(): RecordingArtifactObjectWr
     writes,
     async writeArtifact(artifactWrite) {
       writes.push(artifactWrite);
+      return { rowsRead: 0, rowsWritten: 1 };
     },
   };
 }

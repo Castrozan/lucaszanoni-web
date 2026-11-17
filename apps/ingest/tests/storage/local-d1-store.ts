@@ -1,13 +1,10 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import type { SnapshotDatabase } from "../../src/storage/snapshot-database";
 
 const DATABASE_BINDING = "SNAPSHOT_DATABASE";
 const LOCAL_FIXTURE_DATABASE_ID = "local-fixture-snapshot-database";
-const MIGRATION_PATH = new URL(
-  "../../migrations/0001_snapshots.sql",
-  import.meta.url,
-);
+const MIGRATION_DIRECTORY = new URL("../../migrations/", import.meta.url);
 
 export interface LocalD1Store {
   readonly database: SnapshotDatabase;
@@ -16,19 +13,23 @@ export interface LocalD1Store {
   readonly dispose: () => Promise<void>;
 }
 
-function migrationStatements(): string[] {
-  return readFileSync(MIGRATION_PATH, "utf8")
-    .split(";")
-    .map((statement) => statement.trim())
-    .filter((statement) => statement !== "");
-}
-
 export async function applyMigration(
   database: SnapshotDatabase,
 ): Promise<void> {
-  await database.batch(
-    migrationStatements().map((statement) => database.prepare(statement)),
-  );
+  for (const filename of readdirSync(MIGRATION_DIRECTORY)
+    .filter((name) => name.endsWith(".sql"))
+    .sort()) {
+    const statements = readFileSync(
+      new URL(filename, MIGRATION_DIRECTORY),
+      "utf8",
+    )
+      .split(";")
+      .map((statement) => statement.trim())
+      .filter((statement) => statement !== "");
+    await database.batch(
+      statements.map((statement) => database.prepare(statement)),
+    );
+  }
 }
 
 export async function openLocalD1Store(): Promise<LocalD1Store> {
@@ -42,7 +43,7 @@ export async function openLocalD1Store(): Promise<LocalD1Store> {
   try {
     const database = (await miniflare.getD1Database(
       DATABASE_BINDING,
-    )) as unknown as SnapshotDatabase;
+    )) as unknown as D1Database;
     await applyMigration(database);
     return {
       database,
