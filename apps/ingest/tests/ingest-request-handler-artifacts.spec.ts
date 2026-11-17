@@ -30,6 +30,7 @@ describe("handling an artifact write", () => {
         objectKind: "raw-snapshot",
         contentType: "application/json",
         byteLength: request.body.byteLength,
+        storage: { rowsRead: 0, rowsWritten: 1 },
       },
     });
     expect(artifactObjectWriter.writes).toStrictEqual([

@@ -32,26 +32,26 @@ export async function ingestArtifact(
   }
 
   try {
-    await dependencies.artifactObjectWriter.writeArtifact({
+    const storage = await dependencies.artifactObjectWriter.writeArtifact({
       objectKey,
       objectKind,
       contentType,
       bytes,
     });
+    return {
+      statusCode: 202,
+      body: {
+        objectKey,
+        objectKind,
+        contentType,
+        byteLength: bytes.byteLength,
+        storage,
+      },
+    };
   } catch (writeFailure) {
     return refuse(
       502,
       `the snapshot store refused the write: ${String(writeFailure)}`,
     );
   }
-
-  return {
-    statusCode: 202,
-    body: {
-      objectKey,
-      objectKind,
-      contentType,
-      byteLength: bytes.byteLength,
-    },
-  };
 }
