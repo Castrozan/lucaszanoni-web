@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { pathToFileURL } from "node:url";
 import { createCloudflareReader } from "../cloudflare/cloudflare-client.mjs";
 import { createD1QueryClient } from "./database.mjs";
+import { requireSnapshotDatabaseTarget } from "./target.mjs";
 import {
   collectLegacyReportMetadata,
   calculateReportContentHash,
@@ -121,25 +122,28 @@ async function main() {
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   const databaseId = process.env.CLOUDFLARE_SNAPSHOT_DATABASE_ID;
   const apiToken = process.env.CLOUDFLARE_API_TOKEN;
-  const query = createD1QueryClient({ accountId, databaseId, apiToken });
-  const observed = await createCloudflareReader(
-    accountId,
-    apiToken,
-  )(`d1/database/${databaseId}`);
-  if (
-    observed.uuid !== databaseId ||
-    observed.name !== "lucaszanoni-site-snapshots"
-  )
-    throw new Error(
-      "Database target differs from the declared production database",
-    );
+  const executeQuery = createD1QueryClient({ accountId, databaseId, apiToken });
+  let nativeSqlRowsRead = 0;
+  let nativeSqlRowsWritten = 0;
+  const query = async (sql, parameters) => {
+    const result = await executeQuery(sql, parameters);
+    nativeSqlRowsRead += result.meta.rows_read;
+    nativeSqlRowsWritten += result.meta.rows_written;
+    return result;
+  };
+  await requireSnapshotDatabaseTarget(
+    createCloudflareReader(accountId, apiToken),
+    databaseId,
+  );
   const putArtifact = createArtifactReplayClient({
     ingestBaseUrl: "https://lucaszanoni.com/ingest",
     producerSecret: process.env.INGEST_PRODUCER_SECRET,
   });
   const result = await verifyReportReplay({ query, putArtifact });
   await requireQuiescentReportPublisher();
-  console.log(JSON.stringify(result));
+  console.log(
+    JSON.stringify({ ...result, nativeSqlRowsRead, nativeSqlRowsWritten }),
+  );
 }
 
 if (
