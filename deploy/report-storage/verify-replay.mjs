@@ -3,6 +3,7 @@ import { pathToFileURL } from "node:url";
 import { createCloudflareReader } from "../cloudflare/cloudflare-client.mjs";
 import { createD1QueryClient } from "./database.mjs";
 import { requireSnapshotDatabaseTarget } from "./target.mjs";
+import { requireLegacySnapshotSchema } from "./schema.mjs";
 import {
   collectLegacyReportMetadata,
   calculateReportContentHash,
@@ -131,10 +132,11 @@ async function main() {
     nativeSqlRowsWritten += result.meta.rows_written;
     return result;
   };
-  await requireSnapshotDatabaseTarget(
+  const database = await requireSnapshotDatabaseTarget(
     createCloudflareReader(accountId, apiToken),
     databaseId,
   );
+  const schema = await requireLegacySnapshotSchema(query);
   const putArtifact = createArtifactReplayClient({
     ingestBaseUrl: "https://lucaszanoni.com/ingest",
     producerSecret: process.env.INGEST_PRODUCER_SECRET,
@@ -142,7 +144,13 @@ async function main() {
   const result = await verifyReportReplay({ query, putArtifact });
   await requireQuiescentReportPublisher();
   console.log(
-    JSON.stringify({ ...result, nativeSqlRowsRead, nativeSqlRowsWritten }),
+    JSON.stringify({
+      ...result,
+      ...schema,
+      databaseBytes: database.file_size,
+      nativeSqlRowsRead,
+      nativeSqlRowsWritten,
+    }),
   );
 }
 
